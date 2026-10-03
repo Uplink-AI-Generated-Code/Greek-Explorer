@@ -52,6 +52,10 @@ describe('WordPanel', () => {
     expect(screen.getAllByRole('table')).toHaveLength(2);
     expect(screen.getByText(/Full paradigm/)).toBeInTheDocument();
     expect(document.querySelectorAll('td.cur')).toHaveLength(3);
+    const current = document.querySelectorAll('td[aria-current="true"]');
+    expect(current).toHaveLength(3);
+    expect([...current].map((c) => c.getAttribute('lang'))).toEqual(['el', 'ro', 'en']);
+    expect(document.querySelectorAll('td[aria-current]')).toHaveLength(3);
   });
 
   it('shows no full paradigm table in Beginner', () => {

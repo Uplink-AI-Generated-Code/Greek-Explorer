@@ -33,12 +33,9 @@ describe('full paradigm tables', () => {
       'nominative sg', 'nominative pl', 'accusative sg', 'accusative pl', 'genitive sg', 'genitive pl',
     ]);
     const accSg = cells(find(full, 'accusative sg'));
-    expect(accSg.el).toContain('τον καφέ');
-    expect(accSg.el).toContain('έναν καφέ');
-    expect(accSg.ro).toContain('cafeaua');
-    expect(accSg.ro).toContain('o cafea');
-    expect(accSg.en).toContain('the coffee');
-    expect(accSg.en).toContain('a coffee');
+    expect(accSg.el).toBe('τον καφέ έναν καφέ');
+    expect(accSg.ro).toBe('cafeaua o cafea');
+    expect(accSg.en).toBe('the coffee a coffee');
     expect(cells(find(full, 'accusative pl')).el).toContain('no plural a / an');
     expect(full.filter((r) => r.hl).map((r) => r.label)).toEqual(['accusative sg']);
   });

@@ -95,6 +95,3 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .gloss-segment[aria-pressed='true'] { background: var(--accent-bg); color: var(--accent-text); }
 .gloss-segment:focus-visible { outline: 2px solid var(--accent-border); outline-offset: -2px; }
 
-.role-sub { display: block; font-size: 12px; color: var(--muted); }
-.form-table td.cur { outline: 2px solid var(--accent-border); outline-offset: -2px; }
-.full-title { font-size: 12px; color: var(--muted); margin: 16px 0 4px; }

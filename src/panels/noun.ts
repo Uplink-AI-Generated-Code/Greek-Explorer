@@ -27,9 +27,9 @@ function nounFull(noun: GreekNoun, slot: SlotOf<'noun'>): PanelRow[] {
       const none = 'no plural a / an';
       rows.push({
         label: `${caseName(c)} ${n}`,
-        el: [...def.el, { text: one ? richText(one.el) : none, role: 'sub' }],
-        ro: [...plain(def.ro), { text: one ? one.ro : none, role: 'sub' }],
-        en: [...plain(def.en), { text: one ? one.en : none, role: 'sub' }],
+        el: [...def.el, { text: ' ', role: 'plain' }, { text: one ? richText(one.el) : none, role: 'sub' }],
+        ro: [...plain(def.ro), { text: ' ', role: 'plain' }, { text: one ? one.ro : none, role: 'sub' }],
+        en: [...plain(def.en), { text: ' ', role: 'plain' }, { text: one ? one.en : none, role: 'sub' }],
         hl: n === slot.number && c === slot.case ? ALL : undefined,
       });
     }
