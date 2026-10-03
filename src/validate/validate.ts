@@ -1,5 +1,5 @@
 import { inflect } from '../engine/greek';
-import { allVerbSlots } from '../engine/offers';
+import { allVerbSlots, isOffered } from '../engine/offers';
 import { compose } from '../engine/compose';
 import { enVerb } from '../engine/english';
 import { roVerb } from '../engine/romanian';
@@ -105,6 +105,21 @@ function checkLexeme(l: GreekLexeme): string[] {
   return errors;
 }
 
+/** Compares a token's text with the composed text, ignoring capitals and trailing punctuation. */
+const normalise = (text: string): string => text.toLowerCase().replace(/[!?.,;·]+$/u, '').trim();
+
+/** How many pieces a verb token has (0 for any other token). */
+function pieceCount(token: Token | undefined, lexemes: Record<string, GreekLexeme>): number {
+  if (!token || token.slot.pos !== 'verb') return 0;
+  const lexeme = lexemes[token.lexeme];
+  if (!lexeme || lexeme.pos !== 'verb') return 0;
+  try {
+    return compose(lexeme, token.slot).pieces.length;
+  } catch {
+    return 0;
+  }
+}
+
 function checkToken(phraseId: string, phrase: Phrase, index: number, token: Token, lexemes: Record<string, GreekLexeme>): string[] {
   const where = `${phraseId} token ${index} (${token.text})`;
   const lexeme = lexemes[token.lexeme];
@@ -117,6 +132,20 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     inflect(lexeme, token.slot);
   } catch (e) {
     errors.push(`${where}: ${(e as Error).message}`);
+  }
+  if (token.slot.pos === 'verb' && lexeme.pos === 'verb') {
+    if (!isOffered(lexeme, token.slot)) {
+      errors.push(`${where}: slot is not offered by ${lexeme.id}`);
+    } else {
+      try {
+        const composed = compose(lexeme, token.slot);
+        if (normalise(composed.text) !== normalise(token.text)) {
+          errors.push(`${where}: text differs from what compose produces ("${composed.text}")`);
+        }
+      } catch (e) {
+        errors.push(`${where}: ${(e as Error).message}`);
+      }
+    }
   }
   if (token.slot.pos === 'adjective' || token.slot.pos === 'numeral' || token.slot.pos === 'article') {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
@@ -154,8 +183,21 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
           if (token < 0 || token >= phrase.tokens.length) {
             errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" links to missing token ${token}`);
           }
-          if (typeof link === 'object' && (!Number.isInteger(link.piece) || link.piece < 0)) {
-            errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" has an invalid piece ${link.piece}`);
+          if (typeof link === 'object') {
+            if (!Number.isInteger(link.piece) || link.piece < 0) {
+              errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" has an invalid piece ${link.piece}`);
+            } else if (token >= 0 && token < phrase.tokens.length) {
+              const count = pieceCount(phrase.tokens[token], lexemes);
+              if (count === 0) {
+                errors.push(
+                  `${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" links to piece ${link.piece} of token ${token}, which is not a verb group`,
+                );
+              } else if (link.piece >= count) {
+                errors.push(
+                  `${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" has piece ${link.piece} but token ${token} has ${count} piece${count === 1 ? '' : 's'}`,
+                );
+              }
+            }
           }
         }
       }

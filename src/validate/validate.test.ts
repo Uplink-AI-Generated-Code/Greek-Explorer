@@ -189,3 +189,47 @@ describe('verb lexemes', () => {
     expect(errors.some((e) => e.startsWith('lexeme troo: cannot inflect'))).toBe(true);
   });
 });
+
+describe('verb tokens', () => {
+  const thelo = PHRASES[0].tokens[0];
+
+  it('reports a verb token whose text differs from what compose produces', () => {
+    const errors = validate({ ...real, phrases: [withToken(0, { text: 'Θέλεις' })] });
+    expect(errors).toContain('ordering-hot-coffee token 0 (Θέλεις): text differs from what compose produces ("θέλω")');
+  });
+
+  it('ignores capitals and trailing punctuation when comparing', () => {
+    expect(validate({ ...real, phrases: [withToken(0, { text: 'ΘΈΛΩ!' })] })).toEqual([]);
+  });
+
+  it('reports a slot the verb does not offer', () => {
+    const slot = { ...thelo.slot, mood: 'imperative', tense: 'aorist' } as Token['slot'];
+    expect(validate({ ...real, phrases: [withToken(0, { slot })] })).toContain(
+      'ordering-hot-coffee token 0 (Θέλω): slot is not offered by thelo',
+    );
+  });
+
+  it('reports a piece link beyond the pieces the token has', () => {
+    const bad: Phrase = {
+      ...PHRASES[0],
+      glosses: PHRASES[0].glosses.map((g, i) =>
+        i === 0 ? { ...g, units: [...g.units, { text: 'extra', link: { token: 0, piece: 1 } }] } : g,
+      ),
+    };
+    expect(validate({ ...real, phrases: [bad] })).toContain(
+      'ordering-hot-coffee gloss en/natural: unit "extra" has piece 1 but token 0 has 1 piece',
+    );
+  });
+
+  it('reports a piece link to a token that is not a verb group', () => {
+    const bad: Phrase = {
+      ...PHRASES[0],
+      glosses: PHRASES[0].glosses.map((g, i) =>
+        i === 0 ? { ...g, units: [...g.units, { text: 'extra', link: { token: 3, piece: 0 } }] } : g,
+      ),
+    };
+    expect(validate({ ...real, phrases: [bad] })).toContain(
+      'ordering-hot-coffee gloss en/natural: unit "extra" links to piece 0 of token 3, which is not a verb group',
+    );
+  });
+});
