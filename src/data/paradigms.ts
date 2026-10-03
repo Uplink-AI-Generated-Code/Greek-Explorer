@@ -1,4 +1,4 @@
-import type { Case, Gender, IrregularNote, Num, NounClass, NumeralValue } from '../types';
+import type { Case, Gender, IrregularNote, Num, NounClass, NumeralValue, VerbClass } from '../types';
 
 export type EndingTable = Record<Num, Record<Case, string>>;
 export type Pair = readonly [stem: string, ending: string];
@@ -96,8 +96,12 @@ export const NUMERAL_ONE: Record<Gender, Record<Case, Pair>> = {
   n: { nom: ['ένα', ''], acc: ['ένα', ''], gen: ['ενό', 'ς'] },
 };
 
-/** Present active endings of -ω verbs, in the order 1sg 2sg 3sg 1pl 2pl 3pl. */
-export const VERB_OMEGA_PRESENT: readonly string[] = ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'];
+/** Present active endings in the order 1sg 2sg 3sg 1pl 2pl 3pl. */
+export const VERB_PRESENT: Record<VerbClass, readonly string[]> = {
+  omega: ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'],
+  /** Contracted verbs: the stressed ending replaces the -ω endings (πηδάω, πηδάς, πηδάει …). */
+  'contracted-ao': ['άω', 'άς', 'άει', 'άμε', 'άτε', 'άνε'],
+};
 
 const invariable = (word: string): Record<Gender, Record<Case, Pair>> => {
   const row: Record<Case, Pair> = { nom: [word, ''], acc: [word, ''], gen: [word, ''] };

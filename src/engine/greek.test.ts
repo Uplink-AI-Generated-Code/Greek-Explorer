@@ -185,6 +185,27 @@ describe('inflectAdjective (more classes)', () => {
   });
 });
 
+describe('inflectVerb (πηδάω, contracted -άω class)', () => {
+  const pidao = getLexeme('pidao');
+  const slot = (person: 1 | 2 | 3, number: 'sg' | 'pl') =>
+    ({ pos: 'verb', person, number, mood: 'indicative', tense: 'present', voice: 'active' }) as const;
+
+  it.each([
+    [1, 'sg', 'άω'],
+    [2, 'sg', 'άς'],
+    [3, 'sg', 'άει'],
+    [1, 'pl', 'άμε'],
+    [2, 'pl', 'άτε'],
+    [3, 'pl', 'άνε'],
+  ] as const)('person %i %s -> πηδ + %s', (person, number, ending) => {
+    expect(inflect(pidao, slot(person, number))).toEqual({ stem: 'πηδ', ending });
+  });
+
+  it('θέλω still uses the -ω endings', () => {
+    expect(inflect(getLexeme('thelo'), slot(3, 'sg'))).toEqual({ stem: 'θέλ', ending: 'ει' });
+  });
+});
+
 describe('inflect dispatcher', () => {
   it('routes a noun slot to the noun engine', () => {
     expect(inflect(getNoun('kafes'), { pos: 'noun', number: 'sg', case: 'acc' })).toMatchObject({

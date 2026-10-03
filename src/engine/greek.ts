@@ -5,7 +5,7 @@ import {
   NOUN_CLASSES,
   NOUN_NOTES,
   NUMERAL_FORMS,
-  VERB_OMEGA_PRESENT,
+  VERB_PRESENT,
 } from '../data/paradigms';
 import type {
   Form,
@@ -48,7 +48,7 @@ export function inflectNumeral(_l: GreekNumeral, s: SlotOf<'numeral'>): Form {
 
 export function inflectVerb(l: GreekVerb, s: SlotOf<'verb'>): Form {
   const index = s.person - 1 + (s.number === 'pl' ? 3 : 0);
-  return { stem: l.stems.present, ending: VERB_OMEGA_PRESENT[index] };
+  return { stem: l.stems.present, ending: VERB_PRESENT[l.class][index] };
 }
 
 export function inflect(l: GreekLexeme, s: Slot): Form {

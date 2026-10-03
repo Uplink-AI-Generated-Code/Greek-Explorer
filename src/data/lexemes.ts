@@ -193,6 +193,17 @@ const thelo: GreekVerb = {
   en: { gloss: 'want', base: 'want', third: 'wants' },
 };
 
+const pidao: GreekVerb = {
+  id: 'pidao',
+  pos: 'verb',
+  lemma: 'πηδάω',
+  verified: { el: false, ro: false, en: false },
+  class: 'contracted-ao',
+  stems: { present: 'πηδ' },
+  ro: { lemma: 'a sări', present: ['sar', 'sari', 'sare', 'sărim', 'săriți', 'sar'] },
+  en: { gloss: 'jump', base: 'jump', third: 'jumps' },
+};
+
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [skylos.id]: skylos,
@@ -205,6 +216,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [numeral.id]: numeral,
   [def.id]: def,
   [thelo.id]: thelo,
+  [pidao.id]: pidao,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

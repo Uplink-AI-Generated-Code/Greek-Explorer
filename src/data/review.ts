@@ -10,5 +10,6 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:adj-unstressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:article-def', kind: 'ending-table', verified: false },
   { id: 'ending-table:numeral-forms', kind: 'ending-table', verified: false },
-  { id: 'ending-table:verb-omega-present', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-present', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-contracted-ao-present', kind: 'ending-table', verified: false },
 ];

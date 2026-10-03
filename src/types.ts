@@ -89,9 +89,11 @@ export interface GreekArticle extends LexemeBase {
   pos: 'article';
 }
 
+export type VerbClass = 'omega' | 'contracted-ao';
+
 export interface GreekVerb extends LexemeBase {
   pos: 'verb';
-  class: 'omega';
+  class: VerbClass;
   stems: { present: string };
   ro: { lemma: string; present: string[] };
   en: { gloss: string; base: string; third: string };
