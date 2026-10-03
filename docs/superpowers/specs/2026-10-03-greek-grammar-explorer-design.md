@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: draft for review
+Status: revised after review 1 (changes listed in section 13)
 
 ## 1. Purpose
 
@@ -16,9 +16,9 @@ Interactive mockups made during brainstorming (v1 to v5, plus the quantifier pan
 ### In scope (prototype)
 
 - Vite + React + TypeScript single-page app, no backend.
-- Hand-curated content: about 10 to 15 phrases and the lexemes they use.
+- Hand-curated content: 39 phrases (section 6.1) and the lexemes they use (section 6.6).
 - Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition, quantifier (indefinite and quantity words such as some, any, none, many, few, little), the negation particle, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, and the copula είμαι. The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
-- Verb tenses and moods: indicative present, imperfect, aorist (simple past), future (continuous and simple), present perfect, past perfect and future perfect; subjunctive present, aorist and perfect (να + verb); imperative present and aorist (second person only), with its negative and with object clitics; conditional (θα + imperfect, aorist or pluperfect). Voices: active and mediopassive (reflexive and deponent examples). Detail in sections 6.4 and 6.5.
+- Verb tenses and moods: indicative present, imperfect, aorist (simple past), future (continuous and simple), present perfect, past perfect and future perfect; subjunctive present, aorist and perfect (να + verb); imperative present and aorist (second person only), with its negative and with object clitics; conditional (θα + imperfect or θα + pluperfect). Voices: active and mediopassive (reflexive and deponent examples). Detail in sections 6.4 and 6.5.
 - Languages: Greek (focus), Romanian and English (comparison). The interface language is English.
 
 ### Out of scope
@@ -28,7 +28,10 @@ Interactive mockups made during brainstorming (v1 to v5, plus the quantifier pan
 - Runtime AI or any network call.
 - Importing a dataset such as Wiktionary.
 - Polytonic Greek and dialects.
-- The gerund (τρώγοντας), clitic doubling (το είδα τον Γιάννη), and clitics in general beyond the examples in 6.5 (the imperatives, the negative imperative and the subjunctive). These are later work; the engine (4.3) is designed so they can be added as data.
+- The gerund (τρώγοντας) and clitic doubling (το είδα τον Γιάννη).
+- Clitics beyond the affirmative and negative imperatives and the subjunctive examples in 6.5. The indicative placement (το τρώω) appears in the 6.5 table for comparison only and has no panel.
+- θα + aorist as a guess about the past (θα έφαγε, "he must have eaten"; Romanian presumptive *o fi mâncat*). It is not a conditional and is left for later.
+- All of these are later work; the engine (4.3) is designed so they can be added as data.
 - Free-text analysis of arbitrary phrases.
 
 ## 3. Users and levels
@@ -45,6 +48,8 @@ Beginner and Improver share one data set. The toggle changes presentation only:
 
 The choice persists in `localStorage` (wrapped in try/catch; the app works without it).
 
+A phrase's `level` is a badge and a sort key for the phrase picker. The toggle never hides phrases: a Beginner can open any phrase and gets the Beginner presentation of it.
+
 ## 4. Architecture
 
 The Greek forms come from a hybrid model: stored stems plus shared ending tables, with explicit overrides for irregular cells. The UI can then show every Greek form split into stem and ending and highlight the part that changed, which is the main teaching device.
@@ -57,11 +62,14 @@ src/
     paradigms/        # ending tables per class (greek.ts, verbs.ts, nouns.ts, ...)
     lexemes/          # verbs.ts, nouns.ts, adjectives.ts, function-words.ts
     phrases/          # one file per phrase
+    readings.ts       # authored "how to read this" texts for irregular forms
     divergences.ts    # comparison notes
     form-groups.ts    # groups of equivalent forms (with noun / with clitic / short form)
   engine/
     slots.ts          # slot dimensions per part of speech
-    inflect.ts        # (lexeme, slot) -> Form
+    inflect.ts        # (lexeme, slot) -> Form: one Greek word
+    compose.ts        # (verb lexeme, slot) -> Composed: particles, auxiliary, verb, clitics, accents
+    readings.ts       # readingFor(form | composed) -> Reading
     agree.ts          # builds noun phrases: article + numeral + adjective + noun
     romanian.ts       # Romanian forms and article-suffix splitting
     english.ts        # English forms
@@ -84,58 +92,99 @@ type Case = 'nom' | 'acc' | 'gen';
 type Num = 'sg' | 'pl';
 type Person = 1 | 2 | 3;
 type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional';
-// Conditional: θα + a past indicative; its tense is the tense of that form
-// ('imperfect', 'aorist' or 'pluperfect').
-// Indicative: present, imperfect, aorist, future, futureSimple, perfect, pluperfect, futurePerfect.
-// Subjunctive: present, aorist, perfect (να έχω φάει).
-// Imperative: present, aorist; second person only (singular and plural).
+// Indicative (8): present, imperfect, aorist, future, futureSimple, perfect, pluperfect, futurePerfect.
+// Subjunctive (3): present, aorist, perfect (να έχω φάει).
+// Imperative (2): present, aorist; second person only (singular and plural).
+// Conditional (2): θα + imperfect (tense 'imperfect') and θα + pluperfect (tense 'pluperfect').
+//   θα + aorist is not a conditional (it is a guess about the past) and is out of scope (section 2).
 // 'future' is continuous (θα + present); 'futureSimple' is θα + the aorist-subjunctive form.
+// That makes 15 mood and tense combinations in all.
 type Tense = 'present' | 'imperfect' | 'aorist' | 'future' | 'futureSimple'
            | 'perfect' | 'pluperfect' | 'futurePerfect';
 type Voice = 'active' | 'mediopassive';
 
-// A form split for display. `ending` is highlighted in the UI. `prefix` holds particles
-// and auxiliaries that come before the verb, in order (θα έχω φάει, να μην φάω).
-interface Affix { text: string; role: 'particle' | 'auxiliary' | 'negation' }
-interface Form { prefix?: Affix[]; stem: string; ending: string; irregular?: IrregularNote; reading: Reading }
-
-// "How to read this": the parts of a form and what each one says (5.5).
-interface Reading { parts: ReadingPart[]; beginner: string; improver: string }
-interface ReadingPart { text: string; role: 'particle' | 'auxiliary' | 'negation' | 'clitic' | 'stem' | 'ending' | 'article'; gloss: string }
+// One Greek word, split for display. `ending` is highlighted in the UI.
+// `augment` is the past-tense prefix (έ- in έτρωγα, η- in ήθελα).
+interface Form { augment?: string; stem: string; ending: string; irregular?: IrregularNote }
 interface IrregularNote { rule: string; plain: string }   // e.g. "stress-shift"
 
+// A written verb form made of several pieces, in written order: θα έχω φάει, μην το φας,
+// δώσε μού το, φάτο. Built by compose() (4.3).
+type Piece =
+  | { kind: 'particle' | 'negation' | 'auxiliary' | 'clitic'; text: string }
+  | { kind: 'verb'; form: Form }
+  | { kind: 'fused'; text: string; of: string[] };          // short forms: φάτο = φά(ε) + το
+interface Composed {
+  pieces: Piece[];
+  text: string;                                             // written form with spaces and accents: "δώσε μού το"
+  extraAccent?: { pieceIndex: number };                     // the second accent added by the stress rule
+  irregular?: IrregularNote;
+}
+
+// "How to read this" (5.5). readingFor(form | composed) returns it;
+// authored texts for irregular forms live in data/readings.ts.
+interface Reading { parts: ReadingPart[]; beginner: string; improver: string }
+interface ReadingPart {
+  text: string;
+  role: 'particle' | 'auxiliary' | 'negation' | 'clitic' | 'augment' | 'stem' | 'ending' | 'article';
+  gloss: string;
+}
+
+// A stored Romanian or English cell. `pending` marks a form that is not yet confirmed (7).
+type Stored = string | { pending: true; note?: string };
+
 // Slot: the attribute combination a form fills. Dimensions depend on part of speech.
+interface Clitic { person: Person; number: Num; gender?: Gender; role: 'object' | 'indirect' }
+
 type Slot =
-  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice }
+  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice;
+      polarity: 'affirmative' | 'negative';
+      clitics: Clitic[];            // object pronouns, in the order given (indirect before direct)
+      shortForm?: boolean }         // use the lexical short form (φάτο) when the verb has one
   | { pos: 'noun'; number: Num; case: Case }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
   | { pos: 'numeral'; value: 1 | 2 | 3 | 4 | 5; gender: Gender; case: Case }
-  | { pos: 'quantifier'; gender: Gender; number: Num; case: Case; degree: 'plain' | 'comparative' }
-  | { pos: 'clitic'; person: Person; number: Num; gender?: Gender; role: 'object' | 'indirect' };
+  | { pos: 'quantifier'; gender: Gender; number: Num; case: Case; degree: 'plain' | 'comparative';
+      sense?: 'some' | 'few';                 // μερικοί: Romanian niște or câțiva
+      use: 'determiner' | 'pronoun' }         // Romanian changes form between the two; Greek does not
+  | { pos: 'clitic' } & Clitic                // the weak pronoun as a word of its own
+  | { pos: 'preposition' } | { pos: 'particle' } | { pos: 'conjunction' };   // no dimensions
 // The passive participle is an 'adjective' lexeme with `derivedFrom: VerbId`.
 ```
 
-A quantifier lexeme may also carry a `sense` (for example μερικοί maps to Romanian *niște* or *câțiva*) and a `use` flag (`determiner` or `pronoun`) because Romanian changes form between the two (*vreun* → *vreunul*) while Greek does not. A paradigm class may restrict a lexeme to one number (μερικοί is plural only; κάποιος and κανένας are singular only in the prototype).
+Sense and use are slot dimensions, not lexeme fields: one lexeme (κάποιος, μερικοί) appears both as a determiner and on its own, and the panel offers them as controls. Prepositions, particles and conjunctions have a slot with no dimensions, so every token has a slot.
+
+Each lexeme declares `offers`: the slots its panel may offer. A paradigm class may restrict a lexeme to one number (μερικοί is plural only; κάποιος and κανένας are singular only in the prototype). The copula είμαι offers only the present indicative, the impersonal μπορεί only the third person singular, and so on. The validator rejects a token whose slot lies outside its lexeme's `offers`, and the panel builds its controls from `offers`.
 
 ### 4.3 Lexemes and paradigm classes
 
 A **paradigm class** is a shared ending table with slot dimensions, for example "-ω verbs", "contracted -άω verbs", "mediopassive -ομαι verbs", "masculine -ος nouns", "feminine -α nouns", "adjective -ος/-η/-ο (stem-stressed)" and "adjective -ός/-ή/-ό (ending-stressed)".
 
-**Compound forms** (the perfects, the future, the subjunctive) are built, not stored. The engine assembles them from three parts: an optional particle (θα, να), an optional auxiliary (έχω, είχα, inflected by the same engine for the same person and number), and a base form of the main verb. Perfect tenses use one invariable base form (the aorist stem plus -ει, or -θεί for the mediopassive: φάει, πηδήξει, πλυθεί), so the auxiliary carries the person. The subjunctive and the simple future use the aorist-subjunctive forms of the verb; the continuous future and the present subjunctive use the present forms. Negation is a prefix (δεν for the indicative, μην after να). The perfect subjunctive is να + the present forms of έχω + the base form (να έχω φάει). The negative imperative is not built from the imperative: it is μην + the subjunctive form of the second person (μην φας), so the builder delegates to the subjunctive. The imperfect is a simple form with an augment (ε- or η-) that is lost when the stress moves in the first and second person plural (ήθελα, but θέλαμε); like the aorist, it uses an imperfect stem and per-cell overrides for the plural. Impersonal verbs (μπορεί, πρέπει) are lexemes with a single third-person slot.
+**Compound forms** (the perfects, the future, the subjunctive) are built, not stored. The engine assembles them from three parts: an optional particle (θα, να), an optional auxiliary (έχω, είχα, inflected by the same engine for the same person and number), and a base form of the main verb. Perfect tenses use one invariable base form (the aorist stem plus -ει, or -θεί for the mediopassive: φάει, πηδήξει, πλυθεί), so the auxiliary carries the person. The subjunctive and the simple future use the aorist-subjunctive forms of the verb; the continuous future and the present subjunctive use the present forms. Negation is a piece placed before the particle or the verb (δεν for the indicative, μην after να). The perfect subjunctive is να + the present forms of έχω + the base form (να έχω φάει). The negative imperative is not built from the imperative: it is μην + the subjunctive form of the second person (μην φας), so the builder delegates to the subjunctive. The imperfect is a simple form with an augment (ε- or η-) that is lost when the stress moves in the first and second person plural (ήθελα, but θέλαμε); like the aorist, it uses an imperfect stem and per-cell overrides for the plural. Impersonal verbs (μπορεί, πρέπει) are lexemes with a single third-person slot.
 
-The **conditional** is θα + the indicative form of the chosen past tense; the builder reuses the imperfect, aorist and pluperfect builders. The **passive participle** is a derived adjective: the verb lexeme stores a participle stem as a further principal part (πλένω: πλυ-; ψήνω: ψη-), and the derived lexeme joins it to the stem-stressed adjective class (-μένος, -μένη, -μένο). Participles are not conjugated: they decline like any adjective and link back to their verb.
+**Two entry points.** `inflect(lexeme, slot)` returns one `Form` for every single-word form (nouns, adjectives, articles, numerals and the simple verb forms). `compose(verb, slot)` returns a `Composed` for any verb slot: it calls `inflect` for the verb and the auxiliary, adds the particle and the negation, hands the clitics to the clitic engine, and returns the pieces in written order together with the written text. The verb panel, the form groups and the readings all use `compose`, so negation, clitics and short forms (the `polarity`, `clitics` and `shortForm` fields of the verb slot) have one place to go.
+
+The **conditional** is θα + the imperfect or the pluperfect; the builder reuses those two builders. θα + aorist is not a conditional (it expresses a guess about the past) and is out of scope. The **passive participle** is a derived adjective: the verb lexeme stores a participle stem as a further principal part (πλένω: πλυ-; ψήνω: ψη-), and the derived lexeme joins it to the stem-stressed adjective class (-μένος, -μένη, -μένο). Participles are not conjugated: they decline like any adjective and link back to their verb.
 
 The **clitic engine** (`clitics.ts`) handles imperatives with weak pronouns. It takes the verb form, the clitic or clitics and the mood, and returns a placed form:
 
 - **Placement.** Affirmative imperative: clitics follow the verb (φάε το). Negative imperative: the subjunctive is used, and the clitics precede the verb (μην το φας).
-- **Order.** With two clitics, the genitive (indirect) comes before the accusative (direct): δώσε μου το. English and Romanian orders are stored per example.
-- **Stress.** Stress may not go back past the third-last syllable of the verb plus its clitics. When it would, the verb keeps its accent and gains a second accent on its last syllable (τηλεφώνησέ μου).
-- **Shortening.** Some verbs shorten before a clitic and have a second, equal form (φάε το ~ φάτο; δώσε μου το ~ δως μου το). The shortening table is data, not a rule. Forms that mean the same are stored as members of one **form group** (4.6). Verbs with irregular perfective stems store them as further principal parts. τρώω has a present stem τρώ-, an indicative-aorist stem φαγ- (έφαγα), and a second perfective stem φα- used by the subjunctive, the imperative and the perfect base form (φάω, φάε, φάει). πάω works the same way (πήγ- in the aorist indicative, πα- in the subjunctive).
+- **Order.** With two clitics, the genitive (indirect) comes before the accusative (direct): δώσε μού το. English and Romanian orders are stored per example.
+- **Stress.** Greek stress may not fall further back than the third-last syllable of the whole unit (verb plus clitics). When it would fall on the fourth-last, a second accent is written on the penultimate syllable of the unit: δώσε μού το (δώ-σε-μου-το). A verb stressed on its own third-last syllable followed by one clitic gives the same case (τηλεφώνησέ μου). The prototype exercises the rule through phrase 36; the one-clitic case is covered by a unit test only, because no phrase uses a verb of that shape.
+- **Shortening.** Some verbs shorten before a clitic and have a second, equal form (φάε το ~ φάτο; δώσε μού το ~ δως μου το). The shortening table is data, not a rule. It is applied when the verb slot has `shortForm: true`. Forms that mean the same are stored as members of one **form group** (4.6).
 
-A **Greek lexeme** stores the lemma, the paradigm class, one stem (or several principal parts, such as present stem and aorist stem), and optional per-slot overrides for irregular cells. `inflect(lexeme, slot)` returns a `Form`. Where a cell has an override, the override wins and the `Form` carries an `IrregularNote`.
+**Irregular perfective stems.** Verbs with irregular perfective stems store them as further principal parts. τρώω has a present stem τρώ-, an indicative-aorist stem φαγ- (έφαγα), and a second perfective stem φα- used by the subjunctive, the imperative and the perfect base form (φάω, φάε, φάει). πάω works the same way (πήγ- in the aorist indicative, πα- in the subjunctive).
 
-**Romanian and English forms are stored per slot, not generated.** These forms are the comparison content and are few, so explicit data is more reliable than rules. Exception: Romanian nouns store stem and article suffix separately (`câine` + `le`) so that the definite form can be split for highlighting. Romanian lexemes carry their own gender, which may differ from the Greek gender (καφές is masculine, *cafea* is feminine).
+A **Greek lexeme** stores the lemma, the paradigm class, one stem (or several principal parts, such as present stem and aorist stem), and optional per-slot overrides for irregular cells, and its `offers` (4.2). `inflect(lexeme, slot)` returns a `Form`. Where a cell has an override, the override wins and the `Form` carries an `IrregularNote`.
+
+**What is stored and what is generated in Romanian and English.** The Greek forms are generated (above). For Romanian and English, each lexeme stores only its *lexical* forms, and compound forms are generated from shared tables. Stored cells are `Stored` values and may be marked `pending`.
+
+- **Romanian verb, stored:** infinitive, participle, present (6), subjunctive (6), imperfect (6), pluperfect (6), imperative singular and plural; about 30 cells per verb. **Generated:** perfect (a avea + participle), future (*voi, vei, va, vom, veți, vor* + infinitive), conditional (*aș, ai, ar, am, ați, ar* + infinitive), past conditional (*aș fi* + participle), future perfect (*voi fi* + participle), perfect subjunctive (*să fi* + participle), the particles *să* and *nu*, and the clitics (one shared table).
+- **English verb, stored:** base, third singular, past, past participle. **Generated:** will, would, have / has / had, don't / doesn't, and "to".
+- **Nouns, adjectives, numerals and quantifiers, Romanian and English:** stored, as in the mockups. Romanian nouns store stem and article suffix separately (`câine` + `le`) so that the definite form can be split for highlighting.
+- **Gender:** Romanian lexemes carry their own gender, which may differ from the Greek gender (καφές is masculine, *cafea* is feminine).
+- **Volume:** the verb panel's full table shows one mood and tense at a time (six persons, three languages). The tense overview shows one person across all moods and tenses. Neither needs a stored cell per tense, mood and person.
 
 Each Greek lexeme links to its Romanian and English counterparts through a `gloss` record: `{ ro: LexemeRef, en: LexemeRef }`.
 
@@ -143,12 +192,16 @@ Each Greek lexeme links to its Romanian and English counterparts through a `glos
 
 ```ts
 interface Phrase {
-  id: string; title: string; level: 'beginner' | 'improver';
+  id: string; title: string;
+  theme: string;                   // the picker groups by theme (list in 6.1)
+  level: 'beginner' | 'improver';  // a badge and sort key; the level toggle never hides phrases
   tokens: Token[];                 // Greek, in order
   glosses: Gloss[];                // see 4.5
 }
 interface Token { text: string; lexeme: LexemeId; slot: Slot; agreesWith?: TokenIndex }
 ```
+
+Every token has a slot. A token's `text` is what the phrase shows; for verbs with clitics it is the written text that `compose` produces for that slot (so the phrase and the panel cannot disagree), and the validator checks it.
 
 A token is one clickable Greek unit. A multi-word unit such as πάνω από is one token. `agreesWith` links an article or adjective to its noun so the engine can rebuild noun phrases when the learner changes an attribute.
 
@@ -170,7 +223,7 @@ type GlossUnit =
   | { segments: { text: string; link: TokenIndex }[] };      // câine|le -> [σκύλο, τον]
 ```
 
-Clicking a Greek token highlights every linked unit or segment in all gloss rows. Clicking any gloss unit or segment selects its linked Greek token. In the fox sentence, selecting τον highlights only `le` in *câinele*; selecting σκύλο highlights only `câine`. Romanian segments are generated from the stem and suffix data where possible (4.3).
+Clicking a Greek token highlights every linked unit or segment in all gloss rows. Clicking any gloss unit or segment selects its linked Greek token. In the fox sentence, selecting τον highlights only `le` in *câinele*; selecting σκύλο highlights only `câine`. Romanian segments are generated from the stem and suffix data where possible (4.3). When an authored gloss and the generated split disagree, the authored gloss wins and the validator prints a warning.
 
 ### 4.6 Form groups (forms that mean the same)
 
@@ -183,20 +236,22 @@ interface FormGroup {
   members: GroupMember[];
 }
 interface GroupMember {
-  kind: 'with-noun' | 'with-clitic' | 'short-form';
-  el: string; ro: string; en: string;   // the member in each language
-  note?: string;                        // e.g. "the clitic moves before the verb"
+  verb: { lexeme: LexemeId; slot: Extract<Slot, { pos: 'verb' }> };   // slot includes polarity, clitics, shortForm
+  object?: { noun: LexemeId; number: Num; case: Case };               // a spelled-out object (the with-noun member)
+  note?: string;                                                      // e.g. "the clitic moves before the verb"
 }
 ```
 
-Membership rules:
+A member holds the lexeme and slot, never the strings. The Greek, Romanian and English text is generated from them (`compose`, the Romanian and English generators, and `nounPhrase` for the object), so the validator can check every member and the panel can map a click back to its controls.
 
-- **with-noun:** the object is spelled out (Φάε το ψωμί!).
-- **with-clitic:** a clitic replaces the noun (Φάε το!). It means the same only when the object is known from context.
-- **short-form:** a shortened but equal form (Φάτο!, Δως μου το!).
+The kind of a member is derived, not stored:
+
+- **with-noun:** `object` is set (Φάε το ψωμί!).
+- **short-form:** `slot.shortForm` is true (Φάτο!, Δως μου το!).
+- **with-clitic:** `slot.clitics` is non-empty and `shortForm` is not set (Φάε το!). It means the same only when the object is known from context.
 - A bare verb with an implied object (Φάε!) is **not** a member: the meaning is narrower. It appears in the panel as a separate, labelled row.
 
-Groups are authored as data (`form-groups.ts`) and checked by the validator (7): every member must be a form the engine can produce, and every group needs at least two members. A group can span phrases (the noun version in one phrase, the clitic version in another).
+Groups are authored as data (`form-groups.ts`) and checked by the validator (7): every member must compose, every member must use the same verb lexeme and mood, and every group needs at least two members. Selecting a member copies its slot into the verb token's slot (or, for the with-noun member, switches the token's object control to the noun), so "clicking a member updates the panel's controls" has a direct meaning. A group can span phrases (the noun version in one phrase, the clitic version in another).
 
 ## 5. Interface
 
@@ -219,7 +274,18 @@ One page, three zones, stacked on a narrow screen.
 
 ### 5.2 Comparison table
 
-Rows are grammatical points, columns are Greek, Romanian, English. Each row has a type tag: `same`, `differs` or `absent`, plus a short explanation. Beginner shows core rows; Improver shows all. Rows come from `divergences.ts` and are attached to a part of speech or a specific lexeme.
+Rows are grammatical points, columns are Greek, Romanian, English. Each row has a type tag: `same`, `differs` or `absent`, plus a short explanation. Beginner shows core rows; Improver shows all. Rows come from `divergences.ts` and are attached to a part of speech or a specific lexeme:
+
+```ts
+interface Divergence {
+  id: string;
+  appliesTo: { pos: Slot['pos']; lexeme?: LexemeId };
+  point: string;                          // "Subject", "Position", ...
+  el: string; ro: string; en: string;
+  tag: 'same' | 'differs' | 'absent';     // the type tag shown on the row
+  level: 'core' | 'extra';                // core rows show in Beginner and Improver; extra rows only in Improver
+}
+```
 
 Divergence types the prototype must cover:
 
@@ -233,7 +299,7 @@ Divergence types the prototype must cover:
 | word-order | Adjective before the noun in Greek and English, after it in Romanian. |
 | agreement | Greek adjective copies gender, number and case; Romanian copies gender and number; English never changes. |
 | tense-form | Greek aorist (one word) vs Romanian compound past vs English -ed. |
-| politeness | Greek present Θέλω vs Romanian conditional aș vrea vs English "I'd like". |
+| politeness | Greek Θέλω is a plain "I want"; a polite request uses the imperfect (Ήθελα) or the conditional (Θα ήθελα). Romanian *aș vrea* and English "I'd like" are both conditional. |
 | reflexive | See 6.2. |
 | indeclinable | Greek καφέ and Romanian maro never change; English adjectives never change. |
 | numeral-agreement | Greek 1, 3, 4 change with gender; Romanian 1 and 2; English never. |
@@ -249,9 +315,9 @@ Divergence types the prototype must cover:
 | pluperfect-form | Greek είχα φάει (two words), Romanian *mâncasem* (one word, synthetic), English "had eaten". |
 | subjunctive-for-infinitive | Greek has no infinitive: θέλω να φάω. Romanian uses *să* + subjunctive (*vreau să mănânc*). English uses "to eat". |
 | aspect | Greek chooses between present-stem (να τρώω, habitual) and aorist-stem (να φάω, once) subjunctives. Romanian and English have one form for both. |
-| subjunctive-negation | Greek δεν … να μην, Romanian *să nu*, English "not to". |
+| subjunctive-negation | Negating the subjunctive clause: Greek να μην (Θέλω να μην πάω), Romanian *să nu*, English "not to". Negating the main verb is a different structure (Δεν θέλω να πάω, phrase 16). |
 | imperfect-vs-aorist | Greek separates the aorist (έφαγα) from the imperfect (έτρωγα). Romanian *imperfectul* (*mâncam*) matches the Greek imperfect, while its compound perfect (*am mâncat*) covers the aorist and the perfect. English uses the simple past for the aorist and for much of the imperfect; "was eating" and "used to eat" mark the imperfect. |
-| polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ = "I'd like a coffee". Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. |
+| polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ ("I wanted a coffee", polite "I'd like one"). Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. The literal rows show the imperfect (*voiam*, "wanted"). |
 | imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
 | imperative-forms | Greek and Romanian have 2nd-person singular and plural forms (φάε / φάτε, *mănâncă* / *mâncați*); English has one form. |
 | negative-imperative | Greek μην + subjunctive (μην φας). Romanian *nu* + the infinitive for the singular (*nu mânca*) and *nu* + the plural imperative (*nu mâncați*). English "don't" + base form. |
@@ -263,14 +329,14 @@ Divergence types the prototype must cover:
 | perfect-vs-participle | The Greek perfect uses one invariable form (έχω πλυθεί). The participle (πλυμένος) agrees and describes a state (είναι πλυμένο). |
 | clitic-position | Greek and Romanian move the pronoun after an affirmative imperative (φάε το, *mănâncă-l*) and before a negative one (μην το φας, *nu-l mânca*). English keeps it after the verb both times. |
 | clitic-gender | The clitic follows the noun's gender, which can differ: ψωμί (n) → το, *pâine* (f) → *o*. |
-| clitic-order | Two clitics: Greek genitive then accusative (δώσε μου το), Romanian dative then accusative (*dă-mi-l*), English "give it to me". |
-| clitic-stress | Greek adds a second accent when clitics push the stress too far back (τηλεφώνησέ μου). Romanian hyphenates and English does nothing. |
+| clitic-order | Two clitics: Greek genitive then accusative (δώσε μού το), Romanian dative then accusative (*dă-mi-l*), English "give it to me". |
+| clitic-stress | Greek adds a second accent when clitics push the stress to the fourth-last syllable (δώσε μού το). Romanian hyphenates and English does nothing. |
 
 ### 5.3 Panels per part of speech
 
 | Part of speech | Controls | Current-form rows | Full table (Improver) |
 |---|---|---|---|
-| Verb | Who (person + number), Mood (indicative / subjunctive / imperative / conditional), When (tense; each mood offers only its own tenses; the imperative offers only "you" singular and plural), Voice (when the lexeme has a mediopassive), Negated (yes / no), Object for imperatives (none / a noun / clitic or clitics) | One row, with subject pronouns in each language; compound forms show particle and auxiliary in their own colours | Six persons for the selected mood, tense and voice; plus a **tense overview** for the selected person (every tense, the three subjunctives, the two imperatives and the three conditionals in three columns; rows with no form for that person, such as the imperative for "I", are shown dimmed with the reason) |
+| Verb | Who (person + number), Mood (indicative / subjunctive / imperative / conditional), When (tense; each mood offers only its own tenses; the imperative offers only "you" singular and plural), Voice (when the lexeme has a mediopassive), Negated (yes / no), Object for imperatives (none / a noun / clitic or clitics). These are six controls; the short form (φάτο) is chosen only through the "Same meaning" strip (5.4). Controls are built from the lexeme's `offers` | One row, with subject pronouns in each language; compound forms show particle and auxiliary in their own colours | Six persons for the selected mood, tense and voice; plus a **tense overview** for the selected person (every tense, the three subjunctives, the two imperatives and the two conditionals in three columns; rows with no form for that person, such as the imperative for "I", are shown dimmed with the reason) |
 | Noun | How many (1 to 5, or "many"), Role | "the", then "a / an" for one, or "with a number" for 2 to 5 | Case × number, with definite and indefinite forms in each cell |
 | Definite article | Noun it goes with, number, role | Article + noun | Gender × case for the selected number; Romanian suffix and English "the" in the other columns |
 | Numeral / indefinite article | Number (1 to 5), noun it counts, role | The numeral; then the counted noun phrase | Gender × case |
@@ -281,7 +347,7 @@ Divergence types the prototype must cover:
 | Clitic pronoun | Person + number, gender (3rd person), role (object / indirect object) | The weak form in each language (με / *mă* / me), plus the strong Greek form (εμένα) as a note | Person × number for the selected role, in each language |
 | Conjunction (αν) | none | One row: *if* clause in each language (Greek αν + imperfect, Romanian *dacă* + conditional, English if + past) | none |
 | Passive participle (derived adjective) | Noun it describes, number, role (as for adjectives) | As for adjectives, plus a "Derived from" line (πλένω → πλυ- + -μένος) with a link to the verb | Gender × role, as for adjectives |
-| Copula (είμαι) | Who (person + number) | One row, with subject pronouns | Six persons |
+| Copula (είμαι) | Who (person + number); the lexeme offers only the present indicative | One row, with subject pronouns | Six persons |
 
 Nouns have no plural indefinite article. In the plural the panel shows the quantifier "some" (μερικοί καφέδες / niște cafele / some coffees) and, for counts of 2 to 5, the counted form ("with a number": τρεις καφέδες / trei cafele / three coffees). The empty article slot is labelled, not hidden. Clicking the quantifier in a phrase opens the quantifier panel.
 
@@ -289,7 +355,7 @@ Quantifier panel details:
 
 - Rows "with a noun" and "on its own" are always shown. "On its own" uses the pronoun form where Romanian differs.
 - A badge marks the mass or count reading for πολύς and λίγος. The "kind of noun" control switches the number; the degree control switches to the comparative (περισσότερος, λιγότερος).
-- Romanian cells whose form is not yet reviewed show "not yet added" instead of a guess. The genitive of several Romanian quantifiers is in this state (section 9).
+- Romanian cells marked `pending` (7) show "not yet added" instead of a guess. The genitive of several Romanian quantifiers is in this state (section 9).
 - κανένας shares its pattern with the numeral ένας; the panel says so and links to the numeral panel.
 
 Numerals follow their own rules: 1 (ένας/μία/ένα), 3 (τρεις/τρία) and 4 (τέσσερις/τέσσερα) change with gender and case; 2 and 5 never change. Romanian changes 1 (un/o) and 2 (doi/două) by gender; English never changes.
@@ -318,7 +384,7 @@ Under the current-form table, each form has a line that takes it apart and says 
 
 **Where the text comes from**
 
-- **Generated** from the form's structure (`reading.parts`): particle, auxiliary, negation, clitic, stem, ending, article. The engine fills `gloss` for each part from the lexeme, the slot and a shared glossary of endings ("-εις = you (singular), present"). Regular forms need no authoring.
+- **Generated** from the form's structure (`reading.parts`): particle, auxiliary, negation, clitic, augment, stem, ending, article. The engine fills `gloss` for each part from the lexeme, the slot and a shared glossary of endings ("-εις = you (singular), present"). Regular forms need no authoring.
 - **Authored** for irregular forms (stem changes, shortening, stress shifts, suppletion). The irregular note's `rule` selects a template, and an author supplies the lexeme-specific words.
 - **Per column.** Greek always has a line. Romanian and English get one when the form has more than one word or a part worth explaining (*aș fi mâncat*: "aș = would, fi = be, mâncat = eaten, never changes").
 
@@ -334,6 +400,7 @@ Under the current-form table, each form has a line that takes it apart and says 
 | Φάτο! | "Eat it! A short way of saying φάε το: the command and 'it' are joined." | "Aorist imperative φάε + clitic το, with the final -ε dropped: φά(ε) + το. The shortened form is lexical." |
 | Μην φας! | "Don't eat! To forbid something, Greek uses μην + the form for 'you eat', not the command form." | "Negative imperative: μην + aorist subjunctive, 2nd singular (φας). The subjunctive replaces the imperative." |
 | Δως μου το! | "Give it to me! δως is a short form of δώσε. μου = to me, το = it. 'To me' comes before 'it'." | "Shortened aorist imperative δως + genitive clitic μου + accusative clitic το (genitive before accusative)." |
+| Δώσε μού το! | "Give it to me! Two small words follow the command. Greek adds a second accent (μού) so the stress is not too far back." | "Aorist imperative δώσε + genitive clitic μου + accusative clitic το. Stress would fall on the fourth-last syllable, so a second accent is written on the penultimate syllable of the unit." |
 | Θα έχω φάει | "I will have eaten: θα = will, έχω = I have, φάει = eaten (this part never changes)." | "θα + έχω (present 1sg of έχω) + invariable perfect base form φά-ει (stem φα- + -ει)." |
 | Έτρωγα | "I used to eat: έ- = in the past, τρωγ- = eat, -α = I." | "Imperfect 1sg: augment έ- + imperfect stem τρωγ- + -α. In the 1st plural the augment goes: τρώγαμε." |
 | Ήθελα | "I wanted / I would like: η- = in the past, θελ- = want, -α = I." | "Imperfect 1sg of θέλω: augment η- (from ε- + θ-, a syllabic augment) + stem θελ- + -α." |
@@ -348,28 +415,28 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 
 | # | Greek | Natural English | Features exercised |
 |---|---|---|---|
-| 1 | Θέλω έναν ζεστό καφέ | I'd like a hot coffee | present verb, dropped subject, indefinite article/numeral, adjective agreement, noun case, Romanian adjective position |
-| 2 | Θέλω τρεις καφέδες | I'd like three coffees | numeral with gender and case, plural noun |
+| 1 | Θέλω έναν ζεστό καφέ | I want a hot coffee | present verb, dropped subject, indefinite article/numeral, adjective agreement, noun case, Romanian adjective position |
+| 2 | Θέλω τρεις καφέδες | I want three coffees | numeral with gender and case, plural noun |
 | 3 | Η γρήγορη καφέ αλεπού πηδάει πάνω από τον τεμπέλικο σκύλο | The quick brown fox jumps over the lazy dog | definite article, two adjective classes, indeclinable adjective (καφέ), contracted verb class, multi-word preposition, accusative after a preposition, Romanian suffix articles |
 | 4 | Πλένομαι | I wash (myself) | mediopassive as reflexive |
 | 5 | Πλένω το παιδί | I wash the child | active voice, for contrast with phrase 4 |
 | 6 | Κοιμάμαι | I sleep | deponent mediopassive (passive form, not reflexive) |
-| 7 | Θέλω λίγο νερό | I'd like a little water | mass quantifier (λίγος), neuter in Greek vs feminine in Romanian (puțină apă) |
-| 8 | Θέλω μερικούς καφέδες | I'd like some coffees | plural indefinite (μερικοί / *niște*), plural noun |
+| 7 | Θέλω λίγο νερό | I want a little water | mass quantifier (λίγος), neuter in Greek vs feminine in Romanian (puțină apă) |
+| 8 | Θέλω μερικούς καφέδες | I want some coffees | plural indefinite (μερικοί / *niște*), plural noun |
 | 9 | Δεν θέλω κανέναν καφέ | I don't want any coffee | negation particle, negative concord, κανένας / *niciun* / *nicio*, masculine vs feminine noun |
-| 10 | Θέλω περισσότερο νερό | I'd like more water | comparative (περισσότερος / *mai multă* / more) |
-| 11 | Έχω φάει | I have eaten | present perfect, irregular perfective stem (τρώω → φάγ-) |
+| 10 | Θέλω περισσότερο νερό | I want more water | comparative (περισσότερος / *mai multă* / more) |
+| 11 | Έχω φάει | I have eaten | present perfect, irregular perfective stem (τρώω → φα-, base form φάει) |
 | 12 | Είχα φάει | I had eaten | past perfect; Romanian one-word *mâncasem* |
 | 13 | Θα έχω φάει | I will have eaten | future perfect (particle + auxiliary + base form) |
 | 14 | Θέλω να φάω | I want to eat | aorist subjunctive after θέλω; no infinitive in Greek |
 | 15 | Θέλω να τρώω | I want to eat (regularly) | present subjunctive; aspect contrast with phrase 14 |
-| 16 | Δεν θέλω να πάω | I don't want to go | negation with subjunctive, irregular πάω / πήγ- |
+| 16 | Δεν θέλω να πάω | I don't want to go | negation of the main verb before a subjunctive; the perfective subjunctive stem of πάω (πα-). The aorist stem πήγ- appears only if the learner switches the tense |
 | 17 | Η αλεπού έχει πηδήξει πάνω από τον σκύλο | The fox has jumped over the dog | perfect in the 3rd person, reusing the fox sentence's vocabulary |
 | 18 | Έχω πλυθεί | I have washed (myself) | mediopassive perfect (πλυθεί), reflexive meaning |
 | 19 | Έφαγα το ψωμί | I ate the bread | aorist of an irregular verb (τρώω → έφαγα); definite article with a neuter noun (ψωμί) that is feminine in Romanian (*pâinea*); contrast with phrase 11 (aorist vs perfect) |
 | 20 | Θα τρώω λιγότερο ψωμί | I will eat less bread | continuous future (θα + present form), comparative quantifier (λιγότερος), mass noun; contrast with the simple future θα φάω |
 | 21 | Έτρωγα πολύ ψωμί | I used to eat a lot of bread | imperfect of an irregular verb (τρώω → έτρωγα); quantifier πολύς; Romanian imperfectul (*Mâncam multă pâine*); contrast with phrase 19 |
-| 22 | Ήθελα έναν καφέ | I'd like a coffee | imperfect used for politeness; Romanian conditional *Aș vrea*; contrast with Θέλω έναν καφέ (phrase 1) |
+| 22 | Ήθελα έναν καφέ | I wanted a coffee (polite: I'd like one) | imperfect used for politeness; natural Romanian *Aș vrea o cafea*, literal *(Eu) voiam o cafea*; contrast with phrases 1 and 29 |
 | 23 | Η αλεπού πηδούσε πάνω από τον σκύλο | The fox was jumping over the dog | imperfect of a contracted verb (πηδάω → πηδούσε), 3rd person; reuses the fox vocabulary |
 | 24 | Φάε το ψωμί! | Eat the bread! | aorist imperative (perfective), 2nd person singular |
 | 25 | Μην φας το ψωμί! | Don't eat the bread! | negative imperative built from the subjunctive; Romanian *Nu mânca pâinea!* |
@@ -381,11 +448,14 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 31 | Θα είχα φάει το ψωμί | I would have eaten the bread | past conditional (θα + pluperfect); Romanian *Aș fi mâncat pâinea* |
 | 32 | Το παιδί είναι πλυμένο | The child is washed | passive participle, copula είμαι; Romanian *Copilul este spălat* |
 | 33 | Το ψωμί είναι ψημένο | The bread is baked | participle agreement: neuter ψημένο, Romanian feminine *coaptă* (*Pâinea este coaptă*) |
-| 34 | Φάε το! / Φάτο! | Eat it! | clitic imperative and its short form; same-meaning group with phrase 24 |
+| 34 | Φάε το! | Eat it! | clitic imperative; its short form Φάτο! is reached through the form group (the `shortForm` slot field); group with phrase 24 |
 | 35 | Πλύνε το! | Wash him / her / it! | clitic imperative of a regular verb; group with phrase 26; Romanian *Spală-l!* |
-| 36 | Δώσε μου το! / Δως μου το! | Give it to me! | two clitics (genitive before accusative) and a short form; group with "Give me the bread!"; Romanian *Dă-mi-o!* |
+| 36 | Δώσε μού το! | Give it to me! | two clitics (genitive before accusative) and the stress rule (extra accent on μού); its short form Δως μου το! is reached through the form group; group with "Give me the bread!"; Romanian *Dă-mi-o!* |
 | 37 | Μην το φας! | Don't eat it! | negative imperative with the clitic before the verb; group with phrase 25; Romanian *Nu o mânca!* |
 | 38 | Φάε! | Eat! | bare aorist imperative with no object, the "close, not the same" row of the "Eat the bread!" group; Romanian *Mănâncă!*; contrast with phrase 27 (Τρώε!, "keep eating") |
+| 39 | Θέλω να μην πάω | I want not to go (I'd rather not go) | negated subjunctive (να μην), against the main-verb negation of phrase 16; Romanian *Vreau să nu merg* |
+
+**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39); *The fox sentence* (3, 17, 23).
 
 Further phrases (greetings, introductions, directions, past and future in context) are added after the prototype validates the model. The set includes the aorist (phrase 19), the continuous future (phrase 20) and the future perfect (phrase 13). The simple future (θα φάω) is reachable through the verb panel's tense control on phrases 11, 14 and 19, and is written out with its Romanian and English counterparts in section 6.4.
 
@@ -467,13 +537,14 @@ The verb panel's **tense overview** lists the selected person across all of thes
 
 ### 6.5 Conditional, passive participle and clitic imperatives
 
-**Conditional.** Greek has no separate conditional forms: it is the particle θα with a past indicative.
+**Conditional.** Greek has no separate conditional forms: it is the particle θα with the imperfect or the pluperfect.
 
 | Conditional | Greek construction | Example | Romanian | English |
 |---|---|---|---|---|
-| Ongoing / polite | θα + imperfect | θα έτρωγα; θα ήθελα | *aș mânca*; *aș vrea* | I would eat; I would like |
-| Perfective | θα + aorist | θα έφαγα | *aș fi mâncat* | I would have eaten |
+| Present / polite | θα + imperfect | θα έτρωγα; θα ήθελα | *aș mânca*; *aș vrea* | I would eat; I would like |
 | Past | θα + pluperfect | θα είχα φάει | *aș fi mâncat* | I would have eaten |
+
+θα + aorist (θα έφαγε) is deliberately not listed: it normally expresses a guess about the past ("he must have eaten"), not a conditional, and it is out of scope (section 2).
 
 If-clauses: Αν είχα ψωμί, θα έτρωγα / *Dacă aș avea pâine, aș mânca* / If I had bread, I would eat. Greek and English both use a past tense in the if-clause; Romanian uses the conditional there too. Romanian conditional: *aș, ai, ar, am, ați, ar* + infinitive (*aș fi* + participle for the past). English: would + base verb (would have + participle for the past). New words: αν / *dacă* / if; είμαι (am, are, is: είμαι, είσαι, είναι, είμαστε, είστε, είναι / *sunt, ești, este, suntem, sunteți, sunt*).
 
@@ -495,40 +566,53 @@ If-clauses: Αν είχα ψωμί, θα έτρωγα / *Dacă aș avea pâine, 
 |---|---|---|---|
 | Eat the bread! | Φάε το ψωμί! / *Mănâncă pâinea!* / Eat the bread! | Φάε το! / *Mănâncă-o!* / Eat it! | Φάτο! |
 | Wash the child! | Πλύνε το παιδί! / *Spală copilul!* / Wash the child! | Πλύνε το! / *Spală-l!* / Wash him! | none |
-| Give me the bread! | Δώσε μου το ψωμί! / *Dă-mi pâinea!* / Give me the bread! | Δώσε μου το! / *Dă-mi-o!* / Give it to me! | Δως μου το! |
+| Give me the bread! | Δώσε μου το ψωμί! / *Dă-mi pâinea!* / Give me the bread! | Δώσε μού το! / *Dă-mi-o!* / Give it to me! | Δως μου το! |
 | Don't eat the bread! | Μην φας το ψωμί! / *Nu mânca pâinea!* / Don't eat the bread! | Μην το φας! / *Nu o mânca!* / Don't eat it! | none |
 
 Each group also lists a **close, not the same** row, the verb with no object: for the first group, Φάε! / *Mănâncă!* / Eat! The meaning is narrower, because it does not say what to eat, so it is not a member of the group. It is shown beneath the strip with one line saying what is missing ("no object: what to eat is not said") and it is the phrase-38 example. The same aspect point applies to it: Φάε! means "eat up", Τρώε! means "keep eating".
 
-Notes: in the first group the Greek clitic is neuter (το) and the Romanian is feminine (*o*). In the third group two clitics appear, in the order genitive then accusative. In the fourth group the clitic moves to the front of the verb. Verbs used: φάω / τρώω, πλένω, δίνω (aorist imperative δώσε / δώστε, short form δως; present imperative δίνε). Shortening is stored per verb, not generated.
+Notes: in the first group the Greek clitic is neuter (το) and the Romanian is feminine (*o*). In the third group two clitics appear, in the order genitive then accusative, and the stress rule adds the second accent (μού); the short form Δως μου το needs none because its stress is on the third-last syllable. In the fourth group the clitic moves to the front of the verb. Verbs used: φάω / τρώω, πλένω, δίνω (aorist imperative δώσε / δώστε, short form δως; present imperative δίνε). Shortening is stored per verb, not generated.
 
 The past forms these examples use (είχα, ήθελα, έτρωγα) come from the paradigms in 6.4.
 
-### 6.6 Forms
+### 6.6 Forms and where they come from
 
-All Greek forms are monotonic. The paradigms for phrases 1 to 3 come from the data in the v4 and v5 brainstorming mockups, those for phrases 7 to 10 from the quantifier panel mockup; the voice paradigms for phrases 4 to 6 are new. All are written into `data/` as unverified, then checked (section 9).
+All Greek forms are monotonic. Every form in the prototype comes from the tables in sections 6.3 to 6.5 and the lexeme inventory below. These are the single source for the files in `data/`. The brainstorming mockups were used only to draft those tables; where a mockup and this section disagree, this section wins. All entries start unverified and are checked in section 9.
+
+**Lexeme inventory** (the lexemes the 39 phrases need):
+
+- **Verbs:** θέλω, πηδάω, πλένω and πλένομαι, κοιμάμαι, τρώω, πάω, δίνω, έχω (also the auxiliary), είμαι (copula), μπορεί (impersonal), ψήνω (needed only for its participle).
+- **Nouns:** καφές, νερό, ψωμί, παιδί, αλεπού, σκύλος.
+- **Adjectives:** ζεστός, γρήγορος, τεμπέλικος, καφέ (indeclinable); the participles πλυμένος and ψημένος.
+- **Determiners and quantifiers:** the definite article; ένας / μία / ένα and the numerals 2 to 5; μερικοί, κάποιος, κανένας, πολύς, λίγος and the comparatives περισσότερος and λιγότερος.
+- **Function words:** πάνω από (with κάτω από, με, για for the preposition table), δεν, μην, να, θα, αν, and the clitic pronouns.
+
+No phrase uses μπύρα, so it is not in the prototype.
 
 ## 7. Validation and errors
 
 A build-time script (`npm run validate`) fails the build when:
 
-- a token refers to a missing lexeme or an invalid slot;
-- a slot has no Greek form, no Romanian form or no English form;
+- a token refers to a missing lexeme, or its slot is invalid or outside the lexeme's `offers`;
+- a verb token's `text` differs from the text `compose` produces for its slot, or its slot asks for clitics, negation or a short form that the mood or the lexeme does not allow;
+- a slot has no Greek form;
+- a stored Romanian or English cell is missing or empty and is **not** marked `pending` (a `pending` cell is accepted and reported, see below);
 - an override refers to a slot that does not exist;
 - a gloss link points at a token index outside the phrase;
 - a paradigm class lacks an ending for a slot dimension its lexemes use;
-- a divergence note refers to a missing lexeme or part of speech.
+- a divergence note refers to a missing lexeme or part of speech;
+- a form group has fewer than two members, its members use different verb lexemes or moods, or a member does not compose.
 
 The script also fails the build when an irregular form has no authored reading, or a compound form's generated reading has a part with no gloss.
 
-The script also prints a report (not a failure) of Romanian cells marked "not yet added" and of entries not yet `verified`.
+The script also prints a report (not a failure) of every `pending` cell, of entries not yet `verified`, and of authored glosses that disagree with the generated Romanian split (4.5).
 
-At runtime the UI must never throw on a missing cell: it shows "no form" in the cell and logs the slot. Because data is validated at build time, this is a safety net.
+At runtime a `pending` cell shows "not yet added" in the cell. A cell that is genuinely missing (which the build should have caught) shows "no form" and logs the slot; the UI never throws on either.
 
 ## 8. Testing
 
-- **Unit (Vitest):** `inflect` for every paradigm class (regular cells) and each override (irregular cells); the compound-form builder for each tense and mood (particle, auxiliary and base form in order, including negation); `agree` for noun-phrase assembly; Romanian suffix splitting; segment generation for glosses. These tests use the verified forms from section 9 as fixtures.
-- **Data validation:** the script from section 7 runs in CI and as a test.
+- **Unit (Vitest):** `inflect` for every paradigm class (regular cells) and each override (irregular cells); `compose` for each tense and mood (particle, auxiliary and base form in order, including negation), for clitic placement, order and the stress rule (δώσε μού το, and the one-clitic case τηλεφώνησέ μου as a pure unit test), and for short forms; the Romanian and English compound generators; `agree` for noun-phrase assembly; Romanian suffix splitting; segment generation for glosses. These tests use the verified forms from section 9 as fixtures.
+- **Data validation:** the script from section 7 runs in CI and as a test. Tests check that a `pending` cell passes and is reported, that an empty cell that is not `pending` fails, that a token outside its lexeme's `offers` fails, and that a form-group member that does not compose fails.
 - **Readings:** unit tests generate the reading for a regular form, an irregular form, a compound form and a clitic form, and check the parts, the glosses and that Beginner text contains no grammar terms from a fixed list.
 - **Component (Testing Library):** click a Greek token and see its panel; vary an attribute and see the form change; click a gloss segment and select the right Greek token (the `le` / `câine` case from the fox sentence); toggle Beginner / Improver and see the full table appear and disappear.
 - **Visual check:** a manual pass at phone width and desktop width, in light and dark colour schemes.
@@ -541,11 +625,11 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the aorist πήδηξα and the stress shift to πηδήξαμε (πήδησα is a common alternative);
 - the Greek rendering of the fox sentence, including the choice of τεμπέλικος and the indeclinable καφέ before the noun;
 - the adjective plurals (ζεστοί, ζεστούς, ζεστές, ζεστά) and the stem-stressed class (γρήγοροι);
-- the genitive plural μπυρών and the plural αλεπούδες;
+- the plural αλεπούδες and the plural ψωμιά;
 - the numeral forms (τρεις/τρία/τριών, τέσσερις/τέσσερα/τεσσάρων);
 - the mediopassive and deponent paradigms (πλένομαι, κοιμάμαι) and their aorists (πλύθηκα, κοιμήθηκα);
 - the "how to read this" texts (5.5): every authored reading, both levels, since they are the part a learner reads most closely;
-- the conditional, participle and clitic material in 6.5: θα έφαγα as a rendering of "would have eaten" (and how it differs from θα είχα φάει), the participles πλυμένος and ψημένος, the Romanian participles and conditionals, the shortened forms (φάτο, δως μου το), the accent rule for clitics, and every clitic form in the tables;
+- the conditional, participle and clitic material in 6.5: the conditional forms θα έτρωγα, θα ήθελα and θα είχα φάει, the exclusion of θα + aorist from the conditional (and whether a speaker agrees it means a guess about the past), the participles πλυμένος and ψημένος, the Romanian participles and conditionals, the shortened forms (φάτο, δως μου το), the accent rule for clitics (δώσε μού το), and every clitic form in the tables; phrase 39 (Θέλω να μην πάω) and its Romanian *Vreau să nu merg*; the English naturals now chosen for phrases 1, 22 and 29 ("I want", "I wanted / I'd like", "I would like");
 - phrases 21 to 28: the imperfect paradigms and the stress and augment rules (ήθελα / θέλαμε, έτρωγα / τρώγαμε, πηδούσα), the use of Ήθελα as a polite request, the imperatives (φάε, τρώε, πλύνε and their plurals), the negative imperatives (μην φας …), μπορεί να έχει φάει, and the Romanian counterparts (*Mâncam multă pâine*, *Mănâncă pâinea!*, *Nu mânca pâinea!*, *Spală copilul!*, *Poate să fi mâncat*);
 - phrases 19 and 20: the Greek wording (including whether «Θα τρώω λιγότερο ψωμί» sounds natural), the noun ψωμί and its plural, the aorist paradigm of τρώω (έφαγα … έφαγαν), and Romanian *Voi mânca mai puțină pâine*;
 - the perfect and subjunctive: the base forms (φάει, πάει, πηδήξει, πλυθεί), the full aorist-subjunctive paradigms of τρώω and πάω (φάω … φάνε, πάω … πάνε), the present subjunctive of τρώω, the simple future, and the negated subjunctive (να μην);
@@ -563,15 +647,16 @@ Reviewed forms are marked `verified: true` in the data. The app does not show an
 - **Model fit for irregulars.** The hybrid model handles overrides per cell. If many irregular verbs appear, a second pass may need whole-row overrides; not needed for the prototype set.
 - **Clitic rules are intricate.** Placement, stress and shortening interact, and the shortened forms are lexical, not regular. Mitigated by storing shortenings as data, limiting the prototype to the verbs in 6.5, and having a Greek speaker review every group.
 - **Form groups can over-promise.** "Same meaning" holds only when the object is known from context. Groups exclude the bare verb, and the strip labels what each member assumes. Revisit the wording after trying it.
-- **Verb panel density.** Mood, tense, voice, person and negation make five controls, three moods and thirteen tense and mood combinations, and the tense overview adds a table. Beginner mode shows plain labels and hides the overview; check with the prototype that it does not overwhelm.
+- **Verb panel density.** Who, mood, tense, voice, negation and object make six controls, over four moods and fifteen mood and tense combinations, and the tense overview adds a table. Beginner mode shows plain labels and hides the overview; check with the prototype that it does not overwhelm.
 - **Aspect is easy to get wrong.** The present and aorist subjunctives are subtle, and Romanian and English give no help. Examples 14 and 15 are the teaching pair, and the text has to be reviewed by a Greek speaker (section 9).
 - **Quantifier meanings overlap across languages.** Greek μερικοί covers two Romanian words, and κάποιος / κανένας cut "some / any / none" differently from English. The panel shows these as controls and notes, not as one-to-one translations. Revisit if learners find it confusing.
-- **Romanian gaps.** Some Romanian genitive forms are not confirmed. The UI shows "not yet added" for them, and the validation script lists them, so the gaps stay visible and never turn into silent guesses.
+- **Romanian gaps.** Some Romanian forms (several genitives) are not confirmed. They are marked `pending`: the UI shows "not yet added", the validator accepts them and lists them, and a cell that is empty without `pending` fails the build. The gaps stay visible and never turn into silent guesses.
+- **Generated Romanian and English compounds.** Generating the compounds from shared tables (4.3) cuts the stored data, but the generators must handle irregular auxiliaries and participles correctly. Mitigated by per-verb flags for irregular cells and by unit tests on every tense for the two prototype verbs that have the most irregularities (τρώω and πάω).
 - **Romanian gender in tables.** Romanian neuter behaves as masculine in the singular and feminine in the plural. The prototype phrases only use masculine and feminine Romanian nouns; neuter handling is deferred.
 
 ## 11. Definition of done for the prototype
 
-1. All thirty-eight phrases render, with the correct token chips and four gloss rows each.
+1. All thirty-nine phrases render, with the correct token chips and four gloss rows each.
 2. Every part of speech in the phrases has a working panel with controls, a current-form table and (Improver) a full table, in all three languages.
 3. Clicking between Greek tokens and gloss units, including segments, works in both directions.
 4. `npm run validate`, the unit tests and the component tests pass.
@@ -583,3 +668,33 @@ Reviewed forms are marked `verified: true` in the data. The app does not show an
 
 - Order of two clitics and clitic placement with imperatives (genitive before accusative; pronouns after an affirmative imperative): [Clitics With the Imperative](https://elon.io/grammar/greek/verbs/imperative/imperative-with-weak-pronouns), [Modern Greek grammar](https://en.wikipedia.org/wiki/Modern_Greek_grammar).
 - These support the structure of the clitic rules only. The forms themselves still need the review in section 9.
+
+## 13. Changes since the first review
+
+Review 1 raised 20 numbered points and a few smaller ones. This section records what changed and where.
+
+| Review point | Change | Where |
+|---|---|---|
+| 1 Phrase count | Scope now says 39 phrases, matching 6.1 and the definition of done | 2, 6.1, 11 |
+| 2 Phrase 11 stem | Corrected to φα- (base form φάει) | 6.1 |
+| 3 Risk counts | Six controls, four moods, fifteen combinations (8 + 3 + 2 + 2) | 10 |
+| 4 Validation vs "not yet added" | New `pending` marker on stored cells; validator accepts and reports it, fails on an empty cell without it | 4.2, 7, 10 |
+| 5 Stress rule | Rule restated uniformly (second accent on the penultimate syllable of the unit when stress would reach the fourth-last); phrase 36 now reads Δώσε μού το | 4.3, 5.2, 5.5, 6.1, 6.5 |
+| 6 No clitic-stress phrase | Phrase 36 is the example; the one-clitic case (τηλεφώνησέ μου) is a unit test only | 4.3, 8 |
+| 7 Unused μπύρα | Removed from the review list; noted as not in the prototype | 6.6, 9 |
+| 8 Paradigm sources | Lexeme inventory added; the 6.x tables are the single source for `data/` | 6.6 |
+| 10 Negation and objects in the slot | Verb slot gains `polarity`, `clitics`, `shortForm`; new `compose()` entry point | 4.2, 4.3 |
+| 11 `Form` and clitics | `Form` stays one word (with `augment`); new `Piece` and `Composed` types; `augment` added to reading roles | 4.2, 5.5 |
+| 12 Sense and use | Moved from the lexeme to the quantifier slot | 4.2 |
+| 13 Slotless parts of speech | Slot variants for preposition, particle and conjunction; lexemes declare `offers` (copula, impersonal verbs) | 4.2, 5.3 |
+| 14 Form-group members | Members hold lexeme and slot (plus an optional object); text is generated; kind is derived | 4.6 |
+| 15 Volume of Romanian and English data | Lexical forms stored, compounds generated from shared tables | 4.3, 10 |
+| 16 Theme and core marker | `Phrase.theme` with a theme list; `Divergence` type with `tag` and `level` | 4.4, 5.2, 6.1 |
+| 17 θα + aorist | Removed from the conditional (now two tenses) and moved to out of scope | 2, 4.2, 6.5 |
+| 18 "I'd like" repeated | Phrase 1, 2, 7, 8, 10 now read "I want"; 22 is "I wanted (polite: I'd like)"; 29 stays "I would like" | 5.2, 6.1 |
+| 19 Subjunctive negation | Divergence restated as να μην; new phrase 39 exercises it; phrase 16 is the main-verb negation | 5.2, 6.1 |
+| 20 Two alternatives in one phrase | Phrases 34 and 36 are single forms; short forms are reached through the form group | 6.1, 4.6 |
+| Smaller: clitic scope sentence | Out-of-scope list now says the indicative placement is comparison only | 2 |
+| Smaller: phrase 16 and πήγ- | Feature text corrected | 6.1 |
+| Smaller: authored vs generated glosses | Authored gloss wins; the validator warns | 4.5 |
+| Smaller: phrase level vs toggle | The level is a badge and sort key; the toggle never hides phrases | 3 |
