@@ -143,7 +143,7 @@ dist
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src", "scripts", "vite.config.ts"]
 }
@@ -230,7 +230,7 @@ Run:
 ```bash
 cd /Users/radu/Code/Claude/learn-greek
 npm install react react-dom
-npm install -D vite @vitejs/plugin-react typescript vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event @types/react @types/react-dom tsx
+npm install -D vite @vitejs/plugin-react typescript vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event @types/react @types/react-dom @types/node tsx
 ```
 
 Expected: both commands finish with "added N packages" and no errors.
