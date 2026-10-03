@@ -23,4 +23,5 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'auxiliary-table:ro-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:en-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:negation', kind: 'auxiliary-table', verified: false },
+  { id: 'glossary:ro-en-reading-glosses', kind: 'glossary', verified: false },
 ];

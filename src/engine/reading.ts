@@ -1,8 +1,10 @@
-import { AUX_GLOSS, ENDING_GLOSS, KIND_NAME, PARTICLE_GLOSS, READING_TEMPLATES, WHO_GLOSS } from '../data/readings';
-import type { GreekVerb, Reading, ReadingPart, SlotOf } from '../types';
+import { AUX_GLOSS, EN_FUNCTION, RO_SHAPES, ENDING_GLOSS, KIND_NAME, PARTICLE_GLOSS, READING_TEMPLATES, WHO_GLOSS } from '../data/readings';
+import type { EnVerbForms, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
 import { compose, type Piece } from './compose';
-import { moodLabel, tenseLabel } from './labels';
+import { enVerb, enVerbText } from './english';
+import { EN_PRONOUNS, moodLabel, tenseLabel } from './labels';
 import { voiceOf } from './offers';
+import { roVerb } from './romanian';
 import { lexicalFormKind, whoIndex } from './tenses';
 
 const capitalise = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
@@ -32,6 +34,75 @@ function describe(piece: Piece, kind: ReturnType<typeof lexicalFormKind>): strin
     return `${piece.text} (${piece.slot.tense} ${piece.slot.person}${piece.slot.number} of έχω)`;
   }
   return piece.text;
+}
+
+/** A line made of Romanian or English words, each with a gloss. */
+function wordsLine(text: string, words: { word: string; gloss: string }[], greekText: string): ReadingLine {
+  const parts: ReadingPart[] = words.map(({ word, gloss }) => ({ text: word, label: word, role: 'word', gloss, piece: null }));
+  const listing = words.map(({ word, gloss }) => `${word} = ${gloss}`).join(', ');
+  return {
+    parts,
+    beginner: `${text}: ${listing}.`,
+    improver: `${text}: ${listing}. Compare Greek ${greekText}.`,
+  };
+}
+
+function roGloss(key: string, en: EnVerbForms): string {
+  switch (key) {
+    case 'have':
+      return 'have (auxiliary)';
+    case 'will':
+    case 'would':
+    case 'be':
+      return key;
+    case 'to':
+      return 'that / to';
+    case 'NOT':
+      return 'not';
+    case 'INF':
+      return en.base;
+    case 'VERB':
+      return en.gloss;
+    case 'VERBPL':
+      return `${en.gloss} (you, pl.)`;
+    default:
+      return `${en.pastParticiple} (never changes)`;
+  }
+}
+
+function romanianLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): ReadingLine | undefined {
+  const en = voiceOf(verb, slot.voice).en;
+  const negative = slot.polarity === 'negative';
+  let shape: readonly string[] | undefined;
+  if (slot.mood === 'imperative') {
+    shape = negative ? ['NOT', slot.number === 'sg' ? 'INF' : 'VERBPL'] : undefined;
+  } else {
+    const base = RO_SHAPES[`${slot.mood}.${slot.tense}`];
+    if (base) shape = !negative ? base : slot.mood === 'subjunctive' ? [base[0], 'NOT', ...base.slice(1)] : ['NOT', ...base];
+  }
+  const text = roVerb(verb, slot);
+  const words = text.split(' ');
+  if (!shape || shape.length !== words.length) return undefined;
+  return wordsLine(text, words.map((word, i) => ({ word, gloss: roGloss(shape[i], en) })), greekText);
+}
+
+function englishLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): ReadingLine | undefined {
+  const en = voiceOf(verb, slot.voice).en;
+  const parts = enVerb(verb, slot);
+  // The parenthetical "(myself)" of a reflexive verb and the subject pronoun are not parts of the verb group.
+  const core = parts.verb.replace(/\s*\(.*\)$/, '');
+  const words = [parts.lead, core].join(' ').split(' ').filter((word) => word !== '');
+  if (words.length < 2) return undefined;
+  const gloss = (word: string): string => {
+    if (EN_FUNCTION[word]) return EN_FUNCTION[word];
+    if (word === en.ing) return `${word} (in progress)`;
+    if (word === en.pastParticiple) return `${word} (past participle: never changes)`;
+    if (word === en.base) return `${word} (the verb)`;
+    if (word === en.past) return `${word} (past)`;
+    return word;
+  };
+  const text = enVerbText(verb, slot, EN_PRONOUNS[whoIndex(slot)]);
+  return wordsLine(text, words.map((word) => ({ word, gloss: gloss(word) })), greekText);
 }
 
 /**
@@ -97,5 +168,7 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
   const beginner = (template ? fill(template.beginner, vars) : `${composed.text}: ${listing}.`) + beginnerTail;
   const improver = (template ? fill(template.improver, vars) : `${name}: ${technical}.`) + improverTail;
 
-  return { el: { parts, beginner, improver } };
+  const ro = romanianLine(verb, slot, composed.text);
+  const en = englishLine(verb, slot, composed.text);
+  return { el: { parts, beginner, improver }, ...(ro ? { ro } : {}), ...(en ? { en } : {}) };
 }

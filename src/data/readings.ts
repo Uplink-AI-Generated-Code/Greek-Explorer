@@ -70,3 +70,44 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
     verified: false,
   },
 ];
+
+/**
+ * The words of a compound Romanian form, in order, by mood and tense (affirmative). Keys: have, will, would, be,
+ * to (să), INF (the infinitive), VERB (the subjunctive verb), PART (the participle). A ReviewItem covers these.
+ */
+export const RO_SHAPES: Record<string, readonly string[]> = {
+  'indicative.aorist': ['have', 'PART'],
+  'indicative.perfect': ['have', 'PART'],
+  'indicative.future': ['will', 'INF'],
+  'indicative.futureSimple': ['will', 'INF'],
+  'indicative.futurePerfect': ['will', 'be', 'PART'],
+  'subjunctive.present': ['to', 'VERB'],
+  'subjunctive.aorist': ['to', 'VERB'],
+  'subjunctive.perfect': ['to', 'be', 'PART'],
+  'conditional.imperfect': ['would', 'INF'],
+  'conditional.pluperfect': ['would', 'be', 'PART'],
+};
+
+/** What the English function words of a compound form mean. */
+export const EN_FUNCTION: Record<string, string> = {
+  will: 'will (the future)',
+  "won't": 'will, not',
+  would: 'would',
+  "wouldn't": 'would, not',
+  have: 'have (auxiliary)',
+  has: 'have (auxiliary)',
+  had: 'had (auxiliary)',
+  "haven't": 'have (auxiliary), not',
+  "hasn't": 'have (auxiliary), not',
+  "hadn't": 'had (auxiliary), not',
+  was: 'was (a form of "be")',
+  were: 'were (a form of "be")',
+  "wasn't": 'was, not',
+  "weren't": 'were, not',
+  may: 'may (a possibility)',
+  not: 'not',
+  "don't": 'do (auxiliary), not',
+  "doesn't": 'do (auxiliary), not',
+  "didn't": 'did (auxiliary), not',
+  that: 'that',
+};

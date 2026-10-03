@@ -139,3 +139,91 @@ describe('readingFor: irregular forms use the authored template of their rule', 
     expect(line.beginner).toContain('To forbid something');
   });
 });
+
+const lines = (id: string, slot: SlotOf<'verb'>) => readingFor(getVerb(id), slot);
+
+describe('readingFor: the Romanian line', () => {
+  it('takes aș fi mâncat apart', () => {
+    const { ro } = lines('troo', vs('conditional', 'pluperfect'));
+    expect(ro?.parts.map((p) => [p.text, p.gloss, p.role, p.piece])).toEqual([
+      ['aș', 'would', 'word', null],
+      ['fi', 'be', 'word', null],
+      ['mâncat', 'eaten (never changes)', 'word', null],
+    ]);
+    expect(ro?.beginner).toBe('aș fi mâncat: aș = would, fi = be, mâncat = eaten (never changes).');
+    expect(ro?.improver).toBe(
+      'aș fi mâncat: aș = would, fi = be, mâncat = eaten (never changes). Compare Greek θα είχα φάει.',
+    );
+  });
+
+  it('the perfect, the future and the subjunctive', () => {
+    expect(lines('troo', vs('indicative', 'perfect')).ro?.beginner).toBe(
+      'am mâncat: am = have (auxiliary), mâncat = eaten (never changes).',
+    );
+    expect(lines('troo', vs('indicative', 'futureSimple')).ro?.beginner).toBe('voi mânca: voi = will, mânca = eat.');
+    expect(lines('troo', vs('subjunctive', 'aorist')).ro?.beginner).toBe(
+      'să mănânc: să = that / to, mănânc = eat.',
+    );
+  });
+
+  it('negation adds nu', () => {
+    expect(lines('troo', neg(vs('indicative', 'perfect'))).ro?.beginner).toBe(
+      'nu am mâncat: nu = not, am = have (auxiliary), mâncat = eaten (never changes).',
+    );
+    expect(lines('troo', neg(vs('subjunctive', 'aorist'))).ro?.beginner).toBe(
+      'să nu mănânc: să = that / to, nu = not, mănânc = eat.',
+    );
+    expect(lines('troo', neg(vs('imperative', 'aorist', 2, 'sg'))).ro?.beginner).toBe('nu mânca: nu = not, mânca = eat.');
+    expect(lines('troo', neg(vs('imperative', 'aorist', 2, 'pl'))).ro?.beginner).toBe(
+      'nu mâncați: nu = not, mâncați = eat (you, pl.).',
+    );
+  });
+
+  it('a reflexive perfect is two words: m-am spălat', () => {
+    expect(lines('pleno', vs('indicative', 'perfect', 1, 'sg', 'mediopassive')).ro?.beginner).toBe(
+      'm-am spălat: m-am = have (auxiliary), spălat = washed (never changes).',
+    );
+  });
+
+  it('has no line for a form of one word', () => {
+    expect(lines('troo', vs('indicative', 'present')).ro).toBeUndefined();
+    expect(lines('troo', vs('indicative', 'pluperfect')).ro).toBeUndefined();
+    expect(lines('troo', vs('imperative', 'aorist', 2)).ro).toBeUndefined();
+  });
+});
+
+describe('readingFor: the English line', () => {
+  it('takes I will have eaten apart', () => {
+    const { en } = lines('troo', vs('indicative', 'futurePerfect'));
+    expect(en?.beginner).toBe(
+      'I will have eaten: will = will (the future), have = have (auxiliary), eaten = eaten (past participle: never changes).',
+    );
+    expect(en?.improver).toBe(
+      'I will have eaten: will = will (the future), have = have (auxiliary), eaten = eaten (past participle: never changes). Compare Greek θα έχω φάει.',
+    );
+  });
+
+  it('negative forms: the contraction carries the "not"', () => {
+    expect(lines('troo', neg(vs('indicative', 'present'))).en?.beginner).toBe(
+      "I don't eat: don't = do (auxiliary), not, eat = eat (the verb).",
+    );
+    expect(lines('troo', neg(vs('imperative', 'aorist', 2))).en?.beginner).toBe(
+      "don't eat: don't = do (auxiliary), not, eat = eat (the verb).",
+    );
+  });
+
+  it('the subjunctive keeps its "that"; the reflexive "self" word stays out of the parts', () => {
+    expect(lines('troo', vs('subjunctive', 'aorist')).en?.beginner).toBe('that I eat: that = that, eat = eat (the verb).');
+    expect(lines('troo', vs('subjunctive', 'perfect')).en?.beginner).toBe(
+      'I may have eaten: may = may (a possibility), have = have (auxiliary), eaten = eaten (past participle: never changes).',
+    );
+    expect(lines('pleno', vs('indicative', 'perfect', 1, 'sg', 'mediopassive')).en?.beginner).toBe(
+      'I have washed (myself): have = have (auxiliary), washed = washed (past participle: never changes).',
+    );
+  });
+
+  it('has no line for a form of one word', () => {
+    expect(lines('troo', vs('indicative', 'present')).en).toBeUndefined();
+    expect(lines('troo', vs('indicative', 'aorist')).en).toBeUndefined();
+  });
+});
