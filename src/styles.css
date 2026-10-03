@@ -85,8 +85,8 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .full-title { margin: 16px 0 6px; font-size: 13px; color: var(--muted); }
 
 .toolbar { margin-top: 12px; }
-.phrase-picker { display: flex; gap: 8px; align-items: center; font-size: 13px; }
-.phrase-picker select { font: inherit; font-size: 14px; height: 32px; max-width: 100%; background: var(--surface); color: var(--text); border: 0.5px solid var(--border); border-radius: 8px; }
+.phrase-picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
+.phrase-picker select { font: inherit; font-size: 14px; height: 32px; min-width: 0; flex: 0 1 auto; max-width: 100%; background: var(--surface); color: var(--text); border: 0.5px solid var(--border); border-radius: 8px; }
 
 .gloss-segmented { display: inline-flex; padding: 0; overflow: hidden; margin: 0 4px 4px 0; cursor: default; }
 .gloss-segment { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 0; padding: 2px 4px; cursor: pointer; }
