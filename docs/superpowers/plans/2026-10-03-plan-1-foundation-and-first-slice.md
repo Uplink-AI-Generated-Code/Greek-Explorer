@@ -44,8 +44,8 @@ Each later plan is written after the previous one ships, so it can use what was 
 - Colour is never the only signal: dropped or optional words are dashed and labelled; roles have text labels.
 - Word chips and gloss units are real `<button>` elements reachable by keyboard.
 - The page works at phone width and in light and dark colour schemes.
-- Data is validated at build time with `npm run validate`; unverified lexemes are reported, not failed.
-- Every lexeme has `verified: boolean`. All start as `false` until the content review (spec section 9).
+- Data is validated at build time with `npm run validate`; unverified records are reported, not failed. `npm run validate -- --release` also fails on any unverified record (the content review itself happens in Plan 5).
+- Every lexeme has `verified: { el, ro, en }`, one flag per language, each covering that language's forms of the lexeme. Phrases and divergence notes have `verified: boolean`; ending tables are `ReviewItem`s in `src/data/review.ts`. All start as `false` until the content review (spec sections 4.3 and 9).
 - Commit messages end with the line `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (add it as a second `-m` argument).
 
 ## File Structure
@@ -263,8 +263,8 @@ export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
 interface LexemeBase {
   id: string;
   lemma: string;
-  /** True once a speaker has checked every form of this lexeme (spec section 9). */
-  verified: boolean;
+  /** Per language: true once a speaker has checked that language's forms of this lexeme (spec 4.3, 9). */
+  verified: { el: boolean; ro: boolean; en: boolean };
 }
 
 export interface RoNounForms {
@@ -355,6 +355,8 @@ export interface Phrase {
   level: Level;
   tokens: Token[];
   glosses: GlossRow[];
+  /** True once a speaker has checked the Greek tokens and every gloss row (spec section 9). */
+  verified: boolean;
 }
 
 export interface Divergence {
@@ -368,6 +370,14 @@ export interface Divergence {
   tag: 'same' | 'differs' | 'absent';
   /** `core` rows show in both levels; `extra` rows only in Improver. */
   level: 'core' | 'extra';
+  verified: boolean;
+}
+
+/** Checked data that is not a lexeme and has no flag of its own: the ending tables (spec 4.2, 9). */
+export interface ReviewItem {
+  id: string;
+  kind: 'ending-table' | 'auxiliary-table' | 'clitic-table';
+  verified: boolean;
 }
 ```
 
@@ -433,7 +443,7 @@ const kafes: GreekNoun = {
   id: 'kafes',
   pos: 'noun',
   lemma: 'καφές',
-  verified: false,
+  verified: { el: false, ro: false, en: false },
   gender: 'm',
   class: 'masc-es',
   stems: { sg: 'καφ', pl: 'καφέδ' },
@@ -453,7 +463,7 @@ const zestos: GreekAdjective = {
   id: 'zestos',
   pos: 'adjective',
   lemma: 'ζεστός',
-  verified: false,
+  verified: { el: false, ro: false, en: false },
   class: 'adj-stressed',
   stem: 'ζεστ',
   ro: {
@@ -471,7 +481,7 @@ const one: GreekNumeral = {
   id: 'one',
   pos: 'numeral',
   lemma: 'ένας',
-  verified: false,
+  verified: { el: false, ro: false, en: false },
   value: 1,
   ro: {
     m: { nom: 'un', gen: 'unui' },
@@ -481,13 +491,13 @@ const one: GreekNumeral = {
   en: 'a',
 };
 
-const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: false };
+const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: { el: false, ro: false, en: false } };
 
 const thelo: GreekVerb = {
   id: 'thelo',
   pos: 'verb',
   lemma: 'θέλω',
-  verified: false,
+  verified: { el: false, ro: false, en: false },
   class: 'omega',
   stems: { present: 'θέλ' },
   ro: { lemma: 'a vrea', present: ['vreau', 'vrei', 'vrea', 'vrem', 'vreți', 'vor'] },
@@ -1088,7 +1098,7 @@ git commit -m "feat: add rich-text helpers, Romanian and English forms, and the 
 ### Task 5: Phrase 1 data, divergences and the validator
 
 **Files:**
-- Create: `src/glossLinks.ts`, `src/data/phrases.ts`, `src/data/divergences.ts`, `src/validate/validate.ts`, `scripts/validate.ts`
+- Create: `src/glossLinks.ts`, `src/data/phrases.ts`, `src/data/divergences.ts`, `src/data/review.ts`, `src/validate/validate.ts`, `scripts/validate.ts`
 - Test: `src/glossLinks.test.ts`, `src/validate/validate.test.ts`
 
 **Interfaces:**
@@ -1223,6 +1233,7 @@ export const PHRASES: Phrase[] = [
     level: 'beginner',
     tokens,
     glosses,
+    verified: false,
   },
 ];
 ```
@@ -1242,6 +1253,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'required: I / you / he …',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'thelo-politeness',
@@ -1252,6 +1264,7 @@ export const DIVERGENCES: Divergence[] = [
     en: '"I\'d like" (conditional)',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'numeral-gender',
@@ -1262,6 +1275,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'a / an never changes',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'numeral-case',
@@ -1272,6 +1286,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'never changes',
     tag: 'differs',
     level: 'extra',
+    verified: false,
   },
   {
     id: 'adjective-position',
@@ -1282,6 +1297,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'before the noun',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'adjective-agreement',
@@ -1292,6 +1308,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'none: hot never changes',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'adjective-with-the',
@@ -1302,6 +1319,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'the hot coffee',
     tag: 'differs',
     level: 'extra',
+    verified: false,
   },
   {
     id: 'noun-case',
@@ -1312,6 +1330,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'none',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'noun-article',
@@ -1322,6 +1341,7 @@ export const DIVERGENCES: Divergence[] = [
     en: 'separate: the coffee',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
   {
     id: 'article-position',
@@ -1332,7 +1352,23 @@ export const DIVERGENCES: Divergence[] = [
     en: 'free-standing, before the noun',
     tag: 'differs',
     level: 'core',
+    verified: false,
   },
+];
+```
+
+- [ ] **Step 2a: Write `src/data/review.ts`**
+
+```ts
+import type { ReviewItem } from '../types';
+
+/** Ending tables awaiting the content review (spec section 9). Lexemes, phrases and divergence notes carry their own flags. */
+export const REVIEW_ITEMS: ReviewItem[] = [
+  { id: 'ending-table:masc-es', kind: 'ending-table', verified: false },
+  { id: 'ending-table:adj-stressed', kind: 'ending-table', verified: false },
+  { id: 'ending-table:article-def', kind: 'ending-table', verified: false },
+  { id: 'ending-table:numeral-one', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-omega-present', kind: 'ending-table', verified: false },
 ];
 ```
 
@@ -1602,20 +1638,36 @@ export function validate(input: ValidationInput): string[] {
 - [ ] **Step 6: Write `scripts/validate.ts`**
 
 ```ts
+import { DIVERGENCES } from '../src/data/divergences';
 import { LEXEMES } from '../src/data/lexemes';
 import { PHRASES } from '../src/data/phrases';
+import { REVIEW_ITEMS } from '../src/data/review';
 import { validate } from '../src/validate/validate';
 
 const errors = validate({ lexemes: LEXEMES, phrases: PHRASES });
-const unverified = Object.values(LEXEMES).filter((l) => !l.verified);
+const release = process.argv.includes('--release');
+
+const unverified = [
+  ...Object.values(LEXEMES).flatMap((l) =>
+    (['el', 'ro', 'en'] as const).filter((lang) => !l.verified[lang]).map((lang) => `lexeme ${l.id} (${lang})`),
+  ),
+  ...REVIEW_ITEMS.filter((r) => !r.verified).map((r) => r.id),
+  ...PHRASES.filter((p) => !p.verified).map((p) => `phrase ${p.id}`),
+  ...DIVERGENCES.filter((d) => !d.verified).map((d) => `divergence ${d.id}`),
+];
 
 if (unverified.length > 0) {
-  console.log(`Unverified lexemes (${unverified.length}): ${unverified.map((l) => l.id).join(', ')}`);
+  console.log(`Unverified (${unverified.length}):\n  ${unverified.join('\n  ')}`);
 }
 
 if (errors.length > 0) {
   console.error(`\n${errors.length} validation error(s):`);
   for (const e of errors) console.error(`  - ${e}`);
+  process.exit(1);
+}
+
+if (release && unverified.length > 0) {
+  console.error(`\n--release: ${unverified.length} record(s) are not verified.`);
   process.exit(1);
 }
 
@@ -1625,7 +1677,10 @@ console.log('Data is valid.');
 - [ ] **Step 7: Run to verify it passes**
 
 Run: `npx vitest run src/validate && npm run validate`
-Expected: tests PASS; the script prints `Unverified lexemes (5): kafes, zestos, one, def, thelo` and `Data is valid.`
+Expected: tests PASS; the script prints `Unverified (31):` followed by 15 lexeme entries (5 lexemes × 3 languages), 5 ending tables, the phrase and 10 divergence notes, then `Data is valid.`
+
+Run: `npm run validate -- --release`
+Expected: the same list, then `--release: 31 record(s) are not verified.` and a non-zero exit code. (The content review that sets these flags happens in Plan 5.)
 
 - [ ] **Step 8: Typecheck and commit**
 
@@ -2998,7 +3053,8 @@ git commit -m "feat: add comparison table, wire up the app and style it" -m "Co-
 | The phrase is fixed; the panel works on a copy with Reset (4.4) | 8 |
 | Divergence rows carry a type tag and a core/extra level (5.2) | 1, 5, 8 |
 | Divergence rows with core/extra levels (5.2) | 5, 8 |
-| Build-time validation and unverified report (7) | 5 |
+| Build-time validation, unverified report and the `--release` check (7) | 5 |
+| `verified` per language of a lexeme; flags on phrases, divergence notes and ending tables (4.3) | 1, 5 |
 | Unit, component and integration tests (8) | all tasks |
 | Phone width, light and dark, keyboard, colour not the only signal (8) | 6, 8 |
 
