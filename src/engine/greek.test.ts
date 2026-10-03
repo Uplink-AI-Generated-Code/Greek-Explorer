@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEF_ARTICLE, NUMERAL, getAdjective, getLexeme, getNoun } from '../data/lexemes';
-import { inflect, inflectAdjective, inflectArticle, inflectNoun, inflectNumeral, inflectVerb } from './greek';
+import { inflect, inflectAdjective, inflectArticle, inflectNoun, inflectNumeral, inflectPreposition, inflectVerb } from './greek';
 
 describe('inflectNoun (καφές, class masc-es)', () => {
   const kafes = getNoun('kafes');
@@ -217,5 +217,12 @@ describe('inflect dispatcher', () => {
     expect(() => inflect(getNoun('kafes'), { pos: 'article', gender: 'm', number: 'sg', case: 'nom' })).toThrow(
       'slot article does not fit lexeme kafes (noun)',
     );
+  });
+});
+
+describe('inflectPreposition', () => {
+  it('never changes: the whole word is the stem', () => {
+    expect(inflect(getLexeme('pano'), { pos: 'preposition' })).toEqual({ stem: 'πάνω από', ending: '' });
+    expect(inflect(getLexeme('me'), { pos: 'preposition' })).toEqual({ stem: 'με', ending: '' });
   });
 });

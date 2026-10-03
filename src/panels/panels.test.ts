@@ -200,3 +200,51 @@ describe('applyControl and sameState', () => {
     expect(sameState(stateFor(2), applyControl(stateFor(2), 'case', 'gen'))).toBe(false);
   });
 });
+
+describe('preposition panel (πάνω από)', () => {
+  const token: Token = { text: 'πάνω από', lexeme: 'pano', slot: { pos: 'preposition' }, agreesWith: 0 };
+  const state: PanelState = { slot: token.slot, noun: 'skylos', nounNumber: 'sg' };
+
+  it('shows the preposition with the article and noun in the accusative', () => {
+    const panel = buildPanel(state, token, 'beginner');
+    expect(panel.lemma).toBe('πάνω από');
+    expect(panel.posLabel).toBe('preposition: over');
+    expect(panel.controls.map((c) => c.key)).toEqual(['noun', 'number']);
+    expect(panel.controls[0].label).toBe('Noun after it');
+    expect(panel.rows.map((r) => r.label)).toEqual(['prep. + noun']);
+    expect(text(panel.rows, 0)).toEqual({ el: 'πάνω από τον σκύλο', ro: 'peste câinele', en: 'over the dog' });
+    expect(panel.note).toBe('Masculine in Greek and Romanian.');
+  });
+
+  it('follows the noun and its number', () => {
+    const feminine = applyControl(state, 'noun', 'alepou');
+    expect(feminine.noun).toBe('alepou');
+    expect(feminine.slot).toEqual({ pos: 'preposition' });
+    expect(text(buildPanel(feminine, token, 'beginner').rows, 0)).toEqual({
+      el: 'πάνω από την αλεπού',
+      ro: 'peste vulpea',
+      en: 'over the fox',
+    });
+    const plural = applyControl(state, 'number', 'pl');
+    expect(plural.nounNumber).toBe('pl');
+    expect(text(buildPanel(plural, token, 'beginner').rows, 0)).toEqual({
+      el: 'πάνω από τους σκύλους',
+      ro: 'peste câinii',
+      en: 'over the dogs',
+    });
+  });
+
+  it('uses the technical label for Improver', () => {
+    expect(buildPanel(state, token, 'improver').posLabel).toBe('preposition · governs the accusative');
+  });
+
+  it('initialState takes the governed noun and its number from the phrase', () => {
+    const governed: Token = {
+      text: 'σκύλο',
+      lexeme: 'skylos',
+      slot: { pos: 'noun', number: 'sg', case: 'acc' },
+    };
+    const mini = { ...PHRASES[0], tokens: [governed, token] };
+    expect(initialState(token, mini)).toEqual({ slot: token.slot, noun: 'skylos', nounNumber: 'sg' });
+  });
+});

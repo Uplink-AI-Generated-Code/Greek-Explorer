@@ -14,6 +14,7 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekPreposition,
   GreekVerb,
   IrregularNote,
   Slot,
@@ -51,6 +52,10 @@ export function inflectVerb(l: GreekVerb, s: SlotOf<'verb'>): Form {
   return { stem: l.stems.present, ending: VERB_PRESENT[l.class][index] };
 }
 
+export function inflectPreposition(l: GreekPreposition, _s: SlotOf<'preposition'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
 export function inflect(l: GreekLexeme, s: Slot): Form {
   if (l.pos !== s.pos) throw new Error(`slot ${s.pos} does not fit lexeme ${l.id} (${l.pos})`);
   switch (l.pos) {
@@ -64,5 +69,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectNumeral(l, s as SlotOf<'numeral'>);
     case 'verb':
       return inflectVerb(l, s as SlotOf<'verb'>);
+    case 'preposition':
+      return inflectPreposition(l, s as SlotOf<'preposition'>);
   }
 }

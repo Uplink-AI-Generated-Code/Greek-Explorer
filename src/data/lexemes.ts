@@ -4,6 +4,7 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekPreposition,
   GreekVerb,
 } from '../types';
 
@@ -204,6 +205,21 @@ const pidao: GreekVerb = {
   en: { gloss: 'jump', base: 'jump', third: 'jumps' },
 };
 
+const preposition = (id: string, lemma: string, ro: string, en: string, meaning: string): GreekPreposition => ({
+  id,
+  pos: 'preposition',
+  lemma,
+  verified: { el: false, ro: false, en: false },
+  ro,
+  en,
+  meaning,
+});
+
+const pano = preposition('pano', 'πάνω από', 'peste', 'over', 'above');
+const kato = preposition('kato', 'κάτω από', 'sub', 'under', 'below');
+const me = preposition('me', 'με', 'cu', 'with', 'with');
+const gia = preposition('gia', 'για', 'pentru', 'for', 'for');
+
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [skylos.id]: skylos,
@@ -217,10 +233,17 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [def.id]: def,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
+  [pano.id]: pano,
+  [kato.id]: kato,
+  [me.id]: me,
+  [gia.id]: gia,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;
 export const NUMERAL: GreekNumeral = numeral;
+
+/** The prepositions shown together in the Improver table, in display order. */
+export const PREPOSITIONS: GreekPreposition[] = [pano, kato, me, gia];
 
 export function getLexeme(id: string): GreekLexeme {
   const lexeme = LEXEMES[id];

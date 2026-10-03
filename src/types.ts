@@ -22,7 +22,8 @@ export type Slot =
   | { pos: 'noun'; number: Num; case: Case; count?: Exclude<NumeralValue, 1> }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
-  | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case };
+  | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case }
+  | { pos: 'preposition' };
 
 export type Pos = Slot['pos'];
 export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
@@ -99,7 +100,15 @@ export interface GreekVerb extends LexemeBase {
   en: { gloss: string; base: string; third: string };
 }
 
-export type GreekLexeme = GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb;
+export interface GreekPreposition extends LexemeBase {
+  pos: 'preposition';
+  ro: string;
+  en: string;
+  /** A short plain meaning, used to label rows in the preposition table. */
+  meaning: string;
+}
+
+export type GreekLexeme = GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition;
 
 export type TokenIndex = number;
 
@@ -107,7 +116,7 @@ export interface Token {
   text: string;
   lexeme: string;
   slot: Slot;
-  /** Index of the noun this article, numeral or adjective agrees with. */
+  /** Index of the noun this article, numeral, adjective or preposition goes with. */
   agreesWith?: TokenIndex;
 }
 

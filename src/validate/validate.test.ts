@@ -103,4 +103,12 @@ describe('validate', () => {
       'ordering-hot-coffee: missing theme',
     );
   });
+
+  it('reports an empty Romanian or English form on a preposition', () => {
+    const lexemes = {
+      ...LEXEMES,
+      pano: { ...LEXEMES.pano, ro: '' },
+    } as typeof LEXEMES;
+    expect(validate({ lexemes, phrases: PHRASES })).toContain('lexeme pano: empty Romanian form');
+  });
 });

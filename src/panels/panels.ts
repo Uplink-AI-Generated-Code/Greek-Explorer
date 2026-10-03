@@ -4,6 +4,7 @@ import type {
   GreekAdjective,
   GreekNoun,
   GreekNumeral,
+  GreekPreposition,
   GreekVerb,
   Level,
   Num,
@@ -16,6 +17,7 @@ import { adjectivePanel } from './adjective';
 import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
+import { prepositionPanel } from './preposition';
 import type { Panel, PanelState } from './types';
 import { verbPanel } from './verb';
 
@@ -48,6 +50,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return numeralPanel(lexeme as GreekNumeral, slot, state, level);
     case 'article':
       return articlePanel(slot, state, level);
+    case 'preposition':
+      return prepositionPanel(lexeme as GreekPreposition, state, level);
   }
 }
 
@@ -61,12 +65,13 @@ export function applyControl(state: PanelState, key: string, value: string): Pan
       }
       break;
     case 'case':
-      if (slot.pos !== 'verb') return { ...state, slot: { ...slot, case: value as Case } };
+      if (slot.pos !== 'verb' && slot.pos !== 'preposition') return { ...state, slot: { ...slot, case: value as Case } };
       break;
     case 'number':
       if (slot.pos === 'adjective' || slot.pos === 'article') {
         return { ...state, slot: { ...slot, number: value as Num } };
       }
+      if (slot.pos === 'preposition') return { ...state, nounNumber: value as Num };
       break;
     case 'count':
       if (slot.pos === 'noun') {
@@ -84,6 +89,7 @@ export function applyControl(state: PanelState, key: string, value: string): Pan
     case 'noun': {
       const noun = getLexeme(value);
       if (noun.pos !== 'noun') break;
+      if (slot.pos === 'preposition') return { ...state, noun: value };
       if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral') {
         return { ...state, noun: value, slot: { ...slot, gender: noun.gender } };
       }

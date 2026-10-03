@@ -31,6 +31,8 @@ function slotsFor(l: GreekLexeme): Slot[] {
       return VALUES.flatMap((value) =>
         GENDERS.flatMap((gender) => CASES.map((c): Slot => ({ pos: 'numeral', value, gender, case: c }))),
       );
+    case 'preposition':
+      return [{ pos: 'preposition' }];
     case 'verb':
       return PERSONS.flatMap((person) =>
         NUMS.map((number): Slot => ({
@@ -87,6 +89,10 @@ function checkLexeme(l: GreekLexeme): string[] {
     }
     if (isEmpty(l.en.base) || isEmpty(l.en.third)) errors.push(`lexeme ${l.id}: empty English form`);
   }
+  if (l.pos === 'preposition') {
+    if (isEmpty(l.ro)) errors.push(`lexeme ${l.id}: empty Romanian form`);
+    if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
+  }
   return errors;
 }
 
@@ -110,6 +116,13 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       errors.push(`${where}: ${token.slot.pos} needs agreesWith pointing at a noun`);
     } else if (token.slot.gender !== noun.gender) {
       errors.push(`${where}: slot gender ${token.slot.gender} differs from noun gender ${noun.gender}`);
+    }
+  }
+  if (token.slot.pos === 'preposition') {
+    const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    const noun = target ? lexemes[target.lexeme] : undefined;
+    if (!noun || noun.pos !== 'noun') {
+      errors.push(`${where}: preposition needs agreesWith pointing at the noun it governs`);
     }
   }
   return errors;
