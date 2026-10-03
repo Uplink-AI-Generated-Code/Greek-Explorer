@@ -142,3 +142,43 @@ describe('App', () => {
     expect(screen.getAllByRole('table').length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('verb groups in the app', () => {
+  it('opens the perfect, shows its pieces, and lets the learner vary the tense without changing the phrase', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I have eaten');
+
+    const chip = screen.getByRole('button', { name: 'Έχω φάει' });
+    expect(chip.querySelectorAll('.piece')).toHaveLength(2);
+    await user.click(chip);
+
+    const panel = screen.getByRole('region', { name: 'Word panel' });
+    expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('τρώω');
+    expect(within(panel).getByRole('cell', { name: '(εγώ) έχω φάει' })).toBeInTheDocument();
+    expect(within(panel).getByRole('cell', { name: '(eu) am mâncat' })).toBeInTheDocument();
+    expect(within(panel).getByRole('cell', { name: 'I have eaten' })).toBeInTheDocument();
+
+    await user.selectOptions(within(panel).getByLabelText('When?'), 'had done');
+    expect(within(panel).getByRole('cell', { name: '(εγώ) είχα φάει' })).toBeInTheDocument();
+    expect(within(panel).getByRole('cell', { name: '(eu) mâncasem' })).toBeInTheDocument();
+    expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Έχω φάει' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Reset to phrase' }));
+    expect(within(panel).getByRole('cell', { name: '(εγώ) έχω φάει' })).toBeInTheDocument();
+  });
+
+  it('switches πλένω between its two voices', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I wash (myself)');
+    await user.click(screen.getByRole('button', { name: 'Πλένομαι' }));
+    const panel = screen.getByRole('region', { name: 'Word panel' });
+    expect(within(panel).getByRole('cell', { name: '(εγώ) πλένομαι' })).toBeInTheDocument();
+    expect(within(panel).getByRole('cell', { name: 'I wash (myself)' })).toBeInTheDocument();
+    await user.selectOptions(within(panel).getByLabelText('Voice'), 'doing it');
+    expect(within(panel).getByRole('cell', { name: '(εγώ) πλένω' })).toBeInTheDocument();
+    expect(within(panel).getByRole('cell', { name: '(eu) spăl' })).toBeInTheDocument();
+  });
+});
