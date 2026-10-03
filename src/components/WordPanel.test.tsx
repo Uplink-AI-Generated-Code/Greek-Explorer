@@ -2,19 +2,24 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PHRASES } from '../data/phrases';
-import { buildPanel } from '../panels/panels';
+import { buildPanel, initialState } from '../panels/panels';
 import { WordPanel } from './WordPanel';
 
 const phrase = PHRASES[0];
-const panelFor = (i: number) => buildPanel(phrase.tokens[i].slot, phrase.tokens[i], phrase, 'beginner');
+const panelFor = (i: number) => buildPanel(initialState(phrase.tokens[i], phrase), phrase.tokens[i], 'beginner');
 
 describe('WordPanel', () => {
+  it('shows the irregularity message when there is one', () => {
+    render(<WordPanel panel={panelFor(3)} onChange={() => {}} />);
+    expect(screen.getByText(/final ς drops/)).toBeInTheDocument();
+  });
+
   it('renders the lemma, part-of-speech label and a labelled control', () => {
     render(<WordPanel panel={panelFor(3)} onChange={() => {}} />);
     expect(screen.getByRole('heading', { level: 2, name: 'καφές' })).toBeInTheDocument();
     expect(screen.getByText('noun: coffee (masculine)')).toBeInTheDocument();
     expect(screen.getByLabelText('Role in sentence')).toHaveValue('acc');
-    expect(screen.getByLabelText('How many?')).toHaveValue('sg');
+    expect(screen.getByLabelText('How many?')).toHaveValue('1');
   });
 
   it('renders the three-language form table', () => {

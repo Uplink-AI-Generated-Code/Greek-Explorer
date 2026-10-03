@@ -58,10 +58,10 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole('button', { name: 'καφέ' }));
-    await user.selectOptions(screen.getByLabelText('How many?'), 'pl');
+    await user.selectOptions(screen.getByLabelText('How many?'), 'many');
     await user.click(screen.getByRole('button', { name: 'Θέλω' }));
     await user.click(screen.getByRole('button', { name: 'καφέ' }));
-    expect(screen.getByLabelText('How many?')).toHaveValue('pl');
+    expect(screen.getByLabelText('How many?')).toHaveValue('many');
   });
 
   it('switches to technical labels in Improver and remembers the choice', async () => {

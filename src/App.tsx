@@ -6,20 +6,22 @@ import { PhraseBar } from './components/PhraseBar';
 import { WordPanel } from './components/WordPanel';
 import { DIVERGENCES } from './data/divergences';
 import { PHRASES } from './data/phrases';
-import { applyControl, buildPanel } from './panels/panels';
+import { applyControl, buildPanel, initialState, sameState, type PanelState } from './panels/panels';
 import { readLevel, writeLevel } from './storage';
-import type { Level, Slot } from './types';
+import type { Level } from './types';
 
 export function App() {
   const phrase = PHRASES[0];
-  const [slots, setSlots] = useState<Slot[]>(() => phrase.tokens.map((t) => t.slot));
+  const initial = phrase.tokens.map((t) => initialState(t, phrase));
+  const [states, setStates] = useState<PanelState[]>(initial);
   const [selected, setSelected] = useState(0);
   const [level, setLevel] = useState<Level>(readLevel);
 
   const token = phrase.tokens[selected];
-  const panel = buildPanel(slots[selected], token, phrase, level);
-  const divergences = selectDivergences(DIVERGENCES, slots[selected].pos, token.lexeme, level);
-  const differsFromPhrase = JSON.stringify(slots[selected]) !== JSON.stringify(token.slot);
+  const state = states[selected];
+  const panel = buildPanel(state, token, level);
+  const divergences = selectDivergences(DIVERGENCES, state.slot.pos, token.lexeme, level);
+  const differsFromPhrase = !sameState(state, initial[selected]);
 
   function changeLevel(next: Level) {
     setLevel(next);
@@ -27,11 +29,11 @@ export function App() {
   }
 
   function changeControl(key: string, value: string) {
-    setSlots((current) => current.map((slot, i) => (i === selected ? applyControl(slot, key, value) : slot)));
+    setStates((current) => current.map((s, i) => (i === selected ? applyControl(s, key, value) : s)));
   }
 
   function resetToPhrase() {
-    setSlots((current) => current.map((slot, i) => (i === selected ? token.slot : slot)));
+    setStates((current) => current.map((s, i) => (i === selected ? initial[selected] : s)));
   }
 
   return (

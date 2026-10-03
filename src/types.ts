@@ -19,7 +19,7 @@ export interface Form {
 
 export type Slot =
   | { pos: 'verb'; person: Person; number: Num; mood: 'indicative'; tense: 'present'; voice: 'active' }
-  | { pos: 'noun'; number: Num; case: Case }
+  | { pos: 'noun'; number: Num; case: Case; count?: Exclude<NumeralValue, 1> }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
   | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case };

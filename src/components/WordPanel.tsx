@@ -34,6 +34,7 @@ export function WordPanel({ panel, onChange }: Props) {
         <span className="role-ending">amber</span> ending · <span className="role-dim">dashed</span> optional or dropped
       </p>
       <p className="plain">{panel.plain}</p>
+      {panel.irregular && <p className="warn">{panel.irregular}</p>}
       {panel.note && <p className="note">Gender and form: {panel.note}</p>}
     </section>
   );
