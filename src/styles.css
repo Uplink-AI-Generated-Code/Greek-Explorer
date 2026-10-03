@@ -105,3 +105,6 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 
 
 .form-table tr.is-dim th, .form-table tr.is-dim td { color: var(--muted); font-style: italic; }
+
+.back-link { font: inherit; font-size: 13px; color: var(--accent-text); background: none; border: 0; padding: 0 0 6px; cursor: pointer; text-decoration: underline; }
+.back-link:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }

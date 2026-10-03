@@ -4,11 +4,18 @@ import { FormTable } from './FormTable';
 interface Props {
   panel: Panel;
   onChange: (key: string, value: string) => void;
+  /** Given while a piece panel is open: returns to the verb's own panel. */
+  onBack?: () => void;
 }
 
-export function WordPanel({ panel, onChange }: Props) {
+export function WordPanel({ panel, onChange, onBack }: Props) {
   return (
     <section className="card word-panel" aria-label="Word panel">
+      {onBack && (
+        <button type="button" className="back-link" onClick={onBack}>
+          ← Back to the verb
+        </button>
+      )}
       <h2 lang="el">{panel.lemma}</h2>
       <p className="pos-label">{panel.posLabel}</p>
       <div className="controls">
