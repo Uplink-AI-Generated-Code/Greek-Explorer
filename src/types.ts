@@ -247,7 +247,7 @@ export interface Divergence {
     pos: Pos;
     lexeme?: string;
     /** For verbs: show the row only when the panel's slot matches every listed dimension. */
-    when?: { moods?: Mood[]; tenses?: Tense[]; voices?: Voice[] };
+    when?: { moods?: Mood[]; tenses?: Tense[]; voices?: Voice[]; polarity?: Polarity };
   };
   point: string;
   el: string;

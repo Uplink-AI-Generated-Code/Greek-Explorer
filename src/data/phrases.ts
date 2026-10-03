@@ -595,6 +595,61 @@ const wouldHaveEaten: Phrase = {
   verified: false,
 };
 
+const dontWantToGo: Phrase = {
+  id: 'dont-want-to-go',
+  title: "I don't want to go",
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [
+    { text: 'Δεν θέλω', lexeme: 'thelo', slot: { ...vslot('indicative', 'present'), polarity: 'negative' } as Slot },
+    { text: 'να πάω', lexeme: 'pao', slot: vslot('subjunctive', 'aorist') },
+  ],
+  glosses: rows(
+    [u("I don't", p(0, 0)), u('want', p(0, 1)), u('to', p(1, 0)), u('go', p(1, 1))],
+    [u('(I)', null), u('not', p(0, 0)), u('want', p(0, 1)), u('that', p(1, 0)), u('(I)', null), u('go', p(1, 1))],
+    [u('Nu', p(0, 0)), u('vreau', p(0, 1)), u('să', p(1, 0)), u('merg', p(1, 1))],
+    [u('(Eu)', null), u('nu', p(0, 0)), u('vreau', p(0, 1)), u('să', p(1, 0)), u('(eu)', null), u('merg', p(1, 1))],
+  ),
+  verified: false,
+};
+
+const dontEatTheBread: Phrase = {
+  id: 'dont-eat-the-bread',
+  title: "Don't eat the bread!",
+  theme: 'Eating',
+  level: 'beginner',
+  tokens: [
+    { text: 'Μην φας', lexeme: 'troo', slot: { ...vslot('imperative', 'aorist', 2), polarity: 'negative' } as Slot },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u("Don't", p(0, 0)), u('eat', p(0, 1)), u('the', 1), u('bread!', 2)],
+    [u('(you)', null), u('not', p(0, 0)), u('eat', p(0, 1)), u('the-[acc]', 1), u('bread', 2)],
+    [u('Nu', p(0, 0)), u('mânca', p(0, 1)), seg(['pâine', 2], ['a!', 1])],
+    [u('(tu)', null), u('nu', p(0, 0)), u('mânca', p(0, 1)), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const wantNotToGo: Phrase = {
+  id: 'want-not-to-go',
+  title: "I'd rather not go",
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [
+    { text: 'Θέλω', lexeme: 'thelo', slot: vslot('indicative', 'present') },
+    { text: 'να μην πάω', lexeme: 'pao', slot: { ...vslot('subjunctive', 'aorist'), polarity: 'negative' } as Slot },
+  ],
+  glosses: rows(
+    [u("I'd rather", 0), u('not', p(1, 1)), u('go', p(1, 2))],
+    [u('(I)', null), u('want', 0), u('that', p(1, 0)), u('not', p(1, 1)), u('(I)', null), u('go', p(1, 2))],
+    [u('Vreau', 0), u('să', p(1, 0)), u('nu', p(1, 1)), u('merg', p(1, 2))],
+    [u('(Eu)', null), u('vreau', 0), u('să', p(1, 0)), u('nu', p(1, 1)), u('(eu)', null), u('merg', p(1, 2))],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -607,15 +662,18 @@ export const PHRASES: Phrase[] = [
   futurePerfect,
   wantToEat,
   wantToEatRegularly,
+  dontWantToGo,
   foxHasJumped,
   haveWashedMyself,
   ateTheBread,
   wantedACoffee,
   foxWasJumping,
   eatTheBread,
+  dontEatTheBread,
   washTheChild,
   keepEatingTheBread,
   mayHaveEaten,
   wouldLikeACoffee,
   wouldHaveEaten,
+  wantNotToGo,
 ];

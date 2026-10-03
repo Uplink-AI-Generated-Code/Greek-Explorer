@@ -80,14 +80,14 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     }
   });
 
-  it('the picker lists all 22 phrases in the spec order', () => {
+  it('the picker lists all 25 phrases in the spec order', () => {
     expect(PHRASES.map((p) => p.id)).toEqual([
       'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
       'washing-myself', 'washing-the-child', 'sleeping',
       'present-perfect', 'past-perfect', 'future-perfect', 'want-to-eat', 'want-to-eat-regularly',
-      'fox-has-jumped', 'have-washed-myself', 'ate-the-bread', 'wanted-a-coffee', 'fox-was-jumping',
-      'eat-the-bread', 'wash-the-child', 'keep-eating-the-bread', 'may-have-eaten',
-      'would-like-a-coffee', 'would-have-eaten-the-bread',
+      'dont-want-to-go', 'fox-has-jumped', 'have-washed-myself', 'ate-the-bread', 'wanted-a-coffee',
+      'fox-was-jumping', 'eat-the-bread', 'dont-eat-the-bread', 'wash-the-child', 'keep-eating-the-bread',
+      'may-have-eaten', 'would-like-a-coffee', 'would-have-eaten-the-bread', 'want-not-to-go',
     ]);
   });
 
@@ -119,5 +119,41 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     const phrase = byId('may-have-eaten');
     expect(phrase.tokens.map((t) => t.text)).toEqual(['Μπορεί', 'να έχει φάει']);
     expect(phrase.tokens[0].slot).toMatchObject({ person: 3, number: 'sg' });
+  });
+});
+
+describe('phrases with negation', () => {
+  it('phrase 16 negates the main verb before a subjunctive', () => {
+    const phrase = byId('dont-want-to-go');
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Δεν θέλω', 'να πάω']);
+    expect(phrase.tokens[0].slot).toMatchObject({ polarity: 'negative' });
+    expect(phrase.tokens[1].slot).not.toHaveProperty('polarity');
+  });
+
+  it('phrase 25 is a negative command built from the subjunctive', () => {
+    const phrase = byId('dont-eat-the-bread');
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Μην φας', 'το', 'ψωμί!']);
+    expect(phrase.tokens[0].slot).toMatchObject({ mood: 'imperative', tense: 'aorist', person: 2, polarity: 'negative' });
+  });
+
+  it('phrase 39 negates the subjunctive clause, not the main verb', () => {
+    const phrase = byId('want-not-to-go');
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Θέλω', 'να μην πάω']);
+    expect(phrase.tokens[0].slot).not.toHaveProperty('polarity');
+    expect(phrase.tokens[1].slot).toMatchObject({ mood: 'subjunctive', polarity: 'negative' });
+    const roNatural = phrase.glosses.find((g) => g.language === 'ro' && g.kind === 'natural');
+    expect(roNatural?.units.map((u) => ('text' in u ? u.text : '')).join(' ')).toBe('Vreau să nu merg');
+  });
+
+  it('the English literal rows of 16 and 39 differ in where "not" sits', () => {
+    const literal = (id: string) =>
+      byId(id).glosses.find((g) => g.language === 'en' && g.kind === 'literal')?.units.map((u) => ('text' in u ? u.text : ''));
+    expect(literal('dont-want-to-go')).toEqual(['(I)', 'not', 'want', 'that', '(I)', 'go']);
+    expect(literal('want-not-to-go')).toEqual(['(I)', 'want', 'that', 'not', '(I)', 'go']);
+  });
+
+  it('validate with no errors and no warnings', () => {
+    expect(validate({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+    expect(warnings({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
   });
 });

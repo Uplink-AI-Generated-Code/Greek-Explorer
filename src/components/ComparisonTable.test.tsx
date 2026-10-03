@@ -89,3 +89,26 @@ describe('ComparisonTable', () => {
     expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 });
+
+describe('selectDivergences by polarity', () => {
+  const verb = (mood: string, tense: string, polarity?: 'negative'): Slot =>
+    ({ pos: 'verb', person: 2, number: 'sg', mood, tense, voice: 'active', ...(polarity ? { polarity } : {}) }) as Slot;
+  const ids = (slot: Slot) => selectDivergences(DIVERGENCES, 'verb', 'troo', 'improver', slot).map((d) => d.id);
+
+  it('the negated subjunctive shows its note; the affirmative does not', () => {
+    expect(ids(verb('subjunctive', 'aorist', 'negative'))).toContain('subjunctive-negation');
+    expect(ids(verb('subjunctive', 'aorist'))).not.toContain('subjunctive-negation');
+  });
+
+  it('the negative command shows its note', () => {
+    expect(ids(verb('imperative', 'aorist', 'negative'))).toContain('negative-imperative');
+    expect(ids(verb('imperative', 'aorist'))).not.toContain('negative-imperative');
+  });
+
+  it('the position of the negation is explained for indicative and conditional forms', () => {
+    expect(ids(verb('indicative', 'futureSimple', 'negative'))).toContain('negation-position');
+    expect(ids(verb('conditional', 'imperfect', 'negative'))).toContain('negation-position');
+    expect(ids(verb('indicative', 'futureSimple'))).not.toContain('negation-position');
+    expect(ids(verb('subjunctive', 'aorist', 'negative'))).not.toContain('negation-position');
+  });
+});
