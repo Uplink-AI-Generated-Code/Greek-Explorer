@@ -160,6 +160,8 @@ export interface EnVerbForms {
   ing: string;
   /** Adds "(myself)" and its person forms. */
   reflexive?: boolean;
+  /** A modal verb (may) is negated with "not" after it, not with "do". */
+  modal?: boolean;
 }
 
 /** Everything a verb stores for one voice. */

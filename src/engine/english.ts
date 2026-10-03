@@ -12,6 +12,9 @@ export const enNumeral = (n: GreekNumeral, value: NumeralValue): string => n.en[
 const HAVE = ['have', 'have', 'has', 'have', 'have', 'have'];
 const WAS = ['was', 'were', 'was', 'were', 'were', 'were'];
 const SELF = ['myself', 'yourself', 'himself/herself', 'ourselves', 'yourselves', 'themselves'];
+const DONT = ["don't", "don't", "doesn't", "don't", "don't", "don't"];
+const WASNT = ["wasn't", "weren't", "wasn't", "weren't", "weren't", "weren't"];
+const HAVENT = ["haven't", "haven't", "hasn't", "haven't", "haven't", "haven't"];
 
 /** An English verb slot in parts, so the panel can colour the subject pronoun: lead + subject + verb. */
 export interface EnParts {
@@ -25,37 +28,40 @@ export interface EnParts {
 export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
   const en = voiceOf(v, s.voice).en;
   const i = whoIndex(s);
+  const negative = s.polarity === 'negative';
   const present = i === 2 ? en.third : en.base;
+  // "do"-support, or "not" after a modal.
+  const presentNot = en.modal ? `${present} not` : `${DONT[i]} ${en.base}`;
   const self = en.reflexive ? ` (${SELF[i]})` : '';
   const parts = (verb: string, lead = '', subject = true): EnParts => ({ lead, subject, verb: `${verb}${self}` });
   switch (`${s.mood}.${s.tense}`) {
     case 'indicative.present':
-      return parts(present);
+      return parts(negative ? presentNot : present);
     case 'indicative.imperfect':
-      return parts(`${WAS[i]} ${en.ing}`);
+      return parts(`${negative ? WASNT[i] : WAS[i]} ${en.ing}`);
     case 'indicative.aorist':
-      return parts(en.past);
+      return parts(negative ? `didn't ${en.base}` : en.past);
     case 'indicative.future':
     case 'indicative.futureSimple':
-      return parts(`will ${en.base}`);
+      return parts(`${negative ? "won't" : 'will'} ${en.base}`);
     case 'indicative.perfect':
-      return parts(`${HAVE[i]} ${en.pastParticiple}`);
+      return parts(`${negative ? HAVENT[i] : HAVE[i]} ${en.pastParticiple}`);
     case 'indicative.pluperfect':
-      return parts(`had ${en.pastParticiple}`);
+      return parts(`${negative ? "hadn't" : 'had'} ${en.pastParticiple}`);
     case 'indicative.futurePerfect':
-      return parts(`will have ${en.pastParticiple}`);
+      return parts(`${negative ? "won't" : 'will'} have ${en.pastParticiple}`);
     case 'subjunctive.present':
     case 'subjunctive.aorist':
-      return parts(present, 'that');
+      return parts(negative ? presentNot : present, 'that');
     case 'subjunctive.perfect':
-      return parts(`may have ${en.pastParticiple}`);
+      return parts(`may${negative ? ' not' : ''} have ${en.pastParticiple}`);
     case 'imperative.present':
     case 'imperative.aorist':
-      return parts(en.base, '', false);
+      return parts(negative ? `don't ${en.base}` : en.base, '', false);
     case 'conditional.imperfect':
-      return parts(`would ${en.base}`);
+      return parts(`${negative ? "wouldn't" : 'would'} ${en.base}`);
     case 'conditional.pluperfect':
-      return parts(`would have ${en.pastParticiple}`);
+      return parts(`${negative ? "wouldn't" : 'would'} have ${en.pastParticiple}`);
     default:
       throw new Error(`${s.mood} ${s.tense} is not a Greek tense`);
   }

@@ -143,3 +143,88 @@ describe('English verb forms (eat / ate / eaten, spec 6.4)', () => {
     expect(text('mporei', vs('indicative', 'present', 3), 'he/she')).toBe('he/she may');
   });
 });
+
+const negative = (slot: SlotOf<'verb'>): SlotOf<'verb'> => ({ ...slot, polarity: 'negative' });
+
+describe('Romanian negation (τρώω → a mânca)', () => {
+  it.each([
+    ['indicative', 'present', 'nu mănânc'],
+    ['indicative', 'imperfect', 'nu mâncam'],
+    ['indicative', 'aorist', 'nu am mâncat'],
+    ['indicative', 'perfect', 'nu am mâncat'],
+    ['indicative', 'pluperfect', 'nu mâncasem'],
+    ['indicative', 'future', 'nu voi mânca'],
+    ['indicative', 'futureSimple', 'nu voi mânca'],
+    ['indicative', 'futurePerfect', 'nu voi fi mâncat'],
+    ['subjunctive', 'present', 'să nu mănânc'],
+    ['subjunctive', 'aorist', 'să nu mănânc'],
+    ['subjunctive', 'perfect', 'să nu fi mâncat'],
+    ['conditional', 'imperfect', 'nu aș mânca'],
+    ['conditional', 'pluperfect', 'nu aș fi mâncat'],
+  ] as const)('1sg %s %s -> %s', (mood, tense, expected) => {
+    expect(roVerb(getVerb('troo'), negative(vs(mood, tense)))).toBe(expected);
+  });
+
+  it('the negative imperative is nu + the infinitive in the singular and nu + the plural imperative', () => {
+    expect(roVerb(getVerb('troo'), negative(vs('imperative', 'aorist', 2, 'sg')))).toBe('nu mânca');
+    expect(roVerb(getVerb('troo'), negative(vs('imperative', 'present', 2, 'pl')))).toBe('nu mâncați');
+  });
+
+  it('a reflexive verb keeps its clitic: nu mă spăl, nu m-am spălat, să nu mă spăl', () => {
+    const m = 'mediopassive';
+    expect(roVerb(getVerb('pleno'), negative(vs('indicative', 'present', 1, 'sg', m)))).toBe('nu mă spăl');
+    expect(roVerb(getVerb('pleno'), negative(vs('indicative', 'perfect', 1, 'sg', m)))).toBe('nu m-am spălat');
+    expect(roVerb(getVerb('pleno'), negative(vs('subjunctive', 'present', 1, 'sg', m)))).toBe('să nu mă spăl');
+  });
+
+  it('other persons and verbs: nu a mâncat, nu au mâncat, nu vreau, să nu merg', () => {
+    expect(roVerb(getVerb('troo'), negative(vs('indicative', 'perfect', 3, 'sg')))).toBe('nu a mâncat');
+    expect(roVerb(getVerb('troo'), negative(vs('indicative', 'perfect', 3, 'pl')))).toBe('nu au mâncat');
+    expect(roVerb(getVerb('thelo'), negative(vs('indicative', 'present')))).toBe('nu vreau');
+    expect(roVerb(getVerb('pao'), negative(vs('subjunctive', 'aorist')))).toBe('să nu merg');
+  });
+});
+
+describe('English negation (eat / ate / eaten)', () => {
+  const text = (id: string, slot: SlotOf<'verb'>, pronoun = 'I') => enVerbText(getVerb(id), negative(slot), pronoun);
+
+  it.each([
+    ['indicative', 'present', "I don't eat"],
+    ['indicative', 'imperfect', "I wasn't eating"],
+    ['indicative', 'aorist', "I didn't eat"],
+    ['indicative', 'future', "I won't eat"],
+    ['indicative', 'futureSimple', "I won't eat"],
+    ['indicative', 'perfect', "I haven't eaten"],
+    ['indicative', 'pluperfect', "I hadn't eaten"],
+    ['indicative', 'futurePerfect', "I won't have eaten"],
+    ['subjunctive', 'present', "that I don't eat"],
+    ['subjunctive', 'aorist', "that I don't eat"],
+    ['subjunctive', 'perfect', 'I may not have eaten'],
+    ['conditional', 'imperfect', "I wouldn't eat"],
+    ['conditional', 'pluperfect', "I wouldn't have eaten"],
+  ] as const)('1sg %s %s -> %s', (mood, tense, expected) => {
+    expect(text('troo', vs(mood, tense))).toBe(expected);
+  });
+
+  it('agrees with the person', () => {
+    expect(text('troo', vs('indicative', 'present', 3), 'he/she')).toBe("he/she doesn't eat");
+    expect(text('troo', vs('indicative', 'perfect', 3), 'he/she')).toBe("he/she hasn't eaten");
+    expect(text('troo', vs('indicative', 'imperfect', 2), 'you')).toBe("you weren't eating");
+  });
+
+  it("the negative imperative is don't + the base verb, with no subject", () => {
+    expect(enVerb(getVerb('troo'), negative(vs('imperative', 'aorist', 2, 'sg')))).toEqual({
+      lead: '',
+      subject: false,
+      verb: "don't eat",
+    });
+  });
+
+  it('a modal is negated with "not": he/she may not', () => {
+    expect(text('mporei', vs('indicative', 'present', 3), 'he/she')).toBe('he/she may not');
+  });
+
+  it('the reflexive voice keeps its "self" word: I don\'t wash (myself)', () => {
+    expect(text('pleno', vs('indicative', 'present', 1, 'sg', 'mediopassive'))).toBe("I don't wash (myself)");
+  });
+});

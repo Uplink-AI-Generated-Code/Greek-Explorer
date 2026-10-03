@@ -21,4 +21,5 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'auxiliary-table:el-tense-structure', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:ro-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:en-compound', kind: 'auxiliary-table', verified: false },
+  { id: 'auxiliary-table:negation', kind: 'auxiliary-table', verified: false },
 ];

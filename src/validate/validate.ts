@@ -4,7 +4,7 @@ import { compose } from '../engine/compose';
 import { enVerb } from '../engine/english';
 import { roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
-import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, Token, VerbVoice, Voice } from '../types';
+import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
@@ -80,7 +80,8 @@ function checkLexeme(l: GreekLexeme): string[] {
     }
   }
   if (l.pos === 'verb') {
-    for (const slot of allVerbSlots(l)) {
+    const slots = allVerbSlots(l).flatMap((s): SlotOf<'verb'>[] => [s, { ...s, polarity: 'negative' }]);
+    for (const slot of slots.filter((s) => isOffered(l, s))) {
       const where = `lexeme ${l.id}: cannot build ${JSON.stringify(slot)}`;
       try {
         if (isEmpty(compose(l, slot).text)) errors.push(`${where}: empty Greek group`);

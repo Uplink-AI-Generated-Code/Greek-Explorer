@@ -193,6 +193,11 @@ describe('verb lexemes', () => {
     const errors = validate(modifiedTroo((v) => { delete v.stems.perfective; }));
     expect(errors.some((e) => e.startsWith('lexeme troo: cannot inflect'))).toBe(true);
   });
+
+  it('checks the negative forms too: a missing infinitive breaks the negative imperative', () => {
+    const errors = validate(modifiedTroo((v) => { v.ro.infinitive = ''; }));
+    expect(errors.some((e) => e.startsWith('lexeme troo: cannot build') && e.includes('"polarity":"negative"'))).toBe(true);
+  });
 });
 
 describe('verb tokens', () => {

@@ -520,6 +520,7 @@ const mporei: GreekVerb = {
         past: 'might',
         pastParticiple: 'been able to',
         ing: 'being able to',
+        modal: true,
       },
     },
   },
