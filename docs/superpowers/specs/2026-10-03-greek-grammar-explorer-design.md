@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 2 (changes listed in sections 13 and 14)
+Status: revised after review 4 (changes listed in sections 13 to 16)
 
 ## 1. Purpose
 
@@ -136,8 +136,9 @@ interface ReadingPart {
 type Stored = string | { pending: true; note?: string };
 
 // Checked data that is not a lexeme and not a record with its own flag: ending tables,
-// auxiliary tables and the Romanian clitic-cluster table (section 9).
-interface ReviewItem { id: string; kind: 'ending-table' | 'auxiliary-table' | 'clitic-table'; verified: boolean }
+// auxiliary tables, the Romanian clitic-cluster table and the shared glossary of endings
+// that generated readings draw their part glosses from (section 9).
+interface ReviewItem { id: string; kind: 'ending-table' | 'auxiliary-table' | 'clitic-table' | 'glossary'; verified: boolean }
 
 // Slot: the attribute combination a form fills. Dimensions depend on part of speech.
 interface Clitic { person: Person; number: Num; gender?: Gender; role: 'object' | 'indirect' }
@@ -184,7 +185,7 @@ The **clitic engine** (`clitics.ts`) handles imperatives with weak pronouns. It 
 
 **Irregular perfective stems.** Verbs with irregular perfective stems store them as further principal parts. τρώω has a present stem τρώ-, an indicative-aorist stem φαγ- (έφαγα), and a second perfective stem φα- used by the subjunctive, the imperative and the perfect base form (φάω, φάε, φάει). πάω works the same way (πήγ- in the aorist indicative, πα- in the subjunctive).
 
-A **Greek lexeme** stores the lemma, the paradigm class, one stem (or several principal parts, such as present stem and aorist stem), and optional per-slot overrides for irregular cells, and its `offers` (4.2). `inflect(lexeme, slot)` returns a `Form`. Where a cell has an override, the override wins and the `Form` carries an `IrregularNote`. **Verification** has one meaning everywhere: a flag covers the content of the record it sits on. A lexeme carries `verified: { el: boolean; ro: boolean; en: boolean }`; each flag is set when a speaker has checked that language's forms of the lexeme. Verification is per language of a lexeme, not per cell. Other checked data carries its own flag: phrases (`verified: boolean`, covering the Greek tokens and every gloss row), divergence notes and authored readings have a `verified` field, and the ending tables, auxiliary tables and the Romanian clitic-cluster table are listed as `ReviewItem`s in `data/review.ts`. A `pending` cell leaves its language's flag false. The release check (7) requires every flag to be true and no `pending` cell to remain.
+A **Greek lexeme** stores the lemma, the paradigm class, one stem (or several principal parts, such as present stem and aorist stem), and optional per-slot overrides for irregular cells, and its `offers` (4.2). `inflect(lexeme, slot)` returns a `Form`. Where a cell has an override, the override wins and the `Form` carries an `IrregularNote`. **Verification** has one meaning everywhere: a flag covers the content of the record it sits on. A lexeme carries `verified: { el: boolean; ro: boolean; en: boolean }`; each flag is set when a speaker has checked that language's forms of the lexeme. Verification is per language of a lexeme, not per cell. Other checked data carries its own flag: phrases (`verified: boolean`, covering the Greek tokens and every gloss row), divergence notes, authored readings and form groups have a `verified` field (a form group's flag covers its `meaning`, its member notes, its `closeNotSame.reason` and the claim that its members mean the same), and the ending tables, auxiliary tables, the Romanian clitic-cluster table and the shared glossary of endings are listed as `ReviewItem`s in `data/review.ts`. A `pending` cell leaves its language's flag false. The release check (7) requires every flag to be true and no `pending` cell to remain.
 
 **What is stored and what is generated in Romanian and English.** The Greek forms are generated (above). For Romanian and English, each lexeme stores only its *lexical* forms, and compound forms are generated from shared tables. Stored cells are `Stored` values and may be marked `pending`.
 
@@ -251,6 +252,7 @@ interface FormGroup {
   members: GroupMember[];
   // The verb with no object: shown under the strip as "close, not the same" (5.4).
   closeNotSame?: { verb: GroupMember['verb']; reason: string };   // Φάε!, "no object: what to eat is not said"
+  verified: boolean;     // covers meaning, member notes, closeNotSame.reason and the claim that the members mean the same
 }
 interface GroupMember {
   verb: { lexeme: LexemeId; slot: Extract<Slot, { pos: 'verb' }> };   // slot includes polarity, clitics, shortForm
@@ -373,7 +375,7 @@ Quantifier panel details:
 
 - Rows "with a noun" and "on its own" are always shown. "On its own" uses the pronoun form where Romanian differs.
 - A badge marks the mass or count reading for πολύς and λίγος. The "kind of noun" control switches the number; the degree control switches to the comparative (περισσότερος, λιγότερος).
-- Romanian cells marked `pending` (7) show "not yet added" instead of a guess. The genitive of several Romanian quantifiers is in this state (section 9). Pending cells are a development aid: a release build refuses them (7), so before release each one is either filled in or removed from the lexeme's `offers`, and the Role control then omits that case.
+- Romanian cells marked `pending` (7) show "not yet added" instead of a guess. The genitive of several Romanian quantifiers is in this state (section 9). Pending cells are a development aid: a release build refuses them (7), so before release each one is either filled in or removed from the lexeme's `offers`, and the Role control then omits that case. `offers` sits on the Greek lexeme, so removing a slot also hides the confirmed Greek and English forms of that slot: if the Romanian singular genitive of *mult* is still pending at release, the singular genitive of πολύς (πολλού) disappears from the Role control too, while the plural genitive (*multor*, confirmed) stays. This is an accepted trade-off for the prototype.
 - κανένας shares its pattern with the numeral ένας; the panel says so and links to the numeral panel.
 
 Numerals follow their own rules: 1 (ένας/μία/ένα), 3 (τρεις/τρία) and 4 (τέσσερις/τέσσερα) change with gender and case; 2 and 5 never change. Romanian changes 1 (un/o) and 2 (doi/două) by gender; English never changes.
@@ -631,7 +633,7 @@ A build-time script (`npm run validate`) fails the build when:
 
 The script also fails the build when an irregular form has no authored reading, or a compound form's generated reading has a part with no gloss.
 
-**Release mode.** `npm run validate -- --release` additionally fails when any `pending` cell remains or any record is not verified: a language of a lexeme, an ending table, an auxiliary table, the Romanian clitic-cluster table, an authored reading, a phrase (its tokens and glosses) or a divergence note. A lexeme slot that cannot be confirmed before release is removed from the lexeme's `offers`, so the panel never shows it.
+**Release mode.** `npm run validate -- --release` additionally fails when any `pending` cell remains or any record is not verified: a language of a lexeme, an ending table, an auxiliary table, the Romanian clitic-cluster table, an authored reading, the shared glossary of endings, a form group, a phrase (its tokens and glosses) or a divergence note. A lexeme slot that cannot be confirmed before release is removed from the lexeme's `offers`, so the panel never shows it.
 
 The script also prints a report (not a failure) of every `pending` cell, of entries not yet `verified`, and of authored glosses that disagree with the generated Romanian split (4.5).
 
@@ -656,6 +658,8 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the plural αλεπούδες and the plural ψωμιά;
 - the numeral forms (τρεις/τρία/τριών, τέσσερις/τέσσερα/τεσσάρων);
 - the mediopassive and deponent paradigms (πλένομαι, κοιμάμαι) and their aorists (πλύθηκα, κοιμήθηκα);
+- every form group (4.6): the claim that its members mean the same, the `meaning` text, the member notes and the close-not-the-same reasons;
+- the shared glossary of endings (5.5), which every generated "how to read this" line draws on ("-εις = you (singular), present" and the rest);
 - the "how to read this" texts (5.5): every authored reading, both levels, since they are the part a learner reads most closely;
 - the conditional, participle and clitic material in 6.5: the conditional forms θα έτρωγα, θα ήθελα and θα είχα φάει, the exclusion of θα + aorist from the conditional (and whether a speaker agrees it means a guess about the past), the participles πλυμένος and ψημένος, the Romanian participles and conditionals, the shortened forms (φάτο, δως μου το), the accent rule for clitics (an extra accent two syllables after the original stress: δώσε μού το, τηλεφώνησέ μου, διάβασέ μου το), the Romanian clitic clusters (*mi-o*, *nu-l*, *m-am*), and every clitic form in the tables; the English forms stored for the verbs in 6.6, including the present participles and the forms of "be"; phrase 39 (Θέλω να μην πάω) and its Romanian *Vreau să nu merg*; the English naturals now chosen for phrases 1, 22 and 29 ("I want", "I wanted / I'd like", "I would like");
 - phrases 21 to 28: the imperfect paradigms and the stress and augment rules (ήθελα / θέλαμε, έτρωγα / τρώγαμε, πηδούσα), the use of Ήθελα as a polite request, the imperatives (φάε, τρώε, πλύνε and their plurals), the negative imperatives (μην φας …), μπορεί να έχει φάει, and the Romanian counterparts (*Mâncam multă pâine*, *Mănâncă pâinea!*, *Nu mânca pâinea!*, *Spală copilul!*, *Poate să fi mâncat*);
@@ -663,10 +667,10 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the perfect and subjunctive: the base forms (φάει, πάει, πηδήξει, πλυθεί), the full aorist-subjunctive paradigms of τρώω and πάω (φάω … φάνε, πάω … πάνε), the present subjunctive of τρώω, the simple future, and the negated subjunctive (να μην);
 - Romanian perfect and subjunctive: *mâncasem* (and the rest of the pluperfect paradigm), *voi fi mâncat*, the subjunctive of *a mânca*, *a merge* and *a sări*, and the reflexive perfect *m-am spălat*;
 - the quantifiers: κάποιον (with the final ν), the πολύς forms (πολύ in the accusative singular masculine, πολλοί, πολλών), whether μερικοί is the right counterpart of *câțiva* and *niște*, the use of κάποιος for *vreun / vreo*, and the comparative forms περισσότερος and λιγότερος;
-- Romanian quantifiers: *câteva* and *câtorva*, *multor*, *vreunui / vreunei*, *niciunui / niciunei*, the choice of *niciun* vs *nicio* in phrase 9, and the missing genitives (*mult, multă, puțin, puțină* and the stand-alone pronouns), which must be filled in, or removed from the lexeme's `offers`, before release;
+- Romanian quantifiers: *câteva* and *câtorva*, *multor*, *vreunui / vreunei*, *niciunui / niciunei*, the choice of *niciun* vs *nicio* in phrase 9, and the missing genitives (*mult, multă, puțin, puțină*), which must be filled in, or removed from the lexeme's `offers`, before release;
 - Romanian: the sentence *Vulpea rapidă și maro sare peste câinele leneș*, the adjective forms (*calzi, rapizi, leneși*, feminine genitive *calde*), the numerals, the reflexive forms, and the perfect and future forms of *a vrea* and *a sări*.
 
-Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note or an authored reading, and the `ReviewItem`s for the ending, auxiliary and clitic tables. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
+Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
 ## 10. Risks
 
@@ -688,7 +692,7 @@ Reviewed content is marked verified in the data, on the record that holds it (4.
 2. Every part of speech in the phrases has a working panel with controls, a current-form table and (Improver) a full table, in all three languages.
 3. Clicking between Greek tokens and gloss units, including segments, works in both directions.
 4. `npm run validate`, the unit tests and the component tests pass.
-5. The content review in section 9 is complete, and `npm run validate -- --release` passes: no `pending` cell remains, and every lexeme language, ending table, auxiliary table, clitic table, authored reading, phrase (tokens and glosses) and divergence note is verified.
+5. The content review in section 9 is complete, and `npm run validate -- --release` passes: no `pending` cell remains, and every lexeme language, ending table, auxiliary table, clitic table, glossary of endings, authored reading, form group, phrase (tokens and glosses) and divergence note is verified.
 6. The page works at phone width and in light and dark mode.
 7. Every form group renders its members together, and the strip's highlighting, notes and Beginner / Improver differences work.
 
@@ -739,7 +743,7 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | 6 Romanian clitic clusters, English reordering | Clusters and fusions stored in a table keyed by sequence and position; English object reordering is a rule in the generator | 4.3, 8, 9 |
 | 7 "Close, not the same" field | `FormGroup.closeNotSame` | 4.6 |
 | 8 Overlapping member kinds | Order of precedence stated; with-noun wins | 4.6 |
-| 9 Where `verified` lives | A `verified: boolean` on every lexeme in all three languages; per lexeme, not per cell; validator checks it exists | 4.3, 7 |
+| 9 Where `verified` lives | A `verified: boolean` on every lexeme in all three languages; per lexeme, not per cell; validator checks it exists (superseded in review 3, see section 15) | 4.3, 7 |
 | 10 Missing lexemes | Romanian and English lexeme inventories added | 6.6 |
 | 11 Subjunctive clitic scope | Clitics only in imperative slots; subjunctive placement is comparison only; validator enforces | 2, 4.2, 7 |
 | Negation placement | δεν before θα and the verb; μην after να | 4.3 |
@@ -760,3 +764,13 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Glosses: authored or generated | Authored. The stem and suffix data only check them | 4.3, 4.5, 8 |
 | English inventory gaps | Added keep, do, used to, myself, several, anyone, someone, no one, a lot of, a little | 6.6 |
 | Unit-test-only verbs | τηλεφωνώ and διαβάζω are test fixtures, outside `data/` | 6.6 |
+
+## 16. Changes since the fourth review
+
+| Review 4 point | Change | Where |
+|---|---|---|
+| 1 Form groups unreviewed | `FormGroup.verified`; added to the release check, the §9 list and the definition of done | 4.3, 4.6, 7, 9, 11 |
+| 2 Glossary of endings unreviewed | A fourth `ReviewItem` kind, `glossary`; added to the release check, the §9 list and the definition of done | 4.2, 4.3, 7, 9, 11 |
+| 3 `offers` hides confirmed Greek forms | Stated as an accepted trade-off, with the πολλού / *multor* example | 5.3 |
+| 4 Genitive stand-alone pronouns | Dropped from the §9 pending line; they are out of scope (6.3) | 9 |
+| 5 Stale row in §14 | Row 9 marked superseded, pointing to §15 | 14 |

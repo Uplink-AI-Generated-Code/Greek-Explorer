@@ -376,7 +376,7 @@ export interface Divergence {
 /** Checked data that is not a lexeme and has no flag of its own: the ending tables (spec 4.2, 9). */
 export interface ReviewItem {
   id: string;
-  kind: 'ending-table' | 'auxiliary-table' | 'clitic-table';
+  kind: 'ending-table' | 'auxiliary-table' | 'clitic-table' | 'glossary';
   verified: boolean;
 }
 ```
