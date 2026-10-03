@@ -15,12 +15,49 @@ describe('inflectNoun (καφές, class masc-es)', () => {
 
   for (const c of cases) {
     it(`${c.number} ${c.case} -> ${c.stem}${c.ending}`, () => {
-      expect(inflectNoun(kafes, { pos: 'noun', number: c.number, case: c.case })).toEqual({
+      expect(inflectNoun(kafes, { pos: 'noun', number: c.number, case: c.case })).toMatchObject({
         stem: c.stem,
         ending: c.ending,
       });
     });
   }
+});
+
+describe('inflectNoun (more classes)', () => {
+  const noun = (id: string) => getNoun(id);
+  const forms = (id: string, number: 'sg' | 'pl', c: 'nom' | 'acc' | 'gen') => inflectNoun(noun(id), { pos: 'noun', number, case: c });
+
+  it('σκύλος (masc-os)', () => {
+    expect(forms('skylos', 'sg', 'nom')).toMatchObject({ stem: 'σκύλ', ending: 'ος' });
+    expect(forms('skylos', 'sg', 'acc')).toMatchObject({ stem: 'σκύλ', ending: 'ο' });
+    expect(forms('skylos', 'sg', 'gen')).toMatchObject({ stem: 'σκύλ', ending: 'ου' });
+    expect(forms('skylos', 'pl', 'nom')).toMatchObject({ stem: 'σκύλ', ending: 'οι' });
+    expect(forms('skylos', 'pl', 'acc')).toMatchObject({ stem: 'σκύλ', ending: 'ους' });
+    expect(forms('skylos', 'pl', 'gen')).toMatchObject({ stem: 'σκύλ', ending: 'ων' });
+  });
+
+  it('αλεπού (fem-ou): the singular is invariable and the plural adds -δ-', () => {
+    expect(forms('alepou', 'sg', 'nom')).toMatchObject({ stem: 'αλεπού', ending: '' });
+    expect(forms('alepou', 'sg', 'acc')).toMatchObject({ stem: 'αλεπού', ending: '' });
+    expect(forms('alepou', 'sg', 'gen')).toMatchObject({ stem: 'αλεπού', ending: 'ς' });
+    expect(forms('alepou', 'pl', 'nom')).toMatchObject({ stem: 'αλεπούδ', ending: 'ες' });
+    expect(forms('alepou', 'pl', 'gen')).toMatchObject({ stem: 'αλεπούδ', ending: 'ων' });
+  });
+
+  it('παιδί (neut-i)', () => {
+    expect(forms('paidi', 'sg', 'nom')).toMatchObject({ stem: 'παιδ', ending: 'ί' });
+    expect(forms('paidi', 'sg', 'gen')).toMatchObject({ stem: 'παιδ', ending: 'ιού' });
+    expect(forms('paidi', 'pl', 'nom')).toMatchObject({ stem: 'παιδ', ending: 'ιά' });
+    expect(forms('paidi', 'pl', 'gen')).toMatchObject({ stem: 'παιδ', ending: 'ιών' });
+  });
+
+  it('attaches an irregularity note only where the class has one', () => {
+    expect(forms('kafes', 'sg', 'acc').irregular?.rule).toBe('drop-final-s');
+    expect(forms('kafes', 'sg', 'nom').irregular).toBeUndefined();
+    expect(forms('alepou', 'sg', 'nom').irregular?.rule).toBe('invariable-singular');
+    expect(forms('alepou', 'pl', 'nom').irregular?.rule).toBe('plural-delta');
+    expect(forms('paidi', 'pl', 'nom').irregular).toBeUndefined();
+  });
 });
 
 describe('inflectArticle (definite)', () => {
@@ -120,7 +157,7 @@ describe('inflectVerb (θέλω, -ω class, present active)', () => {
 
 describe('inflect dispatcher', () => {
   it('routes a noun slot to the noun engine', () => {
-    expect(inflect(getNoun('kafes'), { pos: 'noun', number: 'sg', case: 'acc' })).toEqual({
+    expect(inflect(getNoun('kafes'), { pos: 'noun', number: 'sg', case: 'acc' })).toMatchObject({
       stem: 'καφ',
       ending: 'έ',
     });

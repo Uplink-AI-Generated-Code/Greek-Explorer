@@ -22,9 +22,73 @@ const kafes: GreekNoun = {
       sg: { definite: 'cafeaua', indefinite: 'o cafea', genDefinite: 'cafelei', genIndefinite: 'unei cafele' },
       pl: { definite: 'cafelele', indefinite: 'cafele', genDefinite: 'cafelelor', genIndefinite: 'unor cafele' },
     },
+    split: { sg: ['cafea', 'ua'], pl: ['cafele', 'le'] },
   },
   en: { sg: 'coffee', pl: 'coffees' },
   note: 'Masculine in Greek, feminine in Romanian (o cafea), no gender in English.',
+};
+
+const skylos: GreekNoun = {
+  id: 'skylos',
+  pos: 'noun',
+  lemma: 'σκύλος',
+  verified: { el: false, ro: false, en: false },
+  gender: 'm',
+  class: 'masc-os',
+  stems: { sg: 'σκύλ', pl: 'σκύλ' },
+  ro: {
+    lemma: 'câine',
+    gender: 'm',
+    forms: {
+      sg: { definite: 'câinele', indefinite: 'un câine', genDefinite: 'câinelui', genIndefinite: 'unui câine' },
+      pl: { definite: 'câinii', indefinite: 'câini', genDefinite: 'câinilor', genIndefinite: 'unor câini' },
+    },
+    split: { sg: ['câine', 'le'], pl: ['câini', 'i'] },
+  },
+  en: { sg: 'dog', pl: 'dogs' },
+  note: 'Masculine in Greek and Romanian.',
+};
+
+const alepou: GreekNoun = {
+  id: 'alepou',
+  pos: 'noun',
+  lemma: 'αλεπού',
+  verified: { el: false, ro: false, en: false },
+  gender: 'f',
+  class: 'fem-ou',
+  stems: { sg: 'αλεπού', pl: 'αλεπούδ' },
+  ro: {
+    lemma: 'vulpe',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'vulpea', indefinite: 'o vulpe', genDefinite: 'vulpii', genIndefinite: 'unei vulpi' },
+      pl: { definite: 'vulpile', indefinite: 'vulpi', genDefinite: 'vulpilor', genIndefinite: 'unor vulpi' },
+    },
+    split: { sg: ['vulpe', 'a'], pl: ['vulpi', 'le'] },
+  },
+  en: { sg: 'fox', pl: 'foxes' },
+  note: 'Feminine in Greek and Romanian.',
+};
+
+const paidi: GreekNoun = {
+  id: 'paidi',
+  pos: 'noun',
+  lemma: 'παιδί',
+  verified: { el: false, ro: false, en: false },
+  gender: 'n',
+  class: 'neut-i',
+  stems: { sg: 'παιδ', pl: 'παιδ' },
+  ro: {
+    lemma: 'copil',
+    gender: 'm',
+    forms: {
+      sg: { definite: 'copilul', indefinite: 'un copil', genDefinite: 'copilului', genIndefinite: 'unui copil' },
+      pl: { definite: 'copiii', indefinite: 'copii', genDefinite: 'copiilor', genIndefinite: 'unor copii' },
+    },
+    split: { sg: ['copil', 'ul'], pl: ['copii', 'i'] },
+  },
+  en: { sg: 'child', pl: 'children' },
+  note: 'Neuter in Greek, masculine in Romanian (copil), no gender in English.',
 };
 
 const zestos: GreekAdjective = {
@@ -77,6 +141,9 @@ const thelo: GreekVerb = {
 
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
+  [skylos.id]: skylos,
+  [alepou.id]: alepou,
+  [paidi.id]: paidi,
   [zestos.id]: zestos,
   [numeral.id]: numeral,
   [def.id]: def,

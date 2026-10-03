@@ -1,12 +1,57 @@
-import type { Case, Gender, Num, NumeralValue } from '../types';
+import type { Case, Gender, IrregularNote, Num, NounClass, NumeralValue } from '../types';
 
 export type EndingTable = Record<Num, Record<Case, string>>;
 export type Pair = readonly [stem: string, ending: string];
 
-export const NOUN_CLASSES: Record<'masc-es', EndingTable> = {
+export const NOUN_CLASSES: Record<NounClass, EndingTable> = {
   'masc-es': {
     sg: { nom: 'ές', acc: 'έ', gen: 'έ' },
     pl: { nom: 'ες', acc: 'ες', gen: 'ων' },
+  },
+  'masc-os': {
+    sg: { nom: 'ος', acc: 'ο', gen: 'ου' },
+    pl: { nom: 'οι', acc: 'ους', gen: 'ων' },
+  },
+  /** Feminine nouns in -ού: the singular does not change except in the genitive, and the plural adds -δ-. */
+  'fem-ou': {
+    sg: { nom: '', acc: '', gen: 'ς' },
+    pl: { nom: 'ες', acc: 'ες', gen: 'ων' },
+  },
+  'neut-i': {
+    sg: { nom: 'ί', acc: 'ί', gen: 'ιού' },
+    pl: { nom: 'ιά', acc: 'ιά', gen: 'ιών' },
+  },
+};
+
+type NoteKey = `${Num}-${Case}`;
+
+/** One-line explanations for cells that surprise a learner. Cells not listed have no note. */
+export const NOUN_NOTES: Partial<Record<NounClass, Partial<Record<NoteKey, IrregularNote>>>> = {
+  'masc-es': {
+    'sg-acc': {
+      rule: 'drop-final-s',
+      plain: 'The final ς drops in the singular accusative and genitive (ο καφές → τον καφέ).',
+    },
+    'sg-gen': {
+      rule: 'drop-final-s',
+      plain: 'The final ς drops in the singular accusative and genitive (ο καφές → του καφέ).',
+    },
+  },
+  'masc-os': {
+    'sg-acc': { rule: 'drop-final-s', plain: 'In the singular accusative the final ς drops (ο σκύλος → τον σκύλο).' },
+  },
+  'fem-ou': {
+    'sg-nom': {
+      rule: 'invariable-singular',
+      plain: 'The singular does not change between subject and object: only the article shows the role.',
+    },
+    'sg-acc': {
+      rule: 'invariable-singular',
+      plain: 'The singular does not change between subject and object: only the article shows the role.',
+    },
+    'pl-nom': { rule: 'plural-delta', plain: 'The plural adds -δ-: αλεπού → αλεπούδες.' },
+    'pl-acc': { rule: 'plural-delta', plain: 'The plural adds -δ-: αλεπού → αλεπούδες.' },
+    'pl-gen': { rule: 'plural-delta', plain: 'The plural adds -δ-: αλεπού → αλεπούδων.' },
   },
 };
 

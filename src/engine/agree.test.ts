@@ -91,3 +91,38 @@ describe('nounPhrase with a count', () => {
     expect(() => nounPhrase(kafes, 'sg', 'nom', { count: 3 })).toThrow('A counted noun phrase is plural');
   });
 });
+
+describe('nounPhrase with the other nouns', () => {
+  const np = (id: string, ...args: [Parameters<typeof nounPhrase>[1], Parameters<typeof nounPhrase>[2], Parameters<typeof nounPhrase>[3]?]) =>
+    nounPhrase(getNoun(id), ...args);
+
+  it('σκύλος: definite accusative', () => {
+    const r = np('skylos', 'sg', 'acc', { article: 'definite' });
+    expect(richText(r.el)).toBe('τον σκύλο');
+    expect(r.ro).toBe('câinele');
+    expect(r.en).toBe('the dog');
+  });
+
+  it('αλεπού: indefinite nominative uses the feminine numeral', () => {
+    const r = np('alepou', 'sg', 'nom', { article: 'one' });
+    expect(richText(r.el)).toBe('μία αλεπού');
+    expect(r.ro).toBe('o vulpe');
+    expect(r.en).toBe('a fox');
+  });
+
+  it('παιδί: definite plural nominative, neuter in Greek and masculine in Romanian', () => {
+    const r = np('paidi', 'pl', 'nom', { article: 'definite' });
+    expect(richText(r.el)).toBe('τα παιδιά');
+    expect(r.ro).toBe('copiii');
+    expect(r.en).toBe('the children');
+  });
+
+  it('counts each noun with the numeral that agrees with it', () => {
+    expect(richText(np('alepou', 'pl', 'acc', { count: 2 }).el)).toBe('δύο αλεπούδες');
+    expect(np('alepou', 'pl', 'acc', { count: 2 }).ro).toBe('două vulpi');
+    expect(richText(np('skylos', 'pl', 'acc', { count: 4 }).el)).toBe('τέσσερις σκύλους');
+    expect(np('skylos', 'pl', 'acc', { count: 4 }).ro).toBe('patru câini');
+    expect(richText(np('paidi', 'pl', 'nom', { count: 3 }).el)).toBe('τρία παιδιά');
+    expect(np('paidi', 'pl', 'nom', { count: 3 }).en).toBe('three children');
+  });
+});

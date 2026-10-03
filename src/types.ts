@@ -41,12 +41,20 @@ export interface RoNounForms {
   genIndefinite: string;
 }
 
+export type NounClass = 'masc-es' | 'masc-os' | 'fem-ou' | 'neut-i';
+
 export interface GreekNoun extends LexemeBase {
   pos: 'noun';
   gender: Gender;
-  class: 'masc-es';
+  class: NounClass;
   stems: Record<Num, string>;
-  ro: { lemma: string; gender: Gender; forms: Record<Num, RoNounForms> };
+  ro: {
+    lemma: string;
+    gender: Gender;
+    forms: Record<Num, RoNounForms>;
+    /** Stem and article suffix of the nominative/accusative definite form (câine + le), used to check gloss segments. */
+    split: Record<Num, readonly [stem: string, suffix: string]>;
+  };
   en: Record<Num, string>;
   /** One line comparing gender and form across the three languages. */
   note: string;

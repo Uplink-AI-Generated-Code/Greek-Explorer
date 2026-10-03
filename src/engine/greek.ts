@@ -2,6 +2,7 @@ import {
   ADJ_STRESSED,
   ARTICLE_DEF,
   NOUN_CLASSES,
+  NOUN_NOTES,
   NUMERAL_FORMS,
   VERB_OMEGA_PRESENT,
 } from '../data/paradigms';
@@ -18,7 +19,9 @@ import type {
 } from '../types';
 
 export function inflectNoun(l: GreekNoun, s: SlotOf<'noun'>): Form {
-  return { stem: l.stems[s.number], ending: NOUN_CLASSES[l.class][s.number][s.case] };
+  const form: Form = { stem: l.stems[s.number], ending: NOUN_CLASSES[l.class][s.number][s.case] };
+  const note = NOUN_NOTES[l.class]?.[`${s.number}-${s.case}` as const];
+  return note ? { ...form, irregular: note } : form;
 }
 
 export function inflectAdjective(l: GreekAdjective, s: SlotOf<'adjective'>): Form {

@@ -68,6 +68,7 @@ describe('validate', () => {
             sg: { definite: '', indefinite: 'o cafea', genDefinite: 'cafelei', genIndefinite: 'unei cafele' },
             pl: { definite: 'cafelele', indefinite: 'cafele', genDefinite: 'cafelelor', genIndefinite: 'unor cafele' },
           },
+          split: { sg: ['cafea', 'ua'], pl: ['cafele', 'le'] },
         },
       },
     } as typeof LEXEMES;
