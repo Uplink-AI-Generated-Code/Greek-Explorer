@@ -90,7 +90,7 @@ Tests live next to their module (`*.test.ts` / `*.test.tsx`).
 
 **Files:**
 - Create: `package.json`, `tsconfig.json`, `vite.config.ts`, `index.html`, `.gitignore`
-- Create: `src/main.tsx`, `src/App.tsx` (placeholder), `src/test-setup.ts`
+- Create: `src/main.tsx`, `src/App.tsx` (placeholder), `src/test-setup.ts`, `src/vite-env.d.ts`
 - Create: `src/types.ts`, `src/data/paradigms.ts`, `src/data/lexemes.ts`
 - Create: `src/engine/greek.ts`
 - Test: `src/engine/greek.test.ts`
@@ -201,6 +201,12 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+```
+
+`src/vite-env.d.ts` (lets TypeScript accept the CSS import in `main.tsx`):
+
+```ts
+/// <reference types="vite/client" />
 ```
 
 `src/App.tsx` (placeholder, replaced in Task 8):
