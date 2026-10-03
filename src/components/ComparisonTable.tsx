@@ -1,10 +1,27 @@
-import type { Divergence, Level, Pos } from '../types';
+import type { Divergence, Level, Pos, Slot } from '../types';
 
-export function selectDivergences(all: Divergence[], pos: Pos, lexemeId: string, level: Level): Divergence[] {
+function matchesWhen(when: Divergence['appliesTo']['when'], slot: Slot | undefined): boolean {
+  if (!when) return true;
+  if (!slot || slot.pos !== 'verb') return false;
+  return (
+    (!when.moods || when.moods.includes(slot.mood)) &&
+    (!when.tenses || when.tenses.includes(slot.tense)) &&
+    (!when.voices || when.voices.includes(slot.voice))
+  );
+}
+
+export function selectDivergences(
+  all: Divergence[],
+  pos: Pos,
+  lexemeId: string,
+  level: Level,
+  slot?: Slot,
+): Divergence[] {
   return all.filter(
     (d) =>
       d.appliesTo.pos === pos &&
       (d.appliesTo.lexeme === undefined || d.appliesTo.lexeme === lexemeId) &&
+      matchesWhen(d.appliesTo.when, slot) &&
       (level === 'improver' || d.level === 'core'),
   );
 }

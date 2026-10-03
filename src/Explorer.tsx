@@ -16,7 +16,7 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
   const token = phrase.tokens[selected];
   const state = states[selected];
   const panel = buildPanel(state, token, level);
-  const divergences = selectDivergences(DIVERGENCES, state.slot.pos, token.lexeme, level);
+  const divergences = selectDivergences(DIVERGENCES, state.slot.pos, token.lexeme, level, state.slot);
   const differsFromPhrase = !sameState(state, initial[selected]);
 
   function changeControl(key: string, value: string) {

@@ -240,7 +240,12 @@ export interface Phrase {
 
 export interface Divergence {
   id: string;
-  appliesTo: { pos: Pos; lexeme?: string };
+  appliesTo: {
+    pos: Pos;
+    lexeme?: string;
+    /** For verbs: show the row only when the panel's slot matches every listed dimension. */
+    when?: { moods?: Mood[]; tenses?: Tense[]; voices?: Voice[] };
+  };
   point: string;
   el: string;
   ro: string;
