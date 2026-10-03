@@ -47,8 +47,8 @@ export function WordPanel({ panel, onChange, onBack, onPiece }: Props) {
         <section className="reading" aria-label="How to read this">
           <p className="full-title">How to read this</p>
           {panel.reading.map((line) => (
-            <div className="reading-line" lang={line.lang} key={line.lang}>
-              <p className="reading-parts">
+            <div className="reading-line" key={line.lang}>
+              <p className="reading-parts" lang={line.lang}>
                 {line.parts.map((part, i) => {
                   const className = `reading-part reading-${part.role}`;
                   const opens =
@@ -73,7 +73,7 @@ export function WordPanel({ panel, onChange, onBack, onPiece }: Props) {
                   );
                 })}
               </p>
-              <p className="reading-text">{line.sentence}</p>
+              <p className="reading-text" lang={line.lang === 'el' ? undefined : line.lang}>{line.sentence}</p>
             </div>
           ))}
         </section>

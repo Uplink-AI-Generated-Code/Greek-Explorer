@@ -52,9 +52,9 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
   {
     rule: 'stress-shift',
     beginner:
-      '{text}: {parts}. In the "we" and "you (pl.)" forms the stress moves toward the end, so the word looks different from the other past forms.',
+      '{text}: {parts}. {note}',
     improver:
-      '{text}: {technical}. The stress moves forward in the plural, so the stem takes a different accent and any augment is dropped.',
+      '{text}: {technical}. {note}',
     verified: false,
   },
   {

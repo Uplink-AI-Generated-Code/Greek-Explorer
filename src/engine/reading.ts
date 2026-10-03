@@ -93,16 +93,17 @@ function englishLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): 
   const core = parts.verb.replace(/\s*\(.*\)$/, '');
   const words = [parts.lead, core].join(' ').split(' ').filter((word) => word !== '');
   if (words.length < 2) return undefined;
-  const gloss = (word: string): string => {
-    if (EN_FUNCTION[word]) return EN_FUNCTION[word];
+  // The last word of the group is the lexical verb, even when it is "have" or "do".
+  const gloss = (word: string, last: boolean): string => {
+    if (!last && EN_FUNCTION[word]) return EN_FUNCTION[word];
     if (word === en.ing) return `${word} (in progress)`;
     if (word === en.pastParticiple) return `${word} (past participle: never changes)`;
     if (word === en.base) return `${word} (the verb)`;
     if (word === en.past) return `${word} (past)`;
-    return word;
+    return EN_FUNCTION[word] ?? word;
   };
   const text = enVerbText(verb, slot, EN_PRONOUNS[whoIndex(slot)]);
-  return wordsLine(text, words.map((word) => ({ word, gloss: gloss(word) })), greekText);
+  return wordsLine(text, words.map((word, i) => ({ word, gloss: gloss(word, i === words.length - 1) })), greekText);
 }
 
 /**
@@ -138,7 +139,9 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
 
   const lexical = composed.pieces[composed.pieces.length - 1];
   const form = lexical.kind === 'verb' ? lexical.form : undefined;
-  const template = form?.irregular ? READING_TEMPLATES.find((t) => t.rule === form.irregular?.rule) : undefined;
+  const negativeCommand = negative && slot.mood === 'imperative';
+  // A negative command already has its own extra sentence, so a template would make a third.
+  const template = form?.irregular && !negativeCommand ? READING_TEMPLATES.find((t) => t.rule === form.irregular?.rule) : undefined;
 
   const listing = parts.map((p) => `${p.label} = ${p.gloss}`).join(', ');
   const technical = composed.pieces.map((piece) => describe(piece, kind)).join(' + ');
@@ -153,9 +156,9 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
     technical,
     stem: form?.stem ?? '',
     ending: form?.ending ?? '',
+    note: form?.irregular?.plain ?? '',
   };
 
-  const negativeCommand = negative && slot.mood === 'imperative';
   const beginnerTail =
     kind === 'base'
       ? ' Only έχω changes with the person.'
@@ -166,7 +169,7 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
     kind === 'base' ? ' The auxiliary carries the person.' : negativeCommand ? ' The subjunctive replaces the imperative.' : '';
 
   const beginner = (template ? fill(template.beginner, vars) : `${composed.text}: ${listing}.`) + beginnerTail;
-  const improver = (template ? fill(template.improver, vars) : `${name}: ${technical}.`) + improverTail;
+  const improver = (template ? `${negative ? `${name}: ` : ''}${fill(template.improver, vars)}` : `${name}: ${technical}.`) + improverTail;
 
   const ro = romanianLine(verb, slot, composed.text);
   const en = englishLine(verb, slot, composed.text);

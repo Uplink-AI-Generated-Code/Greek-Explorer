@@ -320,6 +320,38 @@ describe('how to read this', () => {
     expect(screen.getByRole('group', { name: 'Έχω φάει' })).toBeInTheDocument();
   });
 
+  it('a reading part presses the matching chip piece, or none when the phrase lacks it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I will have eaten');
+    await user.click(within(screen.getByRole('region', { name: 'How to read this' })).getByRole('button', { name: 'θα: will' }));
+    expect(within(screen.getByRole('group', { name: 'Θα έχω φάει' })).getByRole('button', { name: 'Θα' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('a reading part the phrase does not have presses no chip piece', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I have eaten');
+    await user.selectOptions(screen.getByLabelText('Negated?'), 'Yes');
+    await user.click(within(screen.getByRole('region', { name: 'How to read this' })).getByRole('button', { name: 'δεν: not' }));
+    const panel = screen.getByRole('region', { name: 'Word panel' });
+    expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('δεν');
+    const group = screen.getByRole('group', { name: 'Έχω φάει' });
+    for (const chip of within(group).getAllByRole('button')) expect(chip).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('the reading sentence is not marked as Greek', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I will have eaten');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    const sentence = within(reading).getByText(/^θα έχω φάει: θα = will/);
+    expect(sentence.closest('[lang="el"]')).toBeNull();
+  });
+
   it('an irregular form uses its authored reading', async () => {
     const user = userEvent.setup();
     render(<App />);

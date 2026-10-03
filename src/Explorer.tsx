@@ -25,6 +25,18 @@ function pieceToOpen(lexemeId: string, slot: Slot, index: number): OpenPiece | n
   return { token: { text: pieceText(piece), lexeme: piece.lexeme, slot: piece.slot }, state, initial: state };
 }
 
+function pieceKindAt(from: OpenPiece, index: number): string | undefined {
+  if (from.state.slot.pos !== 'verb') return undefined;
+  return compose(getVerb(from.token.lexeme), from.state.slot).pieces[index]?.kind;
+}
+
+/** The piece of the authored token with this kind and lexeme, or -1 when the phrase has none (so nothing is pressed). */
+function authoredPiece(authored: Token, lexemeId: string, kind: string | undefined): number {
+  if (authored.slot.pos !== 'verb') return -1;
+  const pieces = compose(getVerb(authored.lexeme), authored.slot).pieces;
+  return pieces.findIndex((p) => p.kind !== 'verb' && p.kind === kind && p.lexeme === lexemeId);
+}
+
 /** One phrase: the phrase bar, the gloss rows, the word panel and the comparison. */
 export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
   const initial = phrase.tokens.map((t) => initialState(t, phrase));
@@ -55,8 +67,9 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
 
   /** A reading part was clicked: open that piece of the form the panel is showing (its current slot, not the phrase's). */
   function openFromReading(pieceIndex: number) {
-    setOpen(pieceToOpen(current.token.lexeme, current.state.slot, pieceIndex));
-    setPiece(null);
+    const opened = pieceToOpen(current.token.lexeme, current.state.slot, pieceIndex);
+    setOpen(opened);
+    setPiece(opened ? authoredPiece(token, opened.token.lexeme, pieceKindAt(current, pieceIndex)) : null);
   }
 
   function back() {

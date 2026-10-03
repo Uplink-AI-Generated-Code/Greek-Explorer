@@ -116,9 +116,21 @@ describe('readingFor: irregular forms use the authored template of their rule', 
   it('stress-shift: τρώγαμε', () => {
     const line = greek('troo', vs('indicative', 'imperfect', 1, 'pl'));
     expect(line.beginner).toBe(
-      'τρώγαμε: τρώγ- = eat, -αμε = we, in the past (was doing). In the "we" and "you (pl.)" forms the stress moves toward the end, so the word looks different from the other past forms.',
+      'τρώγαμε: τρώγ- = eat, -αμε = we, in the past (was doing). In the "we" and "you (pl.)" forms the stress moves toward the end of the word, so the past-tense prefix drops out and the stem takes the accent.',
     );
-    expect(line.improver).toContain('The stress moves forward in the plural');
+    expect(line.improver).toContain('the stem takes the accent.');
+  });
+
+  it('stress-shift: πλένονταν keeps the stress on the stem', () => {
+    const line = greek('pleno', vs('indicative', 'imperfect', 3, 'pl', 'mediopassive'));
+    expect(line.beginner).toContain('the stress stays on the stem');
+    expect(line.beginner).not.toContain('moves toward the end');
+  });
+
+  it('stress-shift: πλενόμαστε is not described as a past form', () => {
+    const line = greek('pleno', vs('indicative', 'present', 1, 'pl', 'mediopassive'));
+    expect(line.beginner).not.toContain('past forms');
+    expect(line.improver).not.toContain('past forms');
   });
 
   it('monosyllable: τρως', () => {
@@ -135,8 +147,22 @@ describe('readingFor: irregular forms use the authored template of their rule', 
 
   it('a template and the negative-command sentence combine: μην φας', () => {
     const line = greek('troo', neg(vs('imperative', 'aorist', 2, 'sg')));
-    expect(line.beginner).toContain('A word of one syllable loses its accent mark.');
+    const sentences = line.beginner.split('. ');
+    expect(sentences).toHaveLength(2);
     expect(line.beginner).toContain('To forbid something');
+    expect(line.improver.startsWith('Negative imperative aorist')).toBe(true);
+  });
+
+  it('a negative irregular form names the tense in the Improver wording', () => {
+    const line = greek('troo', neg(vs('indicative', 'imperfect', 1, 'pl')));
+    expect(line.improver.startsWith('Negative imperfect')).toBe(true);
+  });
+
+  it('English glosses the last word of the group as the lexical verb', () => {
+    const { en } = readingFor(getVerb('echo'), vs('indicative', 'future'));
+    expect(en?.beginner).toContain('I will have: ');
+    expect(en?.beginner).toContain('have = have (the verb)');
+    expect(en?.beginner).toContain('will = will (the future)');
   });
 });
 
