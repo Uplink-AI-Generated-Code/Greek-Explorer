@@ -42,6 +42,12 @@ export function WordPanel({ panel, onChange }: Props) {
           <FormTable rows={panel.full} />
         </>
       )}
+      {panel.overview && panel.overview.length > 0 && (
+        <>
+          <p className="full-title">All tenses for this person: the outlined form is the one in use</p>
+          <FormTable rows={panel.overview} />
+        </>
+      )}
     </section>
   );
 }

@@ -1,9 +1,10 @@
-import { getLexeme } from '../data/lexemes';
+import { getLexeme, getVerb } from '../data/lexemes';
 import type {
   Case,
   GreekAdjective,
   GreekNoun,
   GreekNumeral,
+  GreekParticle,
   GreekPreposition,
   GreekVerb,
   Level,
@@ -19,7 +20,8 @@ import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
 import type { Panel, PanelState } from './types';
-import { verbPanel } from './verb';
+import { particlePanel } from './particle';
+import { changeVerbSlot, verbPanel } from './verb';
 
 export type { Control, Panel, PanelRow, PanelState } from './types';
 
@@ -53,14 +55,22 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
     case 'preposition':
       return prepositionPanel(lexeme as GreekPreposition, state, level);
     case 'particle':
-      throw new Error('the particle panel arrives with the verb panel task');
+      return particlePanel(lexeme as GreekParticle, level);
   }
 }
 
 /** Returns a new state with one control applied; a control that does not apply returns the same state. */
-export function applyControl(state: PanelState, key: string, value: string): PanelState {
+export function applyControl(state: PanelState, key: string, value: string, lexemeId?: string): PanelState {
   const { slot } = state;
   switch (key) {
+    case 'mood':
+    case 'tense':
+    case 'voice':
+      if (slot.pos === 'verb') {
+        if (!lexemeId) throw new Error(`the ${key} control needs the lexeme`);
+        return { ...state, slot: changeVerbSlot(getVerb(lexemeId), slot, key, value) };
+      }
+      break;
     case 'who':
       if (slot.pos === 'verb') {
         return { ...state, slot: { ...slot, person: Number(value[0]) as Person, number: value.slice(1) as Num } };

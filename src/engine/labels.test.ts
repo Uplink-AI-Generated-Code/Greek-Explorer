@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EN_PRONOUNS, GENDER_NAME, GREEK_PRONOUNS, RO_PRONOUNS, caseOptions, numberOptions, whoOptions } from './labels';
+import { EN_PRONOUNS, GENDER_NAME, GREEK_PRONOUNS, RO_PRONOUNS, caseOptions, moodLabel, moodOptions, numberOptions, tenseLabel, tenseOptions, voiceOptions, whoOptions, whoOptionsFor } from './labels';
 
 describe('labels', () => {
   it('uses plain case names for Beginner', () => {
@@ -30,5 +30,25 @@ describe('labels', () => {
     expect(RO_PRONOUNS[0]).toBe('eu');
     expect(EN_PRONOUNS[0]).toBe('I');
     expect(GENDER_NAME.n).toBe('neuter');
+  });
+});
+
+describe('verb labels', () => {
+  it('names moods for each level', () => {
+    expect(moodLabel('beginner', 'subjunctive')).toBe('wish or possibility');
+    expect(moodLabel('improver', 'subjunctive')).toBe('subjunctive');
+    expect(moodOptions('beginner', ['indicative', 'conditional']).map((o) => o.label)).toEqual(['a fact', 'would']);
+  });
+  it('names tenses for each level', () => {
+    expect(tenseLabel('beginner', 'indicative', 'aorist')).toBe('did (once)');
+    expect(tenseLabel('improver', 'indicative', 'aorist')).toBe('aorist');
+    expect(tenseLabel('improver', 'indicative', 'future')).toBe('future (continuous)');
+    expect(tenseOptions('improver', 'imperative', ['present', 'aorist']).map((o) => o.label)).toEqual([
+      'present (keep doing)', 'aorist (do it once)',
+    ]);
+  });
+  it('names voices and persons', () => {
+    expect(voiceOptions('beginner', ['active', 'mediopassive']).map((o) => o.label)).toEqual(['doing it', 'done to oneself']);
+    expect(whoOptionsFor(['2sg', '2pl']).map((o) => o.label)).toEqual(['you', 'you (pl.)']);
   });
 });

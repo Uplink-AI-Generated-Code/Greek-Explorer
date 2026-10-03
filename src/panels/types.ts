@@ -3,7 +3,7 @@ import type { Rich } from '../engine/segments';
 import type { Num, Slot } from '../types';
 
 export interface Control {
-  key: 'who' | 'noun' | 'number' | 'count' | 'value' | 'case';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'noun' | 'number' | 'count' | 'value' | 'case';
   label: string;
   options: Option[];
   value: string;
@@ -16,6 +16,8 @@ export interface PanelRow {
   en: Rich;
   /** Per-column highlight: the cell that holds the form in use. */
   hl?: { el?: boolean; ro?: boolean; en?: boolean };
+  /** A row with no form: the reason, shown in place of the cells. */
+  dimmed?: string;
 }
 
 export interface Panel {
@@ -25,6 +27,8 @@ export interface Panel {
   rows: PanelRow[];
   /** The full paradigm; filled only at the Improver level. */
   full: PanelRow[];
+  /** Verbs, Improver only: every mood and tense for the selected person. */
+  overview?: PanelRow[];
   plain: string;
   /** A one-line reason when the form in use is irregular, or ''. */
   irregular: string;

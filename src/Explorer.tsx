@@ -20,7 +20,7 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
   const differsFromPhrase = !sameState(state, initial[selected]);
 
   function changeControl(key: string, value: string) {
-    setStates((current) => current.map((s, i) => (i === selected ? applyControl(s, key, value) : s)));
+    setStates((current) => current.map((s, i) => (i === selected ? applyControl(s, key, value, token.lexeme) : s)));
   }
 
   function resetToPhrase() {

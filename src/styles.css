@@ -96,3 +96,5 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .gloss-segment[aria-pressed='true'] { background: var(--accent-bg); color: var(--accent-text); }
 .gloss-segment:focus-visible { outline: 2px solid var(--accent-border); outline-offset: -2px; }
 
+
+.form-table tr.is-dim th, .form-table tr.is-dim td { color: var(--muted); font-style: italic; }
