@@ -233,3 +233,11 @@ describe('verb tokens', () => {
     );
   });
 });
+
+describe('segmented units with punctuation', () => {
+  it('does not warn when a segment carries trailing punctuation: pâine|a!', () => {
+    const eat = PHRASES.find((x) => x.id === 'eat-the-bread');
+    expect(eat).toBeDefined();
+    expect(warnings({ lexemes: LEXEMES, phrases: [eat as Phrase] })).toEqual([]);
+  });
+});

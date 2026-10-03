@@ -11,10 +11,14 @@ describe('PhrasePicker', () => {
     expect(within(ordering).getAllByRole('option').map((o) => o.textContent)).toEqual([
       'Ordering a hot coffee',
       'Ordering three coffees',
+      "I'd like a coffee",
+      'I would like a coffee',
     ]);
     const fox = screen.getByRole('group', { name: 'The fox sentence' });
     expect(within(fox).getAllByRole('option').map((o) => o.textContent)).toEqual([
       'The quick brown fox jumps over the lazy dog',
+      'The fox has jumped over the dog',
+      'The fox was jumping over the dog',
     ]);
   });
 

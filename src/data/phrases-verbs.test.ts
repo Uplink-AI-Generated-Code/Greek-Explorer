@@ -17,8 +17,8 @@ describe('phrases with verbs (voice, perfects, subjunctive)', () => {
     'future-perfect', 'want-to-eat', 'want-to-eat-regularly', 'have-washed-myself',
   ];
 
-  it('are in the picker, after the first three phrases', () => {
-    expect(PHRASES.slice(3, 3 + ids.length).map((p) => p.id)).toEqual(ids);
+  it('are all in the picker', () => {
+    for (const id of ids) expect(PHRASES.map((p) => p.id)).toContain(id);
   });
 
   it('validate with no errors and no warnings', () => {
@@ -64,5 +64,60 @@ describe('phrases with verbs (voice, perfects, subjunctive)', () => {
     const ro = (id: string) => byId(id).glosses.find((g) => g.language === 'ro' && g.kind === 'natural');
     expect(ro('present-perfect')?.units.map((u) => ('text' in u ? u.text : '')).join(' ')).toBe('Am mâncat');
     expect(ro('have-washed-myself')?.units.map((u) => ('text' in u ? u.text : '')).join(' ')).toBe('M-am spălat');
+  });
+});
+
+describe('phrases with verbs (past, imperative, conditional)', () => {
+  const ids = [
+    'fox-has-jumped', 'ate-the-bread', 'wanted-a-coffee', 'fox-was-jumping', 'eat-the-bread',
+    'wash-the-child', 'keep-eating-the-bread', 'may-have-eaten', 'would-like-a-coffee', 'would-have-eaten-the-bread',
+  ];
+
+  it('are all present, unverified, with a theme', () => {
+    for (const id of ids) {
+      expect(byId(id).verified).toBe(false);
+      expect(byId(id).theme).not.toBe('');
+    }
+  });
+
+  it('the picker lists all 22 phrases in the spec order', () => {
+    expect(PHRASES.map((p) => p.id)).toEqual([
+      'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
+      'washing-myself', 'washing-the-child', 'sleeping',
+      'present-perfect', 'past-perfect', 'future-perfect', 'want-to-eat', 'want-to-eat-regularly',
+      'fox-has-jumped', 'have-washed-myself', 'ate-the-bread', 'wanted-a-coffee', 'fox-was-jumping',
+      'eat-the-bread', 'wash-the-child', 'keep-eating-the-bread', 'may-have-eaten',
+      'would-like-a-coffee', 'would-have-eaten-the-bread',
+    ]);
+  });
+
+  it('validate with no errors and no warnings', () => {
+    expect(validate({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+    expect(warnings({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+  });
+
+  it('the aorist and the perfect are different Greek tokens with the same Romanian words', () => {
+    const roVerb = (id: string) =>
+      byId(id).glosses.find((g) => g.language === 'ro' && g.kind === 'natural')?.units[0];
+    expect(byId('ate-the-bread').tokens[0].text).toBe('Έφαγα');
+    expect(byId('present-perfect').tokens[0].text).toBe('Έχω φάει');
+    expect(roVerb('ate-the-bread')).toEqual({ text: 'Am mâncat', link: 0 });
+  });
+
+  it('the imperatives are second-person singular, aorist and present', () => {
+    expect(byId('eat-the-bread').tokens[0].slot).toMatchObject({ mood: 'imperative', tense: 'aorist', person: 2 });
+    expect(byId('keep-eating-the-bread').tokens[0].slot).toMatchObject({ mood: 'imperative', tense: 'present', person: 2 });
+    expect(byId('wash-the-child').tokens[0].slot).toMatchObject({ mood: 'imperative', tense: 'aorist', person: 2 });
+  });
+
+  it('the polite imperfect and the conditional differ only in θα', () => {
+    expect(byId('wanted-a-coffee').tokens[0].text).toBe('Ήθελα');
+    expect(byId('would-like-a-coffee').tokens[0].text).toBe('Θα ήθελα');
+  });
+
+  it('the modal and its subjunctive are two tokens', () => {
+    const phrase = byId('may-have-eaten');
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Μπορεί', 'να έχει φάει']);
+    expect(phrase.tokens[0].slot).toMatchObject({ person: 3, number: 'sg' });
   });
 });

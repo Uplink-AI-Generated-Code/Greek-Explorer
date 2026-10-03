@@ -397,6 +397,204 @@ const haveWashedMyself: Phrase = {
   verified: false,
 };
 
+const foxHasJumped: Phrase = {
+  id: 'fox-has-jumped',
+  title: 'The fox has jumped over the dog',
+  theme: 'The fox sentence',
+  level: 'improver',
+  tokens: [
+    { text: 'Η', lexeme: 'def', slot: { pos: 'article', gender: 'f', number: 'sg', case: 'nom' }, agreesWith: 1 },
+    { text: 'αλεπού', lexeme: 'alepou', slot: { pos: 'noun', number: 'sg', case: 'nom' } },
+    { text: 'έχει πηδήξει', lexeme: 'pidao', slot: vslot('indicative', 'perfect', 3) },
+    { text: 'πάνω από', lexeme: 'pano', slot: { pos: 'preposition' }, agreesWith: 5 },
+    { text: 'τον', lexeme: 'def', slot: { pos: 'article', gender: 'm', number: 'sg', case: 'acc' }, agreesWith: 5 },
+    { text: 'σκύλο', lexeme: 'skylos', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('The', 0), u('fox', 1), u('has', p(2, 0)), u('jumped', p(2, 1)), u('over', 3), u('the', 4), u('dog', 5)],
+    [
+      u('the-[nom]', 0), u('fox', 1), u('has', p(2, 0)), u('jumped', p(2, 1)),
+      u('above-from', 3), u('the-[acc]', 4), u('dog-[acc]', 5),
+    ],
+    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), seg(['câine', 5], ['le', 4])],
+    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), seg(['câine', 5], ['le', 4])],
+  ),
+  verified: false,
+};
+
+const ateTheBread: Phrase = {
+  id: 'ate-the-bread',
+  title: 'I ate the bread',
+  theme: 'Eating',
+  level: 'beginner',
+  tokens: [
+    { text: 'Έφαγα', lexeme: 'troo', slot: vslot('indicative', 'aorist') },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I ate', 0), u('the', 1), u('bread', 2)],
+    [u('(I)', null), u('ate', 0), u('the-[acc]', 1), u('bread', 2)],
+    [u('Am mâncat', 0), seg(['pâine', 2], ['a', 1])],
+    [u('(Eu)', null), u('am mâncat', 0), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const wantedACoffee: Phrase = {
+  id: 'wanted-a-coffee',
+  title: "I'd like a coffee",
+  theme: 'Ordering',
+  level: 'beginner',
+  tokens: [
+    { text: 'Ήθελα', lexeme: 'thelo', slot: vslot('indicative', 'imperfect') },
+    { text: 'έναν', lexeme: 'numeral', slot: { pos: 'numeral', value: 1, gender: 'm', case: 'acc' }, agreesWith: 2 },
+    { text: 'καφέ', lexeme: 'kafes', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u("I'd like", 0), u('a', 1), u('coffee', 2)],
+    [u('(I)', null), u('wanted', 0), u('a-one', 1), u('coffee', 2)],
+    [u('Aș vrea', 0), u('o', 1), u('cafea', 2)],
+    [u('(Eu)', null), u('voiam', 0), u('o', 1), u('cafea', 2)],
+  ),
+  verified: false,
+};
+
+const foxWasJumping: Phrase = {
+  id: 'fox-was-jumping',
+  title: 'The fox was jumping over the dog',
+  theme: 'The fox sentence',
+  level: 'improver',
+  tokens: [
+    { text: 'Η', lexeme: 'def', slot: { pos: 'article', gender: 'f', number: 'sg', case: 'nom' }, agreesWith: 1 },
+    { text: 'αλεπού', lexeme: 'alepou', slot: { pos: 'noun', number: 'sg', case: 'nom' } },
+    { text: 'πηδούσε', lexeme: 'pidao', slot: vslot('indicative', 'imperfect', 3) },
+    { text: 'πάνω από', lexeme: 'pano', slot: { pos: 'preposition' }, agreesWith: 5 },
+    { text: 'τον', lexeme: 'def', slot: { pos: 'article', gender: 'm', number: 'sg', case: 'acc' }, agreesWith: 5 },
+    { text: 'σκύλο', lexeme: 'skylos', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('The', 0), u('fox', 1), u('was jumping', 2), u('over', 3), u('the', 4), u('dog', 5)],
+    [u('the-[nom]', 0), u('fox', 1), u('was jumping', 2), u('above-from', 3), u('the-[acc]', 4), u('dog-[acc]', 5)],
+    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), seg(['câine', 5], ['le', 4])],
+    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), seg(['câine', 5], ['le', 4])],
+  ),
+  verified: false,
+};
+
+const eatTheBread: Phrase = {
+  id: 'eat-the-bread',
+  title: 'Eat the bread!',
+  theme: 'Eating',
+  level: 'beginner',
+  tokens: [
+    { text: 'Φάε', lexeme: 'troo', slot: vslot('imperative', 'aorist', 2) },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('Eat', 0), u('the', 1), u('bread!', 2)],
+    [u('(you)', null), u('eat', 0), u('the-[acc]', 1), u('bread', 2)],
+    [u('Mănâncă', 0), seg(['pâine', 2], ['a!', 1])],
+    [u('(tu)', null), u('mănâncă', 0), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const washTheChild: Phrase = {
+  id: 'wash-the-child',
+  title: 'Wash the child!',
+  theme: 'Daily life',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πλύνε', lexeme: 'pleno', slot: vslot('imperative', 'aorist', 2) },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'παιδί!', lexeme: 'paidi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('Wash', 0), u('the', 1), u('child!', 2)],
+    [u('(you)', null), u('wash', 0), u('the-[acc]', 1), u('child', 2)],
+    [u('Spală', 0), seg(['copil', 2], ['ul!', 1])],
+    [u('(tu)', null), u('spală', 0), seg(['copil', 2], ['ul', 1])],
+  ),
+  verified: false,
+};
+
+const keepEatingTheBread: Phrase = {
+  id: 'keep-eating-the-bread',
+  title: 'Keep eating the bread!',
+  theme: 'Eating',
+  level: 'beginner',
+  tokens: [
+    { text: 'Τρώε', lexeme: 'troo', slot: vslot('imperative', 'present', 2) },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('Keep eating', 0), u('the', 1), u('bread!', 2)],
+    [u('(you)', null), u('eat-[ongoing]', 0), u('the-[acc]', 1), u('bread', 2)],
+    [u('Mănâncă', 0), seg(['pâine', 2], ['a!', 1])],
+    [u('(tu)', null), u('mănâncă', 0), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const mayHaveEaten: Phrase = {
+  id: 'may-have-eaten',
+  title: 'He / she may have eaten',
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [
+    { text: 'Μπορεί', lexeme: 'mporei', slot: vslot('indicative', 'present', 3) },
+    { text: 'να έχει φάει', lexeme: 'troo', slot: vslot('subjunctive', 'perfect', 3) },
+  ],
+  glosses: rows(
+    [u('He / she may', 0), u('have', p(1, 1)), u('eaten', p(1, 2))],
+    [u('it-is-possible', 0), u('that', p(1, 0)), u('(he/she)', null), u('has', p(1, 1)), u('eaten', p(1, 2))],
+    [u('Poate', 0), u('să', p(1, 0)), u('fi', p(1, 1)), u('mâncat', p(1, 2))],
+    [u('poate', 0), u('să', p(1, 0)), u('fi', p(1, 1)), u('mâncat', p(1, 2))],
+  ),
+  verified: false,
+};
+
+const wouldLikeACoffee: Phrase = {
+  id: 'would-like-a-coffee',
+  title: 'I would like a coffee',
+  theme: 'Ordering',
+  level: 'improver',
+  tokens: [
+    { text: 'Θα ήθελα', lexeme: 'thelo', slot: vslot('conditional', 'imperfect') },
+    { text: 'έναν', lexeme: 'numeral', slot: { pos: 'numeral', value: 1, gender: 'm', case: 'acc' }, agreesWith: 2 },
+    { text: 'καφέ', lexeme: 'kafes', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I would', p(0, 0)), u('like', p(0, 1)), u('a', 1), u('coffee', 2)],
+    [u('(I)', null), u('will', p(0, 0)), u('wanted', p(0, 1)), u('a-one', 1), u('coffee', 2)],
+    [u('Aș', p(0, 0)), u('vrea', p(0, 1)), u('o', 1), u('cafea', 2)],
+    [u('(Eu)', null), u('aș', p(0, 0)), u('vrea', p(0, 1)), u('o', 1), u('cafea', 2)],
+  ),
+  verified: false,
+};
+
+const wouldHaveEaten: Phrase = {
+  id: 'would-have-eaten-the-bread',
+  title: 'I would have eaten the bread',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Θα είχα φάει', lexeme: 'troo', slot: vslot('conditional', 'pluperfect') },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I would', p(0, 0)), u('have', p(0, 1)), u('eaten', p(0, 2)), u('the', 1), u('bread', 2)],
+    [u('(I)', null), u('will', p(0, 0)), u('had', p(0, 1)), u('eaten', p(0, 2)), u('the-[acc]', 1), u('bread', 2)],
+    [u('Aș', p(0, 0)), u('fi', p(0, 1)), u('mâncat', p(0, 2)), seg(['pâine', 2], ['a', 1])],
+    [u('(Eu)', null), u('aș', p(0, 0)), u('fi', p(0, 1)), u('mâncat', p(0, 2)), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -409,6 +607,15 @@ export const PHRASES: Phrase[] = [
   futurePerfect,
   wantToEat,
   wantToEatRegularly,
+  foxHasJumped,
   haveWashedMyself,
+  ateTheBread,
+  wantedACoffee,
+  foxWasJumping,
+  eatTheBread,
+  washTheChild,
+  keepEatingTheBread,
+  mayHaveEaten,
+  wouldLikeACoffee,
+  wouldHaveEaten,
 ];
-

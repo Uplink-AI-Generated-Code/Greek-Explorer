@@ -232,7 +232,7 @@ export function warnings(input: ValidationInput): string[] {
           continue;
         }
         const expected = noun.ro.split[nounToken.slot.number];
-        const actual = unit.segments.map((s) => s.text);
+        const actual = unit.segments.map((s) => s.text.replace(/[!?.,;]+$/u, ''));
         if (actual.length !== 2 || actual[0] !== expected[0] || actual[1] !== expected[1]) {
           out.push(
             `${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data splits it ${expected.join(' + ')}`,
