@@ -687,7 +687,7 @@ Reviewed forms are marked `verified: true` in the data. The app does not show an
 
 ## 13. Changes since the first review
 
-Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: the reviewer retracted it before sending and did not renumber) and a few smaller ones. This section records what changed and where. The numbers below are the review's own.
+Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: the reviewer retracted their original point 2 and renumbered the old points 3 to 9 as 2 to 8, but left points 10 to 20 as they were) and a few smaller ones. This section records what changed and where. The numbers below are the review's own.
 
 | Review point | Change | Where |
 |---|---|---|
