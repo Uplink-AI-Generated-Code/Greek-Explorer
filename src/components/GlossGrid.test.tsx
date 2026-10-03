@@ -60,3 +60,36 @@ describe('GlossGrid', () => {
     expect(screen.getByText('(I)')).toHaveClass('gloss-unit', 'is-gap');
   });
 });
+
+describe('GlossGrid with segmented units (the fox sentence)', () => {
+  const fox = PHRASES[2].glosses;
+  const pressed = (name: string) => screen.getAllByRole('button', { name }).map((b) => b.getAttribute('aria-pressed'));
+
+  it('shows each segment as its own button, in both Romanian rows', () => {
+    render(<GlossGrid glosses={fox} selected={0} onSelect={() => {}} />);
+    expect(screen.getAllByRole('button', { name: 'câine' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'le' })).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'câinele' })).not.toBeInTheDocument();
+  });
+
+  it('selecting the article highlights only the suffix', () => {
+    render(<GlossGrid glosses={fox} selected={6} onSelect={() => {}} />);
+    expect(pressed('le')).toEqual(['true', 'true']);
+    expect(pressed('câine')).toEqual(['false', 'false']);
+  });
+
+  it('selecting the noun highlights only the stem', () => {
+    render(<GlossGrid glosses={fox} selected={8} onSelect={() => {}} />);
+    expect(pressed('câine')).toEqual(['true', 'true']);
+    expect(pressed('le')).toEqual(['false', 'false']);
+  });
+
+  it('clicking a segment selects the token it is linked to', async () => {
+    const onSelect = vi.fn();
+    render(<GlossGrid glosses={fox} selected={0} onSelect={onSelect} />);
+    await userEvent.setup().click(screen.getAllByRole('button', { name: 'le' })[0]);
+    expect(onSelect).toHaveBeenLastCalledWith(6);
+    await userEvent.setup().click(screen.getAllByRole('button', { name: 'vulpe' })[0]);
+    expect(onSelect).toHaveBeenLastCalledWith(3);
+  });
+});

@@ -2,7 +2,7 @@ import { DIVERGENCES } from '../src/data/divergences';
 import { LEXEMES } from '../src/data/lexemes';
 import { PHRASES } from '../src/data/phrases';
 import { REVIEW_ITEMS } from '../src/data/review';
-import { validate } from '../src/validate/validate';
+import { validate, warnings } from '../src/validate/validate';
 
 const errors = validate({ lexemes: LEXEMES, phrases: PHRASES });
 const release = process.argv.includes('--release');
@@ -18,6 +18,11 @@ const unverified = [
 
 if (unverified.length > 0) {
   console.log(`Unverified (${unverified.length}):\n  ${unverified.join('\n  ')}`);
+}
+
+const warned = warnings({ lexemes: LEXEMES, phrases: PHRASES });
+if (warned.length > 0) {
+  console.log(`Warnings (${warned.length}):\n  ${warned.join('\n  ')}`);
 }
 
 if (errors.length > 0) {

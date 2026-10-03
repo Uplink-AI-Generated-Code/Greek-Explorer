@@ -1,5 +1,5 @@
 import { inflect } from '../engine/greek';
-import { linkedToken } from '../glossLinks';
+import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
 import type { Case, Gender, GreekLexeme, Num, NumeralValue, Person, Phrase, Slot, Token } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
@@ -140,13 +140,14 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
         continue;
       }
       for (const unit of row.units) {
-        if (unit.link === null) continue;
-        const token = linkedToken(unit.link);
-        if (token < 0 || token >= phrase.tokens.length) {
-          errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unit.text}" links to missing token ${token}`);
-        }
-        if (typeof unit.link === 'object' && (!Number.isInteger(unit.link.piece) || unit.link.piece < 0)) {
-          errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unit.text}" has an invalid piece ${unit.link.piece}`);
+        for (const link of linksOf(unit)) {
+          const token = linkedToken(link);
+          if (token < 0 || token >= phrase.tokens.length) {
+            errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" links to missing token ${token}`);
+          }
+          if (typeof link === 'object' && (!Number.isInteger(link.piece) || link.piece < 0)) {
+            errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" has an invalid piece ${link.piece}`);
+          }
         }
       }
     }
@@ -160,4 +161,34 @@ export function validate(input: ValidationInput): string[] {
   for (const lexeme of Object.values(input.lexemes)) errors.push(...checkLexeme(lexeme));
   for (const phrase of input.phrases) errors.push(...checkPhrase(phrase, input.lexemes));
   return errors;
+}
+
+/** Problems that do not fail the build: authored gloss segments that disagree with the noun data (spec 4.5). */
+export function warnings(input: ValidationInput): string[] {
+  const out: string[] = [];
+  for (const phrase of input.phrases) {
+    for (const row of phrase.glosses) {
+      if (row.language !== 'ro') continue;
+      for (const unit of row.units) {
+        if (!isSegmented(unit)) continue;
+        const where = `${phrase.id} gloss ro/${row.kind}`;
+        const nounToken = unit.segments
+          .map((s) => phrase.tokens[linkedToken(s.link)])
+          .find((t) => t !== undefined && t.slot.pos === 'noun');
+        const noun = nounToken ? input.lexemes[nounToken.lexeme] : undefined;
+        if (!nounToken || nounToken.slot.pos !== 'noun' || !noun || noun.pos !== 'noun') {
+          out.push(`${where}: segmented unit "${unitText(unit)}" is not linked to a noun`);
+          continue;
+        }
+        const expected = noun.ro.split[nounToken.slot.number];
+        const actual = unit.segments.map((s) => s.text);
+        if (actual.length !== 2 || actual[0] !== expected[0] || actual[1] !== expected[1]) {
+          out.push(
+            `${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data splits it ${expected.join(' + ')}`,
+          );
+        }
+      }
+    }
+  }
+  return out;
 }

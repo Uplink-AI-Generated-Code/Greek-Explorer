@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { LEXEMES } from '../data/lexemes';
 import { PHRASES } from '../data/phrases';
-import type { Link, Phrase, Token } from '../types';
-import { validate } from './validate';
+import { isSegmented, unitText } from '../glossLinks';
+import type { GlossUnit, Link, Phrase, Token } from '../types';
+import { validate, warnings } from './validate';
 
 const real = { lexemes: LEXEMES, phrases: PHRASES };
 
@@ -110,5 +111,57 @@ describe('validate', () => {
       pano: { ...LEXEMES.pano, ro: '' },
     } as typeof LEXEMES;
     expect(validate({ lexemes, phrases: PHRASES })).toContain('lexeme pano: empty Romanian form');
+  });
+});
+
+describe('segmented gloss units', () => {
+  const fox = PHRASES.find((p) => p.id === 'fox-sentence') as Phrase;
+
+  /** The fox sentence with its Romanian "câinele" unit replaced by the given segments. */
+  const withDogUnit = (segments: { text: string; link: number }[]): Phrase => ({
+    ...fox,
+    glosses: fox.glosses.map((g) =>
+      g.language === 'ro' && g.kind === 'natural'
+        ? {
+            ...g,
+            units: g.units.map((u): GlossUnit => (isSegmented(u) && unitText(u) === 'câinele' ? { segments } : u)),
+          }
+        : g,
+    ),
+  });
+
+  it('the real data has no errors and no warnings', () => {
+    expect(validate(real)).toEqual([]);
+    expect(warnings(real)).toEqual([]);
+  });
+
+  it('reports a segment that links to a missing token', () => {
+    const bad = withDogUnit([
+      { text: 'câine', link: 99 },
+      { text: 'le', link: 6 },
+    ]);
+    expect(validate({ ...real, phrases: [bad] })).toContain(
+      'fox-sentence gloss ro/natural: unit "câinele" links to missing token 99',
+    );
+  });
+
+  it('warns when the authored split disagrees with the noun data', () => {
+    const bad = withDogUnit([
+      { text: 'câin', link: 8 },
+      { text: 'ele', link: 6 },
+    ]);
+    expect(warnings({ ...real, phrases: [bad] })).toContain(
+      'fox-sentence gloss ro/natural: "câinele" is split câin + ele, the noun data splits it câine + le',
+    );
+  });
+
+  it('warns when a segmented unit is not linked to a noun', () => {
+    const bad = withDogUnit([
+      { text: 'câine', link: 6 },
+      { text: 'le', link: 7 },
+    ]);
+    expect(warnings({ ...real, phrases: [bad] })).toContain(
+      'fox-sentence gloss ro/natural: segmented unit "câinele" is not linked to a noun',
+    );
   });
 });

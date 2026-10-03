@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { linkedPiece, linkedToken } from './glossLinks';
+import { isSegmented, linkedPiece, linkedToken, linksOf, unitText } from './glossLinks';
 
 describe('gloss links', () => {
   it('a whole-token link is the token index', () => {
@@ -14,5 +14,29 @@ describe('gloss links', () => {
     expect(linkedToken(0)).toBe(0);
     expect(linkedToken({ token: 0, piece: 0 })).toBe(0);
     expect(linkedPiece({ token: 0, piece: 0 })).toBe(0);
+  });
+});
+
+describe('segmented gloss units', () => {
+  const plainUnit = { text: 'cafea', link: 3 };
+  const segmented = {
+    segments: [
+      { text: 'câine', link: 8 },
+      { text: 'le', link: 6 },
+    ],
+  };
+
+  it('tells the two kinds apart', () => {
+    expect(isSegmented(segmented)).toBe(true);
+    expect(isSegmented(plainUnit)).toBe(false);
+  });
+  it('joins the segments into the text of the unit', () => {
+    expect(unitText(segmented)).toBe('câinele');
+    expect(unitText(plainUnit)).toBe('cafea');
+  });
+  it('lists every link of a unit', () => {
+    expect(linksOf(segmented)).toEqual([8, 6]);
+    expect(linksOf(plainUnit)).toEqual([3]);
+    expect(linksOf({ text: '(I)', link: null })).toEqual([]);
   });
 });

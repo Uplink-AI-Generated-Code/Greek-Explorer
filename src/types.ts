@@ -123,11 +123,10 @@ export interface Token {
 /** A link points at a whole token, or at one piece of a verb group (Δεν θέλω: piece 0 is δεν). */
 export type Link = TokenIndex | { token: TokenIndex; piece: number };
 
-export interface GlossUnit {
-  text: string;
-  /** The linked Greek token (or piece of one), or null when Greek has no counterpart. */
-  link: Link | null;
-}
+export type GlossUnit =
+  | { text: string; link: Link | null }
+  /** A unit made of parts that link to different Greek tokens (Romanian câine|le). */
+  | { segments: { text: string; link: Link }[] };
 
 export interface GlossRow {
   language: 'en' | 'ro';
