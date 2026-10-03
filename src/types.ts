@@ -3,6 +3,7 @@ export type Case = 'nom' | 'acc' | 'gen';
 export type Num = 'sg' | 'pl';
 export type Person = 1 | 2 | 3;
 export type Level = 'beginner' | 'improver';
+export type NumeralValue = 1 | 2 | 3 | 4 | 5;
 
 export interface IrregularNote {
   rule: string;
@@ -21,7 +22,7 @@ export type Slot =
   | { pos: 'noun'; number: Num; case: Case }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
-  | { pos: 'numeral'; value: 1; gender: Gender; case: Case };
+  | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case };
 
 export type Pos = Slot['pos'];
 export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
@@ -68,9 +69,9 @@ export interface GreekAdjective extends LexemeBase {
 
 export interface GreekNumeral extends LexemeBase {
   pos: 'numeral';
-  value: 1;
-  ro: Record<Gender, { nom: string; gen: string }>;
-  en: string;
+  /** Romanian forms for every value; values above 1 have no genitive of their own, so `gen` repeats `nom`. */
+  ro: Record<NumeralValue, Record<Gender, { nom: string; gen: string }>>;
+  en: Record<NumeralValue, string>;
 }
 
 export interface GreekArticle extends LexemeBase {

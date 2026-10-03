@@ -5,6 +5,6 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:masc-es', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-stressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:article-def', kind: 'ending-table', verified: false },
-  { id: 'ending-table:numeral-one', kind: 'ending-table', verified: false },
+  { id: 'ending-table:numeral-forms', kind: 'ending-table', verified: false },
   { id: 'ending-table:verb-omega-present', kind: 'ending-table', verified: false },
 ];

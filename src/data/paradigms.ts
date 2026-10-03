@@ -1,4 +1,4 @@
-import type { Case, Gender, Num } from '../types';
+import type { Case, Gender, Num, NumeralValue } from '../types';
 
 export type EndingTable = Record<Num, Record<Case, string>>;
 export type Pair = readonly [stem: string, ending: string];
@@ -39,3 +39,23 @@ export const NUMERAL_ONE: Record<Gender, Record<Case, Pair>> = {
 
 /** Present active endings of -ω verbs, in the order 1sg 2sg 3sg 1pl 2pl 3pl. */
 export const VERB_OMEGA_PRESENT: readonly string[] = ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'];
+
+const invariable = (word: string): Record<Gender, Record<Case, Pair>> => {
+  const row: Record<Case, Pair> = { nom: [word, ''], acc: [word, ''], gen: [word, ''] };
+  return { m: row, f: row, n: row };
+};
+
+const mfRow = (nomAcc: string, gen: string): Record<Case, Pair> => ({
+  nom: [nomAcc, ''],
+  acc: [nomAcc, ''],
+  gen: [gen, ''],
+});
+
+/** The numerals 1 to 5. 1, 3 and 4 change with gender and case; 2 and 5 never change. */
+export const NUMERAL_FORMS: Record<NumeralValue, Record<Gender, Record<Case, Pair>>> = {
+  1: NUMERAL_ONE,
+  2: invariable('δύο'),
+  3: { m: mfRow('τρεις', 'τριών'), f: mfRow('τρεις', 'τριών'), n: mfRow('τρία', 'τριών') },
+  4: { m: mfRow('τέσσερις', 'τεσσάρων'), f: mfRow('τέσσερις', 'τεσσάρων'), n: mfRow('τέσσερα', 'τεσσάρων') },
+  5: invariable('πέντε'),
+};

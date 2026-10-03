@@ -1,4 +1,4 @@
-import type { Case, Gender, GreekAdjective, GreekNoun, GreekNumeral, GreekVerb, Num, SlotOf } from '../types';
+import type { Case, Gender, GreekAdjective, GreekNoun, GreekNumeral, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
 
 export function roNoun(n: GreekNoun, number: Num, c: Case, kind: 'definite' | 'indefinite'): string {
   const f = n.ro.forms[number];
@@ -14,8 +14,8 @@ export function roAdjective(a: GreekAdjective, roGender: Gender, number: Num, c:
   return f[number];
 }
 
-export function roNumeral(n: GreekNumeral, roGender: Gender, c: Case): string {
-  return n.ro[roGender][c === 'gen' ? 'gen' : 'nom'];
+export function roNumeral(n: GreekNumeral, value: NumeralValue, roGender: Gender, c: Case): string {
+  return n.ro[value][roGender][c === 'gen' ? 'gen' : 'nom'];
 }
 
 export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {

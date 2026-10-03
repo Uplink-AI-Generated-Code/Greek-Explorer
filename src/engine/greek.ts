@@ -2,7 +2,7 @@ import {
   ADJ_STRESSED,
   ARTICLE_DEF,
   NOUN_CLASSES,
-  NUMERAL_ONE,
+  NUMERAL_FORMS,
   VERB_OMEGA_PRESENT,
 } from '../data/paradigms';
 import type {
@@ -30,7 +30,7 @@ export function inflectArticle(_l: GreekArticle, s: SlotOf<'article'>): Form {
 }
 
 export function inflectNumeral(_l: GreekNumeral, s: SlotOf<'numeral'>): Form {
-  const [stem, ending] = NUMERAL_ONE[s.gender][s.case];
+  const [stem, ending] = NUMERAL_FORMS[s.value][s.gender][s.case];
   return { stem, ending };
 }
 

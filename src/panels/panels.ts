@@ -177,7 +177,7 @@ function numeralPanel(numeral: GreekNumeral, slot: SlotOf<'numeral'>, noun: Gree
       {
         label: 'number',
         el: numeralRich(form),
-        ro: plain(roNumeral(numeral, noun.ro.gender, slot.case)),
+        ro: plain(roNumeral(numeral, 1, noun.ro.gender, slot.case)),
         en: plain('a / an (one)'),
       },
       npRow('counting', nounPhrase(noun, 'sg', slot.case, { article: 'one' })),

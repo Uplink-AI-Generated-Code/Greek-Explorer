@@ -1,11 +1,12 @@
 import { inflect } from '../engine/greek';
 import { linkedToken } from '../glossLinks';
-import type { Case, Gender, GreekLexeme, Num, Person, Phrase, Slot, Token } from '../types';
+import type { Case, Gender, GreekLexeme, Num, NumeralValue, Person, Phrase, Slot, Token } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
 const NUMS: Num[] = ['sg', 'pl'];
 const PERSONS: Person[] = [1, 2, 3];
+const VALUES: NumeralValue[] = [1, 2, 3, 4, 5];
 
 export interface ValidationInput {
   lexemes: Record<string, GreekLexeme>;
@@ -27,7 +28,9 @@ function slotsFor(l: GreekLexeme): Slot[] {
         NUMS.flatMap((number) => CASES.map((c): Slot => ({ pos: 'article', gender, number, case: c }))),
       );
     case 'numeral':
-      return GENDERS.flatMap((gender) => CASES.map((c): Slot => ({ pos: 'numeral', value: 1, gender, case: c })));
+      return VALUES.flatMap((value) =>
+        GENDERS.flatMap((gender) => CASES.map((c): Slot => ({ pos: 'numeral', value, gender, case: c }))),
+      );
     case 'verb':
       return PERSONS.flatMap((person) =>
         NUMS.map((number): Slot => ({
@@ -69,10 +72,14 @@ function checkLexeme(l: GreekLexeme): string[] {
     if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
   }
   if (l.pos === 'numeral') {
-    for (const g of GENDERS) {
-      if (isEmpty(l.ro[g].nom) || isEmpty(l.ro[g].gen)) errors.push(`lexeme ${l.id}: empty Romanian form ${g}`);
+    for (const v of VALUES) {
+      for (const g of GENDERS) {
+        if (isEmpty(l.ro[v][g].nom) || isEmpty(l.ro[v][g].gen)) {
+          errors.push(`lexeme ${l.id}: empty Romanian form ${v}.${g}`);
+        }
+      }
+      if (isEmpty(l.en[v])) errors.push(`lexeme ${l.id}: empty English form ${v}`);
     }
-    if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
   }
   if (l.pos === 'verb') {
     if (l.ro.present.length !== 6 || l.ro.present.some(isEmpty)) {

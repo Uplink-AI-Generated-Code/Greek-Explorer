@@ -45,18 +45,21 @@ const zestos: GreekAdjective = {
   en: 'hot',
 };
 
-const one: GreekNumeral = {
-  id: 'one',
+const same = (nom: string, gen: string = nom) => ({ nom, gen });
+
+const numeral: GreekNumeral = {
+  id: 'numeral',
   pos: 'numeral',
   lemma: 'ένας',
   verified: { el: false, ro: false, en: false },
-  value: 1,
   ro: {
-    m: { nom: 'un', gen: 'unui' },
-    f: { nom: 'o', gen: 'unei' },
-    n: { nom: 'un', gen: 'unui' },
+    1: { m: same('un', 'unui'), f: same('o', 'unei'), n: same('un', 'unui') },
+    2: { m: same('doi'), f: same('două'), n: same('două') },
+    3: { m: same('trei'), f: same('trei'), n: same('trei') },
+    4: { m: same('patru'), f: same('patru'), n: same('patru') },
+    5: { m: same('cinci'), f: same('cinci'), n: same('cinci') },
   },
-  en: 'a',
+  en: { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five' },
 };
 
 const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: { el: false, ro: false, en: false } };
@@ -75,13 +78,13 @@ const thelo: GreekVerb = {
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [zestos.id]: zestos,
-  [one.id]: one,
+  [numeral.id]: numeral,
   [def.id]: def,
   [thelo.id]: thelo,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;
-export const ONE: GreekNumeral = one;
+export const NUMERAL: GreekNumeral = numeral;
 
 export function getLexeme(id: string): GreekLexeme {
   const lexeme = LEXEMES[id];

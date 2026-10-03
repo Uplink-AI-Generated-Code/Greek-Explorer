@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEF_ARTICLE, ONE, getAdjective, getLexeme, getNoun } from '../data/lexemes';
+import { DEF_ARTICLE, NUMERAL, getAdjective, getLexeme, getNoun } from '../data/lexemes';
 import { inflect, inflectAdjective, inflectArticle, inflectNoun, inflectNumeral, inflectVerb } from './greek';
 
 describe('inflectNoun (καφές, class masc-es)', () => {
@@ -48,10 +48,32 @@ describe('inflectNumeral (one)', () => {
   ] as const;
   for (const c of cases) {
     it(`${c.gender} ${c.case} -> ${c.stem}${c.ending}`, () => {
-      expect(inflectNumeral(ONE, { pos: 'numeral', value: 1, gender: c.gender, case: c.case })).toEqual({
+      expect(inflectNumeral(NUMERAL, { pos: 'numeral', value: 1, gender: c.gender, case: c.case })).toEqual({
         stem: c.stem,
         ending: c.ending,
       });
+    });
+  }
+});
+
+describe('inflectNumeral (2 to 5)', () => {
+  const cases = [
+    { value: 2, gender: 'f', case: 'gen', stem: 'δύο' },
+    { value: 2, gender: 'm', case: 'nom', stem: 'δύο' },
+    { value: 3, gender: 'm', case: 'acc', stem: 'τρεις' },
+    { value: 3, gender: 'f', case: 'nom', stem: 'τρεις' },
+    { value: 3, gender: 'n', case: 'nom', stem: 'τρία' },
+    { value: 3, gender: 'f', case: 'gen', stem: 'τριών' },
+    { value: 4, gender: 'f', case: 'nom', stem: 'τέσσερις' },
+    { value: 4, gender: 'n', case: 'acc', stem: 'τέσσερα' },
+    { value: 4, gender: 'm', case: 'gen', stem: 'τεσσάρων' },
+    { value: 5, gender: 'n', case: 'gen', stem: 'πέντε' },
+  ] as const;
+  for (const c of cases) {
+    it(`${c.value} ${c.gender} ${c.case} -> ${c.stem}`, () => {
+      expect(
+        inflectNumeral(NUMERAL, { pos: 'numeral', value: c.value, gender: c.gender, case: c.case }),
+      ).toEqual({ stem: c.stem, ending: '' });
     });
   }
 });

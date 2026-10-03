@@ -8,7 +8,7 @@ const tokens: Token[] = [
   },
   {
     text: 'έναν',
-    lexeme: 'one',
+    lexeme: 'numeral',
     slot: { pos: 'numeral', value: 1, gender: 'm', case: 'acc' },
     agreesWith: 3,
   },
