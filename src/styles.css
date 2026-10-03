@@ -64,8 +64,9 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .form-table tbody th { font-size: 12px; font-weight: 400; color: var(--muted); }
 .form-table td[lang='el'] { font-size: 16px; }
 
-.role-article, .role-pronoun { background: var(--accent-bg); color: var(--accent-text); border-radius: 4px; padding: 0 3px; }
+.role-article, .role-pronoun, .role-aux { background: var(--accent-bg); color: var(--accent-text); border-radius: 4px; padding: 0 3px; }
 .role-ending { background: var(--warn-bg); color: var(--warn-text); border-radius: 4px; padding: 0 3px; }
+.role-augment { color: var(--warn-text); border-bottom: 2px dotted var(--warn-text); }
 .role-dim { color: var(--muted); border-bottom: 1px dashed var(--muted); }
 
 .phrase-status { margin-top: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }

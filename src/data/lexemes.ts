@@ -4,8 +4,10 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekParticle,
   GreekPreposition,
   GreekVerb,
+  Tense,
 } from '../types';
 
 const kafes: GreekNoun = {
@@ -183,15 +185,43 @@ const numeral: GreekNumeral = {
 
 const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: { el: false, ro: false, en: false } };
 
+const INDICATIVE_ALL: Tense[] = [
+  'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
+];
+const SUBJUNCTIVE_ALL: Tense[] = ['present', 'aorist', 'perfect'];
+const CONDITIONAL_ALL: Tense[] = ['imperfect', 'pluperfect'];
+const IMPERATIVE_ALL: Tense[] = ['present', 'aorist'];
+/** Every mood except the imperative, which only some verbs offer. */
+const OFFERS_NO_IMPERATIVE = { indicative: INDICATIVE_ALL, subjunctive: SUBJUNCTIVE_ALL, conditional: CONDITIONAL_ALL };
+
 const thelo: GreekVerb = {
   id: 'thelo',
   pos: 'verb',
   lemma: 'θέλω',
   verified: { el: false, ro: false, en: false },
-  class: 'omega',
-  stems: { present: 'θέλ' },
-  ro: { lemma: 'a vrea', present: ['vreau', 'vrei', 'vrea', 'vrem', 'vreți', 'vor'] },
-  en: { gloss: 'want', base: 'want', third: 'wants' },
+  voices: {
+    active: {
+      lemma: 'θέλω',
+      class: 'omega',
+      stems: {
+        present: 'θέλ',
+        imperfect: { strong: { augment: 'ή', stem: 'θελ' }, weak: { stem: 'θέλ' } },
+        aorist: { strong: { stem: 'θέλησ' }, weak: { stem: 'θελήσ' } },
+        perfective: 'θελήσ',
+      },
+      offers: OFFERS_NO_IMPERATIVE,
+      ro: {
+        lemma: 'a vrea',
+        infinitive: 'vrea',
+        participle: 'vrut',
+        present: ['vreau', 'vrei', 'vrea', 'vrem', 'vreți', 'vor'],
+        subjunctive: ['vreau', 'vrei', 'vrea', 'vrem', 'vreți', 'vrea'],
+        imperfect: ['voiam', 'voiai', 'voia', 'voiam', 'voiați', 'voiau'],
+        pluperfect: ['voisem', 'voiseși', 'voise', 'voiserăm', 'voiserăți', 'voiseră'],
+      },
+      en: { gloss: 'want', base: 'want', third: 'wants', past: 'wanted', pastParticiple: 'wanted', ing: 'wanting' },
+    },
+  },
 };
 
 const pidao: GreekVerb = {
@@ -199,10 +229,29 @@ const pidao: GreekVerb = {
   pos: 'verb',
   lemma: 'πηδάω',
   verified: { el: false, ro: false, en: false },
-  class: 'contracted-ao',
-  stems: { present: 'πηδ' },
-  ro: { lemma: 'a sări', present: ['sar', 'sari', 'sare', 'sărim', 'săriți', 'sar'] },
-  en: { gloss: 'jump', base: 'jump', third: 'jumps' },
+  voices: {
+    active: {
+      lemma: 'πηδάω',
+      class: 'contracted-ao',
+      stems: {
+        present: 'πηδ',
+        imperfect: { strong: { stem: 'πηδ' }, weak: { stem: 'πηδ' } },
+        aorist: { strong: { stem: 'πήδηξ' }, weak: { stem: 'πηδήξ' } },
+        perfective: 'πηδήξ',
+      },
+      offers: OFFERS_NO_IMPERATIVE,
+      ro: {
+        lemma: 'a sări',
+        infinitive: 'sări',
+        participle: 'sărit',
+        present: ['sar', 'sari', 'sare', 'sărim', 'săriți', 'sar'],
+        subjunctive: ['sar', 'sari', 'sară', 'sărim', 'săriți', 'sară'],
+        imperfect: ['săream', 'săreai', 'sărea', 'săream', 'săreați', 'săreau'],
+        pluperfect: ['sărisem', 'săriseși', 'sărise', 'săriserăm', 'săriserăți', 'săriseră'],
+      },
+      en: { gloss: 'jump', base: 'jump', third: 'jumps', past: 'jumped', pastParticiple: 'jumped', ing: 'jumping' },
+    },
+  },
 };
 
 const preposition = (id: string, lemma: string, ro: string, en: string, meaning: string): GreekPreposition => ({
@@ -219,6 +268,28 @@ const pano = preposition('pano', 'πάνω από', 'peste', 'over', 'above');
 const kato = preposition('kato', 'κάτω από', 'sub', 'under', 'below');
 const me = preposition('me', 'με', 'cu', 'with', 'with');
 const gia = preposition('gia', 'για', 'pentru', 'for', 'for');
+
+const theta: GreekParticle = {
+  id: 'theta',
+  pos: 'particle',
+  lemma: 'θα',
+  verified: { el: false, ro: false, en: false },
+  ro: 'voi / aș (+ verb)',
+  en: 'will / would',
+  meaning: 'Marks the future (θα φάω) and, with a past tense, "would" (θα έτρωγα).',
+  example: { el: 'θα φάω', ro: 'voi mânca', en: 'will eat' },
+};
+
+const na: GreekParticle = {
+  id: 'na',
+  pos: 'particle',
+  lemma: 'να',
+  verified: { el: false, ro: false, en: false },
+  ro: 'să (+ verb)',
+  en: 'to / that',
+  meaning: 'Introduces a wish, a purpose or a possibility: Greek has no infinitive, so "to eat" is "να φάω".',
+  example: { el: 'να φάω', ro: 'să mănânc', en: 'to eat' },
+};
 
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
@@ -237,6 +308,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [kato.id]: kato,
   [me.id]: me,
   [gia.id]: gia,
+  [theta.id]: theta,
+  [na.id]: na,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;
@@ -260,5 +333,11 @@ export function getNoun(id: string): GreekNoun {
 export function getAdjective(id: string): GreekAdjective {
   const l = getLexeme(id);
   if (l.pos !== 'adjective') throw new Error(`lexeme ${id} is a ${l.pos}, not an adjective`);
+  return l;
+}
+
+export function getVerb(id: string): GreekVerb {
+  const l = getLexeme(id);
+  if (l.pos !== 'verb') throw new Error(`lexeme ${id} is a ${l.pos}, not a verb`);
   return l;
 }

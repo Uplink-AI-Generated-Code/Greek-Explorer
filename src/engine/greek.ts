@@ -5,7 +5,12 @@ import {
   NOUN_CLASSES,
   NOUN_NOTES,
   NUMERAL_FORMS,
+  VERB_AORIST,
+  VERB_BASE,
+  VERB_IMPERATIVE,
+  VERB_IMPERFECT,
   VERB_PRESENT,
+  VERB_SUBJ_AORIST,
 } from '../data/paradigms';
 import type {
   Form,
@@ -14,12 +19,17 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekParticle,
   GreekPreposition,
   GreekVerb,
   IrregularNote,
+  PastStems,
   Slot,
   SlotOf,
+  StemPair,
 } from '../types';
+import { voiceOf } from './offers';
+import { mainFormKind, whoIndex } from './tenses';
 
 export function inflectNoun(l: GreekNoun, s: SlotOf<'noun'>): Form {
   const form: Form = { stem: l.stems[s.number], ending: NOUN_CLASSES[l.class][s.number][s.case] };
@@ -47,12 +57,80 @@ export function inflectNumeral(_l: GreekNumeral, s: SlotOf<'numeral'>): Form {
   return { stem, ending };
 }
 
+const STRESS_SHIFT: IrregularNote = {
+  rule: 'stress-shift',
+  plain:
+    'In the "we" and "you (pl.)" forms the stress moves toward the end of the word, so the past-tense prefix drops out and the stem takes the accent.',
+};
+
+function pick(table: readonly (string | null)[], index: number, what: string): string {
+  const ending = table[index];
+  if (ending === null || ending === undefined) throw new Error(`no ${what} form`);
+  return ending;
+}
+
+function need<T>(value: T | undefined, what: string): T {
+  if (value === undefined) throw new Error(`no ${what}`);
+  return value;
+}
+
+function pastForm(stems: PastStems | undefined, table: readonly (string | null)[], index: number, what: string): Form {
+  const past = need(stems, `${what} stem`);
+  const weak = index === 3 || index === 4;
+  const pair: StemPair = weak ? past.weak : past.strong;
+  const form: Form = { stem: pair.stem, ending: pick(table, index, what) };
+  if (pair.augment) form.augment = pair.augment;
+  if (weak && (past.strong.augment !== undefined || past.strong.stem !== past.weak.stem)) form.irregular = STRESS_SHIFT;
+  return form;
+}
+
+/** The form the lexical verb contributes to a slot (compose adds the particle and the auxiliary). */
 export function inflectVerb(l: GreekVerb, s: SlotOf<'verb'>): Form {
-  const index = s.person - 1 + (s.number === 'pl' ? 3 : 0);
-  return { stem: l.stems.present, ending: VERB_PRESENT[l.class][index] };
+  const v = voiceOf(l, s.voice);
+  const kind = mainFormKind(s.mood, s.tense);
+  const index = whoIndex(s);
+  const what = `${l.id} ${kind}`;
+  const key = kind === 'base' ? 'base' : `${kind}.${s.person}${s.number}`;
+  const override = v.overrides?.[key];
+  if (override) {
+    const form: Form = { stem: override.stem, ending: override.ending };
+    if (override.augment) form.augment = override.augment;
+    if (override.note) form.irregular = override.note;
+    return form;
+  }
+  switch (kind) {
+    case 'present':
+      return { stem: v.stems.present, ending: pick(VERB_PRESENT[v.class], index, what) };
+    case 'imperfect':
+      return pastForm(v.stems.imperfect, VERB_IMPERFECT[v.class], index, what);
+    case 'aorist':
+      return pastForm(v.stems.aorist, VERB_AORIST[v.class], index, what);
+    case 'subjAorist':
+      return {
+        stem: need(v.stems.perfective, `${what} stem`),
+        ending: pick(VERB_SUBJ_AORIST[v.class], index, what),
+      };
+    case 'impPresent':
+    case 'impAorist': {
+      if (s.person !== 2) throw new Error('commands are for "you" only');
+      const table = VERB_IMPERATIVE[v.class][kind === 'impPresent' ? 'present' : 'aorist'];
+      if (!table) throw new Error(`no ${what} form`);
+      const stem = kind === 'impPresent' ? v.stems.present : need(v.stems.perfective, `${what} stem`);
+      return { stem, ending: table[s.number === 'sg' ? 0 : 1] };
+    }
+    case 'base': {
+      const ending = VERB_BASE[v.class];
+      if (!ending) throw new Error(`no ${what} form`);
+      return { stem: need(v.stems.perfective, `${what} stem`), ending };
+    }
+  }
 }
 
 export function inflectPreposition(l: GreekPreposition, _s: SlotOf<'preposition'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
+export function inflectParticle(l: GreekParticle, _s: SlotOf<'particle'>): Form {
   return { stem: l.lemma, ending: '' };
 }
 
@@ -71,5 +149,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectVerb(l, s as SlotOf<'verb'>);
     case 'preposition':
       return inflectPreposition(l, s as SlotOf<'preposition'>);
+    case 'particle':
+      return inflectParticle(l, s as SlotOf<'particle'>);
   }
 }

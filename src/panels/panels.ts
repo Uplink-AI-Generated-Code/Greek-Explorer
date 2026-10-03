@@ -52,6 +52,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return articlePanel(slot, state, level);
     case 'preposition':
       return prepositionPanel(lexeme as GreekPreposition, state, level);
+    case 'particle':
+      throw new Error('the particle panel arrives with the verb panel task');
   }
 }
 
@@ -65,7 +67,7 @@ export function applyControl(state: PanelState, key: string, value: string): Pan
       }
       break;
     case 'case':
-      if (slot.pos !== 'verb' && slot.pos !== 'preposition') return { ...state, slot: { ...slot, case: value as Case } };
+      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle') return { ...state, slot: { ...slot, case: value as Case } };
       break;
     case 'number':
       if (slot.pos === 'adjective' || slot.pos === 'article') {

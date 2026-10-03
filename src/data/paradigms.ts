@@ -96,11 +96,73 @@ export const NUMERAL_ONE: Record<Gender, Record<Case, Pair>> = {
   n: { nom: ['ένα', ''], acc: ['ένα', ''], gen: ['ενό', 'ς'] },
 };
 
-/** Present active endings in the order 1sg 2sg 3sg 1pl 2pl 3pl. */
-export const VERB_PRESENT: Record<VerbClass, readonly string[]> = {
+/** Endings in the order 1sg 2sg 3sg 1pl 2pl 3pl; null = no such form (impersonal verbs). */
+type Endings = readonly (string | null)[];
+const NONE: Endings = [null, null, null, null, null, null];
+
+/** Present active (and mediopassive) endings. The stem carries the accent where the class has none of its own. */
+export const VERB_PRESENT: Record<VerbClass, Endings> = {
   omega: ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'],
   /** Contracted verbs: the stressed ending replaces the -ω endings (πηδάω, πηδάς, πηδάει …). */
   'contracted-ao': ['άω', 'άς', 'άει', 'άμε', 'άτε', 'άνε'],
+  /** τρώω, πάω: the endings attach straight to a stem ending in a vowel (τρώ-με). */
+  athematic: ['ω', 'ς', 'ει', 'με', 'τε', 'νε'],
+  mediopassive: ['ομαι', 'εσαι', 'εται', 'όμαστε', 'εστε', 'ονται'],
+  deponent: ['άμαι', 'άσαι', 'άται', 'όμαστε', 'άστε', 'ούνται'],
+  impersonal: [null, null, 'εί', null, null, null],
+};
+
+/** Imperfect endings. */
+export const VERB_IMPERFECT: Record<VerbClass, Endings> = {
+  omega: ['α', 'ες', 'ε', 'αμε', 'ατε', 'αν'],
+  'contracted-ao': ['ούσα', 'ούσες', 'ούσε', 'ούσαμε', 'ούσατε', 'ούσαν'],
+  athematic: ['α', 'ες', 'ε', 'αμε', 'ατε', 'αν'],
+  mediopassive: ['όμουν', 'όσουν', 'όταν', 'όμασταν', 'όσασταν', 'όνταν'],
+  deponent: ['όμουν', 'όσουν', 'όταν', 'όμασταν', 'όσασταν', 'όνταν'],
+  impersonal: NONE,
+};
+
+/** Indicative aorist endings. */
+export const VERB_AORIST: Record<VerbClass, Endings> = {
+  omega: ['α', 'ες', 'ε', 'αμε', 'ατε', 'αν'],
+  'contracted-ao': ['α', 'ες', 'ε', 'αμε', 'ατε', 'αν'],
+  athematic: ['α', 'ες', 'ε', 'αμε', 'ατε', 'αν'],
+  mediopassive: ['ηκα', 'ηκες', 'ηκε', 'ήκαμε', 'ήκατε', 'ηκαν'],
+  deponent: ['ηκα', 'ηκες', 'ηκε', 'ήκαμε', 'ήκατε', 'ηκαν'],
+  impersonal: NONE,
+};
+
+/** Aorist subjunctive endings, added to the perfective stem. */
+export const VERB_SUBJ_AORIST: Record<VerbClass, Endings> = {
+  omega: ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'],
+  'contracted-ao': ['ω', 'εις', 'ει', 'ουμε', 'ετε', 'ουν'],
+  athematic: ['ω', 'ς', 'ει', 'με', 'τε', 'νε'],
+  mediopassive: ['ώ', 'είς', 'εί', 'ούμε', 'είτε', 'ούν'],
+  deponent: ['ώ', 'είς', 'εί', 'ούμε', 'είτε', 'ούν'],
+  impersonal: NONE,
+};
+
+/** Imperative endings (second person singular, plural); null = the class has no imperative here. */
+export const VERB_IMPERATIVE: Record<
+  VerbClass,
+  { present: readonly [string, string] | null; aorist: readonly [string, string] | null }
+> = {
+  omega: { present: ['ε', 'ετε'], aorist: ['ε', 'ετε'] },
+  'contracted-ao': { present: null, aorist: null },
+  athematic: { present: ['ε', 'τε'], aorist: ['ε', 'τε'] },
+  mediopassive: { present: null, aorist: null },
+  deponent: { present: null, aorist: null },
+  impersonal: { present: null, aorist: null },
+};
+
+/** The ending of the invariable base form used by the perfect tenses (φάει, πλυθεί). */
+export const VERB_BASE: Record<VerbClass, string | null> = {
+  omega: 'ει',
+  'contracted-ao': 'ει',
+  athematic: 'ει',
+  mediopassive: 'εί',
+  deponent: 'εί',
+  impersonal: null,
 };
 
 const invariable = (word: string): Record<Gender, Record<Case, Pair>> => {

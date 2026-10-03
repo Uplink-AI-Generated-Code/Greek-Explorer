@@ -1,3 +1,5 @@
+import { voiceOf } from './offers';
+import { whoIndex } from './tenses';
 import type { Case, Gender, GreekAdjective, GreekNoun, GreekNumeral, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
 
 export function roNoun(n: GreekNoun, number: Num, c: Case, kind: 'definite' | 'indefinite'): string {
@@ -19,5 +21,5 @@ export function roNumeral(n: GreekNumeral, value: NumeralValue, roGender: Gender
 }
 
 export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
-  return v.ro.present[s.person - 1 + (s.number === 'pl' ? 3 : 0)];
+  return voiceOf(v, s.voice).ro.present[whoIndex(s)];
 }

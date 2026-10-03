@@ -1,6 +1,6 @@
 import type { Form } from '../types';
 
-export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'sub';
+export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'sub' | 'augment' | 'aux';
 export interface Segment {
   text: string;
   role: Role;
@@ -15,8 +15,12 @@ export function joinRich(parts: Rich[]): Rich {
   return parts.flatMap((part, i) => (i === 0 ? part : [{ text: ' ', role: 'plain' as const }, ...part]));
 }
 
+export const formText = (f: Form): string => `${f.augment ?? ''}${f.stem}${f.ending}`;
+
 export function formRich(f: Form): Rich {
-  const out: Rich = [{ text: f.stem, role: 'stem' }];
+  const out: Rich = [];
+  if (f.augment) out.push({ text: f.augment, role: 'augment' });
+  out.push({ text: f.stem, role: 'stem' });
   if (f.ending) out.push({ text: f.ending, role: 'ending' });
   return out;
 }

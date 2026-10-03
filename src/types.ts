@@ -5,25 +5,37 @@ export type Person = 1 | 2 | 3;
 export type Level = 'beginner' | 'improver';
 export type NumeralValue = 1 | 2 | 3 | 4 | 5;
 
+export type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional';
+// Indicative: present, imperfect, aorist, future (θα + present), futureSimple (θα + aorist subjunctive),
+// perfect, pluperfect, futurePerfect. Subjunctive: present, aorist, perfect. Imperative: present, aorist
+// (second person only). Conditional: imperfect (θα + imperfect) and pluperfect (θα + pluperfect).
+export type Tense =
+  | 'present' | 'imperfect' | 'aorist' | 'future' | 'futureSimple' | 'perfect' | 'pluperfect' | 'futurePerfect';
+export type Voice = 'active' | 'mediopassive';
+
 export interface IrregularNote {
   rule: string;
   plain: string;
 }
 
 /** A Greek form split for display. The ending is highlighted in the UI. */
+/** A Greek form split for display. The ending is highlighted in the UI. */
 export interface Form {
+  /** The past-tense prefix (έ- in έτρωγα, ή- in ήθελα). */
+  augment?: string;
   stem: string;
   ending: string;
   irregular?: IrregularNote;
 }
 
 export type Slot =
-  | { pos: 'verb'; person: Person; number: Num; mood: 'indicative'; tense: 'present'; voice: 'active' }
+  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice }
   | { pos: 'noun'; number: Num; case: Case; count?: Exclude<NumeralValue, 1> }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
   | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case }
-  | { pos: 'preposition' };
+  | { pos: 'preposition' }
+  | { pos: 'particle' };
 
 export type Pos = Slot['pos'];
 export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
@@ -90,14 +102,92 @@ export interface GreekArticle extends LexemeBase {
   pos: 'article';
 }
 
-export type VerbClass = 'omega' | 'contracted-ao';
+export type VerbClass = 'omega' | 'contracted-ao' | 'athematic' | 'mediopassive' | 'deponent' | 'impersonal';
+
+/** A past-tense stem, with its augment when it has one (έ + τρωγ). */
+export interface StemPair {
+  augment?: string;
+  stem: string;
+}
+
+/** Past stems: `strong` for 1sg, 2sg, 3sg and 3pl; `weak` for 1pl and 2pl, where the stress moves and the augment goes. */
+export interface PastStems {
+  strong: StemPair;
+  weak: StemPair;
+}
+
+export interface VerbStems {
+  present: string;
+  imperfect?: PastStems;
+  /** The indicative aorist (έφαγα). */
+  aorist?: PastStems;
+  /** The stem of the aorist subjunctive, the aorist imperative and the base form of the perfect tenses (φά-, πλύν-). */
+  perfective?: string;
+}
+
+/** A cell that breaks its class pattern; the whole cell is stored. */
+export interface CellOverride {
+  augment?: string;
+  stem: string;
+  ending: string;
+  note?: IrregularNote;
+}
+
+/** Lexical Romanian forms; compound tenses are generated from these. Six cells are 1sg 2sg 3sg 1pl 2pl 3pl. */
+export interface RoVerbForms {
+  lemma: string;
+  /** The infinitive without "a" (mânca). */
+  infinitive: string;
+  participle: string;
+  present: readonly string[];
+  /** Without "să" (the generator adds it). */
+  subjunctive: readonly string[];
+  imperfect: readonly string[];
+  pluperfect: readonly string[];
+  imperative?: readonly [singular: string, plural: string];
+  /** Stored perfect cells for reflexive verbs, whose clitic fuses with the auxiliary (m-am spălat). */
+  perfect?: readonly string[];
+}
+
+export interface EnVerbForms {
+  /** "to ___" in the Beginner label. */
+  gloss: string;
+  base: string;
+  third: string;
+  past: string;
+  pastParticiple: string;
+  ing: string;
+  /** Adds "(myself)" and its person forms. */
+  reflexive?: boolean;
+}
+
+/** Everything a verb stores for one voice. */
+export interface VerbVoice {
+  lemma: string;
+  class: VerbClass;
+  stems: VerbStems;
+  /** Cells keyed '<kind>.<person><number>' ('present.2sg'), or 'base'. */
+  overrides?: Record<string, CellOverride>;
+  /** The slots the panel may offer, per mood. */
+  offers: Partial<Record<Mood, Tense[]>>;
+  /** Impersonal verbs (μπορεί) have one slot: the third person singular. */
+  thirdSingularOnly?: boolean;
+  ro: RoVerbForms;
+  en: EnVerbForms;
+}
 
 export interface GreekVerb extends LexemeBase {
   pos: 'verb';
-  class: VerbClass;
-  stems: { present: string };
-  ro: { lemma: string; present: string[] };
-  en: { gloss: string; base: string; third: string };
+  voices: Partial<Record<Voice, VerbVoice>>;
+}
+
+export interface GreekParticle extends LexemeBase {
+  pos: 'particle';
+  ro: string;
+  en: string;
+  /** One line of meaning for the panel. */
+  meaning: string;
+  example: { el: string; ro: string; en: string };
 }
 
 export interface GreekPreposition extends LexemeBase {
@@ -108,7 +198,8 @@ export interface GreekPreposition extends LexemeBase {
   meaning: string;
 }
 
-export type GreekLexeme = GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition;
+export type GreekLexeme =
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle;
 
 export type TokenIndex = number;
 

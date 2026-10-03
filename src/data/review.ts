@@ -13,4 +13,9 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:numeral-forms', kind: 'ending-table', verified: false },
   { id: 'ending-table:verb-present', kind: 'ending-table', verified: false },
   { id: 'ending-table:verb-contracted-ao-present', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-imperfect', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-aorist', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-subj-aorist', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-imperative', kind: 'ending-table', verified: false },
+  { id: 'ending-table:verb-base', kind: 'ending-table', verified: false },
 ];

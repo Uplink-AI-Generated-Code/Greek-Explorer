@@ -1,11 +1,11 @@
 import { inflect } from '../engine/greek';
+import { allVerbSlots } from '../engine/offers';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
-import type { Case, Gender, GreekLexeme, Num, NumeralValue, Person, Phrase, Slot, Token } from '../types';
+import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, Token, VerbVoice, Voice } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
 const NUMS: Num[] = ['sg', 'pl'];
-const PERSONS: Person[] = [1, 2, 3];
 const VALUES: NumeralValue[] = [1, 2, 3, 4, 5];
 
 export interface ValidationInput {
@@ -34,16 +34,9 @@ function slotsFor(l: GreekLexeme): Slot[] {
     case 'preposition':
       return [{ pos: 'preposition' }];
     case 'verb':
-      return PERSONS.flatMap((person) =>
-        NUMS.map((number): Slot => ({
-          pos: 'verb',
-          person,
-          number,
-          mood: 'indicative',
-          tense: 'present',
-          voice: 'active',
-        })),
-      );
+      return allVerbSlots(l);
+    case 'particle':
+      return [{ pos: 'particle' }];
   }
 }
 
@@ -84,10 +77,16 @@ function checkLexeme(l: GreekLexeme): string[] {
     }
   }
   if (l.pos === 'verb') {
-    if (l.ro.present.length !== 6 || l.ro.present.some(isEmpty)) {
-      errors.push(`lexeme ${l.id}: Romanian present needs six non-empty forms`);
+    for (const [voice, data] of Object.entries(l.voices) as [Voice, VerbVoice][]) {
+      const cells = data.thirdSingularOnly ? [data.ro.present[2]] : data.ro.present;
+      if (cells.length === 0 || cells.some(isEmpty)) {
+        errors.push(`lexeme ${l.id} (${voice}): Romanian present needs its non-empty forms`);
+      }
+      if (isEmpty(data.en.base) || isEmpty(data.en.third)) errors.push(`lexeme ${l.id} (${voice}): empty English form`);
     }
-    if (isEmpty(l.en.base) || isEmpty(l.en.third)) errors.push(`lexeme ${l.id}: empty English form`);
+  }
+  if (l.pos === 'particle') {
+    if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
   }
   if (l.pos === 'preposition') {
     if (isEmpty(l.ro)) errors.push(`lexeme ${l.id}: empty Romanian form`);
