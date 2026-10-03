@@ -1,5 +1,6 @@
 import {
   ADJ_STRESSED,
+  ADJ_UNSTRESSED,
   ARTICLE_DEF,
   NOUN_CLASSES,
   NOUN_NOTES,
@@ -14,6 +15,7 @@ import type {
   GreekNoun,
   GreekNumeral,
   GreekVerb,
+  IrregularNote,
   Slot,
   SlotOf,
 } from '../types';
@@ -24,8 +26,15 @@ export function inflectNoun(l: GreekNoun, s: SlotOf<'noun'>): Form {
   return note ? { ...form, irregular: note } : form;
 }
 
+const INDECLINABLE: IrregularNote = {
+  rule: 'indeclinable',
+  plain: 'This adjective never changes, whatever the noun, number or role.',
+};
+
 export function inflectAdjective(l: GreekAdjective, s: SlotOf<'adjective'>): Form {
-  return { stem: l.stem, ending: ADJ_STRESSED[s.number][s.case][s.gender] };
+  if (l.class === 'adj-indeclinable') return { stem: l.stem, ending: '', irregular: INDECLINABLE };
+  const table = l.class === 'adj-stressed' ? ADJ_STRESSED : ADJ_UNSTRESSED;
+  return { stem: l.stem, ending: table[s.number][s.case][s.gender] };
 }
 
 export function inflectArticle(_l: GreekArticle, s: SlotOf<'article'>): Form {

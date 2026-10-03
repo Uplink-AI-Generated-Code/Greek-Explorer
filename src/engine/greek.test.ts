@@ -155,6 +155,36 @@ describe('inflectVerb (θέλω, -ω class, present active)', () => {
   });
 });
 
+describe('inflectAdjective (more classes)', () => {
+  const adj = (id: string, gender: 'm' | 'f' | 'n', number: 'sg' | 'pl', c: 'nom' | 'acc' | 'gen') =>
+    inflectAdjective(getAdjective(id), { pos: 'adjective', gender, number, case: c });
+
+  it('γρήγορος (stem-stressed): endings carry no accent', () => {
+    expect(adj('grigoros', 'm', 'sg', 'nom')).toEqual({ stem: 'γρήγορ', ending: 'ος' });
+    expect(adj('grigoros', 'f', 'sg', 'nom')).toEqual({ stem: 'γρήγορ', ending: 'η' });
+    expect(adj('grigoros', 'n', 'pl', 'nom')).toEqual({ stem: 'γρήγορ', ending: 'α' });
+    expect(adj('grigoros', 'm', 'pl', 'acc')).toEqual({ stem: 'γρήγορ', ending: 'ους' });
+    expect(adj('grigoros', 'f', 'sg', 'gen')).toEqual({ stem: 'γρήγορ', ending: 'ης' });
+  });
+
+  it('τεμπέλικος uses the same stem-stressed class', () => {
+    expect(adj('tembelikos', 'm', 'sg', 'acc')).toEqual({ stem: 'τεμπέλικ', ending: 'ο' });
+    expect(adj('tembelikos', 'm', 'pl', 'gen')).toEqual({ stem: 'τεμπέλικ', ending: 'ων' });
+  });
+
+  it('καφέ never changes, and says so', () => {
+    for (const gender of ['m', 'f', 'n'] as const) {
+      for (const number of ['sg', 'pl'] as const) {
+        for (const c of ['nom', 'acc', 'gen'] as const) {
+          expect(adj('kafe-adj', gender, number, c)).toMatchObject({ stem: 'καφέ', ending: '' });
+        }
+      }
+    }
+    expect(adj('kafe-adj', 'f', 'sg', 'nom').irregular?.rule).toBe('indeclinable');
+    expect(adj('zestos', 'f', 'sg', 'nom').irregular).toBeUndefined();
+  });
+});
+
 describe('inflect dispatcher', () => {
   it('routes a noun slot to the noun engine', () => {
     expect(inflect(getNoun('kafes'), { pos: 'noun', number: 'sg', case: 'acc' })).toMatchObject({

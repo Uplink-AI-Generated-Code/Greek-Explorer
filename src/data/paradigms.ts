@@ -69,6 +69,20 @@ export const ADJ_STRESSED: Record<Num, Record<Case, Record<Gender, string>>> = {
   },
 };
 
+/** Adjectives with the stress inside the stem: γρήγορος, γρήγορη, γρήγορο. */
+export const ADJ_UNSTRESSED: Record<Num, Record<Case, Record<Gender, string>>> = {
+  sg: {
+    nom: { m: 'ος', f: 'η', n: 'ο' },
+    acc: { m: 'ο', f: 'η', n: 'ο' },
+    gen: { m: 'ου', f: 'ης', n: 'ου' },
+  },
+  pl: {
+    nom: { m: 'οι', f: 'ες', n: 'α' },
+    acc: { m: 'ους', f: 'ες', n: 'α' },
+    gen: { m: 'ων', f: 'ων', n: 'ων' },
+  },
+};
+
 export const ARTICLE_DEF: Record<Gender, Record<Num, Record<Case, string>>> = {
   m: { sg: { nom: 'ο', acc: 'τον', gen: 'του' }, pl: { nom: 'οι', acc: 'τους', gen: 'των' } },
   f: { sg: { nom: 'η', acc: 'την', gen: 'της' }, pl: { nom: 'οι', acc: 'τις', gen: 'των' } },

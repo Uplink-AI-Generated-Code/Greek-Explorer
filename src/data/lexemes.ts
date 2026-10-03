@@ -109,6 +109,60 @@ const zestos: GreekAdjective = {
   en: 'hot',
 };
 
+const grigoros: GreekAdjective = {
+  id: 'grigoros',
+  pos: 'adjective',
+  lemma: 'γρήγορος',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-unstressed',
+  stem: 'γρήγορ',
+  ro: {
+    lemma: 'rapid',
+    forms: {
+      m: { sg: 'rapid', pl: 'rapizi' },
+      f: { sg: 'rapidă', pl: 'rapide', genSg: 'rapide' },
+      n: { sg: 'rapid', pl: 'rapide' },
+    },
+  },
+  en: 'quick',
+};
+
+const tembelikos: GreekAdjective = {
+  id: 'tembelikos',
+  pos: 'adjective',
+  lemma: 'τεμπέλικος',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-unstressed',
+  stem: 'τεμπέλικ',
+  ro: {
+    lemma: 'leneș',
+    forms: {
+      m: { sg: 'leneș', pl: 'leneși' },
+      f: { sg: 'leneșă', pl: 'leneșe', genSg: 'leneșe' },
+      n: { sg: 'leneș', pl: 'leneșe' },
+    },
+  },
+  en: 'lazy',
+};
+
+const kafeAdj: GreekAdjective = {
+  id: 'kafe-adj',
+  pos: 'adjective',
+  lemma: 'καφέ',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-indeclinable',
+  stem: 'καφέ',
+  ro: {
+    lemma: 'maro',
+    forms: {
+      m: { sg: 'maro', pl: 'maro' },
+      f: { sg: 'maro', pl: 'maro' },
+      n: { sg: 'maro', pl: 'maro' },
+    },
+  },
+  en: 'brown',
+};
+
 const same = (nom: string, gen: string = nom) => ({ nom, gen });
 
 const numeral: GreekNumeral = {
@@ -145,6 +199,9 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [alepou.id]: alepou,
   [paidi.id]: paidi,
   [zestos.id]: zestos,
+  [grigoros.id]: grigoros,
+  [tembelikos.id]: tembelikos,
+  [kafeAdj.id]: kafeAdj,
   [numeral.id]: numeral,
   [def.id]: def,
   [thelo.id]: thelo,

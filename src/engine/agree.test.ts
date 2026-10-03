@@ -126,3 +126,29 @@ describe('nounPhrase with the other nouns', () => {
     expect(np('paidi', 'pl', 'nom', { count: 3 }).en).toBe('three children');
   });
 });
+
+describe('nounPhrase with the other adjectives', () => {
+  const alepou = getNoun('alepou');
+  const skylos = getNoun('skylos');
+
+  it('a stem-stressed adjective agrees with a feminine noun', () => {
+    const r = nounPhrase(alepou, 'sg', 'nom', { article: 'definite', adjective: getAdjective('grigoros') });
+    expect(richText(r.el)).toBe('η γρήγορη αλεπού');
+    expect(r.ro).toBe('vulpea rapidă');
+    expect(r.en).toBe('the quick fox');
+  });
+
+  it('the indeclinable adjective stays the same, in Romanian too', () => {
+    const r = nounPhrase(alepou, 'sg', 'nom', { article: 'definite', adjective: getAdjective('kafe-adj') });
+    expect(richText(r.el)).toBe('η καφέ αλεπού');
+    expect(r.ro).toBe('vulpea maro');
+    expect(r.en).toBe('the brown fox');
+  });
+
+  it('plural agreement with a masculine noun', () => {
+    const r = nounPhrase(skylos, 'pl', 'acc', { article: 'definite', adjective: getAdjective('tembelikos') });
+    expect(richText(r.el)).toBe('τους τεμπέλικους σκύλους');
+    expect(r.ro).toBe('câinii leneși');
+    expect(r.en).toBe('the lazy dogs');
+  });
+});

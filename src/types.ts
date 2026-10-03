@@ -67,9 +67,12 @@ export interface RoAdjectiveForms {
   genSg?: string;
 }
 
+export type AdjectiveClass = 'adj-stressed' | 'adj-unstressed' | 'adj-indeclinable';
+
 export interface GreekAdjective extends LexemeBase {
   pos: 'adjective';
-  class: 'adj-stressed';
+  class: AdjectiveClass;
+  /** The stem; for an indeclinable adjective, the whole word. */
   stem: string;
   ro: { lemma: string; forms: Record<Gender, RoAdjectiveForms> };
   en: string;
