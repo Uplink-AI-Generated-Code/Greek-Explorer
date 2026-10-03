@@ -1,5 +1,8 @@
 import { inflect } from '../engine/greek';
 import { allVerbSlots } from '../engine/offers';
+import { compose } from '../engine/compose';
+import { enVerb } from '../engine/english';
+import { roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
 import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, Token, VerbVoice, Voice } from '../types';
 
@@ -77,12 +80,19 @@ function checkLexeme(l: GreekLexeme): string[] {
     }
   }
   if (l.pos === 'verb') {
-    for (const [voice, data] of Object.entries(l.voices) as [Voice, VerbVoice][]) {
-      const cells = data.thirdSingularOnly ? [data.ro.present[2]] : data.ro.present;
-      if (cells.length === 0 || cells.some(isEmpty)) {
-        errors.push(`lexeme ${l.id} (${voice}): Romanian present needs its non-empty forms`);
+    for (const slot of allVerbSlots(l)) {
+      const where = `lexeme ${l.id}: cannot build ${JSON.stringify(slot)}`;
+      try {
+        if (isEmpty(compose(l, slot).text)) errors.push(`${where}: empty Greek group`);
+        const ro = roVerb(l, slot);
+        if (isEmpty(ro) || ro.includes('undefined')) errors.push(`${where}: no Romanian form`);
+        const en = enVerb(l, slot).verb;
+        if (isEmpty(en) || en.includes('undefined') || /\s$/.test(en)) {
+          errors.push(`lexeme ${l.id}: empty English form for ${JSON.stringify(slot)}`);
+        }
+      } catch (e) {
+        errors.push(`${where}: ${(e as Error).message}`);
       }
-      if (isEmpty(data.en.base) || isEmpty(data.en.third)) errors.push(`lexeme ${l.id} (${voice}): empty English form`);
     }
   }
   if (l.pos === 'particle') {

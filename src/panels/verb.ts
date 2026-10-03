@@ -35,7 +35,7 @@ export function verbRow(verb: GreekVerb, slot: SlotOf<'verb'>): PanelRow {
     en: [
       { text: EN_PRONOUNS[index], role: 'pronoun' },
       { text: ' ', role: 'plain' },
-      { text: enVerb(verb, slot), role: 'plain' },
+      { text: enVerb(verb, slot).verb, role: 'plain' },
     ],
   };
 }

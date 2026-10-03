@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { LEXEMES } from '../data/lexemes';
 import { PHRASES } from '../data/phrases';
 import { isSegmented, unitText } from '../glossLinks';
-import type { GlossUnit, Link, Phrase, Token } from '../types';
+import type { GlossUnit, GreekVerb, Link, Phrase, Token, VerbVoice } from '../types';
 import { validate, warnings } from './validate';
 
 const real = { lexemes: LEXEMES, phrases: PHRASES };
@@ -163,5 +163,29 @@ describe('segmented gloss units', () => {
     expect(warnings({ ...real, phrases: [bad] })).toContain(
       'fox-sentence gloss ro/natural: segmented unit "câinele" is not linked to a noun',
     );
+  });
+});
+
+describe('verb lexemes', () => {
+  /** The real data with the active voice of τρώω changed by `patch` (a deep copy, so the real data is untouched). */
+  const modifiedTroo = (patch: (voice: VerbVoice) => void) => {
+    const copy: typeof LEXEMES = JSON.parse(JSON.stringify(LEXEMES));
+    patch((copy.troo as GreekVerb).voices.active as VerbVoice);
+    return { lexemes: copy, phrases: [] as Phrase[] };
+  };
+
+  it('reports a Romanian cell the verb needs and does not have', () => {
+    const errors = validate(modifiedTroo((v) => { delete v.ro.imperative; }));
+    expect(errors.some((e) => e.startsWith('lexeme troo: cannot build') && e.includes('Romanian imperative'))).toBe(true);
+  });
+
+  it('reports an empty English participle that a perfect tense needs', () => {
+    const errors = validate(modifiedTroo((v) => { v.en.pastParticiple = ''; }));
+    expect(errors.some((e) => e.startsWith('lexeme troo: empty English form'))).toBe(true);
+  });
+
+  it('reports a slot with no Greek form (a missing perfective stem)', () => {
+    const errors = validate(modifiedTroo((v) => { delete v.stems.perfective; }));
+    expect(errors.some((e) => e.startsWith('lexeme troo: cannot inflect'))).toBe(true);
   });
 });
