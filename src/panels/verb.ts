@@ -90,17 +90,29 @@ const whoSlot = (slot: SlotOf<'verb'>, who: string): SlotOf<'verb'> => ({
   number: who.slice(1) as 'sg' | 'pl',
 });
 
+/** Where the negation goes, added to the plain-language line of a negated slot (spec 4.3, 6.4). */
+const NEGATION_PLAIN: Record<Mood, string> = {
+  indicative: 'δεν goes in front of the whole group, even in front of θα: δεν θα φάω.',
+  conditional: 'δεν goes in front of the whole group, even in front of θα: δεν θα έτρωγα.',
+  subjunctive: 'μην goes after να: να μην φάω.',
+  imperative: 'A negative command is not the imperative: Greek uses μην + the subjunctive form, as in μην φας.',
+};
+
 /** A new slot with one verb control applied; anything the new value makes invalid falls back to the first valid choice. */
 export function changeVerbSlot(
   verb: GreekVerb,
   slot: SlotOf<'verb'>,
-  key: 'mood' | 'tense' | 'voice',
+  key: 'mood' | 'tense' | 'voice' | 'polarity',
   value: string,
 ): SlotOf<'verb'> {
   const next = { ...slot };
   if (key === 'voice') next.voice = value as Voice;
   if (key === 'mood') next.mood = value as Mood;
   if (key === 'tense') next.tense = value as Tense;
+  if (key === 'polarity') {
+    if (value === 'negative') next.polarity = 'negative';
+    else delete next.polarity;
+  }
   const moods = offeredMoods(verb, next.voice);
   if (!moods.includes(next.mood)) next.mood = moods[0];
   const tenses = offeredTenses(verb, next.voice, next.mood);
@@ -111,6 +123,8 @@ export function changeVerbSlot(
     next.number = who[0].slice(1) as 'sg' | 'pl';
     if (next.mood === 'imperative') next.number = slot.number;
   }
+  // A negative command needs the verb to offer the matching subjunctive; if it does not, drop the negation.
+  if (next.polarity === 'negative' && !isOffered(verb, next)) delete next.polarity;
   return next;
 }
 
@@ -139,6 +153,15 @@ function controls(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Control[
   if (voices.length > 1) {
     list.push({ key: 'voice', label: 'Voice', options: voiceOptions(level, voices), value: slot.voice });
   }
+  list.push({
+    key: 'polarity',
+    label: 'Negated?',
+    options: [
+      { value: 'affirmative', label: 'No' },
+      { value: 'negative', label: 'Yes' },
+    ],
+    value: slot.polarity ?? 'affirmative',
+  });
   return list;
 }
 
@@ -188,7 +211,9 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): 
       level === 'improver'
         ? MOODS.flatMap((mood) => TENSES_OF_MOOD[mood].map((tense) => overviewRow(verb, slot, mood, tense)))
         : [],
-    plain: PLAIN[`${slot.mood}.${slot.tense}`],
+    plain:
+      PLAIN[`${slot.mood}.${slot.tense}`] +
+      (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : ''),
     irregular: formNote ?? classMessage(data),
     note: '',
   };

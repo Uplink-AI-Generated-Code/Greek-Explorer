@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { richText } from '../engine/segments';
-import type { Level, Mood, Num, Person, SlotOf, Tense, Token, Voice } from '../types';
+import { getVerb } from '../data/lexemes';
+import type { GreekVerb, Level, Mood, Num, Person, SlotOf, Tense, Token, Voice } from '../types';
 import { applyControl, buildPanel, type PanelState } from './panels';
+import { changeVerbSlot } from './verb';
 
 const vs = (
   mood: Mood,
@@ -51,7 +53,7 @@ describe('verb panel: the row', () => {
 describe('verb panel: controls', () => {
   it('θέλω: Who, Mood and When, no Voice', () => {
     const p = panel('thelo', vs('indicative', 'present'));
-    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense']);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity']);
     expect(control(p, 'mood')?.options.map((o) => o.value)).toEqual(['indicative', 'subjunctive', 'conditional']);
     expect(control(p, 'tense')?.options.map((o) => o.value)).toHaveLength(8);
     expect(control(p, 'mood')?.label).toBe('Mood');
@@ -59,7 +61,7 @@ describe('verb panel: controls', () => {
   });
   it('πλένω has a Voice control', () => {
     const p = panel('pleno', vs('indicative', 'present'));
-    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice']);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity']);
     expect(control(p, 'voice')?.options.map((o) => o.value)).toEqual(['active', 'mediopassive']);
   });
   it('the imperative offers only "you" and "you (pl.)"', () => {
@@ -217,5 +219,79 @@ describe('particle panel', () => {
     expect(richText(p.rows[0].ro)).toBe('voi mânca');
     expect(richText(p.rows[0].en)).toBe('will eat');
     expect(p.plain).toContain('future');
+  });
+});
+
+const negative = (slot: SlotOf<'verb'>): SlotOf<'verb'> => ({ ...slot, polarity: 'negative' });
+
+describe('verb panel: negation', () => {
+  it('shows the negative forms in the three languages', () => {
+    const p = panel('troo', negative(vs('indicative', 'perfect')));
+    expect(cells(p)).toEqual({ el: '(εγώ) δεν έχω φάει', ro: '(eu) nu am mâncat', en: "I haven't eaten" });
+    expect(p.rows[0].el.map((s) => s.role)).toEqual(['dim', 'plain', 'neg', 'plain', 'aux', 'plain', 'stem', 'ending']);
+  });
+
+  it('a negative command is μην + the subjunctive, with no subject pronoun', () => {
+    const p = panel('troo', negative(vs('imperative', 'aorist', 2, 'sg')));
+    expect(cells(p)).toEqual({ el: 'μην φας', ro: 'nu mânca', en: "don't eat" });
+    const plural = panel('troo', negative(vs('imperative', 'aorist', 2, 'pl')));
+    expect(cells(plural)).toEqual({ el: 'μην φάτε', ro: 'nu mâncați', en: "don't eat" });
+  });
+
+  it('offers a Negated? control last, with plain Yes and No', () => {
+    const p = panel('pleno', vs('indicative', 'present'));
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity']);
+    expect(control(p, 'polarity')).toMatchObject({ label: 'Negated?', value: 'affirmative' });
+    expect(control(p, 'polarity')?.options.map((o) => o.label)).toEqual(['No', 'Yes']);
+    expect(control(panel('troo', negative(vs('indicative', 'present'))), 'polarity')?.value).toBe('negative');
+  });
+
+  it('explains where the negation goes', () => {
+    expect(panel('troo', negative(vs('indicative', 'futureSimple'))).plain).toContain('δεν goes in front of the whole group');
+    expect(panel('troo', negative(vs('subjunctive', 'aorist'))).plain).toContain('μην goes after να');
+    expect(panel('troo', negative(vs('imperative', 'aorist', 2))).plain).toContain('not the imperative');
+    expect(panel('troo', vs('indicative', 'present')).plain).not.toContain('δεν goes');
+  });
+
+  it('the full table and the overview follow the polarity', () => {
+    const p = panel('troo', negative(vs('indicative', 'perfect')), 'improver');
+    expect(richText(p.full[0].el)).toBe('(εγώ) δεν έχω φάει');
+    expect((p.overview ?? [])[5].label).toBe('indicative · present perfect');
+    expect(richText((p.overview ?? [])[5].el)).toBe('(εγώ) δεν έχω φάει');
+    expect(richText((p.overview ?? [])[0].en)).toBe("I don't eat");
+  });
+});
+
+describe('verb panel: the polarity control', () => {
+  const change = (slot: SlotOf<'verb'>, value: string) =>
+    applyControl(stateOf(slot), 'polarity', value, 'troo').slot as SlotOf<'verb'>;
+
+  it('yes sets negative; no removes the field, so the slot equals the authored one again', () => {
+    const on = change(vs('indicative', 'present'), 'negative');
+    expect(on.polarity).toBe('negative');
+    const off = change(on, 'affirmative');
+    expect('polarity' in off).toBe(false);
+    expect(off).toEqual(vs('indicative', 'present'));
+  });
+
+  it('keeps the polarity when the mood changes', () => {
+    const slot = applyControl(stateOf(negative(vs('indicative', 'aorist', 2))), 'mood', 'imperative', 'troo').slot;
+    expect(slot).toMatchObject({ mood: 'imperative', tense: 'aorist', polarity: 'negative' });
+  });
+
+  it('falls back to affirmative when the negative command is not offered', () => {
+    const troo = getVerb('troo');
+    const noSubjunctive: GreekVerb = {
+      ...troo,
+      voices: {
+        active: {
+          ...(troo.voices.active as NonNullable<GreekVerb['voices']['active']>),
+          offers: { indicative: ['present'], imperative: ['aorist'] },
+        },
+      },
+    };
+    const next = changeVerbSlot(noSubjunctive, negative(vs('indicative', 'present', 2)), 'mood', 'imperative');
+    expect(next.mood).toBe('imperative');
+    expect('polarity' in next).toBe(false);
   });
 });

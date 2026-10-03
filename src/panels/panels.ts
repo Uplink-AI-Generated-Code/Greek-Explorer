@@ -66,6 +66,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'mood':
     case 'tense':
     case 'voice':
+    case 'polarity':
       if (slot.pos === 'verb') {
         if (!lexemeId) throw new Error(`the ${key} control needs the lexeme`);
         return { ...state, slot: changeVerbSlot(getVerb(lexemeId), slot, key, value) };

@@ -3,7 +3,7 @@ import type { Rich } from '../engine/segments';
 import type { Num, Slot } from '../types';
 
 export interface Control {
-  key: 'who' | 'mood' | 'tense' | 'voice' | 'noun' | 'number' | 'count' | 'value' | 'case';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case';
   label: string;
   options: Option[];
   value: string;
