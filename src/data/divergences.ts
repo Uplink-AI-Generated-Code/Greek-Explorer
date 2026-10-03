@@ -269,7 +269,7 @@ export const DIVERGENCES: Divergence[] = [
     id: 'imperative-aspect',
     appliesTo: { pos: 'verb', when: { moods: ['imperative'] } },
     point: 'Once or keep going',
-    el: 'φάε (eat up, once) and τρώε (keep eating)',
+    el: 'φάε (eat up, once) and τρώγε (keep eating)',
     ro: 'one form: mănâncă',
     en: 'one form: eat',
     tag: 'differs',

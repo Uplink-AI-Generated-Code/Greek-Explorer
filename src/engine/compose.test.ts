@@ -36,8 +36,8 @@ describe('compose τρώω, 1st person singular, all 15 combinations (spec 6.4)'
   it('the imperatives are single words in the second person', () => {
     expect(text('troo', vs('imperative', 'aorist', 2, 'sg'))).toBe('φάε');
     expect(text('troo', vs('imperative', 'aorist', 2, 'pl'))).toBe('φάτε');
-    expect(text('troo', vs('imperative', 'present', 2, 'sg'))).toBe('τρώε');
-    expect(text('troo', vs('imperative', 'present', 2, 'pl'))).toBe('τρώτε');
+    expect(text('troo', vs('imperative', 'present', 2, 'sg'))).toBe('τρώγε');
+    expect(text('troo', vs('imperative', 'present', 2, 'pl'))).toBe('τρώγετε');
   });
 });
 

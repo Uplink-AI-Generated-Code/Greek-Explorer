@@ -67,7 +67,7 @@ describe('Greek forms of the new verbs (spec 6.4)', () => {
 
   it('the imperatives of τρώω and πλένω', () => {
     expect(two('troo', 'active', 'aorist')).toEqual(['φάε', 'φάτε']);
-    expect(two('troo', 'active', 'present')).toEqual(['τρώε', 'τρώτε']);
+    expect(two('troo', 'active', 'present')).toEqual(['τρώγε', 'τρώγετε']);
     expect(two('pleno', 'active', 'aorist')).toEqual(['πλύνε', 'πλύνετε']);
     expect(two('pleno', 'active', 'present')).toEqual(['πλένε', 'πλένετε']);
   });
@@ -95,6 +95,13 @@ describe('Greek forms of the new verbs (spec 6.4)', () => {
   it('the stress moves in πλενόμαστε and stays in πλένονταν, and says so', () => {
     expect(inflectVerb(getVerb('pleno'), vs('indicative', 'present', 1, 'pl', 'mediopassive')).irregular?.rule).toBe('stress-shift');
     expect(inflectVerb(getVerb('pleno'), vs('indicative', 'imperfect', 3, 'pl', 'mediopassive')).irregular?.rule).toBe('stress-shift');
+  });
+
+  it('the present imperative of τρώω keeps the older -γ-, and says so', () => {
+    const form = inflectVerb(getVerb('troo'), vs('imperative', 'present', 2, 'sg', 'active'));
+    expect(formText(form)).toBe('τρώγε');
+    expect(form.irregular?.rule).toBe('old-stem');
+    expect(inflectVerb(getVerb('troo'), vs('imperative', 'aorist', 2, 'sg', 'active')).irregular).toBeUndefined();
   });
 
   it('the plural past of τρώω loses its augment: τρώγαμε', () => {

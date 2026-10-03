@@ -192,6 +192,10 @@ const same = (nom: string, gen: string = nom) => ({ nom, gen });
 
 const note = (rule: string, plain: string): IrregularNote => ({ rule, plain });
 const ACCENT_DROP = note('monosyllable', 'A one-syllable form loses its accent mark: τρως, not τρώς.');
+const IMPERATIVE_GAMMA = note(
+  'old-stem',
+  'The present imperative of τρώω keeps the older stem with -γ-: τρώγε, not τρώε. The other present forms have lost it.',
+);
 
 const numeral: GreekNumeral = {
   id: 'numeral',
@@ -297,6 +301,9 @@ const troo: GreekVerb = {
       overrides: {
         'present.2sg': { stem: 'τρω', ending: 'ς', note: ACCENT_DROP },
         'subjAorist.2sg': { stem: 'φα', ending: 'ς', note: ACCENT_DROP },
+        // The present imperative keeps the older -γ- of the stem (τρώγε, not τρώε); reported by the user, awaiting review.
+        'impPresent.2sg': { stem: 'τρώγ', ending: 'ε', note: IMPERATIVE_GAMMA },
+        'impPresent.2pl': { stem: 'τρώγ', ending: 'ετε', note: IMPERATIVE_GAMMA },
       },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
       ro: {

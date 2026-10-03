@@ -526,7 +526,7 @@ const keepEatingTheBread: Phrase = {
   theme: 'Eating',
   level: 'beginner',
   tokens: [
-    { text: 'Τρώε', lexeme: 'troo', slot: vslot('imperative', 'present', 2) },
+    { text: 'Τρώγε', lexeme: 'troo', slot: vslot('imperative', 'present', 2) },
     { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
     { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
   ],
