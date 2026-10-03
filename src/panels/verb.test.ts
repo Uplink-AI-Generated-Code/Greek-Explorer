@@ -295,3 +295,34 @@ describe('verb panel: the polarity control', () => {
     expect('polarity' in next).toBe(false);
   });
 });
+
+describe('verb panel: how to read this', () => {
+  it('gives the Greek line, and the Romanian and English lines of a compound form', () => {
+    const p = panel('troo', vs('indicative', 'perfect'), 'beginner');
+    expect(p.reading?.map((l) => l.lang)).toEqual(['el', 'ro', 'en']);
+    expect(p.reading?.[0].sentence).toBe(
+      'έχω φάει: έχω = I have, φά- = eat, -ει = never changes after έχω. Only έχω changes with the person.',
+    );
+    expect(p.reading?.[1].sentence).toBe('am mâncat: am = have (auxiliary), mâncat = eaten (never changes).');
+    expect(p.reading?.[2].sentence).toBe(
+      'I have eaten: have = have (auxiliary), eaten = eaten (past participle: never changes).',
+    );
+  });
+
+  it('uses the technical text in Improver', () => {
+    const p = panel('troo', vs('indicative', 'perfect'), 'improver');
+    expect(p.reading?.[0].sentence).toBe(
+      'Present perfect: έχω (present 1sg of έχω) + invariable base form (stem φά- + ending -ει). The auxiliary carries the person.',
+    );
+    expect(p.reading?.[1].sentence).toContain('Compare Greek έχω φάει.');
+  });
+
+  it('a single word has a Greek line only', () => {
+    expect(panel('troo', vs('indicative', 'present')).reading?.map((l) => l.lang)).toEqual(['el']);
+  });
+
+  it('follows the working slot, not the phrase', () => {
+    const p = panel('troo', negative(vs('subjunctive', 'aorist')));
+    expect(p.reading?.[0].sentence.startsWith('να μην φάω: να = to / that, μην = not')).toBe(true);
+  });
+});

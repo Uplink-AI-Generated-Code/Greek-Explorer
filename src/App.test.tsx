@@ -275,3 +275,60 @@ describe('pieces of a verb group', () => {
     expect(screen.getByRole('button', { name: 'will' })).toHaveAttribute('aria-pressed', 'false');
   });
 });
+
+describe('how to read this', () => {
+  it('shows the reading under the form, in Beginner and then Improver wording', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I will have eaten');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    expect(
+      within(reading).getByText(
+        'θα έχω φάει: θα = will, έχω = I have, φά- = eat, -ει = never changes after έχω. Only έχω changes with the person.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(reading).getByText(/^voi fi mâncat: voi = will, fi = be/)).toBeInTheDocument();
+    expect(within(reading).getByText(/^I will have eaten: will = will \(the future\)/)).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('Improver'));
+    expect(
+      within(screen.getByRole('region', { name: 'How to read this' })).getByText(
+        'Future perfect: θα + έχω (present 1sg of έχω) + invariable base form (stem φά- + ending -ει). The auxiliary carries the person.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('a particle part opens that piece\'s panel, and the way back returns to the verb', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I will have eaten');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    await user.click(within(reading).getByRole('button', { name: 'έχω: I have' }));
+    const panel = screen.getByRole('region', { name: 'Word panel' });
+    expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('έχω');
+    await user.click(within(panel).getByRole('button', { name: /Back to the verb/ }));
+    expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('τρώω');
+  });
+
+  it('the reading follows the learner\'s variation, not the phrase', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I have eaten');
+    await user.selectOptions(screen.getByLabelText('Negated?'), 'Yes');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    expect(within(reading).getByText(/^δεν έχω φάει: δεν = not, έχω = I have/)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Έχω φάει' })).toBeInTheDocument();
+  });
+
+  it('an irregular form uses its authored reading', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Keep eating the bread!');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    expect(
+      within(reading).getByText(
+        'τρώγε: τρώγ- = eat, -ε = a command to you: keep doing. This command keeps the older stem τρώγ- (with γ).',
+      ),
+    ).toBeInTheDocument();
+  });
+});

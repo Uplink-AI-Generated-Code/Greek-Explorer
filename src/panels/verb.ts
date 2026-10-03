@@ -20,12 +20,13 @@ import {
   offeredWho,
   voiceOf,
 } from '../engine/offers';
+import { readingFor } from '../engine/reading';
 import { roVerb } from '../engine/romanian';
 import { dim, plain, type Rich, type Segment } from '../engine/segments';
 import { MOODS, TENSES_OF_MOOD, whoIndex } from '../engine/tenses';
-import type { GreekVerb, Level, Mood, Person, SlotOf, Tense, VerbClass, Voice } from '../types';
+import type { GreekVerb, Level, Mood, Person, Reading, SlotOf, Tense, VerbClass, Voice } from '../types';
 import { ALL } from './shared';
-import type { Control, Panel, PanelRow } from './types';
+import type { Control, Panel, PanelRow, ReadingView } from './types';
 
 const CLASS_LABEL: Record<VerbClass, string> = {
   omega: '-ω class',
@@ -188,6 +189,15 @@ function overviewRow(verb: GreekVerb, slot: SlotOf<'verb'>, mood: Mood, tense: T
   return { ...row, label, hl: mood === slot.mood && tense === slot.tense ? ALL : undefined };
 }
 
+function readingViews(reading: Reading, level: Level): ReadingView[] {
+  const view = (lang: ReadingView['lang'], line: Reading['el']): ReadingView => ({
+    lang,
+    parts: line.parts,
+    sentence: level === 'beginner' ? line.beginner : line.improver,
+  });
+  return [view('el', reading.el), ...(reading.ro ? [view('ro', reading.ro)] : []), ...(reading.en ? [view('en', reading.en)] : [])];
+}
+
 export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Panel {
   const data = voiceOf(verb, slot.voice);
   const composed = compose(verb, slot);
@@ -211,6 +221,7 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): 
       level === 'improver'
         ? MOODS.flatMap((mood) => TENSES_OF_MOOD[mood].map((tense) => overviewRow(verb, slot, mood, tense)))
         : [],
+    reading: readingViews(readingFor(verb, slot), level),
     plain:
       PLAIN[`${slot.mood}.${slot.tense}`] +
       (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : ''),

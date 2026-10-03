@@ -53,6 +53,12 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
     setOpen(pieceIndex === undefined ? null : pieceToOpen(target.lexeme, target.slot, pieceIndex));
   }
 
+  /** A reading part was clicked: open that piece of the form the panel is showing (its current slot, not the phrase's). */
+  function openFromReading(pieceIndex: number) {
+    setOpen(pieceToOpen(current.token.lexeme, current.state.slot, pieceIndex));
+    setPiece(null);
+  }
+
   function back() {
     setOpen(null);
     setPiece(null);
@@ -88,7 +94,12 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
           </button>
         </div>
       )}
-      <WordPanel panel={panel} onChange={changeControl} onBack={open ? back : undefined} />
+      <WordPanel
+        panel={panel}
+        onChange={changeControl}
+        onBack={open ? back : undefined}
+        onPiece={open ? undefined : openFromReading}
+      />
       {divergences.length > 0 && <ComparisonTable rows={divergences} word={current.token.text} />}
     </>
   );
