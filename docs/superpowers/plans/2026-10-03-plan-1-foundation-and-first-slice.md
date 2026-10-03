@@ -2529,16 +2529,22 @@ Expected: FAIL (module `./WordPanel` not found).
 `src/components/RichText.tsx`:
 
 ```tsx
+import { Fragment } from 'react';
 import type { Rich } from '../engine/segments';
 
+/** Whitespace-only segments are plain text nodes, so word spacing survives in the accessible name. */
 export function RichText({ rich }: { rich: Rich }) {
   return (
     <>
-      {rich.map((segment, i) => (
-        <span key={i} className={`role-${segment.role}`}>
-          {segment.text}
-        </span>
-      ))}
+      {rich.map((segment, i) =>
+        segment.text.trim() === '' ? (
+          <Fragment key={i}>{segment.text}</Fragment>
+        ) : (
+          <span key={i} className={`role-${segment.role}`}>
+            {segment.text}
+          </span>
+        ),
+      )}
     </>
   );
 }
