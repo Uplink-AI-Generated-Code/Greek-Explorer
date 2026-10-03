@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 4 (changes listed in sections 13 to 16)
+Status: revised after review 4 and Plan 3 (changes listed in sections 13 to 17)
 
 ## 1. Purpose
 
@@ -338,7 +338,7 @@ Divergence types the prototype must cover:
 | subjunctive-negation | Negating the subjunctive clause: Greek να μην (Θέλω να μην πάω), Romanian *să nu*, English "not to". Negating the main verb is a different structure (Δεν θέλω να πάω, phrase 16). |
 | imperfect-vs-aorist | Greek separates the aorist (έφαγα) from the imperfect (έτρωγα). Romanian *imperfectul* (*mâncam*) matches the Greek imperfect, while its compound perfect (*am mâncat*) covers the aorist and the perfect. English uses the simple past for the aorist and for much of the imperfect; "was eating" and "used to eat" mark the imperfect. |
 | polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ ("I wanted a coffee", polite "I'd like one"). Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. The literal rows show the imperfect (*voiam*, "wanted"). |
-| imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
+| imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώγε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
 | imperative-forms | Greek and Romanian have 2nd-person singular and plural forms (φάε / φάτε, *mănâncă* / *mâncați*); English has one form. |
 | negative-imperative | Greek μην + subjunctive (μην φας). Romanian *nu* + the infinitive for the singular (*nu mânca*) and *nu* + the plural imperative (*nu mâncați*). English "don't" + base form. |
 | perfect-subjunctive | Greek να έχει φάει, Romanian *să fi mâncat*, English "may have eaten". The three structures are different. |
@@ -416,7 +416,7 @@ Under the current-form table, each form has a line that takes it apart and says 
 
 | Form | Beginner | Improver |
 |---|---|---|
-| Φάε! | "Eat! (eat up, once). φα- is 'eat', -ε is a command to one person." | "Aorist imperative, 2nd singular: perfective stem φα- + -ε. The present imperative is τρώε (stem τρώ-)." |
+| Φάε! | "Eat! (eat up, once). φα- is 'eat', -ε is a command to one person." | "Aorist imperative, 2nd singular: perfective stem φα- + -ε. The present imperative is τρώγε (stem τρώγ-, which keeps the older -γ-)." |
 | Φάτο! | "Eat it! A short way of saying φάε το: the command and 'it' are joined." | "Aorist imperative φάε + clitic το, with the final -ε dropped: φά(ε) + το. The shortened form is lexical." |
 | Μην φας! | "Don't eat! To forbid something, Greek uses μην + the form for 'you eat', not the command form." | "Negative imperative: μην + aorist subjunctive, 2nd singular (φας). The subjunctive replaces the imperative." |
 | Δως μου το! | "Give it to me! δως is a short form of δώσε. μου = to me, το = it. 'To me' comes before 'it'." | "Shortened aorist imperative δως + genitive clitic μου + accusative clitic το (genitive before accusative)." |
@@ -461,7 +461,7 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 24 | Φάε το ψωμί! | Eat the bread! | aorist imperative (perfective), 2nd person singular |
 | 25 | Μην φας το ψωμί! | Don't eat the bread! | negative imperative built from the subjunctive; Romanian *Nu mânca pâinea!* |
 | 26 | Πλύνε το παιδί! | Wash the child! | aorist imperative of a regular verb (πλύνε, plural πλύνετε); reuses phrase 5's vocabulary |
-| 27 | Τρώε το ψωμί! | Keep eating the bread! | present imperative (imperfective); aspect contrast with phrase 24 |
+| 27 | Τρώγε το ψωμί! | Keep eating the bread! | present imperative (imperfective); aspect contrast with phrase 24 |
 | 28 | Μπορεί να έχει φάει | He / she may have eaten | perfect subjunctive after an impersonal modal (μπορεί); Romanian *Poate să fi mâncat* |
 | 29 | Θα ήθελα έναν καφέ | I would like a coffee | conditional (θα + imperfect); compare phrases 1 and 22; Romanian *Aș vrea o cafea* |
 | 30 | Αν είχα ψωμί, θα έτρωγα | If I had bread, I would eat | conjunction αν; imperfect in the if-clause, conditional in the result; Romanian *Dacă aș avea pâine, aș mânca* |
@@ -472,7 +472,7 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 35 | Πλύνε το! | Wash him / her / it! | clitic imperative of a regular verb; group with phrase 26; Romanian *Spală-l!* |
 | 36 | Δώσε μού το! | Give it to me! | two clitics (genitive before accusative) and the stress rule (extra accent on μού); its short form Δως μου το! is reached through the form group; group with "Give me the bread!"; Romanian *Dă-mi-o!* |
 | 37 | Μην το φας! | Don't eat it! | negative imperative with the clitic before the verb; group with phrase 25; Romanian *Nu o mânca!* |
-| 38 | Φάε! | Eat! | bare aorist imperative with no object, the "close, not the same" row of the "Eat the bread!" group; Romanian *Mănâncă!*; contrast with phrase 27 (Τρώε!, "keep eating") |
+| 38 | Φάε! | Eat! | bare aorist imperative with no object, the "close, not the same" row of the "Eat the bread!" group; Romanian *Mănâncă!*; contrast with phrase 27 (Τρώγε!, "keep eating") |
 | 39 | Θέλω να μην πάω | I want not to go (I'd rather not go) | negated subjunctive (να μην), against the main-verb negation of phrase 16; Romanian *Vreau să nu merg* |
 
 **Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39); *The fox sentence* (3, 17, 23).
@@ -525,7 +525,7 @@ Constructions (shown for τρώω, "I eat"; the first-person singular unless not
 | Imperfect | augment + imperfect stem + past endings | έτρωγα | *mâncam* | I used to eat; I was eating |
 | Perfect subjunctive | να + έχω + invariable base form | να έχω φάει | *să fi mâncat* | to have eaten; may have eaten |
 | Imperative, aorist (2sg / 2pl) | aorist imperative | φάε / φάτε | *mănâncă* / *mâncați* | eat! (and finish) |
-| Imperative, present (2sg / 2pl) | present imperative | τρώε / τρώτε | *mănâncă* / *mâncați* | keep eating! |
+| Imperative, present (2sg / 2pl) | present imperative | τρώγε / τρώγετε | *mănâncă* / *mâncați* | keep eating! |
 | Negative imperative (2sg / 2pl) | μην + subjunctive | μην φας / μην φάτε | *nu mânca* / *nu mâncați* | don't eat! |
 
 What this teaches, in plain terms:
@@ -536,7 +536,7 @@ What this teaches, in plain terms:
 - Greek has no infinitive: «Θέλω να φάω» is literally "I want that I eat". Romanian has the same structure (*vreau să mănânc*); English uses "to eat".
 - The simple future (θα φάω) and the subjunctive (να φάω) share a form; the continuous future (θα τρώω) shares the present form.
 - The Greek imperfect is the closest match to the Romanian *imperfectul*. English needs "was eating" or "used to eat". The Greek imperfect also softens requests (Ήθελα έναν καφέ), the way Romanian and English use the conditional.
-- Aspect shows up again in the imperative: φάε ("eat up", once) against τρώε ("keep eating").
+- Aspect shows up again in the imperative: φάε ("eat up", once) against τρώγε ("keep eating").
 - The negative imperative is not the imperative with a negation word: Greek switches to the subjunctive (μην φας), Romanian switches to the infinitive in the singular (*nu mânca*), and English adds "don't".
 - The perfect subjunctive (να έχει φάει) reaches back with doubt or hope ("may have eaten"). Romanian uses *să fi mâncat*; English uses a modal.
 
@@ -547,7 +547,7 @@ New verbs and irregularities:
 - πηδάω: base form πηδήξει (phrase 17).
 - πλένομαι: base form πλυθεί (phrase 18).
 - Imperfects: τρώω → έτρωγα, έτρωγες, έτρωγε, τρώγαμε, τρώγατε, έτρωγαν; θέλω → ήθελα, ήθελες, ήθελε, θέλαμε, θέλατε, ήθελαν; πηδάω → πηδούσα, πηδούσες, πηδούσε, πηδούσαμε, πηδούσατε, πηδούσαν. Romanian: *mâncam, mâncai, mânca, mâncam, mâncați, mâncau*; *voiam*; *săream*.
-- Imperatives: τρώω → aorist φάε, φάτε; present τρώε, τρώτε. πλένω → aorist πλύνε, πλύνετε; present πλένε, πλένετε. Negative: μην φας, μην φάτε (aorist); μην τρως, μην τρώτε (present).
+- Imperatives: τρώω → aorist φάε, φάτε; present τρώγε, τρώγετε. πλένω → aorist πλύνε, πλύνετε; present πλένε, πλένετε. Negative: μην φας, μην φάτε (aorist); μην τρως, μην τρώτε (present).
 - Impersonal μπορεί ("it is possible; may"): a single third-person slot; Romanian *poate*, English "may".
 - ψωμί (bread): neuter noun, plural ψωμιά; Romanian *pâine* (feminine; *pâinea*, *pâini*), English bread (mass).
 - The Romanian and English counterparts of every verb are listed in 6.6.
@@ -589,7 +589,7 @@ If-clauses: Αν είχα ψωμί, θα έτρωγα / *Dacă aș avea pâine, 
 | Give me the bread! | Δώσε μου το ψωμί! / *Dă-mi pâinea!* / Give me the bread! | Δώσε μού το! / *Dă-mi-o!* / Give it to me! | Δως μου το! |
 | Don't eat the bread! | Μην φας το ψωμί! / *Nu mânca pâinea!* / Don't eat the bread! | Μην το φας! / *Nu o mânca!* / Don't eat it! | none |
 
-Each group also lists a **close, not the same** row, the verb with no object: for the first group, Φάε! / *Mănâncă!* / Eat! The meaning is narrower, because it does not say what to eat, so it is not a member of the group. It is shown beneath the strip with one line saying what is missing ("no object: what to eat is not said") and it is the phrase-38 example. The same aspect point applies to it: Φάε! means "eat up", Τρώε! means "keep eating".
+Each group also lists a **close, not the same** row, the verb with no object: for the first group, Φάε! / *Mănâncă!* / Eat! The meaning is narrower, because it does not say what to eat, so it is not a member of the group. It is shown beneath the strip with one line saying what is missing ("no object: what to eat is not said") and it is the phrase-38 example. The same aspect point applies to it: Φάε! means "eat up", Τρώγε! means "keep eating".
 
 Notes: in the first group the Greek clitic is neuter (το) and the Romanian is feminine (*o*). In the third group two clitics appear, in the order genitive then accusative, and the stress rule adds the second accent (μού); the short form Δως μου το needs none because its stress is on the third-last syllable. In the fourth group the clitic moves to the front of the verb. Verbs used: φάω / τρώω, πλένω, δίνω (aorist imperative δώσε / δώστε, short form δως; present imperative δίνε). Shortening is stored per verb, not generated.
 
@@ -662,14 +662,14 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the shared glossary of endings (5.5), which every generated "how to read this" line draws on ("-εις = you (singular), present" and the rest);
 - the "how to read this" texts (5.5): every authored reading, both levels, since they are the part a learner reads most closely;
 - the conditional, participle and clitic material in 6.5: the conditional forms θα έτρωγα, θα ήθελα and θα είχα φάει, the exclusion of θα + aorist from the conditional (and whether a speaker agrees it means a guess about the past), the participles πλυμένος and ψημένος, the Romanian participles and conditionals, the shortened forms (φάτο, δως μου το), the accent rule for clitics (an extra accent two syllables after the original stress: δώσε μού το, τηλεφώνησέ μου, διάβασέ μου το), the Romanian clitic clusters (*mi-o*, *nu-l*, *m-am*), and every clitic form in the tables; the English forms stored for the verbs in 6.6, including the present participles and the forms of "be"; phrase 39 (Θέλω να μην πάω) and its Romanian *Vreau să nu merg*; the English naturals now chosen for phrases 1, 22 and 29 ("I want", "I wanted / I'd like", "I would like");
-- phrases 21 to 28: the imperfect paradigms and the stress and augment rules (ήθελα / θέλαμε, έτρωγα / τρώγαμε, πηδούσα), the use of Ήθελα as a polite request, the imperatives (φάε, τρώε, πλύνε and their plurals), the negative imperatives (μην φας …), μπορεί να έχει φάει, and the Romanian counterparts (*Mâncam multă pâine*, *Mănâncă pâinea!*, *Nu mânca pâinea!*, *Spală copilul!*, *Poate să fi mâncat*);
+- phrases 21 to 28: the imperfect paradigms and the stress and augment rules (ήθελα / θέλαμε, έτρωγα / τρώγαμε, πηδούσα), the use of Ήθελα as a polite request, the imperatives (φάε, τρώγε, πλύνε and their plurals), the negative imperatives (μην φας …), μπορεί να έχει φάει, and the Romanian counterparts (*Mâncam multă pâine*, *Mănâncă pâinea!*, *Nu mânca pâinea!*, *Spală copilul!*, *Poate să fi mâncat*);
 - phrases 19 and 20: the Greek wording (including whether «Θα τρώω λιγότερο ψωμί» sounds natural), the noun ψωμί and its plural, the aorist paradigm of τρώω (έφαγα … έφαγαν), and Romanian *Voi mânca mai puțină pâine*;
 - the perfect and subjunctive: the base forms (φάει, πάει, πηδήξει, πλυθεί), the full aorist-subjunctive paradigms of τρώω and πάω (φάω … φάνε, πάω … πάνε), the present subjunctive of τρώω, the simple future, and the negated subjunctive (να μην);
 - Romanian perfect and subjunctive: *mâncasem* (and the rest of the pluperfect paradigm), *voi fi mâncat*, the subjunctive of *a mânca*, *a merge* and *a sări*, and the reflexive perfect *m-am spălat*;
 - the quantifiers: κάποιον (with the final ν), the πολύς forms (πολύ in the accusative singular masculine, πολλοί, πολλών), whether μερικοί is the right counterpart of *câțiva* and *niște*, the use of κάποιος for *vreun / vreo*, and the comparative forms περισσότερος and λιγότερος;
 - Romanian quantifiers: *câteva* and *câtorva*, *multor*, *vreunui / vreunei*, *niciunui / niciunei*, the choice of *niciun* vs *nicio* in phrase 9, and the missing genitives (*mult, multă, puțin, puțină*), which must be filled in, or removed from the lexeme's `offers`, before release;
 - Romanian: the sentence *Vulpea rapidă și maro sare peste câinele leneș*, the adjective forms (*calzi, rapizi, leneși*, feminine genitive *calde*), the numerals, the reflexive forms, and the perfect and future forms of *a vrea* and *a sări*.
-- the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The data already uses τρώγε / τρώγετε (a per-cell override on the lexeme, with an irregularity note), but this spec still shows τρώε in 5.2 (imperative-aspect), 5.5, 6.1 (phrases 27 and 38), 6.4 and 6.5. Those mentions are to be corrected when the review confirms the form; the reviewer also checks the plural τρώγετε and the "keep eating" meaning.
+- the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -775,3 +775,9 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | 3 `offers` hides confirmed Greek forms | Stated as an accepted trade-off, with the πολλού / *multor* example | 5.3 |
 | 4 Genitive stand-alone pronouns | Dropped from the §9 pending line; they are out of scope (6.3) | 9 |
 | 5 Stale row in §14 | Row 9 marked superseded, pointing to §15 | 14 |
+
+## 17. Changes since Plan 3
+
+| Source | Change | Where |
+|---|---|---|
+| User's search: the present imperative of τρώω keeps the older -γ- | τρώε / τρώτε replaced by τρώγε / τρώγετε for the imperative (phrases 27 and 38, the tables, the readings and the divergence note); the present subjunctive μην τρως / μην τρώτε is unchanged. The plural is extrapolated and listed for the reviewer | 5.2, 5.5, 6.1, 6.4, 6.5, 9 |
