@@ -152,3 +152,16 @@ describe('nounPhrase with the other adjectives', () => {
     expect(r.en).toBe('the lazy dogs');
   });
 });
+
+describe('ψωμί (neuter in Greek, feminine in Romanian)', () => {
+  const psomi = getNoun('psomi');
+  it('the definite article agrees with the noun: το ψωμί / pâinea / the bread', () => {
+    const np = nounPhrase(psomi, 'sg', 'acc', { article: 'definite' });
+    expect(richText(np.el)).toBe('το ψωμί');
+    expect(np.ro).toBe('pâinea');
+    expect(np.en).toBe('the bread');
+  });
+  it('the plural is ψωμιά', () => {
+    expect(richText(nounPhrase(psomi, 'pl', 'nom', { article: 'definite' }).el)).toBe('τα ψωμιά');
+  });
+});

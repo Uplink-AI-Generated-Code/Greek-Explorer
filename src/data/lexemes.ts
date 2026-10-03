@@ -7,6 +7,7 @@ import type {
   GreekParticle,
   GreekPreposition,
   GreekVerb,
+  IrregularNote,
   Tense,
 } from '../types';
 
@@ -94,6 +95,27 @@ const paidi: GreekNoun = {
   note: 'Neuter in Greek, masculine in Romanian (copil), no gender in English.',
 };
 
+const psomi: GreekNoun = {
+  id: 'psomi',
+  pos: 'noun',
+  lemma: 'ψωμί',
+  verified: { el: false, ro: false, en: false },
+  gender: 'n',
+  class: 'neut-i',
+  stems: { sg: 'ψωμ', pl: 'ψωμ' },
+  ro: {
+    lemma: 'pâine',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'pâinea', indefinite: 'o pâine', genDefinite: 'pâinii', genIndefinite: 'unei pâini' },
+      pl: { definite: 'pâinile', indefinite: 'pâini', genDefinite: 'pâinilor', genIndefinite: 'unor pâini' },
+    },
+    split: { sg: ['pâine', 'a'], pl: ['pâini', 'le'] },
+  },
+  en: { sg: 'bread', pl: 'bread' },
+  note: 'Neuter in Greek, feminine in Romanian (pâine); "bread" has no gender and no plural in English.',
+};
+
 const zestos: GreekAdjective = {
   id: 'zestos',
   pos: 'adjective',
@@ -167,6 +189,9 @@ const kafeAdj: GreekAdjective = {
 };
 
 const same = (nom: string, gen: string = nom) => ({ nom, gen });
+
+const note = (rule: string, plain: string): IrregularNote => ({ rule, plain });
+const ACCENT_DROP = note('monosyllable', 'A one-syllable form loses its accent mark: τρως, not τρώς.');
 
 const numeral: GreekNumeral = {
   id: 'numeral',
@@ -254,6 +279,245 @@ const pidao: GreekVerb = {
   },
 };
 
+const troo: GreekVerb = {
+  id: 'troo',
+  pos: 'verb',
+  lemma: 'τρώω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'τρώω',
+      class: 'athematic',
+      stems: {
+        present: 'τρώ',
+        imperfect: { strong: { augment: 'έ', stem: 'τρωγ' }, weak: { stem: 'τρώγ' } },
+        aorist: { strong: { augment: 'έ', stem: 'φαγ' }, weak: { stem: 'φάγ' } },
+        perfective: 'φά',
+      },
+      overrides: {
+        'present.2sg': { stem: 'τρω', ending: 'ς', note: ACCENT_DROP },
+        'subjAorist.2sg': { stem: 'φα', ending: 'ς', note: ACCENT_DROP },
+      },
+      offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
+      ro: {
+        lemma: 'a mânca',
+        infinitive: 'mânca',
+        participle: 'mâncat',
+        present: ['mănânc', 'mănânci', 'mănâncă', 'mâncăm', 'mâncați', 'mănâncă'],
+        subjunctive: ['mănânc', 'mănânci', 'mănânce', 'mâncăm', 'mâncați', 'mănânce'],
+        imperfect: ['mâncam', 'mâncai', 'mânca', 'mâncam', 'mâncați', 'mâncau'],
+        pluperfect: ['mâncasem', 'mâncaseși', 'mâncase', 'mâncaserăm', 'mâncaserăți', 'mâncaseră'],
+        imperative: ['mănâncă', 'mâncați'],
+      },
+      en: { gloss: 'eat', base: 'eat', third: 'eats', past: 'ate', pastParticiple: 'eaten', ing: 'eating' },
+    },
+  },
+};
+
+const pao: GreekVerb = {
+  id: 'pao',
+  pos: 'verb',
+  lemma: 'πάω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'πάω',
+      class: 'athematic',
+      stems: {
+        present: 'πά',
+        imperfect: { strong: { stem: 'πήγαιν' }, weak: { stem: 'πηγαίν' } },
+        aorist: { strong: { stem: 'πήγ' }, weak: { stem: 'πήγ' } },
+        perfective: 'πά',
+      },
+      overrides: {
+        'present.2sg': { stem: 'πα', ending: 'ς', note: ACCENT_DROP },
+        'subjAorist.2sg': { stem: 'πα', ending: 'ς', note: ACCENT_DROP },
+      },
+      offers: OFFERS_NO_IMPERATIVE,
+      ro: {
+        lemma: 'a merge',
+        infinitive: 'merge',
+        participle: 'mers',
+        present: ['merg', 'mergi', 'merge', 'mergem', 'mergeți', 'merg'],
+        subjunctive: ['merg', 'mergi', 'meargă', 'mergem', 'mergeți', 'meargă'],
+        imperfect: ['mergeam', 'mergeai', 'mergea', 'mergeam', 'mergeați', 'mergeau'],
+        pluperfect: ['mersesem', 'merseseși', 'mersese', 'merseserăm', 'merseserăți', 'merseseră'],
+      },
+      en: { gloss: 'go', base: 'go', third: 'goes', past: 'went', pastParticiple: 'gone', ing: 'going' },
+    },
+  },
+};
+
+/** έχω, also the auxiliary of the perfect tenses. It offers only the forms the auxiliary role and its own panel need. */
+const echo: GreekVerb = {
+  id: 'echo',
+  pos: 'verb',
+  lemma: 'έχω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'έχω',
+      class: 'omega',
+      stems: {
+        present: 'έχ',
+        imperfect: { strong: { stem: 'είχ' }, weak: { stem: 'είχ' } },
+      },
+      offers: { indicative: ['present', 'imperfect', 'future'], subjunctive: ['present'], conditional: ['imperfect'] },
+      ro: {
+        lemma: 'a avea',
+        infinitive: 'avea',
+        participle: 'avut',
+        present: ['am', 'ai', 'are', 'avem', 'aveți', 'au'],
+        subjunctive: ['am', 'ai', 'aibă', 'avem', 'aveți', 'aibă'],
+        imperfect: ['aveam', 'aveai', 'avea', 'aveam', 'aveați', 'aveau'],
+        pluperfect: ['avusesem', 'avuseseși', 'avusese', 'avuseserăm', 'avuseserăți', 'avuseseră'],
+      },
+      en: { gloss: 'have', base: 'have', third: 'has', past: 'had', pastParticiple: 'had', ing: 'having' },
+    },
+  },
+};
+
+const pleno: GreekVerb = {
+  id: 'pleno',
+  pos: 'verb',
+  lemma: 'πλένω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'πλένω',
+      class: 'omega',
+      stems: {
+        present: 'πλέν',
+        imperfect: { strong: { augment: 'έ', stem: 'πλεν' }, weak: { stem: 'πλέν' } },
+        aorist: { strong: { augment: 'έ', stem: 'πλυν' }, weak: { stem: 'πλύν' } },
+        perfective: 'πλύν',
+      },
+      offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
+      ro: {
+        lemma: 'a spăla',
+        infinitive: 'spăla',
+        participle: 'spălat',
+        present: ['spăl', 'speli', 'spală', 'spălăm', 'spălați', 'spală'],
+        subjunctive: ['spăl', 'speli', 'spele', 'spălăm', 'spălați', 'spele'],
+        imperfect: ['spălam', 'spălai', 'spăla', 'spălam', 'spălați', 'spălau'],
+        pluperfect: ['spălasem', 'spălaseși', 'spălase', 'spălaserăm', 'spălaserăți', 'spălaseră'],
+        imperative: ['spală', 'spălați'],
+      },
+      en: { gloss: 'wash', base: 'wash', third: 'washes', past: 'washed', pastParticiple: 'washed', ing: 'washing' },
+    },
+    mediopassive: {
+      lemma: 'πλένομαι',
+      class: 'mediopassive',
+      stems: {
+        present: 'πλέν',
+        imperfect: { strong: { stem: 'πλεν' }, weak: { stem: 'πλεν' } },
+        aorist: { strong: { stem: 'πλύθ' }, weak: { stem: 'πλυθ' } },
+        perfective: 'πλυθ',
+      },
+      overrides: {
+        'present.1pl': {
+          stem: 'πλεν',
+          ending: 'όμαστε',
+          note: note('stress-shift', 'In "we" the stress moves onto the ending: πλενόμαστε.'),
+        },
+        'imperfect.3pl': {
+          stem: 'πλέν',
+          ending: 'ονταν',
+          note: note('stress-shift', 'In "they" the stress stays on the stem: πλένονταν.'),
+        },
+      },
+      offers: {
+        indicative: ['present', 'imperfect', 'aorist', 'perfect', 'pluperfect'],
+        subjunctive: ['present', 'aorist'],
+      },
+      ro: {
+        lemma: 'a se spăla',
+        infinitive: 'spăla',
+        participle: 'spălat',
+        present: ['mă spăl', 'te speli', 'se spală', 'ne spălăm', 'vă spălați', 'se spală'],
+        subjunctive: ['mă spăl', 'te speli', 'se spele', 'ne spălăm', 'vă spălați', 'se spele'],
+        imperfect: ['mă spălam', 'te spălai', 'se spăla', 'ne spălam', 'vă spălați', 'se spălau'],
+        pluperfect: ['mă spălasem', 'te spălaseși', 'se spălase', 'ne spălaserăm', 'vă spălaserăți', 'se spălaseră'],
+        perfect: ['m-am spălat', 'te-ai spălat', 's-a spălat', 'ne-am spălat', 'v-ați spălat', 's-au spălat'],
+      },
+      en: {
+        gloss: 'wash',
+        base: 'wash',
+        third: 'washes',
+        past: 'washed',
+        pastParticiple: 'washed',
+        ing: 'washing',
+        reflexive: true,
+      },
+    },
+  },
+};
+
+/** κοιμάμαι is deponent: passive in form, not reflexive in meaning. */
+const koimamai: GreekVerb = {
+  id: 'koimamai',
+  pos: 'verb',
+  lemma: 'κοιμάμαι',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    mediopassive: {
+      lemma: 'κοιμάμαι',
+      class: 'deponent',
+      stems: {
+        present: 'κοιμ',
+        imperfect: { strong: { stem: 'κοιμ' }, weak: { stem: 'κοιμ' } },
+        aorist: { strong: { stem: 'κοιμήθ' }, weak: { stem: 'κοιμηθ' } },
+        perfective: 'κοιμηθ',
+      },
+      offers: OFFERS_NO_IMPERATIVE,
+      ro: {
+        lemma: 'a dormi',
+        infinitive: 'dormi',
+        participle: 'dormit',
+        present: ['dorm', 'dormi', 'doarme', 'dormim', 'dormiți', 'dorm'],
+        subjunctive: ['dorm', 'dormi', 'doarmă', 'dormim', 'dormiți', 'doarmă'],
+        imperfect: ['dormeam', 'dormeai', 'dormea', 'dormeam', 'dormeați', 'dormeau'],
+        pluperfect: ['dormisem', 'dormiseși', 'dormise', 'dormiserăm', 'dormiserăți', 'dormiseră'],
+      },
+      en: { gloss: 'sleep', base: 'sleep', third: 'sleeps', past: 'slept', pastParticiple: 'slept', ing: 'sleeping' },
+    },
+  },
+};
+
+/** μπορεί ("it is possible; may") has one slot: the third person singular of the present. */
+const mporei: GreekVerb = {
+  id: 'mporei',
+  pos: 'verb',
+  lemma: 'μπορεί',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'μπορεί',
+      class: 'impersonal',
+      stems: { present: 'μπορ' },
+      offers: { indicative: ['present'] },
+      thirdSingularOnly: true,
+      ro: {
+        lemma: 'a putea',
+        infinitive: 'putea',
+        participle: 'putut',
+        present: ['', '', 'poate', '', '', ''],
+        subjunctive: ['', '', 'poată', '', '', ''],
+        imperfect: ['', '', '', '', '', ''],
+        pluperfect: ['', '', '', '', '', ''],
+      },
+      en: {
+        gloss: 'be able to',
+        base: 'may',
+        third: 'may',
+        past: 'might',
+        pastParticiple: 'been able to',
+        ing: 'being able to',
+      },
+    },
+  },
+};
+
 const preposition = (id: string, lemma: string, ro: string, en: string, meaning: string): GreekPreposition => ({
   id,
   pos: 'preposition',
@@ -296,6 +560,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [skylos.id]: skylos,
   [alepou.id]: alepou,
   [paidi.id]: paidi,
+  [psomi.id]: psomi,
   [zestos.id]: zestos,
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
@@ -304,6 +569,12 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [def.id]: def,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
+  [troo.id]: troo,
+  [pao.id]: pao,
+  [echo.id]: echo,
+  [pleno.id]: pleno,
+  [koimamai.id]: koimamai,
+  [mporei.id]: mporei,
   [pano.id]: pano,
   [kato.id]: kato,
   [me.id]: me,
