@@ -85,9 +85,9 @@ function checkLexeme(l: GreekLexeme): string[] {
       try {
         if (isEmpty(compose(l, slot).text)) errors.push(`${where}: empty Greek group`);
         const ro = roVerb(l, slot);
-        if (isEmpty(ro) || ro.includes('undefined')) errors.push(`${where}: no Romanian form`);
+        if (isEmpty(ro) || ro.includes('undefined') || /\s$/.test(ro) || /\s{2,}/.test(ro)) errors.push(`${where}: no Romanian form`);
         const en = enVerb(l, slot).verb;
-        if (isEmpty(en) || en.includes('undefined') || /\s$/.test(en)) {
+        if (isEmpty(en) || en.includes('undefined') || /\s$/.test(en) || /\s{2,}/.test(en)) {
           errors.push(`lexeme ${l.id}: empty English form for ${JSON.stringify(slot)}`);
         }
       } catch (e) {

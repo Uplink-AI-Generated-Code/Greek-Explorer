@@ -39,6 +39,10 @@ describe('selectDivergences by mood, tense and voice', () => {
     expect(shown).not.toContain('imperative-aspect');
   });
 
+  it('the conditional pluperfect shows the unchanging participle', () => {
+    expect(ids('troo', verb('conditional', 'pluperfect'))).toContain('invariable-participle');
+  });
+
   it('the aorist subjunctive shows the infinitive and aspect notes', () => {
     const shown = ids('troo', verb('subjunctive', 'aorist'));
     expect(shown).toEqual(expect.arrayContaining(['subjunctive-for-infinitive', 'aspect']));

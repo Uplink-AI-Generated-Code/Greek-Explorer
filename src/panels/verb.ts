@@ -146,10 +146,18 @@ function overviewRow(verb: GreekVerb, slot: SlotOf<'verb'>, mood: Mood, tense: T
   const target: SlotOf<'verb'> = { ...slot, mood, tense };
   const label = `${moodLabel('improver', mood)} · ${tenseLabel('improver', mood, tense)}`;
   if (!isOffered(verb, target)) {
-    const reason =
-      mood === 'imperative' && slot.person !== 2
-        ? 'commands are for "you" only'
-        : `${verb.lemma} has no ${moodLabel('improver', mood)} here`;
+    const lemma = voiceOf(verb, slot.voice).lemma;
+    let reason: string;
+    if (!offeredMoods(verb, slot.voice).includes(mood)) {
+      reason =
+        mood === 'imperative' ? `${lemma} has no imperative` : `${lemma} has no ${moodLabel('improver', mood)}`;
+    } else if (!offeredTenses(verb, slot.voice, mood).includes(tense)) {
+      reason = `${lemma} has no ${tenseLabel('improver', mood, tense).toLowerCase()} form`;
+    } else if (mood === 'imperative' && slot.person !== 2) {
+      reason = 'commands are for "you" only';
+    } else {
+      reason = `${lemma} has no ${moodLabel('improver', mood)} for this person`;
+    }
     const none = plain('—');
     return { label, el: none, ro: none, en: none, dimmed: reason };
   }

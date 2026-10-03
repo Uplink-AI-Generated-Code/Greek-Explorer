@@ -184,6 +184,11 @@ describe('verb lexemes', () => {
     expect(errors.some((e) => e.startsWith('lexeme troo: empty English form'))).toBe(true);
   });
 
+  it('reports a Romanian cell that ends in a space', () => {
+    const errors = validate(modifiedTroo((v) => { v.ro.participle = ''; }));
+    expect(errors.some((e) => e.startsWith('lexeme troo: cannot build') && e.includes('Romanian'))).toBe(true);
+  });
+
   it('reports a slot with no Greek form (a missing perfective stem)', () => {
     const errors = validate(modifiedTroo((v) => { delete v.stems.perfective; }));
     expect(errors.some((e) => e.startsWith('lexeme troo: cannot inflect'))).toBe(true);

@@ -57,10 +57,15 @@ export function inflectNumeral(_l: GreekNumeral, s: SlotOf<'numeral'>): Form {
   return { stem, ending };
 }
 
-const STRESS_SHIFT: IrregularNote = {
+const STRESS_SHIFT_PREFIX: IrregularNote = {
   rule: 'stress-shift',
   plain:
     'In the "we" and "you (pl.)" forms the stress moves toward the end of the word, so the past-tense prefix drops out and the stem takes the accent.',
+};
+
+const STRESS_SHIFT: IrregularNote = {
+  rule: 'stress-shift',
+  plain: 'In the "we" and "you (pl.)" forms the stress moves toward the end of the word, so the stem takes a different accent.',
 };
 
 function pick(table: readonly (string | null)[], index: number, what: string): string {
@@ -80,7 +85,7 @@ function pastForm(stems: PastStems | undefined, table: readonly (string | null)[
   const pair: StemPair = weak ? past.weak : past.strong;
   const form: Form = { stem: pair.stem, ending: pick(table, index, what) };
   if (pair.augment) form.augment = pair.augment;
-  if (weak && (past.strong.augment !== undefined || past.strong.stem !== past.weak.stem)) form.irregular = STRESS_SHIFT;
+  if (weak && (past.strong.augment !== undefined || past.strong.stem !== past.weak.stem)) form.irregular = past.strong.augment !== undefined ? STRESS_SHIFT_PREFIX : STRESS_SHIFT;
   return form;
 }
 

@@ -201,7 +201,7 @@ export const DIVERGENCES: Divergence[] = [
   },
   {
     id: 'invariable-participle',
-    appliesTo: { pos: 'verb', when: { moods: ['indicative', 'subjunctive'], tenses: ['perfect', 'pluperfect', 'futurePerfect'] } },
+    appliesTo: { pos: 'verb', when: { moods: ['indicative', 'subjunctive', 'conditional'], tenses: ['perfect', 'pluperfect', 'futurePerfect'] } },
     point: 'The part that never changes',
     el: 'έχω + one fixed form (φάει): the auxiliary carries the person',
     ro: 'a avea + a participle that does not change (mâncat)',

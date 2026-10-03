@@ -267,6 +267,17 @@ describe('inflectVerb: past forms (θέλω and πηδάω)', () => {
   });
 });
 
+describe('stress-shift note wording', () => {
+  it('mentions the prefix only when the verb has one', () => {
+    expect(inflect(getVerb('troo'), vs('indicative', 'imperfect', 1, 'pl')).irregular?.plain).toContain('prefix');
+    for (const [id, tense] of [['pao', 'imperfect'], ['pidao', 'aorist']] as const) {
+      const note = inflect(getVerb(id), vs('indicative', tense, 1, 'pl')).irregular;
+      expect(note?.rule).toBe('stress-shift');
+      expect(note?.plain).not.toContain('prefix');
+    }
+  });
+});
+
 describe('inflectVerb: the perfective stem (aorist subjunctive and the base form)', () => {
   it('θέλω aorist subjunctive: θελήσω … θελήσουν', () => {
     expect(words('thelo', 'subjunctive', 'aorist')).toEqual(['θελήσω', 'θελήσεις', 'θελήσει', 'θελήσουμε', 'θελήσετε', 'θελήσουν']);

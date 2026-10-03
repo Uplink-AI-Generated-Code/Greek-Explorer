@@ -19,7 +19,6 @@ export interface IrregularNote {
 }
 
 /** A Greek form split for display. The ending is highlighted in the UI. */
-/** A Greek form split for display. The ending is highlighted in the UI. */
 export interface Form {
   /** The past-tense prefix (έ- in έτρωγα, ή- in ήθελα). */
   augment?: string;

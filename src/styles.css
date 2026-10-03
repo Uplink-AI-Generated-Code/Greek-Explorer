@@ -46,7 +46,7 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .chip[aria-pressed='true'], .gloss-unit[aria-pressed='true'] { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-border); }
 .chip .piece-particle, .chip .piece-auxiliary { color: var(--accent-text); }
 .chip[aria-pressed='true'] .piece-particle, .chip[aria-pressed='true'] .piece-auxiliary { color: inherit; }
-.chip:focus-visible, .gloss-unit:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }
+.chip:focus-visible, .gloss-unit:focus-visible, .phrase-status button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }
 
 .gloss-grid { margin-top: 12px; display: grid; gap: 4px; }
 .gloss-row { display: grid; grid-template-columns: 64px 56px minmax(0, 1fr); gap: 8px; align-items: start; }

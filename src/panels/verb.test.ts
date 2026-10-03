@@ -161,7 +161,26 @@ describe('verb panel: full table and tense overview (Improver)', () => {
     const imperative = overview.find((r) => r.label === 'imperative · aorist (do it once)');
     expect(imperative?.dimmed).toBe('commands are for "you" only');
     const thelo = panel('thelo', vs('indicative', 'present', 2), 'improver').overview ?? [];
-    expect(thelo.find((r) => r.label === 'imperative · present (keep doing)')?.dimmed).toBe('θέλω has no imperative here');
+    expect(thelo.find((r) => r.label === 'imperative · present (keep doing)')?.dimmed).toBe('θέλω has no imperative');
+    const thelo1 = panel('thelo', vs('indicative', 'present', 1), 'improver').overview ?? [];
+    expect(thelo1.find((r) => r.label === 'imperative · present (keep doing)')?.dimmed).toBe('θέλω has no imperative');
+  });
+  it('names the voice lemma and the missing tense', () => {
+    const overview = panel('pleno', vs('indicative', 'present', 1, 'sg', 'mediopassive'), 'improver').overview ?? [];
+    const reason = overview.find((r) => r.label === 'indicative · future (continuous)')?.dimmed ?? '';
+    expect(reason).toContain('πλένομαι');
+    expect(reason).toContain('future (continuous)');
+  });
+  it('a verb with only the third person gives a plain reason', () => {
+    const overview = panel('mporei', vs('indicative', 'present', 3), 'improver').overview ?? [];
+    const rows = overview.filter((r) => r.label.startsWith('indicative · future'));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const r of rows) {
+      if (r.dimmed === undefined) continue;
+      expect(r.dimmed.startsWith('μπορεί has no')).toBe(true);
+      expect(r.dimmed).not.toContain('has no indicative here');
+    }
+    expect(rows.some((r) => r.dimmed !== undefined)).toBe(true);
   });
   it('the two futures show the same English cell', () => {
     const overview = panel('troo', vs('indicative', 'future', 1), 'improver').overview ?? [];
