@@ -101,13 +101,19 @@ function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Panel {
     rows: [
       {
         label: whoOptions[index].label,
-        el: [{ text: `(${GREEK_PRONOUNS[index]}) `, role: 'dim' }, ...formRich(inflectVerb(verb, slot))],
+        el: [
+          { text: `(${GREEK_PRONOUNS[index]})`, role: 'dim' },
+          { text: ' ', role: 'plain' },
+          ...formRich(inflectVerb(verb, slot)),
+        ],
         ro: [
-          { text: `(${RO_PRONOUNS[index]}) `, role: 'dim' },
+          { text: `(${RO_PRONOUNS[index]})`, role: 'dim' },
+          { text: ' ', role: 'plain' },
           { text: roVerb(verb, slot), role: 'plain' },
         ],
         en: [
-          { text: `${EN_PRONOUNS[index]} `, role: 'pronoun' },
+          { text: EN_PRONOUNS[index], role: 'pronoun' },
+          { text: ' ', role: 'plain' },
           { text: enVerb(verb, slot), role: 'plain' },
         ],
       },
