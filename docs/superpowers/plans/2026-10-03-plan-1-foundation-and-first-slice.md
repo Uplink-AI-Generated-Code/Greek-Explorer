@@ -16,9 +16,9 @@
 |---|---|---|
 | **1 (this plan)** | Scaffold, types, inflection for noun / adjective / definite article / numeral "one" / verb (present), Romanian and English forms, noun-phrase builder, validator, UI shell, phrase 1 | 1, 2 (subset), 3 (labels only), 4.1 to 4.5, 5.1 to 5.3 (subset), 7, 8 (subset) |
 | 2 | Full paradigm tables with per-column highlighting (Improver), numerals 2 to 5, prepositions, indeclinable and stem-stressed adjectives, more nouns, glosses with segments, phrases 2 and 3 (the fox sentence) | 5.1, 5.3, 4.5, 6.1 |
-| 3 | Verb system: tenses, moods, voice, compound forms, imperfect, imperative, subjunctive, conditional; "how to read this" lines; tense overview; phrases 4 to 6, 11 to 16, 18 to 31 | 4.2, 4.3, 5.5, 6.2, 6.4 |
-| 4 | Quantifiers, negation, conjunction, copula, passive participle; phrases 7 to 10, 30, 32, 33 | 5.3, 6.3, 6.5 |
-| 5 | Clitics, form groups, "Same meaning" strip, remaining phrases (17, 34 to 38), content review pass, polish | 4.6, 5.4, 6.5, 9 |
+| 3 | Verb system: tenses, moods, voice, compound forms, imperfect, imperative, subjunctive, conditional; "how to read this" lines; tense overview; phrases 4 to 6, 11 to 19, 22 to 27, 29, 31, 39; one token per verb group with piece-level gloss links, the particle panel, and the working-copy Reset control extended to verb pieces | 4.2, 4.3, 4.4, 5.5, 6.2, 6.4 |
+| 4 | Quantifiers, negation, conjunction, copula, passive participle; phrases 7 to 10, 20, 21, 28, 30, 32, 33; the `pending` marker for unconfirmed Romanian and English cells | 5.3, 6.3, 6.5, 7 |
+| 5 | Clitics, form groups, "Same meaning" strip, clitic phrases (34 to 38), content review pass, polish | 4.6, 5.4, 6.5, 9 |
 
 Each later plan is written after the previous one ships, so it can use what was learned.
 
@@ -28,6 +28,10 @@ Each later plan is written after the previous one ships, so it can use what was 
 - `Form` has no `reading` or `prefix` yet. Plan 3 adds them.
 - The Improver level changes labels only (technical grammar names). Full paradigm tables arrive in Plan 2.
 - One phrase. The phrase picker arrives with Plan 2.
+- Romanian and English cells are plain strings in Plan 1. The `pending` marker (spec 4.2 and 7) arrives in Plan 4, where the first unconfirmed cells appear; until then an empty cell fails validation.
+- The verb slot has no `polarity`, `clitics` or `shortForm` yet, and there is no `compose()`. Plan 3 adds them, with the English past, participle and -ing forms and the stored Romanian verb paradigms. Plan 1 has no verb groups, so every token is one word.
+- Gloss links already use the spec's `Link` type (a token index, or `{ token, piece }`), so Plan 3 can link to the pieces of a verb group without changing the data format. Plan 1 checks that a link names an existing token and a non-negative piece; the upper bound on `piece` arrives with `compose`.
+- The phrase and its glosses are fixed (spec 4.4). The word panel works on a copy of the token's slot, with a "Reset to phrase" control. Plan 1 implements this.
 
 ## Global Constraints
 
@@ -72,6 +76,7 @@ src/
   validate/
     validate.ts                      # validate(): string[]
   storage.ts                         # level persistence (try/catch)
+  glossLinks.ts                      # linkedToken(), linkedPiece(): gloss links to tokens and pieces
   components/
     LevelToggle.tsx, PhraseBar.tsx, GlossGrid.tsx,
     RichText.tsx, FormTable.tsx, WordPanel.tsx, ComparisonTable.tsx
@@ -326,10 +331,13 @@ export interface Token {
   agreesWith?: TokenIndex;
 }
 
+/** A link points at a whole token, or at one piece of a verb group (Δεν θέλω: piece 0 is δεν). */
+export type Link = TokenIndex | { token: TokenIndex; piece: number };
+
 export interface GlossUnit {
   text: string;
-  /** Index of the linked Greek token, or null when Greek has no counterpart. */
-  link: TokenIndex | null;
+  /** The linked Greek token (or piece of one), or null when Greek has no counterpart. */
+  link: Link | null;
 }
 
 export interface GlossRow {
@@ -341,6 +349,9 @@ export interface GlossRow {
 export interface Phrase {
   id: string;
   title: string;
+  /** The phrase picker groups by theme. */
+  theme: string;
+  /** A badge and sort key; the level toggle never hides phrases. */
   level: Level;
   tokens: Token[];
   glosses: GlossRow[];
@@ -353,6 +364,8 @@ export interface Divergence {
   el: string;
   ro: string;
   en: string;
+  /** The type tag shown on the row. */
+  tag: 'same' | 'differs' | 'absent';
   /** `core` rows show in both levels; `extra` rows only in Improver. */
   level: 'core' | 'extra';
 }
@@ -1075,12 +1088,61 @@ git commit -m "feat: add rich-text helpers, Romanian and English forms, and the 
 ### Task 5: Phrase 1 data, divergences and the validator
 
 **Files:**
-- Create: `src/data/phrases.ts`, `src/data/divergences.ts`, `src/validate/validate.ts`, `scripts/validate.ts`
-- Test: `src/validate/validate.test.ts`
+- Create: `src/glossLinks.ts`, `src/data/phrases.ts`, `src/data/divergences.ts`, `src/validate/validate.ts`, `scripts/validate.ts`
+- Test: `src/glossLinks.test.ts`, `src/validate/validate.test.ts`
 
 **Interfaces:**
 - Consumes: `LEXEMES`, `inflect`, types from earlier tasks.
-- Produces: `PHRASES: Phrase[]` (one phrase, id `ordering-hot-coffee`); `DIVERGENCES: Divergence[]`; `interface ValidationInput { lexemes: Record<string, GreekLexeme>; phrases: Phrase[] }`; `validate(input: ValidationInput): string[]` (empty array means valid).
+- Produces: `linkedToken(link: Link): TokenIndex` and `linkedPiece(link: Link): number | null`; `PHRASES: Phrase[]` (one phrase, id `ordering-hot-coffee`, theme `Ordering`); `DIVERGENCES: Divergence[]`; `interface ValidationInput { lexemes: Record<string, GreekLexeme>; phrases: Phrase[] }`; `validate(input: ValidationInput): string[]` (empty array means valid).
+
+- [ ] **Step 0a: Write the failing test `src/glossLinks.test.ts`**
+
+```ts
+import { describe, expect, it } from 'vitest';
+import { linkedPiece, linkedToken } from './glossLinks';
+
+describe('gloss links', () => {
+  it('a whole-token link is the token index', () => {
+    expect(linkedToken(3)).toBe(3);
+    expect(linkedPiece(3)).toBeNull();
+  });
+  it('a piece link names its token and its piece', () => {
+    expect(linkedToken({ token: 2, piece: 1 })).toBe(2);
+    expect(linkedPiece({ token: 2, piece: 1 })).toBe(1);
+  });
+  it('token 0 and piece 0 are valid links, not "no link"', () => {
+    expect(linkedToken(0)).toBe(0);
+    expect(linkedToken({ token: 0, piece: 0 })).toBe(0);
+    expect(linkedPiece({ token: 0, piece: 0 })).toBe(0);
+  });
+});
+```
+
+- [ ] **Step 0b: Run to verify it fails**
+
+Run: `npx vitest run src/glossLinks.test.ts`
+Expected: FAIL (module `./glossLinks` not found).
+
+- [ ] **Step 0c: Write `src/glossLinks.ts`**
+
+```ts
+import type { Link, TokenIndex } from './types';
+
+/** The token a gloss link points at (the whole link, or the token of a piece link). */
+export function linkedToken(link: Link): TokenIndex {
+  return typeof link === 'number' ? link : link.token;
+}
+
+/** The piece of the token the link points at, or null when it points at the whole token. */
+export function linkedPiece(link: Link): number | null {
+  return typeof link === 'number' ? null : link.piece;
+}
+```
+
+- [ ] **Step 0d: Run to verify it passes**
+
+Run: `npx vitest run src/glossLinks.test.ts`
+Expected: PASS, 3 tests.
 
 - [ ] **Step 1: Write `src/data/phrases.ts`**
 
@@ -1113,7 +1175,7 @@ const glosses: GlossRow[] = [
     language: 'en',
     kind: 'natural',
     units: [
-      { text: "I'd like", link: 0 },
+      { text: 'I want', link: 0 },
       { text: 'a', link: 1 },
       { text: 'hot', link: 2 },
       { text: 'coffee', link: 3 },
@@ -1134,7 +1196,7 @@ const glosses: GlossRow[] = [
     language: 'ro',
     kind: 'natural',
     units: [
-      { text: 'Aș vrea', link: 0 },
+      { text: 'Vreau', link: 0 },
       { text: 'o', link: 1 },
       { text: 'cafea', link: 3 },
       { text: 'caldă', link: 2 },
@@ -1154,7 +1216,14 @@ const glosses: GlossRow[] = [
 ];
 
 export const PHRASES: Phrase[] = [
-  { id: 'ordering-hot-coffee', title: 'Ordering a hot coffee', level: 'beginner', tokens, glosses },
+  {
+    id: 'ordering-hot-coffee',
+    title: 'Ordering a hot coffee',
+    theme: 'Ordering',
+    level: 'beginner',
+    tokens,
+    glosses,
+  },
 ];
 ```
 
@@ -1171,6 +1240,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'dropped: the ending shows the person',
     ro: 'dropped: the ending shows the person',
     en: 'required: I / you / he …',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1180,6 +1250,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'present Θέλω is a normal request',
     ro: 'conditional aș vrea is softer',
     en: '"I\'d like" (conditional)',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1189,6 +1260,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'ένας / μία / ένα change with the noun',
     ro: 'un / o change with the noun',
     en: 'a / an never changes',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1198,6 +1270,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'accusative έναν, genitive ενός',
     ro: 'only the genitive changes (unui, unei)',
     en: 'never changes',
+    tag: 'differs',
     level: 'extra',
   },
   {
@@ -1207,6 +1280,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'before the noun (usually)',
     ro: 'after the noun: cafea caldă',
     en: 'before the noun',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1216,6 +1290,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'gender, number and role',
     ro: 'gender and number',
     en: 'none: hot never changes',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1225,6 +1300,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'article before the adjective: τον ζεστό καφέ',
     ro: 'article on the noun: cafeaua caldă',
     en: 'the hot coffee',
+    tag: 'differs',
     level: 'extra',
   },
   {
@@ -1234,6 +1310,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'article and noun both change',
     ro: 'mainly the article suffix changes',
     en: 'none',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1243,6 +1320,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'free-standing: τον καφέ',
     ro: 'attached: cafeaua',
     en: 'separate: the coffee',
+    tag: 'differs',
     level: 'core',
   },
   {
@@ -1252,6 +1330,7 @@ export const DIVERGENCES: Divergence[] = [
     el: 'free-standing, before the noun',
     ro: 'attached to the end of the noun',
     en: 'free-standing, before the noun',
+    tag: 'differs',
     level: 'core',
   },
 ];
@@ -1263,7 +1342,7 @@ export const DIVERGENCES: Divergence[] = [
 import { describe, expect, it } from 'vitest';
 import { LEXEMES } from '../data/lexemes';
 import { PHRASES } from '../data/phrases';
-import type { Phrase, Token } from '../types';
+import type { Link, Phrase, Token } from '../types';
 import { validate } from './validate';
 
 const real = { lexemes: LEXEMES, phrases: PHRASES };
@@ -1335,6 +1414,35 @@ describe('validate', () => {
     } as typeof LEXEMES;
     expect(validate({ lexemes, phrases: PHRASES })).toContain('lexeme kafes: empty Romanian form sg.definite');
   });
+
+  const withExtraUnit = (link: Link): Phrase => ({
+    ...PHRASES[0],
+    glosses: PHRASES[0].glosses.map((g, i) =>
+      i === 0 ? { ...g, units: [...g.units, { text: 'extra', link }] } : g,
+    ),
+  });
+
+  it('accepts a gloss link to a piece of an existing token', () => {
+    expect(validate({ ...real, phrases: [withExtraUnit({ token: 0, piece: 0 })] })).toEqual([]);
+  });
+
+  it('reports a piece link to a missing token', () => {
+    expect(validate({ ...real, phrases: [withExtraUnit({ token: 9, piece: 0 })] })).toContain(
+      'ordering-hot-coffee gloss en/natural: unit "extra" links to missing token 9',
+    );
+  });
+
+  it('reports a negative piece number', () => {
+    expect(validate({ ...real, phrases: [withExtraUnit({ token: 0, piece: -1 })] })).toContain(
+      'ordering-hot-coffee gloss en/natural: unit "extra" has an invalid piece -1',
+    );
+  });
+
+  it('reports a phrase with no theme', () => {
+    expect(validate({ ...real, phrases: [{ ...PHRASES[0], theme: '' }] })).toContain(
+      'ordering-hot-coffee: missing theme',
+    );
+  });
 });
 ```
 
@@ -1347,6 +1455,7 @@ Expected: FAIL (module `./validate` not found).
 
 ```ts
 import { inflect } from '../engine/greek';
+import { linkedToken } from '../glossLinks';
 import type { Case, Gender, GreekLexeme, Num, Person, Phrase, Slot, Token } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
@@ -1457,6 +1566,7 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
 
 function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): string[] {
   const errors: string[] = [];
+  if (isEmpty(phrase.theme)) errors.push(`${phrase.id}: missing theme`);
   phrase.tokens.forEach((token, i) => errors.push(...checkToken(phrase.id, phrase, i, token, lexemes)));
   for (const language of ['en', 'ro'] as const) {
     for (const kind of ['natural', 'literal'] as const) {
@@ -1466,8 +1576,13 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
         continue;
       }
       for (const unit of row.units) {
-        if (unit.link !== null && (unit.link < 0 || unit.link >= phrase.tokens.length)) {
-          errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unit.text}" links to missing token ${unit.link}`);
+        if (unit.link === null) continue;
+        const token = linkedToken(unit.link);
+        if (token < 0 || token >= phrase.tokens.length) {
+          errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unit.text}" links to missing token ${token}`);
+        }
+        if (typeof unit.link === 'object' && (!Number.isInteger(unit.link.piece) || unit.link.piece < 0)) {
+          errors.push(`${phrase.id} gloss ${language}/${kind}: unit "${unit.text}" has an invalid piece ${unit.link.piece}`);
         }
       }
     }
@@ -1518,7 +1633,7 @@ Run: `npm run typecheck`
 Expected: no errors.
 
 ```bash
-git add src/data src/validate scripts
+git add src/data src/validate src/glossLinks.ts src/glossLinks.test.ts scripts
 git commit -m "feat: add phrase 1 data, divergence notes and the data validator" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ```
 
@@ -1737,6 +1852,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PHRASES } from '../data/phrases';
+import type { GlossRow } from '../types';
 import { GlossGrid } from './GlossGrid';
 
 const glosses = PHRASES[0].glosses;
@@ -1768,6 +1884,24 @@ describe('GlossGrid', () => {
     render(<GlossGrid glosses={glosses} selected={0} onSelect={onSelect} />);
     await userEvent.setup().click(screen.getAllByRole('button', { name: 'cafea' })[0]);
     expect(onSelect).toHaveBeenCalledWith(3);
+  });
+
+  it('highlights and selects through a link that names a piece of a token', async () => {
+    const pieceGlosses: GlossRow[] = [
+      {
+        language: 'en',
+        kind: 'natural',
+        units: [
+          { text: "don't", link: { token: 1, piece: 0 } },
+          { text: 'want', link: { token: 1, piece: 1 } },
+        ],
+      },
+    ];
+    const onSelect = vi.fn();
+    render(<GlossGrid glosses={pieceGlosses} selected={1} onSelect={onSelect} />);
+    expect(screen.getByRole('button', { name: "don't" })).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.setup().click(screen.getByRole('button', { name: 'want' }));
+    expect(onSelect).toHaveBeenCalledWith(1);
   });
 
   it('shows units with no Greek counterpart as dashed, non-interactive text', () => {
@@ -1849,7 +1983,8 @@ export function PhraseBar({ tokens, selected, onSelect }: Props) {
 `src/components/GlossGrid.tsx`:
 
 ```tsx
-import type { GlossRow } from '../types';
+import { linkedToken } from '../glossLinks';
+import type { GlossRow, Link } from '../types';
 
 interface Props {
   glosses: GlossRow[];
@@ -1879,8 +2014,8 @@ export function GlossGrid({ glosses, selected, onSelect }: Props) {
                     key={j}
                     type="button"
                     className="gloss-unit"
-                    aria-pressed={unit.link === selected}
-                    onClick={() => onSelect(unit.link as number)}
+                    aria-pressed={linkedToken(unit.link) === selected}
+                    onClick={() => onSelect(linkedToken(unit.link as Link))}
                   >
                     {unit.text}
                   </button>
@@ -2496,6 +2631,7 @@ describe('ComparisonTable', () => {
     render(<ComparisonTable rows={rows} word="Θέλω" />);
     expect(screen.getByText(/Compare:/)).toHaveTextContent('Compare: Θέλω');
     expect(screen.getAllByRole('cell', { name: 'dropped: the ending shows the person' })).toHaveLength(2);
+    expect(screen.getAllByText('differs')).toHaveLength(2);
     expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 });
@@ -2544,7 +2680,9 @@ export function ComparisonTable({ rows, word }: { rows: Divergence[]; word: stri
         <tbody>
           {rows.map((d) => (
             <tr key={d.id}>
-              <th scope="row">{d.point}</th>
+              <th scope="row">
+                {d.point} <span className={`tag tag-${d.tag}`}>{d.tag}</span>
+              </th>
               <td lang="el">{d.el}</td>
               <td lang="ro">{d.ro}</td>
               <td lang="en">{d.en}</td>
@@ -2596,6 +2734,21 @@ describe('App', () => {
     expect(screen.getByRole('cell', { name: 'του ζεστού καφέ' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'cafelei calde' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'of the hot coffee' })).toBeInTheDocument();
+  });
+
+  it('leaves the phrase unchanged, flags the difference, and resets on request', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'ζεστό' }));
+    expect(screen.queryByText('Differs from the phrase.')).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Role in sentence'), 'gen');
+    expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'ζεστό' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'hot' })).toHaveLength(2);
+    await user.click(screen.getByRole('button', { name: 'Reset to phrase' }));
+    expect(screen.queryByText('Differs from the phrase.')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Role in sentence')).toHaveValue('acc');
+    expect(screen.getByRole('cell', { name: 'τον ζεστό καφέ' })).toBeInTheDocument();
   });
 
   it('clicking a gloss unit selects the linked Greek word', async () => {
@@ -2669,6 +2822,7 @@ export function App() {
   const token = phrase.tokens[selected];
   const panel = buildPanel(slots[selected], token, phrase, level);
   const divergences = selectDivergences(DIVERGENCES, slots[selected].pos, token.lexeme, level);
+  const differsFromPhrase = JSON.stringify(slots[selected]) !== JSON.stringify(token.slot);
 
   function changeLevel(next: Level) {
     setLevel(next);
@@ -2677,6 +2831,10 @@ export function App() {
 
   function changeControl(key: string, value: string) {
     setSlots((current) => current.map((slot, i) => (i === selected ? applyControl(slot, key, value) : slot)));
+  }
+
+  function resetToPhrase() {
+    setSlots((current) => current.map((slot, i) => (i === selected ? token.slot : slot)));
   }
 
   return (
@@ -2689,6 +2847,14 @@ export function App() {
         <PhraseBar tokens={phrase.tokens} selected={selected} onSelect={setSelected} />
         <GlossGrid glosses={phrase.glosses} selected={selected} onSelect={setSelected} />
       </section>
+      {differsFromPhrase && (
+        <div className="phrase-status" role="status">
+          <span>Differs from the phrase.</span>
+          <button type="button" onClick={resetToPhrase}>
+            Reset to phrase
+          </button>
+        </div>
+      )}
       <WordPanel panel={panel} onChange={changeControl} />
       <ComparisonTable rows={divergences} word={token.text} />
     </main>
@@ -2769,6 +2935,9 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .role-ending { background: var(--warn-bg); color: var(--warn-text); border-radius: 4px; padding: 0 3px; }
 .role-dim { color: var(--muted); border-bottom: 1px dashed var(--muted); }
 
+.phrase-status { margin-top: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.phrase-status button { font: inherit; font-size: 13px; background: var(--surface); color: var(--text); border: 0.5px solid var(--border); border-radius: 8px; padding: 2px 10px; cursor: pointer; }
+.tag { font-size: 11px; padding: 0 8px; border-radius: 99px; background: var(--warn-bg); color: var(--warn-text); }
 .legend, .plain, .note, .compare-title { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
 
 @media (max-width: 480px) {
@@ -2792,10 +2961,11 @@ Check by hand and confirm each item:
 2. Click **ζεστό**: the panel heading reads `ζεστός / ζεστή / ζεστό`; the "the" row reads `τον ζεστό καφέ / cafeaua caldă / the hot coffee`.
 3. Change "Role in sentence" to **possessor**: the row reads `του ζεστού καφέ / cafelei calde / of the hot coffee`.
 4. Click the gloss unit **cafea**: the noun panel opens and the chip **καφέ** is selected.
-5. Switch to **Improver**: the options read nominative, accusative, genitive; more comparison rows appear.
-6. Resize to phone width (about 375 px): there is no horizontal page scroll.
-7. Switch the OS colour scheme to dark: text stays readable.
-8. Tab through the page: every chip, gloss unit, select and radio is reachable and shows a focus ring.
+5. Change a role on any word: the chips and gloss rows do not change, "Differs from the phrase." appears with a "Reset to phrase" button, and the button restores the phrase's form.
+6. Switch to **Improver**: the options read nominative, accusative, genitive; more comparison rows appear.
+7. Resize to phone width (about 375 px): there is no horizontal page scroll.
+8. Switch the OS colour scheme to dark: text stays readable.
+9. Tab through the page: every chip, gloss unit, select and radio is reachable and shows a focus ring.
 
 Report anything that fails instead of editing around it.
 
@@ -2824,12 +2994,15 @@ git commit -m "feat: add comparison table, wire up the app and style it" -m "Co-
 | Controls per part of speech: verb, noun, article, numeral, adjective (5.3) | 7 |
 | Plural "a / an" shown as empty, not hidden (5.3) | 7 |
 | Beginner and Improver: labels, divergence depth, persisted choice (3) | 6, 8 |
+| Gloss links to a token or to a piece of one; authored glosses; `theme` on phrases (4.4, 4.5) | 1, 5, 6 |
+| The phrase is fixed; the panel works on a copy with Reset (4.4) | 8 |
+| Divergence rows carry a type tag and a core/extra level (5.2) | 1, 5, 8 |
 | Divergence rows with core/extra levels (5.2) | 5, 8 |
 | Build-time validation and unverified report (7) | 5 |
 | Unit, component and integration tests (8) | all tasks |
 | Phone width, light and dark, keyboard, colour not the only signal (8) | 6, 8 |
 
-Not in Plan 1 by design (listed in the roadmap): full paradigm tables, per-column highlighting, segments in glosses, all other parts of speech, tenses and moods, readings, form groups, phrases 2 to 38, content review.
+Not in Plan 1 by design (listed in the roadmap and in the scope boundaries): full paradigm tables, per-column highlighting, segments in glosses, all other parts of speech, tenses and moods, `compose()`, verb groups and piece-level highlighting, the `pending` marker, readings, form groups, phrases 2 to 39, content review.
 
 **Placeholder scan:** no `TBD`, `TODO` or "similar to" references remain. Every code step contains the full code.
 
