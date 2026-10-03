@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { getLexeme } from '../data/lexemes';
 import { compose } from '../engine/compose';
 import type { Token } from '../types';
@@ -6,7 +5,9 @@ import type { Token } from '../types';
 interface Props {
   tokens: Token[];
   selected: number;
-  onSelect: (index: number) => void;
+  /** The piece of the selected verb group that is pressed; null presses the verb itself. */
+  selectedPiece?: number | null;
+  onSelect: (index: number, piece?: number) => void;
 }
 
 /** The words of a verb group with their kinds, or null for a single word (it needs no pieces). */
@@ -20,28 +21,38 @@ function groupPieces(token: Token): { word: string; kind: string }[] | null {
   return pieces.map((piece, i) => ({ word: words[i], kind: piece.kind }));
 }
 
-export function PhraseBar({ tokens, selected, onSelect }: Props) {
+export function PhraseBar({ tokens, selected, selectedPiece = null, onSelect }: Props) {
   return (
     <div role="group" aria-label="Greek phrase" lang="el" className="phrase-bar">
       {tokens.map((token, i) => {
         const pieces = groupPieces(token);
+        if (!pieces) {
+          return (
+            <button key={i} type="button" className="chip" aria-pressed={i === selected} onClick={() => onSelect(i)}>
+              {token.text}
+            </button>
+          );
+        }
+        const verbPiece = pieces.length - 1;
         return (
-          <button
+          <span
             key={i}
-            type="button"
-            className="chip"
-            aria-pressed={i === selected}
-            onClick={() => onSelect(i)}
+            role="group"
+            aria-label={token.text}
+            className={`chip-group${i === selected ? ' is-selected' : ''}`}
           >
-            {pieces
-              ? pieces.map((piece, j) => (
-                  <Fragment key={j}>
-                    {j > 0 && ' '}
-                    <span className={`piece piece-${piece.kind}`}>{piece.word}</span>
-                  </Fragment>
-                ))
-              : token.text}
-          </button>
+            {pieces.map((piece, j) => (
+              <button
+                key={j}
+                type="button"
+                className={`chip piece piece-${piece.kind}`}
+                aria-pressed={i === selected && (selectedPiece ?? verbPiece) === j}
+                onClick={() => onSelect(i, j)}
+              >
+                {piece.word}
+              </button>
+            ))}
+          </span>
         );
       })}
     </div>

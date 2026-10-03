@@ -149,9 +149,9 @@ describe('verb groups in the app', () => {
     render(<App />);
     await user.selectOptions(screen.getByLabelText('Phrase'), 'I have eaten');
 
-    const chip = screen.getByRole('button', { name: 'Έχω φάει' });
-    expect(chip.querySelectorAll('.piece')).toHaveLength(2);
-    await user.click(chip);
+    const group = screen.getByRole('group', { name: 'Έχω φάει' });
+    expect(within(group).getAllByRole('button')).toHaveLength(2);
+    await user.click(within(group).getByRole('button', { name: 'φάει' }));
 
     const panel = screen.getByRole('region', { name: 'Word panel' });
     expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('τρώω');
@@ -163,7 +163,7 @@ describe('verb groups in the app', () => {
     expect(within(panel).getByRole('cell', { name: '(εγώ) είχα φάει' })).toBeInTheDocument();
     expect(within(panel).getByRole('cell', { name: '(eu) mâncasem' })).toBeInTheDocument();
     expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Έχω φάει' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Έχω φάει' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Reset to phrase' }));
     expect(within(panel).getByRole('cell', { name: '(εγώ) έχω φάει' })).toBeInTheDocument();

@@ -44,8 +44,12 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .chip, .gloss-unit { font: inherit; color: var(--text); background: var(--surface); border: 0.5px solid var(--border); border-radius: 8px; cursor: pointer; }
 .chip { font-size: 20px; padding: 6px 12px; }
 .chip[aria-pressed='true'], .gloss-unit[aria-pressed='true'] { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-border); }
-.chip .piece-particle, .chip .piece-auxiliary { color: var(--accent-text); }
-.chip[aria-pressed='true'] .piece-particle, .chip[aria-pressed='true'] .piece-auxiliary { color: inherit; }
+.chip-group { display: inline-flex; gap: 2px; padding: 2px; border: 0.5px solid var(--border); border-radius: 10px; }
+.chip-group.is-selected { border-color: var(--accent-border); }
+.chip.piece { padding: 4px 10px; }
+.chip.piece-particle, .chip.piece-auxiliary { color: var(--accent-text); }
+.chip.piece-negation { font-weight: 600; }
+.chip.piece[aria-pressed='true'] { color: var(--accent-text); }
 .chip:focus-visible, .gloss-unit:focus-visible, .phrase-status button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }
 
 .gloss-grid { margin-top: 12px; display: grid; gap: 4px; }
@@ -70,7 +74,6 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .role-ending { background: var(--warn-bg); color: var(--warn-text); border-radius: 4px; padding: 0 3px; }
 .role-augment { color: var(--warn-text); border-bottom: 2px dotted var(--warn-text); }
 .role-neg { font-weight: 600; border-bottom: 2px solid var(--muted); }
-.chip .piece-negation { font-weight: 600; }
 .role-dim { color: var(--muted); border-bottom: 1px dashed var(--muted); }
 
 .phrase-status { margin-top: 12px; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }

@@ -36,22 +36,39 @@ describe('GlossGrid', () => {
     expect(onSelect).toHaveBeenCalledWith(3);
   });
 
-  it('highlights and selects through a link that names a piece of a token', async () => {
-    const pieceGlosses: GlossRow[] = [
-      {
-        language: 'en',
-        kind: 'natural',
-        units: [
-          { text: "don't", link: { token: 1, piece: 0 } },
-          { text: 'want', link: { token: 1, piece: 1 } },
-        ],
-      },
-    ];
+  const pieceGlosses: GlossRow[] = [
+    {
+      language: 'en',
+      kind: 'natural',
+      units: [
+        { text: "don't", link: { token: 1, piece: 0 } },
+        { text: 'want', link: { token: 1, piece: 1 } },
+        { text: 'now', link: 1 },
+      ],
+    },
+  ];
+
+  it('highlights every unit of the selected token, pieces included, when no piece is selected', () => {
+    render(<GlossGrid glosses={pieceGlosses} selected={1} onSelect={() => {}} />);
+    for (const name of ["don't", 'want', 'now']) {
+      expect(screen.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
+    }
+  });
+
+  it('highlights only the units of the selected piece, and the units that cover the whole token', () => {
+    render(<GlossGrid glosses={pieceGlosses} selected={1} selectedPiece={1} onSelect={() => {}} />);
+    expect(screen.getByRole('button', { name: "don't" })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'want' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'now' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('selects the token and the piece when a unit with a piece link is clicked', async () => {
     const onSelect = vi.fn();
-    render(<GlossGrid glosses={pieceGlosses} selected={1} onSelect={onSelect} />);
-    expect(screen.getByRole('button', { name: "don't" })).toHaveAttribute('aria-pressed', 'true');
+    render(<GlossGrid glosses={pieceGlosses} selected={0} onSelect={onSelect} />);
     await userEvent.setup().click(screen.getByRole('button', { name: 'want' }));
-    expect(onSelect).toHaveBeenCalledWith(1);
+    expect(onSelect).toHaveBeenCalledWith(1, 1);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'now' }));
+    expect(onSelect).toHaveBeenLastCalledWith(1);
   });
 
   it('shows units with no Greek counterpart as dashed, non-interactive text', () => {

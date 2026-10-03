@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PHRASES } from '../data/phrases';
@@ -35,26 +35,48 @@ describe('PhraseBar: verb groups', () => {
     },
   ];
 
-  it('is one chip for the whole group, named by its written words', () => {
+  it('is one group named by its written words, with a button for each piece', () => {
     render(<PhraseBar tokens={group} selected={0} onSelect={() => {}} />);
-    expect(screen.getAllByRole('button')).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'Θα έχω φάει' })).toBeInTheDocument();
-  });
-
-  it('colours the pieces: particle, auxiliary, verb', () => {
-    render(<PhraseBar tokens={group} selected={0} onSelect={() => {}} />);
-    const chip = screen.getByRole('button', { name: 'Θα έχω φάει' });
-    const pieces = Array.from(chip.querySelectorAll('.piece'));
-    expect(pieces.map((p) => p.textContent)).toEqual(['Θα', 'έχω', 'φάει']);
-    expect(pieces.map((p) => p.className)).toEqual([
-      'piece piece-particle',
-      'piece piece-auxiliary',
-      'piece piece-verb',
+    const pieces = within(screen.getByRole('group', { name: 'Θα έχω φάει' })).getAllByRole('button');
+    expect(pieces.map((b) => b.textContent)).toEqual(['Θα', 'έχω', 'φάει']);
+    expect(pieces.map((b) => b.className)).toEqual([
+      'chip piece piece-particle',
+      'chip piece piece-auxiliary',
+      'chip piece piece-verb',
     ]);
+    expect(screen.getAllByRole('button')).toHaveLength(4);
   });
 
-  it('a single-word verb is a plain chip', () => {
+  it('presses the verb piece by default', () => {
+    render(<PhraseBar tokens={group} selected={0} onSelect={() => {}} />);
+    const pieces = within(screen.getByRole('group', { name: 'Θα έχω φάει' })).getAllByRole('button');
+    expect(pieces.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+  });
+
+  it('presses only the selected piece when one is selected', () => {
+    render(<PhraseBar tokens={group} selected={0} selectedPiece={0} onSelect={() => {}} />);
+    const pieces = within(screen.getByRole('group', { name: 'Θα έχω φάει' })).getAllByRole('button');
+    expect(pieces.map((b) => b.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
+  });
+
+  it('presses nothing in a group that is not selected', () => {
     render(<PhraseBar tokens={group} selected={1} onSelect={() => {}} />);
-    expect(screen.getByRole('button', { name: 'Θέλω' }).querySelector('.piece')).toBeNull();
+    const pieces = within(screen.getByRole('group', { name: 'Θα έχω φάει' })).getAllByRole('button');
+    expect(pieces.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'false']);
+  });
+
+  it('reports the token and the piece that was clicked', async () => {
+    const onSelect = vi.fn();
+    render(<PhraseBar tokens={group} selected={1} onSelect={onSelect} />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'έχω' }));
+    expect(onSelect).toHaveBeenCalledWith(0, 1);
+  });
+
+  it('a single-word verb is a plain button', async () => {
+    const onSelect = vi.fn();
+    render(<PhraseBar tokens={group} selected={1} onSelect={onSelect} />);
+    expect(screen.getByRole('button', { name: 'Θέλω' })).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Θέλω' }));
+    expect(onSelect).toHaveBeenCalledWith(1);
   });
 });

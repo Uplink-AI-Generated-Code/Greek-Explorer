@@ -1,15 +1,30 @@
-import { isSegmented, linkedToken } from '../glossLinks';
-import type { GlossRow } from '../types';
+import { isSegmented, linkedPiece, linkedToken } from '../glossLinks';
+import type { GlossRow, Link } from '../types';
 
 interface Props {
   glosses: GlossRow[];
   selected: number;
-  onSelect: (index: number) => void;
+  /** The selected piece of the selected verb group; null means the token as a whole. */
+  selectedPiece?: number | null;
+  onSelect: (index: number, piece?: number) => void;
 }
 
 const LANGUAGE_NAME = { en: 'English', ro: 'Română' } as const;
 
-export function GlossGrid({ glosses, selected, onSelect }: Props) {
+/**
+ * A unit is lit when it links to the selected token and, with a piece selected, to that piece or to the whole
+ * token (a unit that covers the whole token, like Romanian mâncasem, covers every piece).
+ */
+function isPressed(link: Link, selected: number, piece: number | null): boolean {
+  if (linkedToken(link) !== selected) return false;
+  const linked = linkedPiece(link);
+  return piece === null || linked === null || linked === piece;
+}
+
+const choose = (link: Link, onSelect: Props['onSelect']): void =>
+  typeof link === 'number' ? onSelect(link) : onSelect(link.token, link.piece);
+
+export function GlossGrid({ glosses, selected, selectedPiece = null, onSelect }: Props) {
   return (
     <div className="gloss-grid">
       {glosses.map((row, i) => {
@@ -28,8 +43,8 @@ export function GlossGrid({ glosses, selected, onSelect }: Props) {
                           key={k}
                           type="button"
                           className="gloss-segment"
-                          aria-pressed={linkedToken(segment.link) === selected}
-                          onClick={() => onSelect(linkedToken(segment.link))}
+                          aria-pressed={isPressed(segment.link, selected, selectedPiece)}
+                          onClick={() => choose(segment.link, onSelect)}
                         >
                           {segment.text}
                         </button>
@@ -50,8 +65,8 @@ export function GlossGrid({ glosses, selected, onSelect }: Props) {
                     key={j}
                     type="button"
                     className="gloss-unit"
-                    aria-pressed={linkedToken(link) === selected}
-                    onClick={() => onSelect(linkedToken(link))}
+                    aria-pressed={isPressed(link, selected, selectedPiece)}
+                    onClick={() => choose(link, onSelect)}
                   >
                     {unit.text}
                   </button>
