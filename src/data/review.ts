@@ -18,6 +18,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:verb-subj-aorist', kind: 'ending-table', verified: false },
   { id: 'ending-table:verb-imperative', kind: 'ending-table', verified: false },
   { id: 'ending-table:verb-base', kind: 'ending-table', verified: false },
+  { id: 'glossary:ending-glosses', kind: 'glossary', verified: false },
   { id: 'auxiliary-table:el-tense-structure', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:ro-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:en-compound', kind: 'auxiliary-table', verified: false },

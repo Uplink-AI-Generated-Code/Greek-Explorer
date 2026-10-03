@@ -198,6 +198,18 @@ describe('verb lexemes', () => {
     const errors = validate(modifiedTroo((v) => { v.ro.infinitive = ''; }));
     expect(errors.some((e) => e.startsWith('lexeme troo: cannot build') && e.includes('"polarity":"negative"'))).toBe(true);
   });
+
+  it('reports an irregularity rule that has no authored reading', () => {
+    const errors = validate(
+      modifiedTroo((v) => {
+        const cell = v.overrides?.['present.2sg'];
+        if (cell?.note) cell.note = { rule: 'no-such-rule', plain: 'x' };
+      }),
+    );
+    expect(errors).toContain(
+      'lexeme troo: the irregular rule "no-such-rule" has no authored reading',
+    );
+  });
 });
 
 describe('verb tokens', () => {

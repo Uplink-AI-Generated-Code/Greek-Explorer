@@ -266,3 +266,35 @@ export interface ReviewItem {
   kind: 'ending-table' | 'auxiliary-table' | 'clitic-table' | 'glossary';
   verified: boolean;
 }
+
+/** An authored reading for one irregularity rule (spec 5.5); {text}, {parts}, {technical}, {stem} and {ending} are filled from the form. */
+export interface ReadingTemplate {
+  rule: string;
+  beginner: string;
+  improver: string;
+  verified: boolean;
+}
+
+/** One part of a form taken apart: a particle, a negation, the auxiliary, or the augment, stem or ending of the verb. */
+export interface ReadingPart {
+  text: string;
+  /** The part as shown: φά-, -ει, θα. */
+  label: string;
+  role: 'particle' | 'negation' | 'auxiliary' | 'augment' | 'stem' | 'ending' | 'word';
+  gloss: string;
+  /** The index of the piece in compose(...).pieces, or null for a Romanian or English word. */
+  piece: number | null;
+}
+
+export interface ReadingLine {
+  parts: ReadingPart[];
+  beginner: string;
+  improver: string;
+}
+
+/** "How to read this" for one form: always a Greek line; Romanian and English lines for compound forms (spec 5.5). */
+export interface Reading {
+  el: ReadingLine;
+  ro?: ReadingLine;
+  en?: ReadingLine;
+}

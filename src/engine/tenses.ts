@@ -50,3 +50,10 @@ export const mainFormKind = (mood: Mood, tense: Tense): FormKind => structureOf(
 /** 0 to 5 for 1sg 2sg 3sg 1pl 2pl 3pl. */
 export const whoIndex = (who: { person: Person; number: Num }): number =>
   who.person - 1 + (who.number === 'pl' ? 3 : 0);
+
+/** The stored form the lexical verb contributes: a negative command takes the subjunctive form (μην φας). */
+export function lexicalFormKind(slot: { mood: Mood; tense: Tense; polarity?: 'affirmative' | 'negative' }): FormKind {
+  return slot.polarity === 'negative' && slot.mood === 'imperative'
+    ? mainFormKind('subjunctive', slot.tense)
+    : mainFormKind(slot.mood, slot.tense);
+}

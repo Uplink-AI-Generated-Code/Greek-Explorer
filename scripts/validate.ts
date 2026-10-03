@@ -1,3 +1,4 @@
+import { READING_TEMPLATES } from '../src/data/readings';
 import { DIVERGENCES } from '../src/data/divergences';
 import { LEXEMES } from '../src/data/lexemes';
 import { PHRASES } from '../src/data/phrases';
@@ -14,6 +15,7 @@ const unverified = [
   ...REVIEW_ITEMS.filter((r) => !r.verified).map((r) => r.id),
   ...PHRASES.filter((p) => !p.verified).map((p) => `phrase ${p.id}`),
   ...DIVERGENCES.filter((d) => !d.verified).map((d) => `divergence ${d.id}`),
+  ...READING_TEMPLATES.filter((t) => !t.verified).map((t) => `reading ${t.rule}`),
 ];
 
 if (unverified.length > 0) {

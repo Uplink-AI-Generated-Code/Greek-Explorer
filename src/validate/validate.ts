@@ -1,6 +1,8 @@
 import { inflect } from '../engine/greek';
 import { allVerbSlots, isOffered } from '../engine/offers';
 import { compose } from '../engine/compose';
+import { READING_TEMPLATES } from '../data/readings';
+import { readingFor } from '../engine/reading';
 import { enVerb } from '../engine/english';
 import { roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
@@ -84,7 +86,16 @@ function checkLexeme(l: GreekLexeme): string[] {
     for (const slot of slots.filter((s) => isOffered(l, s))) {
       const where = `lexeme ${l.id}: cannot build ${JSON.stringify(slot)}`;
       try {
-        if (isEmpty(compose(l, slot).text)) errors.push(`${where}: empty Greek group`);
+        const composed = compose(l, slot);
+        if (isEmpty(composed.text)) errors.push(`${where}: empty Greek group`);
+        for (const part of readingFor(l, slot).el.parts) {
+          if (isEmpty(part.gloss)) errors.push(`${where}: reading part "${part.text}" has no gloss`);
+        }
+        const lexical = composed.pieces[composed.pieces.length - 1];
+        const rule = lexical.kind === 'verb' ? lexical.form.irregular?.rule : undefined;
+        if (rule && !READING_TEMPLATES.some((t) => t.rule === rule)) {
+          errors.push(`lexeme ${l.id}: the irregular rule "${rule}" has no authored reading`);
+        }
         const ro = roVerb(l, slot);
         if (isEmpty(ro) || ro.includes('undefined') || /\s$/.test(ro) || /\s{2,}/.test(ro)) errors.push(`${where}: no Romanian form`);
         const en = enVerb(l, slot).verb;
