@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DEF_ARTICLE, ONE, getAdjective, getNoun } from '../data/lexemes';
-import { inflectAdjective, inflectArticle, inflectNoun, inflectNumeral } from './greek';
+import { DEF_ARTICLE, ONE, getAdjective, getLexeme, getNoun } from '../data/lexemes';
+import { inflect, inflectAdjective, inflectArticle, inflectNoun, inflectNumeral, inflectVerb } from './greek';
 
 describe('inflectNoun (καφές, class masc-es)', () => {
   const kafes = getNoun('kafes');
@@ -72,4 +72,40 @@ describe('inflectAdjective (ζεστός, stressed class)', () => {
       ).toEqual({ stem: 'ζεστ', ending: c.ending });
     });
   }
+});
+
+describe('inflectVerb (θέλω, -ω class, present active)', () => {
+  const thelo = getLexeme('thelo');
+  const verbSlot = (person: 1 | 2 | 3, number: 'sg' | 'pl') =>
+    ({ pos: 'verb', person, number, mood: 'indicative', tense: 'present', voice: 'active' }) as const;
+
+  it('1sg -> θέλω', () => {
+    expect(inflect(thelo, verbSlot(1, 'sg'))).toEqual({ stem: 'θέλ', ending: 'ω' });
+  });
+  it('2sg -> θέλεις', () => {
+    expect(inflect(thelo, verbSlot(2, 'sg'))).toEqual({ stem: 'θέλ', ending: 'εις' });
+  });
+  it('3sg -> θέλει', () => {
+    expect(inflect(thelo, verbSlot(3, 'sg'))).toEqual({ stem: 'θέλ', ending: 'ει' });
+  });
+  it('1pl -> θέλουμε', () => {
+    expect(inflect(thelo, verbSlot(1, 'pl'))).toEqual({ stem: 'θέλ', ending: 'ουμε' });
+  });
+  it('3pl -> θέλουν', () => {
+    expect(inflect(thelo, verbSlot(3, 'pl'))).toEqual({ stem: 'θέλ', ending: 'ουν' });
+  });
+});
+
+describe('inflect dispatcher', () => {
+  it('routes a noun slot to the noun engine', () => {
+    expect(inflect(getNoun('kafes'), { pos: 'noun', number: 'sg', case: 'acc' })).toEqual({
+      stem: 'καφ',
+      ending: 'έ',
+    });
+  });
+  it('rejects a slot of the wrong part of speech', () => {
+    expect(() => inflect(getNoun('kafes'), { pos: 'article', gender: 'm', number: 'sg', case: 'nom' })).toThrow(
+      'slot article does not fit lexeme kafes (noun)',
+    );
+  });
 });
