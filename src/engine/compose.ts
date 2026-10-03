@@ -5,11 +5,11 @@ import { formRich, formText, type Rich } from './segments';
 import { structureOf } from './tenses';
 
 /**
- * One word of a written verb group. A particle or auxiliary piece carries the lexeme and slot a panel
- * would open for it (spec 4.2); the lexical verb carries its Form.
+ * One word of a written verb group. A particle, negation or auxiliary piece carries the lexeme and slot a
+ * panel would open for it (spec 4.2); the lexical verb carries its Form.
  */
 export type Piece =
-  | { kind: 'particle' | 'auxiliary'; text: string; lexeme: string; slot: Slot }
+  | { kind: 'particle' | 'negation' | 'auxiliary'; text: string; lexeme: string; slot: Slot }
   | { kind: 'verb'; form: Form };
 
 export interface Composed {
@@ -20,14 +20,38 @@ export interface Composed {
 
 export const pieceText = (piece: Piece): string => (piece.kind === 'verb' ? formText(piece.form) : piece.text);
 
-/** Builds a verb group: the particle (θα, να), the auxiliary (έχω) and the lexical verb, in written order. */
+const joined = (pieces: Piece[]): Composed => ({ pieces, text: pieces.map(pieceText).join(' ') });
+
+function wordPiece(kind: 'particle' | 'negation', id: string): Piece {
+  const lexeme = getLexeme(id);
+  return { kind, text: lexeme.lemma, lexeme: lexeme.id, slot: { pos: 'particle' } };
+}
+
+/**
+ * Builds a verb group in written order: the negation (δεν before θα; μην after να), the particle (θα, να),
+ * the auxiliary (έχω) and the lexical verb. A negative command is μην + the subjunctive form (spec 4.3).
+ */
 export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
-  const structure = structureOf(slot.mood, slot.tense);
-  const pieces: Piece[] = [];
-  if (structure.particle) {
-    const particle = getLexeme(structure.particle);
-    pieces.push({ kind: 'particle', text: particle.lemma, lexeme: particle.id, slot: { pos: 'particle' } });
+  const negative = slot.polarity === 'negative';
+  if (negative && slot.mood === 'imperative') {
+    if (slot.person !== 2) throw new Error('commands are for "you" only');
+    const subjunctive: SlotOf<'verb'> = {
+      pos: 'verb',
+      person: slot.person,
+      number: slot.number,
+      mood: 'subjunctive',
+      tense: slot.tense,
+      voice: slot.voice,
+    };
+    return joined([wordPiece('negation', 'min'), { kind: 'verb', form: inflectVerb(verb, subjunctive) }]);
   }
+
+  const structure = structureOf(slot.mood, slot.tense);
+  const negation = negative ? wordPiece('negation', slot.mood === 'subjunctive' ? 'min' : 'den') : null;
+  const pieces: Piece[] = [];
+  if (negation && slot.mood !== 'subjunctive') pieces.push(negation);
+  if (structure.particle) pieces.push(wordPiece('particle', structure.particle));
+  if (negation && slot.mood === 'subjunctive') pieces.push(negation);
   if (structure.aux) {
     const auxSlot: SlotOf<'verb'> = {
       pos: 'verb',
@@ -45,13 +69,16 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
     });
   }
   pieces.push({ kind: 'verb', form: inflectVerb(verb, slot) });
-  return { pieces, text: pieces.map(pieceText).join(' ') };
+  return joined(pieces);
 }
 
-/** The group as coloured segments: particle and auxiliary in the `aux` role, the verb as augment, stem and ending. */
+/** The group as coloured segments: negation in `neg`, particle and auxiliary in `aux`, the verb as augment, stem and ending. */
 export function composedRich(composed: Composed): Rich {
   return composed.pieces.flatMap((piece, i): Rich => {
-    const body: Rich = piece.kind === 'verb' ? formRich(piece.form) : [{ text: piece.text, role: 'aux' }];
+    const body: Rich =
+      piece.kind === 'verb'
+        ? formRich(piece.form)
+        : [{ text: piece.text, role: piece.kind === 'negation' ? 'neg' : 'aux' }];
     return i === 0 ? body : [{ text: ' ', role: 'plain' }, ...body];
   });
 }

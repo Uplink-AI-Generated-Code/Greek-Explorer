@@ -62,3 +62,21 @@ describe('offers', () => {
     expect(slots.every((s) => isOffered(thelo, s))).toBe(true);
   });
 });
+
+describe('offers: negation', () => {
+  const troo = getVerb('troo');
+  const negative = (mood: SlotOf<'verb'>['mood'], tense: Tense, person: Person = 2, number: 'sg' | 'pl' = 'sg') =>
+    ({ ...slot(mood, tense, person, number), polarity: 'negative' }) as SlotOf<'verb'>;
+
+  it('every affirmative slot can be negated', () => {
+    expect(isOffered(troo, negative('indicative', 'perfect', 1))).toBe(true);
+    expect(isOffered(troo, negative('subjunctive', 'aorist', 1))).toBe(true);
+  });
+
+  it('a negative imperative needs the subjunctive tense of the same name', () => {
+    expect(isOffered(troo, negative('imperative', 'aorist'))).toBe(true);
+    const noSubjunctive = withVoice({ offers: { indicative: ['present'], imperative: ['aorist'] } });
+    expect(isOffered(noSubjunctive, slot('imperative', 'aorist', 2))).toBe(true);
+    expect(isOffered(noSubjunctive, negative('imperative', 'aorist'))).toBe(false);
+  });
+});

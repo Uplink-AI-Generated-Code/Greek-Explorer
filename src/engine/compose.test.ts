@@ -95,3 +95,70 @@ describe('composedRich', () => {
     expect(rich.map((s) => [s.text, s.role])).toEqual([['έ', 'augment'], ['τρωγ', 'stem'], ['α', 'ending']]);
   });
 });
+
+const neg = (slot: SlotOf<'verb'>): SlotOf<'verb'> => ({ ...slot, polarity: 'negative' });
+
+describe('compose: negation (τρώω, 1st person singular)', () => {
+  it.each([
+    ['indicative', 'present', 'δεν τρώω'],
+    ['indicative', 'imperfect', 'δεν έτρωγα'],
+    ['indicative', 'aorist', 'δεν έφαγα'],
+    ['indicative', 'future', 'δεν θα τρώω'],
+    ['indicative', 'futureSimple', 'δεν θα φάω'],
+    ['indicative', 'perfect', 'δεν έχω φάει'],
+    ['indicative', 'pluperfect', 'δεν είχα φάει'],
+    ['indicative', 'futurePerfect', 'δεν θα έχω φάει'],
+    ['subjunctive', 'present', 'να μην τρώω'],
+    ['subjunctive', 'aorist', 'να μην φάω'],
+    ['subjunctive', 'perfect', 'να μην έχω φάει'],
+    ['conditional', 'imperfect', 'δεν θα έτρωγα'],
+    ['conditional', 'pluperfect', 'δεν θα είχα φάει'],
+  ] as const)('%s %s -> %s', (mood, tense, expected) => {
+    expect(text('troo', neg(vs(mood, tense)))).toBe(expected);
+  });
+
+  it('δεν goes before θα and before the verb; μην goes after να', () => {
+    const pieces = (slot: SlotOf<'verb'>) => compose(getVerb('troo'), slot).pieces.map((p) => p.kind);
+    expect(pieces(neg(vs('indicative', 'futurePerfect')))).toEqual(['negation', 'particle', 'auxiliary', 'verb']);
+    expect(pieces(neg(vs('subjunctive', 'perfect')))).toEqual(['particle', 'negation', 'auxiliary', 'verb']);
+    expect(pieces(neg(vs('indicative', 'present')))).toEqual(['negation', 'verb']);
+  });
+
+  it('the negation pieces carry the lexeme and slot a panel would open', () => {
+    const [first] = compose(getVerb('troo'), neg(vs('indicative', 'present'))).pieces;
+    expect(first).toMatchObject({ kind: 'negation', text: 'δεν', lexeme: 'den', slot: { pos: 'particle' } });
+    const [, second] = compose(getVerb('troo'), neg(vs('subjunctive', 'aorist'))).pieces;
+    expect(second).toMatchObject({ kind: 'negation', text: 'μην', lexeme: 'min' });
+  });
+
+  it('the negative imperative is μην + the subjunctive form, not the imperative', () => {
+    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'sg')))).toBe('μην φας');
+    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'pl')))).toBe('μην φάτε');
+    expect(text('troo', neg(vs('imperative', 'present', 2, 'sg')))).toBe('μην τρως');
+    expect(text('troo', neg(vs('imperative', 'present', 2, 'pl')))).toBe('μην τρώτε');
+    expect(text('pleno', neg(vs('imperative', 'aorist', 2, 'sg')))).toBe('μην πλύνεις');
+    expect(text('pleno', neg(vs('imperative', 'aorist', 2, 'pl')))).toBe('μην πλύνετε');
+  });
+
+  it('a negative command is for "you" only', () => {
+    expect(() => compose(getVerb('troo'), neg(vs('imperative', 'aorist', 1)))).toThrow('commands are for "you" only');
+  });
+
+  it('other verbs, voices and persons', () => {
+    expect(text('thelo', neg(vs('indicative', 'present')))).toBe('δεν θέλω');
+    expect(text('pao', neg(vs('subjunctive', 'aorist')))).toBe('να μην πάω');
+    expect(text('pleno', neg(vs('indicative', 'perfect', 1, 'sg', 'mediopassive')))).toBe('δεν έχω πλυθεί');
+    expect(text('troo', neg(vs('indicative', 'perfect', 3, 'sg')))).toBe('δεν έχει φάει');
+  });
+
+  it('colours the negation in its own role', () => {
+    const rich = composedRich(compose(getVerb('troo'), neg(vs('indicative', 'future'))));
+    expect(richText(rich)).toBe('δεν θα τρώω');
+    expect(rich.map((s) => s.role)).toEqual(['neg', 'plain', 'aux', 'plain', 'stem', 'ending']);
+  });
+
+  it('an affirmative slot without a polarity is unchanged', () => {
+    expect(text('troo', vs('indicative', 'future'))).toBe('θα τρώω');
+    expect(text('troo', { ...vs('indicative', 'future'), polarity: 'affirmative' })).toBe('θα τρώω');
+  });
+});

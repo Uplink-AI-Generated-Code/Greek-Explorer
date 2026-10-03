@@ -13,6 +13,8 @@ export type Tense =
   | 'present' | 'imperfect' | 'aorist' | 'future' | 'futureSimple' | 'perfect' | 'pluperfect' | 'futurePerfect';
 export type Voice = 'active' | 'mediopassive';
 
+export type Polarity = 'affirmative' | 'negative';
+
 export interface IrregularNote {
   rule: string;
   plain: string;
@@ -28,7 +30,7 @@ export interface Form {
 }
 
 export type Slot =
-  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice }
+  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice; polarity?: Polarity }
   | { pos: 'noun'; number: Num; case: Case; count?: Exclude<NumeralValue, 1> }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }

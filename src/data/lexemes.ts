@@ -562,6 +562,28 @@ const na: GreekParticle = {
   example: { el: 'να φάω', ro: 'să mănânc', en: 'to eat' },
 };
 
+const den: GreekParticle = {
+  id: 'den',
+  pos: 'particle',
+  lemma: 'δεν',
+  verified: { el: false, ro: false, en: false },
+  ro: 'nu',
+  en: "not (don't, won't …)",
+  meaning: 'Says "not". It goes in front of the whole verb group, even in front of θα: δεν θέλω, δεν θα φάω.',
+  example: { el: 'δεν θέλω', ro: 'nu vreau', en: "don't want" },
+};
+
+const min: GreekParticle = {
+  id: 'min',
+  pos: 'particle',
+  lemma: 'μην',
+  verified: { el: false, ro: false, en: false },
+  ro: 'nu / să nu',
+  en: "don't / not",
+  meaning: 'Says "not" after να and in a command: να μην φάω, μην φας.',
+  example: { el: 'μην φας', ro: 'nu mânca', en: "don't eat" },
+};
+
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [skylos.id]: skylos,
@@ -588,6 +610,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [gia.id]: gia,
   [theta.id]: theta,
   [na.id]: na,
+  [den.id]: den,
+  [min.id]: min,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

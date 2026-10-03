@@ -33,6 +33,10 @@ export function isOffered(verb: GreekVerb, s: SlotOf<'verb'>): boolean {
   const data = verb.voices[s.voice];
   if (!data) return false;
   if (!(data.offers[s.mood] ?? []).includes(s.tense)) return false;
+  // A negative command is μην + the subjunctive of the same tense (spec 4.3), so the verb must offer that subjunctive.
+  if (s.polarity === 'negative' && s.mood === 'imperative' && !(data.offers.subjunctive ?? []).includes(s.tense)) {
+    return false;
+  }
   return offeredWho(verb, s.voice, s.mood).includes(`${s.person}${s.number}`);
 }
 

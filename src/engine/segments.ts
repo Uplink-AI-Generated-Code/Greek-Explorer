@@ -1,6 +1,6 @@
 import type { Form } from '../types';
 
-export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'sub' | 'augment' | 'aux';
+export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'sub' | 'augment' | 'aux' | 'neg';
 export interface Segment {
   text: string;
   role: Role;
