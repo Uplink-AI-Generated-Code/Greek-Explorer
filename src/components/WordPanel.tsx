@@ -36,6 +36,12 @@ export function WordPanel({ panel, onChange }: Props) {
       <p className="plain">{panel.plain}</p>
       {panel.irregular && <p className="warn">{panel.irregular}</p>}
       {panel.note && <p className="note">Gender and form: {panel.note}</p>}
+      {panel.full.length > 0 && (
+        <>
+          <p className="full-title">Full paradigm: the outlined cell is the form in use</p>
+          <FormTable rows={panel.full} />
+        </>
+      )}
     </section>
   );
 }

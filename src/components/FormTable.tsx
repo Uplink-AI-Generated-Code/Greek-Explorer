@@ -24,13 +24,13 @@ export function FormTable({ rows }: { rows: PanelRow[] }) {
         {rows.map((row) => (
           <tr key={row.label}>
             <th scope="row">{row.label}</th>
-            <td lang="el">
+            <td lang="el" className={row.hl?.el ? 'cur' : undefined}>
               <RichText rich={row.el} />
             </td>
-            <td lang="ro">
+            <td lang="ro" className={row.hl?.ro ? 'cur' : undefined}>
               <RichText rich={row.ro} />
             </td>
-            <td lang="en">
+            <td lang="en" className={row.hl?.en ? 'cur' : undefined}>
               <RichText rich={row.en} />
             </td>
           </tr>

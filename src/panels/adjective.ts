@@ -1,15 +1,39 @@
 import { nounPhrase } from '../engine/agree';
 import { inflectAdjective } from '../engine/greek';
-import { formRich, richText } from '../engine/segments';
-import type { AdjectiveClass, GreekAdjective, Level, SlotOf } from '../types';
-import { GENDERS, caseControl, noPluralArticleRow, nounControl, nounOf, npRow, numberControl } from './shared';
-import type { Panel, PanelState } from './types';
+import { roAdjective } from '../engine/romanian';
+import { formRich, plain, richText } from '../engine/segments';
+import type { AdjectiveClass, GreekAdjective, GreekNoun, Level, SlotOf } from '../types';
+import {
+  CASES,
+  GENDERS,
+  GENDER_ROW,
+  caseControl,
+  caseName,
+  noPluralArticleRow,
+  nounControl,
+  nounOf,
+  npRow,
+  numberControl,
+} from './shared';
+import type { Panel, PanelRow, PanelState } from './types';
 
 const CLASS_LABEL: Record<AdjectiveClass, string> = {
   'adj-stressed': 'adjective · 3-ending (stressed)',
   'adj-unstressed': 'adjective · 3-ending (stem-stressed)',
   'adj-indeclinable': 'adjective · indeclinable',
 };
+
+function adjectiveFull(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: GreekNoun): PanelRow[] {
+  return GENDERS.flatMap((g) =>
+    CASES.map((c) => ({
+      label: `${GENDER_ROW[g]} ${caseName(c)}`,
+      el: formRich(inflectAdjective(adj, { pos: 'adjective', gender: g, number: slot.number, case: c })),
+      ro: plain(roAdjective(adj, g, slot.number, c)),
+      en: plain(adj.en),
+      hl: { el: g === noun.gender && c === slot.case, ro: g === noun.ro.gender && c === slot.case, en: false },
+    })),
+  );
+}
 
 export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, state: PanelState, level: Level): Panel {
   const noun = nounOf(state);
@@ -26,7 +50,7 @@ export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, s
         ? npRow('a / an', nounPhrase(noun, 'sg', slot.case, { article: 'one', adjective: adj }))
         : noPluralArticleRow(),
     ],
-    full: [],
+    full: level === 'improver' ? adjectiveFull(adj, slot, noun) : [],
     plain:
       'The Greek adjective copies gender, number and role from the noun. Romanian copies gender and number and goes after the noun. English never changes.',
     irregular: inflectAdjective(adj, slot).irregular?.plain ?? '',

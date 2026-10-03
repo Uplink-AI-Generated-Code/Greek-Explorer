@@ -122,3 +122,17 @@ export const NUMERAL_FORMS: Record<NumeralValue, Record<Gender, Record<Case, Pai
   4: { m: mfRow('τέσσερις', 'τεσσάρων'), f: mfRow('τέσσερις', 'τεσσάρων'), n: mfRow('τέσσερα', 'τεσσάρων') },
   5: invariable('πέντε'),
 };
+
+/** The Romanian definite article as a suffix, by the noun's Romanian gender (spec 5.1). */
+export const RO_ARTICLE_SUFFIX: Record<Num, Record<Gender, { direct: string; genitive: string }>> = {
+  sg: {
+    m: { direct: '-ul / -le', genitive: '-ului / -lui' },
+    f: { direct: '-a / -ea', genitive: '-ei' },
+    n: { direct: '-ul', genitive: '-ului' },
+  },
+  pl: {
+    m: { direct: '-i', genitive: '-lor' },
+    f: { direct: '-le', genitive: '-lor' },
+    n: { direct: '-le', genitive: '-lor' },
+  },
+};

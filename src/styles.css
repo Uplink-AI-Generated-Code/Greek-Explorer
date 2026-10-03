@@ -79,3 +79,7 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
   .gloss-units { grid-column: 1 / -1; }
 }
 .warn { font-size: 13px; color: var(--warn-text); margin: 8px 0 0; }
+
+.role-sub { display: block; color: var(--muted); font-size: 12px; }
+.form-table td.cur { outline: 2px solid var(--accent-text); outline-offset: -2px; border-radius: 4px; }
+.full-title { margin: 16px 0 6px; font-size: 13px; color: var(--muted); }

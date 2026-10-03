@@ -46,4 +46,17 @@ describe('WordPanel', () => {
     expect(cell.querySelector('.role-article')).toHaveTextContent('τον');
     expect(cell.querySelector('.role-ending')).toHaveTextContent('έ');
   });
+  it('shows the full paradigm table in Improver, with the form in use outlined', () => {
+    const improver = buildPanel(initialState(phrase.tokens[3], phrase), phrase.tokens[3], 'improver');
+    render(<WordPanel panel={improver} onChange={() => {}} />);
+    expect(screen.getAllByRole('table')).toHaveLength(2);
+    expect(screen.getByText(/Full paradigm/)).toBeInTheDocument();
+    expect(document.querySelectorAll('td.cur')).toHaveLength(3);
+  });
+
+  it('shows no full paradigm table in Beginner', () => {
+    render(<WordPanel panel={panelFor(3)} onChange={() => {}} />);
+    expect(screen.getAllByRole('table')).toHaveLength(1);
+    expect(screen.queryByText(/Full paradigm/)).not.toBeInTheDocument();
+  });
 });

@@ -57,3 +57,10 @@ export function nounOf(state: PanelState): GreekNoun {
   if (lexeme.pos !== 'noun') throw new Error(`lexeme ${state.noun} is not a noun`);
   return lexeme;
 }
+
+/** Highlight a cell in every column. */
+export const ALL = { el: true, ro: true, en: true };
+
+export const GENDER_ROW: Record<Gender, string> = { m: 'masc.', f: 'fem.', n: 'neut.' };
+
+export const caseName = (c: Case): string => caseOptions('improver').find((o) => o.value === c)?.label ?? c;
