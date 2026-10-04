@@ -418,3 +418,24 @@ export interface Reading {
   ro?: ReadingLine;
   en?: ReadingLine;
 }
+
+/** One way of saying the same command (spec 4.6): a slot, and optionally a spelled-out object. */
+export interface GroupMember {
+  verb: { lexeme: string; slot: SlotOf<'verb'> };
+  /** A spelled-out object noun (the with-noun member). */
+  object?: { noun: string; number: Num; case: Case };
+  /** A note shown with the member ("the pronoun moves in front of the verb"). */
+  note?: string;
+}
+
+/** Forms that mean the same (spec 4.6); the texts are generated from the slots. */
+export interface FormGroup {
+  id: string;
+  /** Plain language: "Eat the bread!". */
+  meaning: string;
+  members: GroupMember[];
+  /** The verb with no object, shown under the strip as "close, not the same". */
+  closeNotSame?: { verb: GroupMember['verb']; reason: string };
+  /** Covers the meaning, the member notes, the close-not-the-same reason and the claim that the members mean the same (spec 4.3). */
+  verified: boolean;
+}

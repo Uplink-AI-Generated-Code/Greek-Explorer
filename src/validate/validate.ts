@@ -3,13 +3,14 @@ import { quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
 import { compose } from '../engine/compose';
+import { memberKind, memberText } from '../engine/groups';
 import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
 import { formText } from '../engine/segments';
 import { enQuantifier, enVerb } from '../engine/english';
 import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
-import type { Case, Clitic, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
+import type { Case, Clitic, FormGroup, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
@@ -19,6 +20,7 @@ const VALUES: NumeralValue[] = [1, 2, 3, 4, 5];
 export interface ValidationInput {
   lexemes: Record<string, GreekLexeme>;
   phrases: Phrase[];
+  groups?: FormGroup[];
 }
 
 const isEmpty = (s: string | undefined): boolean => !s || s.trim() === '';
@@ -346,11 +348,55 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
   return errors;
 }
 
+/** Spec 7: a group has two members or more, one verb and one mood, members that compose and are not bare, and a close verb with no pronouns. */
+function checkGroup(group: FormGroup, lexemes: Record<string, GreekLexeme>): string[] {
+  const errors: string[] = [];
+  const where = `group ${group.id}`;
+  if (isEmpty(group.meaning)) errors.push(`${where}: has no meaning text`);
+  if (group.members.length < 2) errors.push(`${where}: needs at least two members`);
+  const first = group.members[0];
+  if (first && group.members.some((m) => m.verb.lexeme !== first.verb.lexeme || m.verb.slot.mood !== first.verb.slot.mood)) {
+    errors.push(`${where}: the members use different verbs or moods`);
+  }
+  group.members.forEach((member, i) => {
+    const lexeme = lexemes[member.verb.lexeme];
+    if (!lexeme || lexeme.pos !== 'verb') {
+      errors.push(`${where}: member ${i} uses the unknown verb "${member.verb.lexeme}"`);
+      return;
+    }
+    if (member.object && !lexemes[member.object.noun]) {
+      errors.push(`${where}: member ${i} uses the unknown noun "${member.object.noun}"`);
+      return;
+    }
+    try {
+      memberKind(member);
+    } catch {
+      errors.push(`${where}: member ${i} is a bare verb, which is not a member`);
+      return;
+    }
+    try {
+      const text = memberText(member);
+      if (isEmpty(text.ro) || isEmpty(text.en) || text.el.length === 0) errors.push(`${where}: member ${i} has an empty text`);
+    } catch (e) {
+      errors.push(`${where}: member ${i} does not compose: ${(e as Error).message}`);
+    }
+  });
+  const close = group.closeNotSame;
+  if (close) {
+    if ((close.verb.slot.clitics ?? []).length > 0) {
+      errors.push(`${where}: the close-but-not-the-same verb must have no pronouns`);
+    }
+    if (isEmpty(close.reason)) errors.push(`${where}: the close-but-not-the-same verb has no reason`);
+  }
+  return errors;
+}
+
 /** Returns a list of problems; an empty list means the data is valid. */
 export function validate(input: ValidationInput): string[] {
   const errors: string[] = [];
   for (const lexeme of Object.values(input.lexemes)) errors.push(...checkLexeme(lexeme, input.lexemes));
   for (const phrase of input.phrases) errors.push(...checkPhrase(phrase, input.lexemes));
+  for (const group of input.groups ?? []) errors.push(...checkGroup(group, input.lexemes));
   return errors;
 }
 
