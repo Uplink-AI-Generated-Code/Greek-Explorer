@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate": "tsx scripts/validate.ts"
+    "validate": "tsx scripts/validate.ts",
+    "review-sheet": "tsx scripts/review-sheet.ts"
   },
   "dependencies": {
     "react": "^19.3.0",

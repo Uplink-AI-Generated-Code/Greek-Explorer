@@ -4,21 +4,20 @@ import { DIVERGENCES } from '../src/data/divergences';
 import { LEXEMES } from '../src/data/lexemes';
 import { PHRASES } from '../src/data/phrases';
 import { REVIEW_ITEMS } from '../src/data/review';
+import { unverifiedRecords } from '../src/validate/unverified';
 import { pendingCells, validate, warnings } from '../src/validate/validate';
 
 const errors = validate({ lexemes: LEXEMES, phrases: PHRASES, groups: FORM_GROUPS });
 const release = process.argv.includes('--release');
 
-const unverified = [
-  ...Object.values(LEXEMES).flatMap((l) =>
-    (['el', 'ro', 'en'] as const).filter((lang) => !l.verified[lang]).map((lang) => `lexeme ${l.id} (${lang})`),
-  ),
-  ...REVIEW_ITEMS.filter((r) => !r.verified).map((r) => r.id),
-  ...PHRASES.filter((p) => !p.verified).map((p) => `phrase ${p.id}`),
-  ...DIVERGENCES.filter((d) => !d.verified).map((d) => `divergence ${d.id}`),
-  ...READING_TEMPLATES.filter((t) => !t.verified).map((t) => `reading ${t.rule}`),
-  ...FORM_GROUPS.filter((g) => !g.verified).map((g) => `group ${g.id}`),
-];
+const unverified = unverifiedRecords({
+  lexemes: LEXEMES,
+  items: REVIEW_ITEMS,
+  phrases: PHRASES,
+  divergences: DIVERGENCES,
+  templates: READING_TEMPLATES,
+  groups: FORM_GROUPS,
+});
 
 if (unverified.length > 0) {
   console.log(`Unverified (${unverified.length}):\n  ${unverified.join('\n  ')}`);

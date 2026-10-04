@@ -38,7 +38,7 @@ function cliticSlots(): SlotOf<'clitic'>[] {
   );
 }
 
-function slotsFor(l: GreekLexeme): Slot[] {
+export function slotsFor(l: GreekLexeme): Slot[] {
   switch (l.pos) {
     case 'noun':
       return NUMS.flatMap((number) => CASES.map((c): Slot => ({ pos: 'noun', number, case: c })));
