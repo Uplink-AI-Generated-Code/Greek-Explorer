@@ -106,3 +106,20 @@ export const voiceOptions = (level: Level, offered: Voice[]): Option[] =>
 
 /** The Who? options for the persons a mood offers ('2sg', '2pl' for the imperative). */
 export const whoOptionsFor = (offered: string[]): Option[] => whoOptions.filter((o) => offered.includes(o.value));
+
+/** πολύς and λίγος: the number the noun has decides the reading (spec 5.3). */
+export const kindOptions: Option[] = [
+  { value: 'mass', label: 'a mass (water, bread)' },
+  { value: 'count', label: 'separate things (coffees)' },
+];
+
+export const degreeOptions = (level: Level): Option[] => [
+  { value: 'plain', label: level === 'beginner' ? 'a lot / a little' : 'plain' },
+  { value: 'comparative', label: level === 'beginner' ? 'more / less' : 'comparative' },
+];
+
+/** μερικοί: the Romanian counterpart is a control (spec 5.2, quantity-vs-sense). */
+export const senseOptions: Option[] = [
+  { value: 'some', label: 'some (niște)' },
+  { value: 'few', label: 'a few (câțiva)' },
+];

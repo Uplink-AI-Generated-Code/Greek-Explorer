@@ -6,12 +6,14 @@ import type {
   GreekNumeral,
   GreekParticle,
   GreekPreposition,
+  GreekQuantifier,
   GreekVerb,
   Level,
   Num,
   NumeralValue,
   Person,
   Phrase,
+  QuantifierDegree,
   Token,
 } from '../types';
 import { adjectivePanel } from './adjective';
@@ -19,6 +21,7 @@ import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
+import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
 import { particlePanel } from './particle';
 import { changeVerbSlot, verbPanel } from './verb';
@@ -57,8 +60,7 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
     case 'particle':
       return particlePanel(lexeme as GreekParticle, level);
     case 'quantifier':
-      // The quantifier panel arrives in Task 4; no phrase uses a quantifier before then.
-      throw new Error('no quantifier panel yet');
+      return quantifierPanel(lexeme as GreekQuantifier, slot, state, level);
   }
 }
 
@@ -102,11 +104,25 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'value':
       if (slot.pos === 'numeral') return { ...state, slot: { ...slot, value: Number(value) as NumeralValue } };
       break;
+    case 'kind':
+      if (slot.pos === 'quantifier') return { ...state, slot: { ...slot, number: value === 'mass' ? 'sg' : 'pl' } };
+      break;
+    case 'degree':
+      if (slot.pos === 'quantifier') return { ...state, slot: { ...slot, degree: value as QuantifierDegree } };
+      break;
+    case 'sense':
+      if (slot.pos === 'quantifier') {
+        const next = { ...slot };
+        if (value === 'few') next.sense = 'few';
+        else delete next.sense;
+        return { ...state, slot: next };
+      }
+      break;
     case 'noun': {
       const noun = getLexeme(value);
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
-      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral') {
+      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral' || slot.pos === 'quantifier') {
         return { ...state, noun: value, slot: { ...slot, gender: noun.gender } };
       }
       break;

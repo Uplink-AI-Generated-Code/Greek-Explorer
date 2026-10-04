@@ -63,4 +63,10 @@ describe('WordPanel', () => {
     expect(screen.getAllByRole('table')).toHaveLength(1);
     expect(screen.queryByText(/Full paradigm/)).not.toBeInTheDocument();
   });
+
+  it('shows a badge next to the part-of-speech label when the panel has one', () => {
+    const panel = { ...panelFor(3), badge: 'mass reading' };
+    render(<WordPanel panel={panel} onChange={() => {}} />);
+    expect(screen.getByText('mass reading')).toBeInTheDocument();
+  });
 });

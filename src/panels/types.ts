@@ -3,7 +3,7 @@ import type { Rich } from '../engine/segments';
 import type { Num, ReadingPart, Slot } from '../types';
 
 export interface Control {
-  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense';
   label: string;
   options: Option[];
   value: string;
@@ -42,6 +42,8 @@ export interface Panel {
   /** A one-line reason when the form in use is irregular, or ''. */
   irregular: string;
   note: string;
+  /** A short label shown beside the part of speech: "mass reading", "count reading". */
+  badge?: string;
 }
 
 /** What the word panel works on: a copy of the token's slot plus the noun the word goes with. */

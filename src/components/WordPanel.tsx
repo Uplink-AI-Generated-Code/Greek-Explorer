@@ -19,7 +19,10 @@ export function WordPanel({ panel, onChange, onBack, onPiece }: Props) {
         </button>
       )}
       <h2 lang="el">{panel.lemma}</h2>
-      <p className="pos-label">{panel.posLabel}</p>
+      <p className="pos-label">
+        {panel.posLabel}
+        {panel.badge && <span className="badge">{panel.badge}</span>}
+      </p>
       <div className="controls">
         {panel.controls.map((control) => {
           const id = `control-${control.key}`;
