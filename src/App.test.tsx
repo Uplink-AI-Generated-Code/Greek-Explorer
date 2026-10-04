@@ -407,4 +407,33 @@ describe('how to read this', () => {
     await user.click(screen.getByRole('button', { name: '← Back to κανένας' }));
     expect(screen.getByRole('heading', { level: 2, name: 'κανένας / καμία / κανένα' })).toBeInTheDocument();
   });
+
+  it('a participle shows how to read it, links to its verb and comes back', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'The child is washed');
+    await user.click(screen.getByRole('button', { name: 'πλυμένο' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'πλυμένος / πλυμένη / πλυμένο' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'copilul spălat' })).toBeInTheDocument();
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    expect(within(reading).getByText('πλυ-')).toBeInTheDocument();
+    expect(within(reading).getByText(/a describing word \(washed\) that matches το παιδί/)).toBeInTheDocument();
+    expect(screen.getByText('Derived from πλένω (πλυ- + -μένος).')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open πλένω' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'πλένω' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '← Back to the participle' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'πλυμένος / πλυμένη / πλυμένο' })).toBeInTheDocument();
+  });
+
+  it('the copula opens its own panel with an irregularity message and reading', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'The bread is baked');
+    await user.click(screen.getByRole('button', { name: 'είναι' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'είμαι' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '(αυτός/ή) είναι' })).toBeInTheDocument();
+    expect(screen.getByText(/learn its six forms together/, { selector: '.warn' })).toBeInTheDocument();
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    expect(within(reading).getByText(/the verb "to be" is irregular/)).toBeInTheDocument();
+  });
 });

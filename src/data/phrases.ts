@@ -740,6 +740,46 @@ const wouldHaveEaten: Phrase = {
   verified: false,
 };
 
+const childIsWashed: Phrase = {
+  id: 'child-is-washed',
+  title: 'The child is washed',
+  theme: 'Daily life',
+  level: 'improver',
+  tokens: [
+    { text: 'Το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 1 },
+    { text: 'παιδί', lexeme: 'paidi', slot: { pos: 'noun', number: 'sg', case: 'nom' } },
+    { text: 'είναι', lexeme: 'eimai', slot: vslot('indicative', 'present', 3) },
+    { text: 'πλυμένο', lexeme: 'plymenos', slot: { pos: 'adjective', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('The', 0), u('child', 1), u('is', 2), u('washed', 3)],
+    [u('the-[nom]', 0), u('child', 1), u('is', 2), u('washed-[n]', 3)],
+    [seg(['copil', 1], ['ul', 0]), u('este', 2), u('spălat', 3)],
+    [seg(['copil', 1], ['ul', 0]), u('este', 2), u('spălat', 3)],
+  ),
+  verified: false,
+};
+
+const breadIsBaked: Phrase = {
+  id: 'bread-is-baked',
+  title: 'The bread is baked',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 1 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'nom' } },
+    { text: 'είναι', lexeme: 'eimai', slot: vslot('indicative', 'present', 3) },
+    { text: 'ψημένο', lexeme: 'psimenos', slot: { pos: 'adjective', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('The', 0), u('bread', 1), u('is', 2), u('baked', 3)],
+    [u('the-[nom]', 0), u('bread', 1), u('is', 2), u('baked-[n]', 3)],
+    [seg(['pâine', 1], ['a', 0]), u('este', 2), u('coaptă', 3)],
+    [seg(['pâine', 1], ['a', 0]), u('este', 2), u('coaptă', 3)],
+  ),
+  verified: false,
+};
+
 const dontWantToGo: Phrase = {
   id: 'dont-want-to-go',
   title: "I don't want to go",
@@ -823,5 +863,7 @@ export const PHRASES: Phrase[] = [
   wouldLikeACoffee,
   ifIHadBread,
   wouldHaveEaten,
+  childIsWashed,
+  breadIsBaked,
   wantNotToGo,
 ];
