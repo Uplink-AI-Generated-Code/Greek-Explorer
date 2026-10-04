@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 4, Plan 3 and Plan 5 (changes listed in sections 13 to 18)
+Status: revised after review 4, Plan 3, Plan 5 and Plan 6 (changes listed in sections 13 to 19)
 
 ## 1. Purpose
 
@@ -141,13 +141,18 @@ type Stored = string | { pending: true; note?: string };
 interface ReviewItem { id: string; kind: 'ending-table' | 'auxiliary-table' | 'clitic-table' | 'glossary'; verified: boolean }
 
 // Slot: the attribute combination a form fills. Dimensions depend on part of speech.
-interface Clitic { person: Person; number: Num; gender?: Gender; role: 'object' | 'indirect' }
+interface Clitic {
+  person: Person; number: Num;
+  gender?: Gender;      // the Greek gender of a third-person pronoun
+  roGender?: Gender;    // the Romanian gender of the noun it stands for (ψωμί n: το; pâine f: o)
+  role: 'object' | 'indirect';
+}
 
 type Slot =
   | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice;
       polarity: 'affirmative' | 'negative';
-      clitics: Clitic[];            // object pronouns, indirect before direct; imperative mood only
-      shortForm?: boolean }         // use the lexical short form (φάτο) when the verb has one
+      clitics?: Clitic[];           // object pronouns, indirect before direct; imperative mood only
+      shortForm?: boolean }         // use the lexical short form (φάτο) when the verb has one; optional: absent means none
   | { pos: 'noun'; number: Num; case: Case }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
@@ -671,6 +676,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - Romanian: the sentence *Vulpea rapidă și maro sare peste câinele leneș*, the adjective forms (*calzi, rapizi, leneși*, feminine genitive *calde*), the numerals, the reflexive forms, and the perfect and future forms of *a vrea* and *a sări*.
 - the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning.
 - Plan 5 additions: νερό and Romanian *apă* (*apei*, *ape*); the quantifier forms (κάποιον, καμία and κανένα, the πολύς and περισσότερος forms, μερικοί, λίγος and λιγότερος); the Romanian forms *unii / unele*, *câteva*, *vreunul / vreuna*, *niciunul / niciuna* and the comparative *mai* + the word; the six pending Romanian genitives (the singular genitive of *mult* and *multă*, and every genitive of *puțin*, *puțină*, *puțini* and *puține*), which must be filled in before release; είμαι, *a fi* and the English forms of "be" (am not, aren't, isn't); ψήνω and *a coace*; the participles πλυμένος and ψημένος with *spălat / spălată* and *copt / coaptă*; αν and *dacă*; and phrases 7 to 10, 20, 21, 30, 32 and 33.
+- Plan 6 additions: the Greek weak pronouns and the strong forms; the Romanian pronoun table (free, attached after a command, after *nu*) and the four clusters (*mi-l, mi-o, mi-i, mi-le*); the English pronoun order ("give it to me"); the verb δίνω and its forms (δώσε, δώστε, δίνε, δως) with *a da* and "give"; the short forms φάτο and δως μου το; the second-accent rule (δώσε μού το, and the two unit-test cases); phrases 34 to 38; the four form groups (the claim that their members mean the same, the member notes, the close-not-the-same reasons); and the two authored readings `clitic-stress` and `short-imperative`. `npm run review-sheet` writes a sheet of every unverified record for the reviewer.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -796,3 +802,17 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Passive participle | A `participle` stem on the verb (πλυ-, ψη-) and `derivedFrom: { verb, stem }` on the adjective; the validator checks that the adjective stem is the participle stem + μέν; the reading line is Greek only | 4.3, 5.5, 6.5 |
 | Related panels | `Panel.related`: a participle opens its verb, κανένας opens the numeral ένας, each with a way back and a label | 5.3 |
 | Main text aligned | The main text of 4.2, 5.3 and 9 now says what the rows above say: the `derivedFrom` shape, `use` on the slot, quantifier `offers` as numbers, and the six pending Romanian genitives filled in before release (no per-case removal) | 4.2, 5.3, 9 |
+
+## 19. Changes since Plan 6
+
+| Source | Change | Where |
+|---|---|---|
+| `clitics` and `shortForm` | Optional on the verb slot (absent means none), as `polarity` is | 4.2 |
+| Pronoun gender in two languages | `Clitic.roGender` carries the Romanian gender of the noun the pronoun stands for (clitic-gender) | 4.2, 5.2 |
+| Short forms | Stored on the verb voice (`shortForms`, keyed `impAorist.2sg`, with a `fuse` flag); `VerbVoice.indirect` marks a verb with an indirect object (δίνω) | 4.3 |
+| Stress rule | `engine/stress.ts` counts syllables of the whole unit (a diphthong and an unaccented ι before a vowel are one syllable) and adds the second accent to a pronoun or to the verb; the short forms need none | 4.3 |
+| Object control | Four kinds (none, a noun, a pronoun, two pronouns) and an "Object noun" select; the noun is held in the panel state; the verb tokens of phrases 24, 25 and 26 point at their noun | 5.3 |
+| Romanian pronouns | Singles for every person; clusters only for the first-person dative with a third-person accusative | 4.3 |
+| Readings | Forms with pronouns have a Greek reading line only; Romanian and English lines are not produced for them | 5.5 |
+| Same-meaning strip | Rows are buttons; a short form's Romanian and English cells read "none"; Beginner shows *with noun* and *with clitic* | 5.4 |
+| Content review | `npm run review-sheet` writes the sheet; the review itself and the six pending Romanian genitives remain | 9, 11 |
