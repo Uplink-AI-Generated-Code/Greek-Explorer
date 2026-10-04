@@ -51,6 +51,13 @@ describe('quantifier panel: the rows', () => {
     expect(panelFor('polys', slotOf(), 'psomi').plain).not.toContain('article built in');
   });
 
+  it('says that Romanian can use a + the plain plural in the plural genitive', () => {
+    expect(panelFor('polys', slotOf({ case: 'gen', number: 'pl' }), 'psomi').plain).toContain('"a mulți / a multe"');
+    expect(panelFor('ligos', slotOf({ case: 'gen', number: 'pl' }), 'nero').plain).toContain('"a puțini / a puține"');
+    expect(panelFor('polys', slotOf({ case: 'gen' }), 'psomi').plain).not.toContain('a + the plain plural');
+    expect(panelFor('polys', slotOf({ number: 'pl' }), 'psomi').plain).not.toContain('a + the plain plural');
+  });
+
   it('the English notices are notice segments, not plain dim', () => {
     const count = panelFor('polys', slotOf({ number: 'pl' }), 'psomi');
     expect(count.rows[0].en.map((s) => s.role)).toEqual(['notice']);

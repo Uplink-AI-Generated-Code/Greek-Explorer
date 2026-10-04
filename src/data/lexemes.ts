@@ -362,6 +362,7 @@ const polys: GreekQuantifier = {
   ro: {
     lemma: 'mult',
     genitiveWithArticle: ['sg'],
+    genitiveWithA: 'a mulți / a multe',
     plain: {
       determiner: {
         m: { sg: ro1('mult', 'multului'), pl: ro1('mulți', 'multor') },
@@ -394,6 +395,7 @@ const ligos: GreekQuantifier = {
   ro: {
     lemma: 'puțin',
     genitiveWithArticle: ['sg', 'pl'],
+    genitiveWithA: 'a puțini / a puține',
     plain: {
       determiner: {
         m: { sg: ro1('puțin', 'puținului'), pl: ro1('puțini', 'puținilor') },

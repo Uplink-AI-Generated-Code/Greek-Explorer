@@ -150,6 +150,9 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
         : '') +
       (slot.case === 'gen' && q.ro.genitiveWithArticle?.includes(slot.number)
         ? ' In Romanian this genitive has the article built in, so it means "of the much / the few", not plain "of much / of few".'
+        : '') +
+      (slot.case === 'gen' && slot.number === 'pl' && q.ro.genitiveWithA
+        ? ` Romanian also says "${q.ro.genitiveWithA}" (a + the plain plural) with the same meaning.`
         : ''),
     irregular: inflectQuantifier(q, det).irregular?.plain ?? '',
     note: noun.note,

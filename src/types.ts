@@ -181,6 +181,8 @@ export interface GreekQuantifier extends LexemeBase {
     few?: RoQuantifierCells;
     /** The numbers whose Romanian genitive has the article built in (multului = "of the much"). */
     genitiveWithArticle?: Num[];
+    /** The plural genitive can also be said as "a" + the plain plural: "a mulți / a multe". */
+    genitiveWithA?: string;
   };
   en: {
     plain: EnQuantifierCells;
