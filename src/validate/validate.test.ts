@@ -179,6 +179,16 @@ describe('verb lexemes', () => {
     expect(errors.some((e) => e.startsWith('lexeme troo: cannot build') && e.includes('Romanian imperative'))).toBe(true);
   });
 
+  it('reports an English present list that does not have six cells', () => {
+    const copy: typeof LEXEMES = JSON.parse(JSON.stringify(LEXEMES));
+    const be = (copy.eimai as GreekVerb).voices.active as VerbVoice;
+    be.en.present = ['am', 'are', 'is'];
+    be.en.presentNot = ['am not'];
+    const errors = validate({ lexemes: copy, phrases: [] });
+    expect(errors).toContain('lexeme eimai: en.present has 3 cells, not six');
+    expect(errors).toContain('lexeme eimai: en.presentNot has 1 cells, not six');
+  });
+
   it('reports an empty English participle that a perfect tense needs', () => {
     const errors = validate(modifiedTroo((v) => { v.en.pastParticiple = ''; }));
     expect(errors.some((e) => e.startsWith('lexeme troo: empty English form'))).toBe(true);

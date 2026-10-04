@@ -15,4 +15,14 @@ describe('reading data', () => {
       expect(t.improver).toContain('{text}');
     }
   });
+
+  it('the irregular-be reading has no markdown and is true for both polarities', () => {
+    const t = READING_TEMPLATES.find((x) => x.rule === 'irregular-be');
+    if (!t) throw new Error('no irregular-be template');
+    expect(t.improver).not.toContain('*');
+    expect(t.beginner).toContain('the verb "to be" is irregular');
+    expect(t.beginner).toContain('είμαι, είσαι, είναι, είμαστε, είστε, είναι');
+    expect(t.beginner).not.toContain('no parts to take apart');
+    expect(t.beginner.split(/[.!?]\s/).length).toBeLessThanOrEqual(2);
+  });
 });

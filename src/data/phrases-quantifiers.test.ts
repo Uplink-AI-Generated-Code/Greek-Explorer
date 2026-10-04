@@ -96,3 +96,12 @@ describe('the quantifier notes', () => {
     for (const d of DIVERGENCES.filter((row) => row.id.startsWith('quantifier-'))) expect(d.verified).toBe(false);
   });
 });
+
+describe('the shared quantifier determiner/pronoun note', () => {
+  it('is true for every quantifier, including those whose Romanian form does not change', () => {
+    const note = DIVERGENCES.find((d) => d.id === 'quantifier-determiner-vs-pronoun');
+    expect(note?.el).toBe('one form for both: κάποιος καφές, κάποιος');
+    expect(note?.ro).toBe('may change: vreun / vreunul, niciun / niciunul, niște / unii (mult stays mult)');
+    expect(note?.en).toBe('may change: any / anyone, no / none');
+  });
+});

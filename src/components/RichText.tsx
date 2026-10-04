@@ -9,7 +9,7 @@ export function RichText({ rich }: { rich: Rich }) {
         segment.text.trim() === '' ? (
           <Fragment key={i}>{segment.text}</Fragment>
         ) : (
-          <span key={i} className={`role-${segment.role}`}>
+          <span key={i} className={`role-${segment.role}`} lang={segment.role === 'notice' ? 'en' : undefined}>
             {segment.text}
           </span>
         ),

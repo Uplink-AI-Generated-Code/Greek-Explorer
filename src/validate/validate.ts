@@ -102,6 +102,12 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     }
   }
   if (l.pos === 'verb') {
+    for (const voice of Object.values(l.voices)) {
+      for (const key of ['present', 'presentNot'] as const) {
+        const cells = voice?.en[key];
+        if (cells !== undefined && cells.length !== 6) errors.push(`lexeme ${l.id}: en.${key} has ${cells.length} cells, not six`);
+      }
+    }
     const slots = allVerbSlots(l).flatMap((s): SlotOf<'verb'>[] => [s, { ...s, polarity: 'negative' }]);
     for (const slot of slots.filter((s) => isOffered(l, s))) {
       const where = `lexeme ${l.id}: cannot build ${JSON.stringify(slot)}`;
@@ -134,6 +140,8 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
   }
   if (l.pos === 'quantifier') {
+    if (l.numbers.length === 0) errors.push(`lexeme ${l.id}: a quantifier must offer at least one number`);
+    if (l.ro.few && !l.en.few) errors.push(`lexeme ${l.id}: ro.few has no en.few`);
     for (const slot of quantifierSlots(l)) {
       const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
       for (const roGender of ['m', 'f'] as const) {
@@ -223,6 +231,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
     if (target && target.slot.pos === 'noun' && target.slot.number !== token.slot.number) {
       errors.push(`${where}: the quantifier is ${token.slot.number} but its noun is ${target.slot.number}`);
+    }
+    if (target && target.slot.pos === 'noun' && target.slot.case !== token.slot.case) {
+      errors.push(`${where}: the quantifier is ${token.slot.case} but its noun is ${target.slot.case}`);
     }
     if (token.slot.sense === 'few' && !lexeme.ro.few) errors.push(`${where}: ${lexeme.id} has no "few" sense`);
     try {

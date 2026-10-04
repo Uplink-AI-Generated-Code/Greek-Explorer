@@ -399,7 +399,7 @@ describe('how to read this', () => {
     render(<App />);
     await user.selectOptions(screen.getByLabelText('Phrase'), "I don't want any coffee");
     await user.click(screen.getByRole('button', { name: 'κανέναν' }));
-    expect(screen.getByText('κανένας follows the numeral ένας.')).toBeInTheDocument();
+    expect(document.querySelector('.related')).toHaveTextContent(/^κανένας follows the numeral ένας\.\s*Open the numeral ένας$/);
     await user.click(screen.getByRole('button', { name: 'Open the numeral ένας' }));
     expect(screen.getByRole('heading', { level: 2, name: 'ένας / μία / ένα' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'έναν' })).toBeInTheDocument();
@@ -418,7 +418,7 @@ describe('how to read this', () => {
     const reading = screen.getByRole('region', { name: 'How to read this' });
     expect(within(reading).getByText('πλυ-')).toBeInTheDocument();
     expect(within(reading).getByText(/a describing word \(washed\) that matches το παιδί/)).toBeInTheDocument();
-    expect(screen.getByText('Derived from πλένω (πλυ- + -μένος).')).toBeInTheDocument();
+    expect(document.querySelector('.related')).toHaveTextContent(/^Derived from πλένω \(πλυ- \+ -μένος\)\.\s*Open πλένω$/);
     await user.click(screen.getByRole('button', { name: 'Open πλένω' }));
     expect(screen.getByRole('heading', { level: 2, name: 'πλένω' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '← Back to the participle' }));

@@ -82,7 +82,7 @@ describe('WordPanel', () => {
       noun: null,
     };
     render(<WordPanel panel={{ ...panelFor(3), related }} onChange={() => {}} onRelated={onRelated} onBack={() => {}} backLabel="Back to the participle" />);
-    expect(screen.getByText(/Derived from πλένω/)).toBeInTheDocument();
+    expect(document.querySelector('.related')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Open πλένω' }));
     expect(onRelated).toHaveBeenCalledWith(related);
     expect(screen.getByRole('button', { name: '← Back to the participle' })).toBeInTheDocument();
@@ -93,5 +93,28 @@ describe('WordPanel', () => {
     render(<WordPanel panel={{ ...panelFor(3), related }} onChange={() => {}} onBack={() => {}} />);
     expect(screen.queryByText(/Derived from/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '← Back to the verb' })).toBeInTheDocument();
+  });
+
+  it('separates the badge from the part-of-speech label for screen readers', () => {
+    const panel = { ...panelFor(3), posLabel: 'quantifier: little', badge: 'mass reading' };
+    render(<WordPanel panel={panel} onChange={() => {}} />);
+    expect(document.querySelector('.pos-label')?.textContent).toBe('quantifier: little mass reading');
+  });
+
+  it('tags the Greek words of the related line, the related button and the back button', async () => {
+    const related = {
+      text: 'Derived from πλένω (πλυ- + -μένος).',
+      button: 'Open πλένω',
+      backLabel: 'Back to κανένας',
+      lexeme: 'x',
+      slot: { pos: 'verb', person: 1, number: 'sg', mood: 'indicative', tense: 'present', voice: 'active' } as const,
+      noun: null,
+    };
+    render(<WordPanel panel={{ ...panelFor(3), related }} onChange={() => {}} onRelated={() => {}} onBack={() => {}} backLabel="Back to κανένας" />);
+    const greek = [...document.querySelectorAll('[lang="el"]')].map((e) => e.textContent);
+    expect(greek).toEqual(expect.arrayContaining(['πλένω', 'πλυ', 'μένος', 'κανένας']));
+    expect(screen.getByRole('button', { name: 'Open πλένω' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '← Back to κανένας' })).toBeInTheDocument();
+    expect(document.querySelector('.related')?.textContent).toContain('Derived from πλένω (πλυ- + -μένος).');
   });
 });

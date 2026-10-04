@@ -14,19 +14,41 @@ interface Props {
   onRelated?: (related: Related) => void;
 }
 
+/** English text with Greek words in it: the Greek runs get lang="el" so a screen reader pronounces them. */
+function MixedText({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/([\u0370-\u03FF\u1F00-\u1FFF]+)/).map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} lang="el">
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
 export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back to the verb', onRelated }: Props) {
   const { related } = panel;
   return (
     <section className="card word-panel" aria-label="Word panel">
       {onBack && (
         <button type="button" className="back-link" onClick={onBack}>
-          ← {backLabel}
+          ← <MixedText text={backLabel} />
         </button>
       )}
       <h2 lang="el">{panel.lemma}</h2>
       <p className="pos-label">
         {panel.posLabel}
-        {panel.badge && <span className="badge">{panel.badge}</span>}
+        {panel.badge && (
+          <>
+            {' '}
+            <span className="badge">{panel.badge}</span>
+          </>
+        )}
       </p>
       <div className="controls">
         {panel.controls.map((control) => {
@@ -53,9 +75,9 @@ export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back 
       <p className="plain">{panel.plain}</p>
       {related && onRelated && (
         <p className="related">
-          {related.text}{' '}
+          <MixedText text={related.text} />{' '}
           <button type="button" className="back-link" onClick={() => onRelated(related)}>
-            {related.button}
+            <MixedText text={related.button} />
           </button>
         </p>
       )}

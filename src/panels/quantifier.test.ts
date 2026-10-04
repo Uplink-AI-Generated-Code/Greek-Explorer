@@ -44,6 +44,13 @@ describe('quantifier panel: the rows', () => {
     expect(p.rows[1].dimmed).toContain('not covered');
   });
 
+  it('the English notices are notice segments, not plain dim', () => {
+    const p = panelFor('polys', slotOf({ case: 'gen' }), 'psomi');
+    expect(p.rows[0].ro.map((s) => s.role)).toEqual(['notice']);
+    const count = panelFor('polys', slotOf({ number: 'pl' }), 'psomi');
+    expect(count.rows[0].en.map((s) => s.role)).toEqual(['notice']);
+  });
+
   it('the plural count reading of a mass noun has no English plural', () => {
     const p = panelFor('polys', slotOf({ number: 'pl' }), 'psomi');
     expect(cells(p, 0)).toEqual({ el: 'πολλά ψωμιά', ro: 'multe pâini', en: 'uncountable: no plural in English' });

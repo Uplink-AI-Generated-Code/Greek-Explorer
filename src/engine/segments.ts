@@ -1,6 +1,6 @@
 import type { Form } from '../types';
 
-export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'sub' | 'augment' | 'aux' | 'neg';
+export type Role = 'plain' | 'stem' | 'ending' | 'article' | 'pronoun' | 'dim' | 'notice' | 'sub' | 'augment' | 'aux' | 'neg';
 export interface Segment {
   text: string;
   role: Role;
@@ -9,6 +9,8 @@ export type Rich = Segment[];
 
 export const plain = (text: string): Rich => [{ text, role: 'plain' }];
 export const dim = (text: string): Rich => [{ text, role: 'dim' }];
+/** An English remark that sits in a Greek or Romanian cell ("not yet added"); rendered as lang="en". */
+export const notice = (text: string): Rich => [{ text, role: 'notice' }];
 export const richText = (r: Rich): string => r.map((s) => s.text).join('');
 
 export function joinRich(parts: Rich[]): Rich {

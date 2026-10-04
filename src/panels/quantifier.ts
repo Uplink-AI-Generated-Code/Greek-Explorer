@@ -3,7 +3,7 @@ import { inflectNoun, inflectQuantifier } from '../engine/greek';
 import { degreeOptions, kindOptions, senseOptions } from '../engine/labels';
 import { offeredDegrees, offeredSenses } from '../engine/quantifier';
 import { roBareNoun, roQuantifier } from '../engine/romanian';
-import { dim, formRich, joinRich, numeralRich, plain, richText, type Rich } from '../engine/segments';
+import { formRich, joinRich, notice, numeralRich, plain, richText, type Rich } from '../engine/segments';
 import { NOT_YET_ADDED, storedText } from '../engine/stored';
 import type { Gender, GreekNoun, GreekQuantifier, Level, SlotOf } from '../types';
 import { CASES, GENDERS, GENDER_ROW, caseControl, caseName, nounControl, nounOf } from './shared';
@@ -12,15 +12,15 @@ import type { Control, Panel, PanelRow, PanelState, Related } from './types';
 /** A Romanian quantifier, with the noun that follows it; a pending cell reads "not yet added". */
 function roRich(q: GreekQuantifier, slot: SlotOf<'quantifier'>, roGender: Gender, noun?: string): Rich {
   const cell = roQuantifier(q, slot, roGender);
-  if (cell === null) return dim('not covered');
+  if (cell === null) return notice('not covered');
   const word = storedText(cell);
-  if (word === null) return dim(NOT_YET_ADDED);
+  if (word === null) return notice(NOT_YET_ADDED);
   return plain(noun ? `${word} ${noun}` : word);
 }
 
 /** The English quantifier and noun; a count word with a mass noun in the plural has no English form. */
 function enWithNoun(q: GreekQuantifier, slot: SlotOf<'quantifier'>, noun: GreekNoun): Rich {
-  if (noun.mass && slot.number === 'pl') return dim('uncountable: no plural in English');
+  if (noun.mass && slot.number === 'pl') return notice('uncountable: no plural in English');
   const text = `${enQuantifier(q, slot)} ${noun.en[slot.number]}`;
   return plain(slot.case === 'gen' ? `of ${text}` : text);
 }
@@ -37,7 +37,7 @@ function negationRow(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: Greek
       numeralRich(inflectQuantifier(q, object)),
       formRich(inflectNoun(noun, { pos: 'noun', number: 'sg', case: 'acc' })),
     ]),
-    ro: typeof word === 'string' ? plain(`nu vreau ${word} ${roBareNoun(noun, 'sg', 'acc')}`) : dim(NOT_YET_ADDED),
+    ro: typeof word === 'string' ? plain(`nu vreau ${word} ${roBareNoun(noun, 'sg', 'acc')}`) : notice(NOT_YET_ADDED),
     en: plain(`I don't want ${q.en.negated} ${noun.en.sg}`),
   };
 }

@@ -72,9 +72,9 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
   {
     rule: 'irregular-be',
     beginner:
-      '{text}: the verb "to be" is irregular, so there are no parts to take apart. Learn the six forms together: είμαι, είσαι, είναι, είμαστε, είστε, είναι.',
+      '{text}: the verb "to be" is irregular, so its forms are learned whole, not built from a stem and an ending (with δεν, the not-word comes first). Learn the six forms together: είμαι, είσαι, είναι, είμαστε, είστε, είναι.',
     improver:
-      '{text}: the present of είμαι is irregular and has no separate stem and ending (είμαι, είσαι, είναι, είμαστε, είστε, είναι). Romanian *a fi* and English "be" are irregular in the same way.',
+      '{text}: the present of είμαι is irregular and has no separate stem and ending (είμαι, είσαι, είναι, είμαστε, είστε, είναι). Romanian "a fi" and English "be" are irregular in the same way.',
     verified: false,
   },
 ];
