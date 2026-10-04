@@ -73,7 +73,9 @@ src/
     agree.ts          # builds noun phrases: article + numeral + adjective + noun
     romanian.ts       # Romanian forms and article-suffix splitting
     english.ts        # English forms
-    clitics.ts        # clitic placement, stress addition and verb shortening
+    clitics.ts        # the pronoun forms in the three languages (Greek, Romanian, English)
+    stress.ts         # syllables and the second accent
+    (compose.ts also places the pronouns and applies the short forms)
   components/
     PhraseBar, GlossGrid, WordPanel, AttributeControls,
     FormTable, ComparisonTable, FormGroupStrip, LevelToggle
@@ -127,7 +129,7 @@ interface Composed {
 interface Reading { parts: ReadingPart[]; beginner: string; improver: string }
 interface ReadingPart {
   text: string;
-  role: 'particle' | 'auxiliary' | 'negation' | 'clitic' | 'augment' | 'stem' | 'ending' | 'article';
+  role: 'particle' | 'auxiliary' | 'negation' | 'clitic' | 'fused' | 'augment' | 'stem' | 'ending' | 'article';
   gloss: string;
 }
 
@@ -361,7 +363,7 @@ Divergence types the prototype must cover:
 
 | Part of speech | Controls | Current-form rows | Full table (Improver) |
 |---|---|---|---|
-| Verb | Who (person + number), Mood (indicative / subjunctive / imperative / conditional), When (tense; each mood offers only its own tenses; the imperative offers only "you" singular and plural), Voice (when the lexeme has a mediopassive), Negated (yes / no), Object for imperatives (none / a noun / clitic or clitics). These are six controls; the short form (φάτο) is chosen only through the "Same meaning" strip (5.4). Controls are built from the lexeme's `offers` | One row, with subject pronouns in each language; compound forms show particle and auxiliary in their own colours | Six persons for the selected mood, tense and voice; plus a **tense overview** for the selected person (every tense, the three subjunctives, the two imperatives and the two conditionals in three columns; rows with no form for that person, such as the imperative for "I", are shown dimmed with the reason) |
+| Verb | Who (person + number), Mood (indicative / subjunctive / imperative / conditional), When (tense; each mood offers only its own tenses; the imperative offers only "you" singular and plural), Voice (when the lexeme has a mediopassive), Negated (yes / no), Object for imperatives (none / a noun / one pronoun / two pronouns), with an Object noun select when there is an object. These are up to seven controls; the short form (φάτο) is chosen only through the `member` control of the "Same meaning" strip (5.4). Controls are built from the lexeme's `offers` | One row, with subject pronouns in each language; compound forms show particle and auxiliary in their own colours | Six persons for the selected mood, tense and voice; plus a **tense overview** for the selected person (every tense, the three subjunctives, the two imperatives and the two conditionals in three columns; rows with no form for that person, such as the imperative for "I", are shown dimmed with the reason) |
 | Noun | How many (1 to 5, or "many"), Role | "the", then "a / an" for one, or "with a number" for 2 to 5 | Case × number, with definite and indefinite forms in each cell |
 | Definite article | Noun it goes with, number, role | Article + noun | Gender × case for the selected number; Romanian suffix and English "the" in the other columns |
 | Numeral / indefinite article | Number (1 to 5), noun it counts, role | The numeral; then the counted noun phrase | Gender × case |
@@ -677,6 +679,8 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning.
 - Plan 5 additions: νερό and Romanian *apă* (*apei*, *ape*); the quantifier forms (κάποιον, καμία and κανένα, the πολύς and περισσότερος forms, μερικοί, λίγος and λιγότερος); the Romanian forms *unii / unele*, *câteva*, *vreunul / vreuna*, *niciunul / niciuna* and the comparative *mai* + the word; the six pending Romanian genitives (the singular genitive of *mult* and *multă*, and every genitive of *puțin*, *puțină*, *puțini* and *puține*), which must be filled in before release; είμαι, *a fi* and the English forms of "be" (am not, aren't, isn't); ψήνω and *a coace*; the participles πλυμένος and ψημένος with *spălat / spălată* and *copt / coaptă*; αν and *dacă*; and phrases 7 to 10, 20, 21, 30, 32 and 33.
 - Plan 6 additions: the Greek weak pronouns and the strong forms; the Romanian pronoun table (free, attached after a command, after *nu*) and the four clusters (*mi-l, mi-o, mi-i, mi-le*); the English pronoun order ("give it to me"); the verb δίνω and its forms (δώσε, δώστε, δίνε, δως) with *a da* and "give"; the short forms φάτο and δως μου το; the second-accent rule (δώσε μού το, and the two unit-test cases); phrases 34 to 38; the four form groups (the claim that their members mean the same, the member notes, the close-not-the-same reasons); and the two authored readings `clitic-stress` and `short-imperative`. `npm run review-sheet` writes a sheet of every unverified record for the reviewer.
+  - Review item M7: μην is written throughout (μην το φας); standard spelling drops the -ν before most consonants (μη φας, μη μου το δώσεις). The reviewer decides.
+  - The pronoun panel's English cell for the indirect role reads "me" where the reading says "to me". The reviewer decides whether the cell should say "to me".
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -816,3 +820,10 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Readings | Forms with pronouns have a Greek reading line only; Romanian and English lines are not produced for them | 5.5 |
 | Same-meaning strip | Rows are buttons; a short form's Romanian and English cells read "none"; Beginner shows *with noun* and *with clitic* | 5.4 |
 | Content review | `npm run review-sheet` writes the sheet; the review itself and the six pending Romanian genitives remain | 9, 11 |
+| `member` control | The Same-meaning strip changes the panel through the control key `member` (a member's index, or `close`); the strip is hidden when the panel is in a group's family but on none of its members | 5.4 |
+| `fused` piece | A short form that joins the pronoun into one word (φάτο) is a `fused` piece; it opens the verb panel and is a `fused` role in the reading | 4.2, 5.5 |
+| English pronoun | `Clitic.enPronoun` and `GreekNoun.enPronoun` (default "it"; παιδί is "him / her / it"): the English pronoun follows the noun, not the Greek gender. The Gender control of the pronoun panel drops it | 4.2, 6.5 |
+| Object noun select | Held in the panel state; it is cleared when a verb control leaves the imperative; a group is shown only for the pronoun of the held noun | 5.3 |
+| Verb piece | The lexical verb is the piece of kind `verb` (first in a command with pronouns, last elsewhere); `lexicalPiece(composed)` finds it for the panel, the reading and the validator | 4.3 |
+| Validator | A group's close verb must exist, be the members' verb and compose; members share person, number, tense and polarity; a phrase token with the clitic slot is an error | 7 |
+| Main text aligned (Plan 6) | The main text of 4.2, 4.3, 5.3 and 5.5 now says what the rows above say: seven controls, the `fused` piece and role, and where stress and shortening live | 4.2, 4.3, 5.3, 5.5 |
