@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DIVERGENCES } from '../data/divergences';
 import { ComparisonTable, selectDivergences } from './ComparisonTable';
-import type { Slot } from '../types';
+import type { Clitic, Divergence, Slot } from '../types';
 
 describe('selectDivergences', () => {
   it('selects rows for the part of speech', () => {
@@ -110,5 +110,18 @@ describe('selectDivergences by polarity', () => {
     expect(ids(verb('conditional', 'imperfect', 'negative'))).toContain('negation-position');
     expect(ids(verb('indicative', 'futureSimple'))).not.toContain('negation-position');
     expect(ids(verb('subjunctive', 'aorist', 'negative'))).not.toContain('negation-position');
+  });
+
+  it('a row with a pronoun condition shows only for a command with that many pronouns', () => {
+    const row: Divergence = {
+      id: 'x', appliesTo: { pos: 'verb', when: { clitics: 'two' } }, point: 'P', el: 'a', ro: 'b', en: 'c',
+      tag: 'differs', level: 'core', verified: false,
+    };
+    const it_ = { role: 'object' as const, person: 3 as const, number: 'sg' as const, gender: 'n' as const };
+    const me = { role: 'indirect' as const, person: 1 as const, number: 'sg' as const };
+    const slot = (clitics: Clitic[]): Slot =>
+      ({ pos: 'verb', person: 2, number: 'sg', mood: 'imperative', tense: 'aorist', voice: 'active', clitics }) as Slot;
+    expect(selectDivergences([row], 'verb', 'troo', 'improver', slot([it_]))).toEqual([]);
+    expect(selectDivergences([row], 'verb', 'dino', 'improver', slot([me, it_]))).toHaveLength(1);
   });
 });

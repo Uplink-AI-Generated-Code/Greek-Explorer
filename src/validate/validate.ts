@@ -362,6 +362,8 @@ export function warnings(input: ValidationInput): string[] {
       if (row.language !== 'ro') continue;
       for (const unit of row.units) {
         if (!isSegmented(unit)) continue;
+        // Segments that are pieces of a verb group (mănâncă|-o) are not a noun and its article.
+        if (unit.segments.every((segment) => typeof segment.link !== 'number')) continue;
         const where = `${phrase.id} gloss ro/${row.kind}`;
         const nounToken = unit.segments
           .map((s) => phrase.tokens[linkedToken(s.link)])

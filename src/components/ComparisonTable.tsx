@@ -7,7 +7,8 @@ function matchesWhen(when: Divergence['appliesTo']['when'], slot: Slot | undefin
     (!when.moods || when.moods.includes(slot.mood)) &&
     (!when.tenses || when.tenses.includes(slot.tense)) &&
     (!when.voices || when.voices.includes(slot.voice)) &&
-    (!when.polarity || (slot.polarity ?? 'affirmative') === when.polarity)
+    (!when.polarity || (slot.polarity ?? 'affirmative') === when.polarity) &&
+    (!when.clitics || (when.clitics === 'two' ? (slot.clitics ?? []).length === 2 : (slot.clitics ?? []).length > 0))
   );
 }
 

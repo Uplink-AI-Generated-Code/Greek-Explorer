@@ -1,4 +1,4 @@
-import type { Case, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, Slot, SlotOf, Tense, Token, Voice } from '../types';
+import type { Case, Clitic, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, Slot, SlotOf, Tense, Token, Voice } from '../types';
 
 const verbSlot = (person: 1 | 2 | 3): Slot => ({
   pos: 'verb',
@@ -27,6 +27,16 @@ const qslot = (gender: Gender, number: Num, c: Case, patch: Partial<SlotOf<'quan
   degree: 'plain',
   use: 'determiner',
   ...patch,
+});
+
+/** ψωμί: το in Greek, o in Romanian (pâine is feminine). */
+const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
+/** παιδί: το in Greek, -l in Romanian (copil is masculine). */
+const IT_CHILD: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm' };
+const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
+/** A command to one person. */
+const command = (tense: Tense, extra: Partial<SlotOf<'verb'>> = {}): Slot => ({
+  pos: 'verb', person: 2, number: 'sg', mood: 'imperative', tense, voice: 'active', ...extra,
 });
 
 /** A gloss unit; `null` marks a word Greek leaves out. */
@@ -613,7 +623,7 @@ const eatTheBread: Phrase = {
   theme: 'Eating',
   level: 'beginner',
   tokens: [
-    { text: 'Φάε', lexeme: 'troo', slot: vslot('imperative', 'aorist', 2) },
+    { text: 'Φάε', lexeme: 'troo', slot: vslot('imperative', 'aorist', 2), agreesWith: 2 },
     { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
     { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
   ],
@@ -632,7 +642,7 @@ const washTheChild: Phrase = {
   theme: 'Daily life',
   level: 'beginner',
   tokens: [
-    { text: 'Πλύνε', lexeme: 'pleno', slot: vslot('imperative', 'aorist', 2) },
+    { text: 'Πλύνε', lexeme: 'pleno', slot: vslot('imperative', 'aorist', 2), agreesWith: 2 },
     { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
     { text: 'παιδί!', lexeme: 'paidi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
   ],
@@ -804,7 +814,7 @@ const dontEatTheBread: Phrase = {
   theme: 'Eating',
   level: 'beginner',
   tokens: [
-    { text: 'Μην φας', lexeme: 'troo', slot: { ...vslot('imperative', 'aorist', 2), polarity: 'negative' } as Slot },
+    { text: 'Μην φας', lexeme: 'troo', slot: { ...vslot('imperative', 'aorist', 2), polarity: 'negative' } as Slot, agreesWith: 2 },
     { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
     { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
   ],
@@ -813,6 +823,83 @@ const dontEatTheBread: Phrase = {
     [u('(you)', null), u('not', p(0, 0)), u('eat', p(0, 1)), u('the-[acc]', 1), u('bread', 2)],
     [u('Nu', p(0, 0)), u('mânca', p(0, 1)), seg(['pâine', 2], ['a!', 1])],
     [u('(tu)', null), u('nu', p(0, 0)), u('mânca', p(0, 1)), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const eatIt: Phrase = {
+  id: 'eat-it',
+  title: 'Eat it!',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [{ text: 'Φάε το!', lexeme: 'troo', slot: command('aorist', { clitics: [IT] }) }],
+  glosses: rows(
+    [u('Eat', p(0, 0)), u('it!', p(0, 1))],
+    [u('(you)', null), u('eat', p(0, 0)), u('it-[acc]', p(0, 1))],
+    [seg(['Mănâncă', p(0, 0)], ['-o!', p(0, 1)])],
+    [u('(tu)', null), seg(['mănâncă', p(0, 0)], ['-o', p(0, 1)])],
+  ),
+  verified: false,
+};
+
+const washIt: Phrase = {
+  id: 'wash-it',
+  title: 'Wash him / her / it!',
+  theme: 'Daily life',
+  level: 'improver',
+  tokens: [{ text: 'Πλύνε το!', lexeme: 'pleno', slot: command('aorist', { clitics: [IT_CHILD] }) }],
+  glosses: rows(
+    [u('Wash', p(0, 0)), u('him / her / it!', p(0, 1))],
+    [u('(you)', null), u('wash', p(0, 0)), u('it-[acc]', p(0, 1))],
+    [seg(['Spală', p(0, 0)], ['-l!', p(0, 1)])],
+    [u('(tu)', null), seg(['spală', p(0, 0)], ['-l', p(0, 1)])],
+  ),
+  verified: false,
+};
+
+const giveItToMe: Phrase = {
+  id: 'give-it-to-me',
+  title: 'Give it to me!',
+  theme: 'Daily life',
+  level: 'improver',
+  tokens: [{ text: 'Δώσε μού το!', lexeme: 'dino', slot: command('aorist', { clitics: [ME, IT] }) }],
+  glosses: rows(
+    [u('Give', p(0, 0)), u('it', p(0, 2)), u('to me!', p(0, 1))],
+    [u('(you)', null), u('give', p(0, 0)), u('me-[gen]', p(0, 1)), u('it-[acc]', p(0, 2))],
+    [seg(['Dă', p(0, 0)], ['-mi', p(0, 1)], ['-o!', p(0, 2)])],
+    [u('(tu)', null), seg(['dă', p(0, 0)], ['-mi', p(0, 1)], ['-o', p(0, 2)])],
+  ),
+  verified: false,
+};
+
+const dontEatIt: Phrase = {
+  id: 'dont-eat-it',
+  title: "Don't eat it!",
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Μην το φας!', lexeme: 'troo', slot: command('aorist', { clitics: [IT], polarity: 'negative' }) },
+  ],
+  glosses: rows(
+    [u("Don't", p(0, 0)), u('eat', p(0, 2)), u('it!', p(0, 1))],
+    [u('(you)', null), u('not', p(0, 0)), u('it-[acc]', p(0, 1)), u('eat', p(0, 2))],
+    [u('Nu', p(0, 0)), u('o', p(0, 1)), u('mânca!', p(0, 2))],
+    [u('(tu)', null), u('nu', p(0, 0)), u('o', p(0, 1)), u('mânca', p(0, 2))],
+  ),
+  verified: false,
+};
+
+const eatBare: Phrase = {
+  id: 'eat-bare',
+  title: 'Eat!',
+  theme: 'Eating',
+  level: 'beginner',
+  tokens: [{ text: 'Φάε!', lexeme: 'troo', slot: command('aorist') }],
+  glosses: rows(
+    [u('Eat!', 0)],
+    [u('(you)', null), u('eat', 0)],
+    [u('Mănâncă!', 0)],
+    [u('(tu)', null), u('mănâncă', 0)],
   ),
   verified: false,
 };
@@ -865,5 +952,10 @@ export const PHRASES: Phrase[] = [
   wouldHaveEaten,
   childIsWashed,
   breadIsBaked,
+  eatIt,
+  washIt,
+  giveItToMe,
+  dontEatIt,
+  eatBare,
   wantNotToGo,
 ];

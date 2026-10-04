@@ -449,4 +449,33 @@ describe('how to read this', () => {
     await user.click(screen.getByRole('button', { name: '← Back to the verb' }));
     expect(screen.getByRole('heading', { level: 2, name: 'τρώω' })).toBeInTheDocument();
   });
+
+  it('Eat it! has two pieces; the pronoun opens its own panel', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat it!');
+    const group = screen.getByRole('group', { name: 'Φάε το!' });
+    expect(within(group).getAllByRole('button')).toHaveLength(2);
+    const form = within(screen.getAllByRole('table')[0]);
+    expect(form.getByRole('cell', { name: 'φάε το' })).toBeInTheDocument();
+    expect(form.getByRole('cell', { name: 'mănâncă-o' })).toBeInTheDocument();
+    await user.click(within(group).getByRole('button', { name: 'το!' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'το / του' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'o' })).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Gender of the noun'), 'm');
+    expect(screen.getByRole('cell', { name: 'τον' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '← Back to the verb' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'τρώω' })).toBeInTheDocument();
+  });
+
+  it('Give it to me! shows the second accent and its explanation', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Give it to me!');
+    const form = within(screen.getAllByRole('table')[0]);
+    expect(form.getByRole('cell', { name: 'δώσε μού το' })).toBeInTheDocument();
+    expect(form.getByRole('cell', { name: 'dă-mi-o' })).toBeInTheDocument();
+    expect(form.getByRole('cell', { name: 'give it to me' })).toBeInTheDocument();
+    expect(screen.getByText(/second accent/, { selector: '.warn' })).toBeInTheDocument();
+  });
 });
