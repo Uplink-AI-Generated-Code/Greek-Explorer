@@ -20,6 +20,7 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekClitic,
   GreekConjunction,
   GreekParticle,
   GreekPreposition,
@@ -31,6 +32,7 @@ import type {
   SlotOf,
   StemPair,
 } from '../types';
+import { greekClitic } from './clitics';
 import { voiceOf } from './offers';
 import { mainFormKind, whoIndex } from './tenses';
 
@@ -153,6 +155,10 @@ export function inflectQuantifier(l: GreekQuantifier, s: SlotOf<'quantifier'>): 
   return how.table === 'polys' ? { ...form, irregular: TWO_STEMS } : form;
 }
 
+export function inflectClitic(_l: GreekClitic, s: SlotOf<'clitic'>): Form {
+  return { stem: greekClitic(s), ending: '' };
+}
+
 export function inflectPreposition(l: GreekPreposition, _s: SlotOf<'preposition'>): Form {
   return { stem: l.lemma, ending: '' };
 }
@@ -178,6 +184,8 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectNumeral(l, s as SlotOf<'numeral'>);
     case 'verb':
       return inflectVerb(l, s as SlotOf<'verb'>);
+    case 'clitic':
+      return inflectClitic(l, s as SlotOf<'clitic'>);
     case 'conjunction':
       return inflectConjunction(l, s as SlotOf<'conjunction'>);
     case 'quantifier':

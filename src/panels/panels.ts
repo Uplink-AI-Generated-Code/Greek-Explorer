@@ -1,6 +1,7 @@
 import { getLexeme, getVerb } from '../data/lexemes';
 import type {
   Case,
+  Gender,
   GreekAdjective,
   GreekConjunction,
   GreekNoun,
@@ -22,6 +23,7 @@ import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
+import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
@@ -61,6 +63,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return prepositionPanel(lexeme as GreekPreposition, state, level);
     case 'particle':
       return particlePanel(lexeme as GreekParticle, level);
+    case 'clitic':
+      return cliticPanel(slot, level);
     case 'conjunction':
       return conjunctionPanel(lexeme as GreekConjunction, level);
     case 'quantifier':
@@ -85,9 +89,16 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'verb') {
         return { ...state, slot: { ...slot, person: Number(value[0]) as Person, number: value.slice(1) as Num } };
       }
+      if (slot.pos === 'clitic') return { ...state, slot: withWho(slot, value) };
+      break;
+    case 'gender':
+      if (slot.pos === 'clitic') return { ...state, slot: { ...slot, gender: value as Gender } };
+      break;
+    case 'role':
+      if (slot.pos === 'clitic') return { ...state, slot: { ...slot, role: value as 'object' | 'indirect' } };
       break;
     case 'case':
-      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle' && slot.pos !== 'conjunction') {
+      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle' && slot.pos !== 'conjunction' && slot.pos !== 'clitic') {
         return { ...state, slot: { ...slot, case: value as Case } };
       }
       break;

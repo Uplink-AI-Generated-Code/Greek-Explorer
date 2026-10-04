@@ -1,6 +1,7 @@
 import { inflect } from '../engine/greek';
 import { quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered } from '../engine/offers';
+import { enClitic, roClitic } from '../engine/clitics';
 import { compose } from '../engine/compose';
 import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
@@ -21,6 +22,19 @@ export interface ValidationInput {
 }
 
 const isEmpty = (s: string | undefined): boolean => !s || s.trim() === '';
+
+/** Every pronoun slot: both roles, both numbers, and the three genders of the third person. */
+function cliticSlots(): SlotOf<'clitic'>[] {
+  return (['object', 'indirect'] as const).flatMap((role) =>
+    NUMS.flatMap((number) =>
+      ([1, 2, 3] as const).flatMap((person): SlotOf<'clitic'>[] =>
+        person === 3
+          ? GENDERS.map((gender): SlotOf<'clitic'> => ({ pos: 'clitic', person, number, gender, role }))
+          : [{ pos: 'clitic', person, number, role }],
+      ),
+    ),
+  );
+}
 
 function slotsFor(l: GreekLexeme): Slot[] {
   switch (l.pos) {
@@ -46,6 +60,8 @@ function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'particle' }];
     case 'conjunction':
       return [{ pos: 'conjunction' }];
+    case 'clitic':
+      return cliticSlots();
     case 'quantifier':
       return quantifierSlots(l);
   }
@@ -138,6 +154,19 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
   }
   if (l.pos === 'conjunction') {
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
+  }
+  if (l.pos === 'clitic') {
+    for (const slot of cliticSlots()) {
+      const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
+      try {
+        if (isEmpty(roClitic(slot).free) || isEmpty(roClitic(slot).enclitic) || isEmpty(roClitic(slot).afterNu)) {
+          errors.push(`${where}: empty Romanian pronoun`);
+        }
+        if (isEmpty(enClitic(slot))) errors.push(`${where}: empty English pronoun`);
+      } catch (e) {
+        errors.push(`${where}: ${(e as Error).message}`);
+      }
+    }
   }
   if (l.pos === 'quantifier') {
     if (l.numbers.length === 0) errors.push(`lexeme ${l.id}: a quantifier must offer at least one number`);

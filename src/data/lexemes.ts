@@ -2,6 +2,7 @@ import type {
   CellOverride,
   GreekAdjective,
   GreekArticle,
+  GreekClitic,
   GreekConjunction,
   GreekLexeme,
   GreekNoun,
@@ -870,6 +871,8 @@ const an: GreekConjunction = {
   example: { el: 'αν είχα ψωμί', ro: 'dacă aș avea pâine', en: 'if I had bread' },
 };
 
+const clitic: GreekClitic = { id: 'clitic', pos: 'clitic', lemma: 'το', verified: { el: false, ro: false, en: false } };
+
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [skylos.id]: skylos,
@@ -909,6 +912,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [den.id]: den,
   [min.id]: min,
   [an.id]: an,
+  [clitic.id]: clitic,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

@@ -22,6 +22,17 @@ export type Voice = 'active' | 'mediopassive';
 
 export type Polarity = 'affirmative' | 'negative';
 
+/** A weak (clitic) pronoun, with a command (spec 4.2). */
+export interface Clitic {
+  person: Person;
+  number: Num;
+  /** The Greek gender of a third-person pronoun (το is neuter). */
+  gender?: Gender;
+  /** The Romanian gender of the noun the pronoun stands for, when it differs from the Greek one (ψωμί n, *pâine* f). */
+  roGender?: Gender;
+  role: 'object' | 'indirect';
+}
+
 export interface IrregularNote {
   rule: string;
   plain: string;
@@ -37,7 +48,19 @@ export interface Form {
 }
 
 export type Slot =
-  | { pos: 'verb'; person: Person; number: Num; mood: Mood; tense: Tense; voice: Voice; polarity?: Polarity }
+  | {
+      pos: 'verb';
+      person: Person;
+      number: Num;
+      mood: Mood;
+      tense: Tense;
+      voice: Voice;
+      polarity?: Polarity;
+      /** Pronouns of a command, the indirect one first (spec 4.2). */
+      clitics?: Clitic[];
+      /** Use the lexical short form (φάτο, δως) when the verb has one. */
+      shortForm?: boolean;
+    }
   | { pos: 'noun'; number: Num; case: Case; count?: Exclude<NumeralValue, 1> }
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
@@ -55,7 +78,8 @@ export type Slot =
     }
   | { pos: 'preposition' }
   | { pos: 'particle' }
-  | { pos: 'conjunction' };
+  | { pos: 'conjunction' }
+  | ({ pos: 'clitic' } & Clitic);
 
 export type Pos = Slot['pos'];
 export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
@@ -269,6 +293,11 @@ export interface GreekConjunction extends LexemeBase {
   example: { el: string; ro: string; en: string };
 }
 
+/** The weak pronoun as a word of its own: the panel a clitic piece of a verb group opens (spec 5.3). */
+export interface GreekClitic extends LexemeBase {
+  pos: 'clitic';
+}
+
 export interface GreekPreposition extends LexemeBase {
   pos: 'preposition';
   ro: string;
@@ -278,7 +307,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekQuantifier;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekQuantifier;
 
 export type TokenIndex = number;
 
