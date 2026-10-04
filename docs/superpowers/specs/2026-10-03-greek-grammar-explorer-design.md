@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 4 and Plan 3 (changes listed in sections 13 to 17)
+Status: revised after review 4, Plan 3 and Plan 5 (changes listed in sections 13 to 18)
 
 ## 1. Purpose
 
@@ -670,6 +670,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - Romanian quantifiers: *câteva* and *câtorva*, *multor*, *vreunui / vreunei*, *niciunui / niciunei*, the choice of *niciun* vs *nicio* in phrase 9, and the missing genitives (*mult, multă, puțin, puțină*), which must be filled in, or removed from the lexeme's `offers`, before release;
 - Romanian: the sentence *Vulpea rapidă și maro sare peste câinele leneș*, the adjective forms (*calzi, rapizi, leneși*, feminine genitive *calde*), the numerals, the reflexive forms, and the perfect and future forms of *a vrea* and *a sări*.
 - the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning.
+- Plan 5 additions: νερό and Romanian *apă* (*apei*, *ape*); the quantifier forms (κάποιον, καμία and κανένα, the πολύς and περισσότερος forms, μερικοί, λίγος and λιγότερος); the Romanian forms *unii / unele*, *câteva*, *vreunul / vreuna*, *niciunul / niciuna* and the comparative *mai* + the word; the six pending Romanian genitives (the singular genitive of *mult* and *multă*, and every genitive of *puțin*, *puțină*, *puțini* and *puține*), which must be filled in, or removed from the lexeme's `offers`, before release; είμαι, *a fi* and the English forms of "be" (am not, aren't, isn't); ψήνω and *a coace*; the participles πλυμένος and ψημένος with *spălat / spălată* and *copt / coaptă*; αν and *dacă*; and phrases 7 to 10, 20, 21, 30, 32 and 33.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -781,3 +782,16 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Source | Change | Where |
 |---|---|---|
 | User's search: the present imperative of τρώω keeps the older -γ- | τρώε / τρώτε replaced by τρώγε / τρώγετε for the imperative (phrases 27 and 38, the tables, the readings and the divergence note); the present subjunctive μην τρως / μην τρώτε is unchanged. The plural is extrapolated and listed for the reviewer | 5.2, 5.5, 6.1, 6.4, 6.5, 9 |
+
+## 18. Changes since Plan 5
+
+| Source | Change | Where |
+|---|---|---|
+| Quantifier `use` | It stays on the slot (a token says which reading the phrase has) but is not a control: the panel always shows "with a noun" and "on its own", as 5.3 says. `sense` is a control | 4.2, 5.3 |
+| Quantifier `offers` | `numbers` on the lexeme; the degrees and senses offered are the ones its data has (`greek.comparative`, `ro.few`) | 4.2 |
+| `pending` | `Stored` (text or `{ pending: true }`) is used on Romanian quantifier cells; `npm run validate` prints them as `Pending (n)`; `--release` fails while any remains; the panel shows "not yet added" | 4.2, 7 |
+| Stand-alone genitive pronouns | Not stored; the "on its own" row is dimmed in the genitive | 6.3 |
+| Mass nouns | `GreekNoun.mass` (ψωμί, νερό); a plural count reading of a mass noun has no English cell ("uncountable") | 5.2, 5.3 |
+| Copula | είμαι is a verb whose six present forms are overrides with the rule `irregular-be`, with one authored reading; it offers only the present indicative | 4.2, 5.5 |
+| Passive participle | A `participle` stem on the verb (πλυ-, ψη-) and `derivedFrom: { verb, stem }` on the adjective; the validator checks that the adjective stem is the participle stem + μέν; the reading line is Greek only | 4.3, 5.5, 6.5 |
+| Related panels | `Panel.related`: a participle opens its verb, κανένας opens the numeral ένας, each with a way back and a label | 5.3 |
