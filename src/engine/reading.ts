@@ -1,10 +1,14 @@
+import { getVerb } from '../data/lexemes';
 import { AUX_GLOSS, EN_FUNCTION, RO_SHAPES, ENDING_GLOSS, KIND_NAME, PARTICLE_GLOSS, READING_TEMPLATES, WHO_GLOSS } from '../data/readings';
-import type { EnVerbForms, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
+import type { EnVerbForms, GreekAdjective, GreekNoun, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
+import { nounPhrase } from './agree';
 import { compose, type Piece } from './compose';
 import { enVerb, enVerbText } from './english';
-import { EN_PRONOUNS, moodLabel, tenseLabel } from './labels';
+import { inflectAdjective } from './greek';
+import { EN_PRONOUNS, GENDER_NAME, caseOptions, moodLabel, tenseLabel } from './labels';
 import { voiceOf } from './offers';
 import { roVerb } from './romanian';
+import { richText } from './segments';
 import { lexicalFormKind, whoIndex } from './tenses';
 
 const capitalise = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
@@ -175,4 +179,33 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
   const ro = romanianLine(verb, slot, composed.text);
   const en = englishLine(verb, slot, composed.text);
   return { el: { parts, beginner, improver }, ...(ro ? { ro } : {}), ...(en ? { en } : {}) };
+}
+
+/**
+ * "How to read this" for a passive participle (spec 5.5): the verb's participle stem plus -μένος, declined like a
+ * stem-stressed adjective. `noun` is the noun the panel is showing it with.
+ */
+export function participleReading(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: GreekNoun): ReadingLine {
+  const from = adj.derivedFrom;
+  if (!from) throw new Error(`${adj.id} is not derived from a verb`);
+  const gloss = voiceOf(getVerb(from.verb), 'active').en.gloss;
+  const ending = `μέν${inflectAdjective(adj, slot).ending}`;
+  const matches = richText(nounPhrase(noun, slot.number, slot.case, { article: 'definite' }).el);
+  const parts: ReadingPart[] = [
+    { text: from.stem, label: `${from.stem}-`, role: 'stem', gloss, piece: null },
+    {
+      text: ending,
+      label: `-${ending}`,
+      role: 'ending',
+      gloss: `a describing word (${adj.en}) that matches ${matches}: ${GENDER_NAME[slot.gender]}, ${slot.number === 'sg' ? 'one' : 'many'}`,
+      piece: null,
+    },
+  ];
+  const listing = parts.map((p) => `${p.label} = ${p.gloss}`).join(', ');
+  const role = caseOptions('improver').find((o) => o.value === slot.case)?.label ?? slot.case;
+  return {
+    parts,
+    beginner: `${from.stem}${ending}: ${listing}.`,
+    improver: `Passive participle: participle stem ${from.stem}- + -μένος declined in the ${GENDER_NAME[slot.gender]} ${role} ${slot.number === 'sg' ? 'singular' : 'plural'}.`,
+  };
 }

@@ -51,7 +51,7 @@ function slotsFor(l: GreekLexeme): Slot[] {
   }
 }
 
-function checkLexeme(l: GreekLexeme): string[] {
+function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {
   const errors: string[] = [];
   for (const slot of slotsFor(l)) {
     try {
@@ -76,6 +76,20 @@ function checkLexeme(l: GreekLexeme): string[] {
       }
     }
     if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
+    if (l.derivedFrom) {
+      const from = l.derivedFrom;
+      const verb = lexemes[from.verb];
+      if (!verb || verb.pos !== 'verb') {
+        errors.push(`lexeme ${l.id}: derived from unknown verb "${from.verb}"`);
+      } else {
+        const stored = verb.voices.active?.stems.participle;
+        if (stored !== from.stem) {
+          errors.push(`lexeme ${l.id}: the participle stem ${from.stem} is not the stem ${stored ?? '(none)'} that ${verb.id} stores`);
+        }
+      }
+      if (l.stem !== `${from.stem}μέν`) errors.push(`lexeme ${l.id}: the stem ${l.stem} is not ${from.stem}μέν`);
+      if (l.class !== 'adj-unstressed') errors.push(`lexeme ${l.id}: a participle in -μένος is stem-stressed`);
+    }
   }
   if (l.pos === 'numeral') {
     for (const v of VALUES) {
@@ -271,7 +285,7 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
 /** Returns a list of problems; an empty list means the data is valid. */
 export function validate(input: ValidationInput): string[] {
   const errors: string[] = [];
-  for (const lexeme of Object.values(input.lexemes)) errors.push(...checkLexeme(lexeme));
+  for (const lexeme of Object.values(input.lexemes)) errors.push(...checkLexeme(lexeme, input.lexemes));
   for (const phrase of input.phrases) errors.push(...checkPhrase(phrase, input.lexemes));
   return errors;
 }

@@ -216,6 +216,44 @@ const kafeAdj: GreekAdjective = {
   en: 'brown',
 };
 
+const plymenos: GreekAdjective = {
+  id: 'plymenos',
+  pos: 'adjective',
+  lemma: 'πλυμένος',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-unstressed',
+  stem: 'πλυμέν',
+  derivedFrom: { verb: 'pleno', stem: 'πλυ' },
+  ro: {
+    lemma: 'spălat',
+    forms: {
+      m: { sg: 'spălat', pl: 'spălați' },
+      f: { sg: 'spălată', pl: 'spălate', genSg: 'spălate' },
+      n: { sg: 'spălat', pl: 'spălate' },
+    },
+  },
+  en: 'washed',
+};
+
+const psimenos: GreekAdjective = {
+  id: 'psimenos',
+  pos: 'adjective',
+  lemma: 'ψημένος',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-unstressed',
+  stem: 'ψημέν',
+  derivedFrom: { verb: 'psino', stem: 'ψη' },
+  ro: {
+    lemma: 'copt',
+    forms: {
+      m: { sg: 'copt', pl: 'copți' },
+      f: { sg: 'coaptă', pl: 'coapte', genSg: 'coapte' },
+      n: { sg: 'copt', pl: 'coapte' },
+    },
+  },
+  en: 'baked',
+};
+
 const same = (nom: string, gen: string = nom) => ({ nom, gen });
 
 const note = (rule: string, plain: string): IrregularNote => ({ rule, plain });
@@ -592,6 +630,32 @@ const eimai: GreekVerb = {
   },
 };
 
+/** ψήνω is here for its participle (ψημένος); it offers only the present indicative. */
+const psino: GreekVerb = {
+  id: 'psino',
+  pos: 'verb',
+  lemma: 'ψήνω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'ψήνω',
+      class: 'omega',
+      stems: { present: 'ψήν', participle: 'ψη' },
+      offers: { indicative: ['present'] },
+      ro: {
+        lemma: 'a coace',
+        infinitive: 'coace',
+        participle: 'copt',
+        present: ['coc', 'coci', 'coace', 'coacem', 'coaceți', 'coc'],
+        subjunctive: NO_CELLS,
+        imperfect: NO_CELLS,
+        pluperfect: NO_CELLS,
+      },
+      en: { gloss: 'bake', base: 'bake', third: 'bakes', past: 'baked', pastParticiple: 'baked', ing: 'baking' },
+    },
+  },
+};
+
 const pleno: GreekVerb = {
   id: 'pleno',
   pos: 'verb',
@@ -606,6 +670,7 @@ const pleno: GreekVerb = {
         imperfect: { strong: { augment: 'έ', stem: 'πλεν' }, weak: { stem: 'πλέν' } },
         aorist: { strong: { augment: 'έ', stem: 'πλυν' }, weak: { stem: 'πλύν' } },
         perfective: 'πλύν',
+        participle: 'πλυ',
       },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
       ro: {
@@ -816,6 +881,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
   [kafeAdj.id]: kafeAdj,
+  [plymenos.id]: plymenos,
+  [psimenos.id]: psimenos,
   [numeral.id]: numeral,
   [def.id]: def,
   [merikoi.id]: merikoi,
@@ -829,6 +896,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [pao.id]: pao,
   [echo.id]: echo,
   [eimai.id]: eimai,
+  [psino.id]: psino,
   [pleno.id]: pleno,
   [koimamai.id]: koimamai,
   [mporei.id]: mporei,

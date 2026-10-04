@@ -111,6 +111,8 @@ export interface GreekAdjective extends LexemeBase {
   stem: string;
   ro: { lemma: string; forms: Record<Gender, RoAdjectiveForms> };
   en: string;
+  /** A passive participle: the verb it comes from and the participle stem it stores (πλυ-). */
+  derivedFrom?: { verb: string; stem: string };
 }
 
 export interface GreekNumeral extends LexemeBase {
@@ -184,6 +186,8 @@ export interface VerbStems {
   aorist?: PastStems;
   /** The stem of the aorist subjunctive, the aorist imperative and the base form of the perfect tenses (φά-, πλύν-). */
   perfective?: string;
+  /** The stem of the passive participle, without -μέν (πλένω: πλυ-, ψήνω: ψη-); the derived adjective joins -μένος to it. */
+  participle?: string;
 }
 
 /** A cell that breaks its class pattern; the whole cell is stored. */

@@ -1,5 +1,7 @@
+import { getVerb } from '../data/lexemes';
 import { nounPhrase } from '../engine/agree';
 import { inflectAdjective } from '../engine/greek';
+import { participleReading } from '../engine/reading';
 import { roAdjective } from '../engine/romanian';
 import { formRich, plain, richText } from '../engine/segments';
 import type { AdjectiveClass, GreekAdjective, GreekNoun, Level, SlotOf } from '../types';
@@ -15,7 +17,7 @@ import {
   npRow,
   numberControl,
 } from './shared';
-import type { Panel, PanelRow, PanelState } from './types';
+import type { Panel, PanelRow, PanelState, ReadingView } from './types';
 
 const CLASS_LABEL: Record<AdjectiveClass, string> = {
   'adj-stressed': 'adjective · 3-ending (stressed)',
@@ -35,6 +37,20 @@ function adjectiveFull(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: Gre
   );
 }
 
+function derivedLabel(adj: GreekAdjective, level: Level): string {
+  if (adj.derivedFrom) {
+    return level === 'beginner'
+      ? `describing word: ${adj.en} (from ${getVerb(adj.derivedFrom.verb).lemma})`
+      : 'passive participle · adjective (stem-stressed)';
+  }
+  return level === 'beginner' ? `adjective: ${adj.en}` : CLASS_LABEL[adj.class];
+}
+
+function participleView(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: GreekNoun, level: Level): ReadingView {
+  const line = participleReading(adj, slot, noun);
+  return { lang: 'el', parts: line.parts, sentence: level === 'beginner' ? line.beginner : line.improver };
+}
+
 export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, state: PanelState, level: Level): Panel {
   const noun = nounOf(state);
   const forms = GENDERS.map((gender) =>
@@ -42,7 +58,7 @@ export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, s
   );
   return {
     lemma: [...new Set(forms)].join(' / '),
-    posLabel: level === 'beginner' ? `adjective: ${adj.en}` : CLASS_LABEL[adj.class],
+    posLabel: derivedLabel(adj, level),
     controls: [nounControl('Noun it describes', state), numberControl(slot.number), caseControl(slot, level)],
     rows: [
       npRow('the', nounPhrase(noun, slot.number, slot.case, { article: 'definite', adjective: adj })),
@@ -55,5 +71,6 @@ export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, s
       'The Greek adjective copies gender, number and role from the noun. Romanian copies gender and number and goes after the noun. English never changes.',
     irregular: inflectAdjective(adj, slot).irregular?.plain ?? '',
     note: noun.note,
+    reading: adj.derivedFrom ? [participleView(adj, slot, noun, level)] : undefined,
   };
 }
