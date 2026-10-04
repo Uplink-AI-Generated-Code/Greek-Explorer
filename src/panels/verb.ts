@@ -1,11 +1,14 @@
+import { nounPhrase } from '../engine/agree';
 import { composedRich, compose } from '../engine/compose';
 import { enVerb } from '../engine/english';
+import { getNoun } from '../data/lexemes';
 import {
   EN_PRONOUNS,
   GREEK_PRONOUNS,
   RO_PRONOUNS,
   moodLabel,
   moodOptions,
+  objectOptions,
   tenseLabel,
   tenseOptions,
   voiceOptions,
@@ -18,15 +21,17 @@ import {
   offeredTenses,
   offeredVoices,
   offeredWho,
+  slotProblem,
   voiceOf,
 } from '../engine/offers';
+import { objectKind, type ObjectKind } from '../engine/objects';
 import { readingFor } from '../engine/reading';
 import { roVerb } from '../engine/romanian';
 import { dim, plain, type Rich, type Segment } from '../engine/segments';
 import { MOODS, TENSES_OF_MOOD, whoIndex } from '../engine/tenses';
-import type { GreekVerb, Level, Mood, Person, Reading, SlotOf, Tense, VerbClass, Voice } from '../types';
-import { ALL } from './shared';
-import type { Control, Panel, PanelRow, ReadingView } from './types';
+import type { GreekNoun, GreekVerb, Level, Mood, Person, Reading, SlotOf, Tense, VerbClass, Voice } from '../types';
+import { ALL, nounControl } from './shared';
+import type { Control, Panel, PanelRow, PanelState, ReadingView } from './types';
 
 const CLASS_LABEL: Record<VerbClass, string> = {
   omega: '-ω class',
@@ -86,11 +91,13 @@ export function verbRow(verb: GreekVerb, slot: SlotOf<'verb'>): PanelRow {
   };
 }
 
-const whoSlot = (slot: SlotOf<'verb'>, who: string): SlotOf<'verb'> => ({
-  ...slot,
-  person: Number(who[0]) as Person,
-  number: who.slice(1) as 'sg' | 'pl',
-});
+/** The bare verb for another person: the tables show forms without pronouns or short forms. */
+const whoSlot = (slot: SlotOf<'verb'>, who: string): SlotOf<'verb'> => {
+  const next: SlotOf<'verb'> = { ...slot, person: Number(who[0]) as Person, number: who.slice(1) as 'sg' | 'pl' };
+  delete next.clitics;
+  delete next.shortForm;
+  return next;
+};
 
 /** Where the negation goes, added to the plain-language line of a negated slot (spec 4.3, 6.4). */
 const NEGATION_PLAIN: Record<Mood, string> = {
@@ -127,10 +134,36 @@ export function changeVerbSlot(
   }
   // A negative command needs the verb to offer the matching subjunctive; if it does not, drop the negation.
   if (next.polarity === 'negative' && !isOffered(verb, next)) delete next.polarity;
+  // Pronouns and short forms are for commands; drop what no longer fits.
+  if (next.mood !== 'imperative') {
+    delete next.clitics;
+    delete next.shortForm;
+  }
+  if (next.polarity === 'negative') delete next.shortForm;
+  if (slotProblem(verb, next)) delete next.shortForm;
+  if (slotProblem(verb, next)) delete next.clitics;
   return next;
 }
 
-function controls(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Control[] {
+/** Where the pronoun goes, added to the plain-language line of a command with pronouns (spec 6.5). */
+const CLITIC_PLAIN = {
+  affirmative: 'The pronoun follows an affirmative command (φάε το).',
+  negative: 'The pronoun goes in front of the verb in a negative command (μην το φας).',
+};
+
+/** The command with its object spelled out: φάε το ψωμί / mănâncă pâinea / eat the bread. */
+function objectRow(verb: GreekVerb, slot: SlotOf<'verb'>, noun: GreekNoun): PanelRow {
+  const base = verbRow(verb, slot);
+  const np = nounPhrase(noun, 'sg', 'acc', { article: 'definite' });
+  return {
+    ...base,
+    el: [...base.el, SPACE, ...np.el],
+    ro: [...base.ro, SPACE, ...plain(np.ro)],
+    en: [...base.en, SPACE, ...plain(np.en)],
+  };
+}
+
+function controls(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelState, kind: ObjectKind, level: Level): Control[] {
   const list: Control[] = [
     {
       key: 'who',
@@ -164,11 +197,18 @@ function controls(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Control[
     ],
     value: slot.polarity ?? 'affirmative',
   });
+  if (slot.mood === 'imperative') {
+    const indirect = voiceOf(verb, slot.voice).indirect === true;
+    list.push({ key: 'object', label: 'Object', options: objectOptions(level, indirect), value: kind });
+    if (kind !== 'none') list.push(nounControl('Object noun', state));
+  }
   return list;
 }
 
 function overviewRow(verb: GreekVerb, slot: SlotOf<'verb'>, mood: Mood, tense: Tense): PanelRow {
   const target: SlotOf<'verb'> = { ...slot, mood, tense };
+  delete target.clitics;
+  delete target.shortForm;
   const label = `${moodLabel('improver', mood)} · ${tenseLabel('improver', mood, tense)}`;
   if (!isOffered(verb, target)) {
     const lemma = voiceOf(verb, slot.voice).lemma;
@@ -199,18 +239,20 @@ function readingViews(reading: Reading, level: Level): ReadingView[] {
   return [view('el', reading.el), ...(reading.ro ? [view('ro', reading.ro)] : []), ...(reading.en ? [view('en', reading.en)] : [])];
 }
 
-export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): Panel {
+export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelState, level: Level): Panel {
   const data = voiceOf(verb, slot.voice);
   const composed = compose(verb, slot);
   const lexical = composed.pieces[composed.pieces.length - 1];
   const formNote = lexical.kind === 'verb' ? lexical.form.irregular?.plain : undefined;
   const who = offeredWho(verb, slot.voice, slot.mood);
+  const kind: ObjectKind = slot.mood === 'imperative' ? objectKind(slot, state.noun) : 'none';
+  const objectNoun = kind === 'noun' && state.noun ? getNoun(state.noun) : null;
   return {
     lemma: data.lemma,
     posLabel:
       level === 'beginner' ? `verb: to ${data.en.gloss}` : `verb · ${CLASS_LABEL[data.class]} · ${slot.voice}`,
-    controls: controls(verb, slot, level),
-    rows: [verbRow(verb, slot)],
+    controls: controls(verb, slot, state, kind, level),
+    rows: [objectNoun ? objectRow(verb, slot, objectNoun) : verbRow(verb, slot)],
     full:
       level === 'improver'
         ? who.map((w) => ({
@@ -225,8 +267,11 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, level: Level): 
     reading: readingViews(readingFor(verb, slot), level),
     plain:
       PLAIN[`${slot.mood}.${slot.tense}`] +
-      (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : ''),
-    irregular: formNote ?? classMessage(data),
+      (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : '') +
+      ((slot.clitics ?? []).length > 0
+        ? ` ${slot.polarity === 'negative' ? CLITIC_PLAIN.negative : CLITIC_PLAIN.affirmative}`
+        : ''),
+    irregular: composed.irregular?.plain ?? formNote ?? classMessage(data),
     note: '',
   };
 }

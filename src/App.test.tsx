@@ -437,7 +437,7 @@ describe('how to read this', () => {
     expect(within(reading).getByText(/the verb "to be" is irregular/)).toBeInTheDocument();
   });
 
-  it.skip('a pronoun part of the reading opens the pronoun panel and comes back', async () => {
+  it('a pronoun part of the reading opens the pronoun panel and comes back', async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat the bread!');

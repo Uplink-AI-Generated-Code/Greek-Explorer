@@ -1,4 +1,6 @@
-import { getLexeme, getVerb } from '../data/lexemes';
+import { getLexeme, getNoun, getVerb } from '../data/lexemes';
+import { DEFAULT_OBJECT, cliticsFor, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
+import { voiceOf } from '../engine/offers';
 import type {
   Case,
   Gender,
@@ -35,9 +37,15 @@ export type { Control, Panel, PanelRow, PanelState, Related } from './types';
 /** The state a word's panel starts in: the token's own slot and the noun it goes with in the phrase. */
 export function initialState(token: Token, phrase: Phrase): PanelState {
   const nounToken = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+  let noun = nounToken ? nounToken.lexeme : null;
+  // A command with a pronoun and no noun token of its own: the noun the pronoun can stand for.
+  if (!noun && token.slot.pos === 'verb') {
+    const direct = (token.slot.clitics ?? []).find((c) => c.role === 'object');
+    if (direct) noun = nounForClitic(direct);
+  }
   return {
     slot: token.slot,
-    noun: nounToken ? nounToken.lexeme : null,
+    noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
   };
 }
@@ -50,7 +58,7 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
   if (lexeme.pos !== slot.pos) throw new Error(`slot ${slot.pos} does not fit lexeme ${lexeme.id}`);
   switch (slot.pos) {
     case 'verb':
-      return verbPanel(lexeme as GreekVerb, slot, level);
+      return verbPanel(lexeme as GreekVerb, slot, state, level);
     case 'noun':
       return nounPanel(lexeme as GreekNoun, slot, level);
     case 'adjective':
@@ -135,10 +143,32 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         return { ...state, slot: next };
       }
       break;
+    case 'object':
+      if (slot.pos === 'verb') {
+        if (!lexemeId) throw new Error('the object control needs the lexeme');
+        const kind = value as ObjectKind;
+        const noun = getNoun(state.noun ?? DEFAULT_OBJECT);
+        const next = { ...slot };
+        delete next.shortForm;
+        const clitics = cliticsFor(kind, noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
+        if (clitics.length > 0) next.clitics = clitics;
+        else delete next.clitics;
+        return { ...state, slot: next, noun: kind === 'none' ? null : noun.id };
+      }
+      break;
     case 'noun': {
       const noun = getLexeme(value);
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
+      // Without the lexeme the verb's indirect object is unknown: the control does not apply.
+      if (slot.pos === 'verb' && lexemeId) {
+        const next = { ...slot };
+        delete next.shortForm;
+        const clitics = cliticsFor(objectKind(slot, state.noun), noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
+        if (clitics.length > 0) next.clitics = clitics;
+        else delete next.clitics;
+        return { ...state, slot: next, noun: value };
+      }
       if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral' || slot.pos === 'quantifier') {
         return { ...state, noun: value, slot: { ...slot, gender: noun.gender } };
       }
