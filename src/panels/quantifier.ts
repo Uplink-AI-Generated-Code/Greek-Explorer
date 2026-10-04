@@ -147,6 +147,9 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
       q.meaning +
       (q.numbers.length > 1
         ? ' The singular is the mass reading (one lump), the plural the count reading (separate things).'
+        : '') +
+      (slot.case === 'gen' && q.ro.genitiveWithArticle?.includes(slot.number)
+        ? ' In Romanian this genitive has the article built in, so it means "of the much / the few", not plain "of much / of few".'
         : ''),
     irregular: inflectQuantifier(q, det).irregular?.plain ?? '',
     note: noun.note,

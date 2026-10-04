@@ -361,6 +361,7 @@ const polys: GreekQuantifier = {
     'πολύς means "much" with a mass noun (πολύ ψωμί) and "many" with a count noun (πολλά ψωμιά). With the degree control it becomes περισσότερος, "more".',
   ro: {
     lemma: 'mult',
+    genitiveWithArticle: ['sg'],
     plain: {
       determiner: {
         m: { sg: ro1('mult', 'multului'), pl: ro1('mulți', 'multor') },
@@ -392,6 +393,7 @@ const ligos: GreekQuantifier = {
     'λίγος means "little" with a mass noun (λίγο νερό) and "few" with a count noun (λίγα ψωμιά). With the degree control it becomes λιγότερος, "less" or "fewer".',
   ro: {
     lemma: 'puțin',
+    genitiveWithArticle: ['sg', 'pl'],
     plain: {
       determiner: {
         m: { sg: ro1('puțin', 'puținului'), pl: ro1('puțini', 'puținilor') },

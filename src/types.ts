@@ -179,6 +179,8 @@ export interface GreekQuantifier extends LexemeBase {
     plain: RoQuantifierCells;
     /** The second sense (câțiva beside niște). The comparative is generated: mai + the plain form. */
     few?: RoQuantifierCells;
+    /** The numbers whose Romanian genitive has the article built in (multului = "of the much"). */
+    genitiveWithArticle?: Num[];
   };
   en: {
     plain: EnQuantifierCells;

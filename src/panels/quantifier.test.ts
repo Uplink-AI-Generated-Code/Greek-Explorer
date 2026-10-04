@@ -44,6 +44,13 @@ describe('quantifier panel: the rows', () => {
     expect(p.rows[1].dimmed).toContain('not covered');
   });
 
+  it('says that the Romanian genitive of πολύς and λίγος has the article built in, except the plural of πολύς', () => {
+    expect(panelFor('polys', slotOf({ case: 'gen' }), 'psomi').plain).toContain('article built in');
+    expect(panelFor('ligos', slotOf({ case: 'gen', number: 'pl' }), 'nero').plain).toContain('article built in');
+    expect(panelFor('polys', slotOf({ case: 'gen', number: 'pl' }), 'psomi').plain).not.toContain('article built in');
+    expect(panelFor('polys', slotOf(), 'psomi').plain).not.toContain('article built in');
+  });
+
   it('the English notices are notice segments, not plain dim', () => {
     const count = panelFor('polys', slotOf({ number: 'pl' }), 'psomi');
     expect(count.rows[0].en.map((s) => s.role)).toEqual(['notice']);
