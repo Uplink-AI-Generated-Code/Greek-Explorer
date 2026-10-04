@@ -37,7 +37,7 @@ describe('the form groups (spec 6.5)', () => {
     const g = group('wash-the-child');
     expect(g.members.map(memberKind)).toEqual(['with-noun', 'with-clitic']);
     expect(text(g.members[0])).toEqual(['πλύνε το παιδί', 'spală copilul', 'wash the child']);
-    expect(text(g.members[1])).toEqual(['πλύνε το', 'spală-l', 'wash it']);
+    expect(text(g.members[1])).toEqual(['πλύνε το', 'spală-l', 'wash him / her / it']);
   });
 
   it('Give me the bread!: two pronouns and the stress rule; the short form needs none', () => {

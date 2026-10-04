@@ -2,7 +2,7 @@ import { inflect } from '../engine/greek';
 import { quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
-import { compose } from '../engine/compose';
+import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
 import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
@@ -69,11 +69,11 @@ export function slotsFor(l: GreekLexeme): Slot[] {
   }
 }
 
-const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
+const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' };
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
 /** The commands with pronouns the panel can build from an offered command: one direct pronoun, and for a verb with an indirect object also "me" and the pair. */
-function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'verb'>[] {
+export function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'verb'>[] {
   if (slot.mood !== 'imperative') return [];
   const indirect = verb.voices[slot.voice]?.indirect === true;
   const sets: Clitic[][] = indirect ? [[IT], [ME], [ME, IT]] : [[IT]];
@@ -154,8 +154,7 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
         for (const part of readingFor(l, slot).el.parts) {
           if (isEmpty(part.gloss)) errors.push(`${where}: reading part "${part.text}" has no gloss`);
         }
-        const lexical = composed.pieces[composed.pieces.length - 1];
-        const rules = [composed.irregular?.rule, lexical.kind === 'verb' ? lexical.form.irregular?.rule : undefined];
+        const rules = [composed.irregular?.rule, lexicalPiece(composed)?.form.irregular?.rule];
         for (const rule of rules) {
           if (rule && !READING_TEMPLATES.some((t) => t.rule === rule)) {
             errors.push(`lexeme ${l.id}: the irregular rule "${rule}" has no authored reading`);
@@ -242,6 +241,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
   const where = `${phraseId} token ${index} (${token.text})`;
   const lexeme = lexemes[token.lexeme];
   if (!lexeme) return [`${where}: unknown lexeme "${token.lexeme}"`];
+  if (token.slot.pos === 'clitic') {
+    return [`${where}: a pronoun is a piece of the verb group, not a token of its own`];
+  }
   if (token.slot.pos !== lexeme.pos) {
     return [`${where}: slot is ${token.slot.pos} but lexeme ${lexeme.id} is ${lexeme.pos}`];
   }
@@ -358,6 +360,10 @@ function checkGroup(group: FormGroup, lexemes: Record<string, GreekLexeme>): str
   if (first && group.members.some((m) => m.verb.lexeme !== first.verb.lexeme || m.verb.slot.mood !== first.verb.slot.mood)) {
     errors.push(`${where}: the members use different verbs or moods`);
   }
+  const same = (s: SlotOf<'verb'>) => JSON.stringify([s.person, s.number, s.tense, s.polarity ?? 'affirmative']);
+  if (first && group.members.some((m) => same(m.verb.slot) !== same(first.verb.slot))) {
+    errors.push(`${where}: the members differ in person, number, tense or polarity`);
+  }
   group.members.forEach((member, i) => {
     const lexeme = lexemes[member.verb.lexeme];
     if (!lexeme || lexeme.pos !== 'verb') {
@@ -383,6 +389,19 @@ function checkGroup(group: FormGroup, lexemes: Record<string, GreekLexeme>): str
   });
   const close = group.closeNotSame;
   if (close) {
+    const closeLexeme = lexemes[close.verb.lexeme];
+    if (!closeLexeme || closeLexeme.pos !== 'verb') {
+      errors.push(`${where}: the close-but-not-the-same verb uses the unknown verb "${close.verb.lexeme}"`);
+    } else {
+      if (first && close.verb.lexeme !== first.verb.lexeme) {
+        errors.push(`${where}: the close-but-not-the-same verb is not the verb of the members`);
+      }
+      try {
+        memberText({ verb: close.verb });
+      } catch (e) {
+        errors.push(`${where}: the close-but-not-the-same verb does not compose: ${(e as Error).message}`);
+      }
+    }
     if ((close.verb.slot.clitics ?? []).length > 0) {
       errors.push(`${where}: the close-but-not-the-same verb must have no pronouns`);
     }

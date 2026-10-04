@@ -39,6 +39,14 @@ describe('a verb token with pronouns', () => {
     ({ pos: 'verb', person: 2, number: 'sg', mood: 'imperative', tense: 'aorist', voice: 'active', ...patch }) as Slot;
   const it_: Record<string, unknown> = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
 
+  it('refuses a token whose slot is the pronoun itself (spec 5.2)', () => {
+    const errors = validate({
+      ...base,
+      phrases: [phraseWith({ text: 'το', lexeme: 'clitic', slot: { pos: 'clitic', role: 'object', person: 3, number: 'sg', gender: 'n' } })],
+    });
+    expect(errors).toContain('test token 0 (το): a pronoun is a piece of the verb group, not a token of its own');
+  });
+
   it('accepts φάε το', () => {
     expect(validate({ ...base, phrases: [phraseWith({ text: 'Φάε το!', lexeme: 'troo', slot: slot({ clitics: [it_] }) })] })).toEqual([]);
   });

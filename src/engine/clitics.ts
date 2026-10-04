@@ -19,7 +19,7 @@ export function greekStrong(c: Clitic): string {
   return c.role === 'indirect' ? `σε ${strong}` : strong;
 }
 
-export const enClitic = (c: Clitic): string => EN_CLITICS[personKey(c)][genderOf(c)];
+export const enClitic = (c: Clitic): string => c.enPronoun ?? EN_CLITICS[personKey(c)][genderOf(c)];
 
 /** Only the third-person accusative has a gender in Romanian; a neuter follows the masculine (sg) or the feminine (pl). */
 function roKey(c: Clitic): string {

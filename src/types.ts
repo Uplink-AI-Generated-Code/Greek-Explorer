@@ -30,6 +30,8 @@ export interface Clitic {
   gender?: Gender;
   /** The Romanian gender of the noun the pronoun stands for, when it differs from the Greek one (ψωμί n, *pâine* f). */
   roGender?: Gender;
+  /** The English word for a third-person pronoun when it is not the table's: "it" for a coffee, "him / her / it" for a child. */
+  enPronoun?: string;
   role: 'object' | 'indirect';
 }
 
@@ -106,6 +108,8 @@ export interface GreekNoun extends LexemeBase {
   class: NounClass;
   /** A mass noun (ψωμί, νερό): in English it has no plural, so "many bread" is not said. */
   mass?: true;
+  /** The English pronoun that stands for the noun (default "it"): "him / her / it" for a child. */
+  enPronoun?: string;
   stems: Record<Num, string>;
   ro: {
     lemma: string;

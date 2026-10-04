@@ -26,6 +26,10 @@ export interface Composed {
   irregular?: IrregularNote;
 }
 
+/** The piece that holds the lexical verb (its Form); a fused short form has none. */
+export const lexicalPiece = (composed: Composed): Extract<Piece, { kind: 'verb' }> | undefined =>
+  composed.pieces.find((p): p is Extract<Piece, { kind: 'verb' }> => p.kind === 'verb');
+
 export const pieceText = (piece: Piece): string => (piece.kind === 'verb' ? formText(piece.form) : piece.text);
 
 const joined = (pieces: Piece[], extra: Pick<Composed, 'extraAccent' | 'irregular'> = {}): Composed => ({

@@ -310,6 +310,18 @@ describe('how to read this', () => {
     expect(within(panel).getByRole('heading', { level: 2 })).toHaveTextContent('τρώω');
   });
 
+  it('the έχω chip stays pressed after the learner changes the auxiliary', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I will have eaten');
+    await user.selectOptions(screen.getByLabelText('Who?'), 'we');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    await user.click(within(reading).getByRole('button', { name: /^έχουμε: / }));
+    const group = screen.getByRole('group', { name: 'Θα έχω φάει' });
+    expect(within(group).getByRole('button', { name: 'έχω' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: 'φάει' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('the reading follows the learner\'s variation, not the phrase', async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -459,13 +471,41 @@ describe('how to read this', () => {
     const form = within(screen.getAllByRole('table')[0]);
     expect(form.getByRole('cell', { name: 'φάε το' })).toBeInTheDocument();
     expect(form.getByRole('cell', { name: 'mănâncă-o' })).toBeInTheDocument();
+    // The verb is the first piece here: it is pressed, the pronoun is not.
+    expect(within(group).getByRole('button', { name: 'Φάε' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: 'το!' })).toHaveAttribute('aria-pressed', 'false');
     await user.click(within(group).getByRole('button', { name: 'το!' }));
+    expect(within(group).getByRole('button', { name: 'το!' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: 'Φάε' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('heading', { level: 2, name: 'το / του' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'o' })).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText('Gender of the noun'), 'm');
     expect(screen.getByRole('cell', { name: 'τον' })).toBeInTheDocument();
+    // A masculine noun's pronoun is îl in Romanian and him in English, not o and it.
+    expect(screen.getByRole('cell', { name: 'îl' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'him' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '← Back to the verb' }));
     expect(screen.getByRole('heading', { level: 2, name: 'τρώω' })).toBeInTheDocument();
+  });
+
+  it('Give it to me!: the verb chip is pressed, the pronoun chips are not', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Give it to me!');
+    const group = screen.getByRole('group', { name: 'Δώσε μού το!' });
+    expect(within(group).getByRole('button', { name: 'Δώσε' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: 'μού' })).toHaveAttribute('aria-pressed', 'false');
+    expect(within(group).getByRole('button', { name: 'το!' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('Eat it! as a short form, then Who = we, does not blank the app', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByLabelText('Improver'));
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat it!');
+    await user.click(within(screen.getByRole('region', { name: 'Same meaning' })).getByRole('button', { name: 'short form' }));
+    await user.selectOptions(screen.getByLabelText('Who?'), '2pl');
+    expect(screen.getAllByRole('cell', { name: 'φάτε το' }).length).toBeGreaterThan(0);
   });
 
   it('Give it to me! shows the second accent and its explanation', async () => {

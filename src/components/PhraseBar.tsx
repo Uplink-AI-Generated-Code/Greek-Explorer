@@ -33,7 +33,8 @@ export function PhraseBar({ tokens, selected, selectedPiece = null, onSelect }: 
             </button>
           );
         }
-        const verbPiece = pieces.length - 1;
+        // The verb is the last piece in a tense, the first in an affirmative command with pronouns.
+        const verbPiece = Math.max(0, pieces.findIndex((p) => p.kind === 'verb' || p.kind === 'fused'));
         return (
           <span
             key={i}

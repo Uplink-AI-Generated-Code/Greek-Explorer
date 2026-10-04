@@ -1,5 +1,5 @@
 import { nounPhrase } from '../engine/agree';
-import { composedRich, compose } from '../engine/compose';
+import { composedRich, compose, lexicalPiece } from '../engine/compose';
 import { enVerb } from '../engine/english';
 import { getNoun } from '../data/lexemes';
 import {
@@ -112,13 +112,17 @@ const NEGATION_PLAIN: Record<Mood, string> = {
 export function changeVerbSlot(
   verb: GreekVerb,
   slot: SlotOf<'verb'>,
-  key: 'mood' | 'tense' | 'voice' | 'polarity',
+  key: 'mood' | 'tense' | 'voice' | 'polarity' | 'who',
   value: string,
 ): SlotOf<'verb'> {
   const next = { ...slot };
   if (key === 'voice') next.voice = value as Voice;
   if (key === 'mood') next.mood = value as Mood;
   if (key === 'tense') next.tense = value as Tense;
+  if (key === 'who') {
+    next.person = Number(value[0]) as Person;
+    next.number = value.slice(1) as 'sg' | 'pl';
+  }
   if (key === 'polarity') {
     if (value === 'negative') next.polarity = 'negative';
     else delete next.polarity;
@@ -243,8 +247,7 @@ function readingViews(reading: Reading, level: Level): ReadingView[] {
 export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelState, level: Level): Panel {
   const data = voiceOf(verb, slot.voice);
   const composed = compose(verb, slot);
-  const lexical = composed.pieces[composed.pieces.length - 1];
-  const formNote = lexical.kind === 'verb' ? lexical.form.irregular?.plain : undefined;
+  const formNote = lexicalPiece(composed)?.form.irregular?.plain;
   const who = offeredWho(verb, slot.voice, slot.mood);
   const kind: ObjectKind = slot.mood === 'imperative' ? objectKind(slot, state.noun) : 'none';
   const objectNoun = kind === 'noun' && state.noun ? getNoun(state.noun) : null;

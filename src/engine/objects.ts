@@ -8,13 +8,14 @@ export const DEFAULT_OBJECT = 'psomi';
 
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
-/** The direct pronoun that stands for a noun: the Greek gender from the Greek noun, the Romanian gender from the Romanian one. */
+/** The direct pronoun that stands for a noun: the Greek gender from the Greek noun, the Romanian gender from the Romanian one, the English word from the noun ("it" unless it says otherwise). */
 export const pronounFor = (noun: GreekNoun): Clitic => ({
   role: 'object',
   person: 3,
   number: 'sg',
   gender: noun.gender,
   roGender: noun.ro.gender,
+  enPronoun: noun.enPronoun ?? 'it',
 });
 
 /** The first noun a third-person singular pronoun can stand for (same Greek and Romanian gender), or null. */

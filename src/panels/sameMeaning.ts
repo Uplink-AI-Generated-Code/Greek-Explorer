@@ -17,7 +17,8 @@ export function sameMeaningFor(
   level: Level,
 ): SameMeaning | undefined {
   const match = groupFor(lexemeId, slot, noun);
-  if (!match) return undefined;
+  // In the group's family but on no member (another noun, other pronouns): the strip would press nothing, so it is hidden.
+  if (!match || match.current === null) return undefined;
   const { group } = match;
   const rows: SameMeaningRow[] = [];
   const notes: string[] = [];

@@ -36,7 +36,7 @@ function pieceKindAt(from: OpenPiece, index: number): string | undefined {
   return compose(getVerb(from.token.lexeme), from.state.slot).pieces[index]?.kind;
 }
 
-/** The piece of the authored token that is the opened piece (same kind, lexeme and slot), or -1 when the phrase has none. */
+/** The piece of the authored token that is the opened piece (same kind and lexeme, and role for a pronoun), or -1 when the phrase has none. */
 function authoredPiece(authored: Token, opened: Token, kind: string | undefined): number {
   if (authored.slot.pos !== 'verb') return -1;
   const pieces = compose(getVerb(authored.lexeme), authored.slot).pieces;
@@ -46,7 +46,8 @@ function authoredPiece(authored: Token, opened: Token, kind: string | undefined)
       p.kind !== 'fused' &&
       p.kind === kind &&
       p.lexeme === opened.lexeme &&
-      JSON.stringify(p.slot) === JSON.stringify(opened.slot),
+      // The learner may have changed the person: match the word, and for a pronoun its role.
+      (p.slot.pos !== 'clitic' || (opened.slot.pos === 'clitic' && p.slot.role === opened.slot.role)),
   );
 }
 

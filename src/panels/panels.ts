@@ -90,19 +90,27 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'tense':
     case 'voice':
     case 'polarity':
-      if (slot.pos === 'verb') {
-        if (!lexemeId) throw new Error(`the ${key} control needs the lexeme`);
-        return { ...state, slot: changeVerbSlot(getVerb(lexemeId), slot, key, value) };
-      }
-      break;
     case 'who':
       if (slot.pos === 'verb') {
-        return { ...state, slot: { ...slot, person: Number(value[0]) as Person, number: value.slice(1) as Num } };
+        // Without the lexeme only the person can change; nothing else can be checked.
+        if (!lexemeId && key === 'who') {
+          return { ...state, slot: { ...slot, person: Number(value[0]) as Person, number: value.slice(1) as Num } };
+        }
+        if (!lexemeId) throw new Error(`the ${key} control needs the lexeme`);
+        const next = changeVerbSlot(getVerb(lexemeId), slot, key, value);
+        // The object noun belongs to the command: leaving the imperative leaves it behind.
+        return { ...state, slot: next, noun: next.mood === 'imperative' ? state.noun : null };
       }
-      if (slot.pos === 'clitic') return { ...state, slot: withWho(slot, value) };
+      if (key === 'who' && slot.pos === 'clitic') return { ...state, slot: withWho(slot, value) };
       break;
     case 'gender':
-      if (slot.pos === 'clitic') return { ...state, slot: { ...slot, gender: value as Gender } };
+      if (slot.pos === 'clitic') {
+        // The Romanian gender and the English word belonged to the noun the pronoun stood for.
+        const next: SlotOf<'clitic'> = { ...slot, gender: value as Gender };
+        delete next.roGender;
+        delete next.enPronoun;
+        return { ...state, slot: next };
+      }
       break;
     case 'role':
       if (slot.pos === 'clitic') return { ...state, slot: { ...slot, role: value as 'object' | 'indirect' } };

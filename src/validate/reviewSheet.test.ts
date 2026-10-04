@@ -43,6 +43,25 @@ describe('the review sheet', () => {
     expect(lines).toHaveLength(unverifiedRecords(sets).length);
   });
 
+  it('shows the pronoun tables a reviewer needs for clitic-table:ro-clitics', () => {
+    expect(sheet).toContain('### το (clitic)');
+    expect(sheet).toContain('- obj.3sg.m: free îl · attached -l · after nu nu-l');
+    expect(sheet).toContain('- ind.1sg+obj.3sg.f: attached -mi-o · after nu nu mi-o');
+    expect(sheet).toContain('- 3sg: him / her / it');
+    expect(sheet).toContain('- 3sg: αυτόν / αυτήν / αυτό');
+    const section = sheet.slice(sheet.indexOf('### το (clitic)')).split('\n### ')[0];
+    expect(section).not.toContain('(stored)');
+  });
+
+  it('shows the commands with pronouns of a verb in the three languages', () => {
+    expect(sheet).toContain('Română: dați-mi-o');
+    expect(sheet).toContain('nu mi-o');
+    expect(sheet).toContain('Ελληνικά: δώσε μού το');
+    expect(sheet).toContain('Ελληνικά: δως μου το');
+    expect(sheet).toContain('English: give it to me');
+    expect(sheet).toContain('Ελληνικά: φάτο');
+  });
+
   it('shows the forms of a verb in the three languages', () => {
     expect(sheet).toContain('### θέλω (thelo)');
     expect(sheet).toContain('Ελληνικά: θέλω · θέλεις · θέλει · θέλουμε · θέλετε · θέλουν');

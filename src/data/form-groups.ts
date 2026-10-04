@@ -1,7 +1,7 @@
 import type { Clitic, FormGroup, SlotOf } from '../types';
 
-const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
-const IT_CHILD: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm' };
+const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' };
+const IT_CHILD: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'him / her / it' };
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
 const command = (extra: Partial<SlotOf<'verb'>> = {}): SlotOf<'verb'> => ({

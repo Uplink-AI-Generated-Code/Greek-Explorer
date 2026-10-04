@@ -3,7 +3,7 @@ import { AUX_GLOSS, EN_FUNCTION, RO_SHAPES, ENDING_GLOSS, KIND_NAME, PARTICLE_GL
 import type { Clitic, EnVerbForms, GreekAdjective, GreekNoun, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
 import { nounPhrase } from './agree';
 import { enClitic } from './clitics';
-import { compose, type Piece } from './compose';
+import { compose, lexicalPiece, type Piece } from './compose';
 import { enVerb, enVerbText } from './english';
 import { inflectAdjective } from './greek';
 import { EN_PRONOUNS, GENDER_NAME, caseOptions, moodLabel, tenseLabel } from './labels';
@@ -158,8 +158,7 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
     parts.push({ text: piece.text, label: piece.text, role: piece.kind, gloss: wordGloss(piece, slot), piece: index });
   });
 
-  const lexical = composed.pieces[composed.pieces.length - 1];
-  const form = lexical.kind === 'verb' ? lexical.form : undefined;
+  const form = lexicalPiece(composed)?.form;
   const negativeCommand = negative && slot.mood === 'imperative';
   // A negative command already has its own extra sentence, so a template would make a third.
   // A rule that shaped the whole group (the second accent, a short form) comes before the verb's own irregularity.

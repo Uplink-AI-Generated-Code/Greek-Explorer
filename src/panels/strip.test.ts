@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { getNoun } from '../data/lexemes';
+import { pronounFor } from '../engine/objects';
 import { richText } from '../engine/segments';
 import type { Clitic, Level, SlotOf } from '../types';
 import { applyControl, buildPanel, type PanelState } from './panels';
@@ -66,8 +68,15 @@ describe('the Same-meaning strip (spec 5.4)', () => {
   it('Wash the child!: the Romanian pronoun is -l', () => {
     const strip = panelOf('pleno', command({ clitics: [IT_CHILD] }), 'paidi').sameMeaning;
     expect(strip?.meaning).toBe('Wash the child!');
-    expect(strip && texts(strip.rows[1])).toEqual(['πλύνε το', 'spală-l', 'wash it']);
+    expect(strip && texts(strip.rows[1])).toEqual(['πλύνε το', 'spală-l', 'wash him / her / it']);
     expect(strip?.rows).toHaveLength(2);
+  });
+
+  it('there is no strip when the panel is in the group\'s family but on none of its members', () => {
+    const coffee = pronounFor(getNoun('kafes'));
+    expect(panelOf('troo', command({ clitics: [coffee] }), 'kafes').sameMeaning).toBeUndefined();
+    expect(panelOf('troo', command(), 'kafes').sameMeaning).toBeUndefined();
+    expect(panelOf('troo', command(), 'psomi').sameMeaning).toBeDefined();
   });
 
   it('there is no strip outside a command, or for a command with no group', () => {

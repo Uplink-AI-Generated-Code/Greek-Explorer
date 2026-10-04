@@ -10,7 +10,10 @@ import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import type { GreekLexeme, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
-import { slotsFor } from './validate';
+import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS } from '../data/clitics';
+import { greekClitic } from '../engine/clitics';
+import { isOffered, slotProblem } from '../engine/offers';
+import { pronounSlots, slotsFor } from './validate';
 
 const LANG_NAME = { el: 'Ελληνικά', ro: 'Română', en: 'English' } as const;
 
@@ -27,6 +30,40 @@ function verbLines(verb: GreekVerb): string[] {
     `  - ${LANG_NAME.ro}: ${slots.map((s) => roVerb(verb, s)).join(' · ')}`,
     `  - ${LANG_NAME.en}: ${slots.map((s) => enVerbText(verb, s, EN_PRONOUNS[whoIndex(s)])).join(' · ')}`,
   ]);
+}
+
+/** A command with pronouns, one line per form, with the pronoun sets the validator builds (affirmative, negative, short form). */
+function commandLines(verb: GreekVerb): string[] {
+  const commands = allVerbSlots(verb).filter((s) => s.mood === 'imperative');
+  const slots = commands.flatMap((s) => pronounSlots(verb, s)).filter((s) => isOffered(verb, s) && slotProblem(verb, s) === null);
+  if (slots.length === 0) return [];
+  return [
+    '- commands with pronouns',
+    ...slots.map((s) => {
+      const label = [s.voice, s.tense, `${s.person}${s.number}`, (s.clitics ?? []).map(greekClitic).join(' + '), s.polarity === 'negative' ? 'negative' : s.shortForm ? 'short form' : 'affirmative'].join(' · ');
+      return `  - ${label} — ${LANG_NAME.el}: ${compose(verb, s).text}; ${LANG_NAME.ro}: ${roVerb(verb, s)}; ${LANG_NAME.en}: ${enVerbText(verb, s, '')}`;
+    }),
+  ];
+}
+
+const unique = (values: string[]): string => [...new Set(values)].join(' / ');
+const byGender = (cells: Record<string, string>): string => unique(['m', 'f', 'n'].map((g) => cells[g]));
+
+/** The weak pronoun: the tables a reviewer checks for clitic-table:ro-clitics, printed as they are stored. */
+function cliticLines(): string[] {
+  return [
+    'Romanian pronouns (free, attached to a command, after nu):',
+    ...Object.entries(RO_CLITICS).map(([key, c]) => `- ${key}: free ${c.free} · attached ${c.enclitic} · after nu ${c.afterNu}`),
+    '',
+    'Romanian clusters (dative + accusative):',
+    ...Object.entries(RO_CLUSTERS).map(([key, c]) => `- ${key}: attached ${c.enclitic} · after nu ${c.afterNu}`),
+    '',
+    'English pronouns:',
+    ...Object.entries(EN_CLITICS).map(([key, cells]) => `- ${key}: ${byGender(cells)}`),
+    '',
+    'Greek strong forms:',
+    ...Object.entries(GREEK_STRONG).map(([key, cells]) => `- ${key}: ${byGender(cells)}`),
+  ];
 }
 
 /** Any other lexeme: its Greek forms slot by slot, then the stored Romanian and English data as it is. */
@@ -46,7 +83,7 @@ function lexemeSection(l: GreekLexeme): string[] {
     `### ${l.pos === 'verb' ? l.lemma : l.lemma} (${l.id})`,
     `Unverified: ${missing.join(', ')}. Part of speech: ${l.pos}.`,
     '',
-    ...(l.pos === 'verb' ? verbLines(l) : otherLines(l)),
+    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines() : otherLines(l)),
     '',
   ];
 }

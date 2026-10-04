@@ -16,6 +16,8 @@ export function withWho(slot: SlotOf<'clitic'>, who: string): SlotOf<'clitic'> {
     delete next.gender;
     delete next.roGender;
   }
+  // The English word was for the old person and number.
+  delete next.enPronoun;
   return next;
 }
 

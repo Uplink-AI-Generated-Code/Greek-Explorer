@@ -87,6 +87,7 @@ const paidi: GreekNoun = {
   verified: { el: false, ro: false, en: false },
   gender: 'n',
   class: 'neut-i',
+  enPronoun: 'him / her / it',
   stems: { sg: 'παιδ', pl: 'παιδ' },
   ro: {
     lemma: 'copil',

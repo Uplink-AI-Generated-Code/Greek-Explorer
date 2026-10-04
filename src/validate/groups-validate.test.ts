@@ -39,6 +39,28 @@ describe('the validator checks form groups (spec 7)', () => {
       'group eat-the-bread: the close-but-not-the-same verb must have no pronouns',
     );
   });
+  it('refuses a close-but-not-the-same verb that does not exist, is another verb, or does not compose', () => {
+    const close = eat.closeNotSame;
+    if (!close) throw new Error('the eat group has a close verb');
+    const errorsFor = (verb: typeof close.verb) =>
+      validate(input([{ ...eat, closeNotSame: { ...close, verb } }])).filter((e) => e.startsWith('group eat-the-bread: the close'));
+    expect(errorsFor({ ...close.verb, lexeme: 'nope' })).toEqual(['group eat-the-bread: the close-but-not-the-same verb uses the unknown verb "nope"']);
+    expect(errorsFor({ ...close.verb, lexeme: 'pleno' })).toEqual([
+      'group eat-the-bread: the close-but-not-the-same verb is not the verb of the members',
+    ]);
+    const broken = errorsFor({ ...close.verb, slot: { ...close.verb.slot, person: 1 } });
+    expect(broken.some((e) => e.includes('does not compose'))).toBe(true);
+  });
+  it('refuses members that differ in person, number, tense or polarity', () => {
+    const change = (patch: Record<string, unknown>) => ({
+      ...eat.members[1],
+      verb: { ...eat.members[1].verb, slot: { ...eat.members[1].verb.slot, ...patch } },
+    });
+    for (const patch of [{ number: 'pl' }, { tense: 'present' }, { polarity: 'negative' }]) {
+      const errors = validate(input([{ ...eat, members: [eat.members[0], change(patch)] }]));
+      expect(errors).toContain('group eat-the-bread: the members differ in person, number, tense or polarity');
+    }
+  });
   it('refuses an object noun that does not exist', () => {
     const ghost = { ...eat.members[0], object: { noun: 'nope', number: 'sg' as const, case: 'acc' as const } };
     const errors = validate(input([{ ...eat, members: [ghost, eat.members[1]] }]));

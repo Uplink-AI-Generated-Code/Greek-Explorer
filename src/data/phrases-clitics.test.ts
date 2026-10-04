@@ -65,7 +65,7 @@ describe('phrases with pronouns (34 to 38)', () => {
       return [richText(r.el), richText(r.ro), richText(r.en)];
     };
     expect(row('eat-it')).toEqual(['φάε το', 'mănâncă-o', 'eat it']);
-    expect(row('wash-it')).toEqual(['πλύνε το', 'spală-l', 'wash it']);
+    expect(row('wash-it')).toEqual(['πλύνε το', 'spală-l', 'wash him / her / it']);
     expect(row('give-it-to-me')).toEqual(['δώσε μού το', 'dă-mi-o', 'give it to me']);
     expect(row('dont-eat-it')).toEqual(['μην το φας', 'nu o mânca', "don't eat it"]);
     expect(row('eat-bare')).toEqual(['φάε', 'mănâncă', 'eat']);

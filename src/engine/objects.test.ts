@@ -10,9 +10,9 @@ const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
 describe('objects of a command', () => {
   it('the pronoun that stands for a noun follows its Greek and its Romanian gender', () => {
-    expect(pronounFor(getNoun('psomi'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' });
-    expect(pronounFor(getNoun('paidi'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm' });
-    expect(pronounFor(getNoun('kafes'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'm', roGender: 'f' });
+    expect(pronounFor(getNoun('psomi'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' });
+    expect(pronounFor(getNoun('paidi'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'him / her / it' });
+    expect(pronounFor(getNoun('kafes'))).toEqual({ role: 'object', person: 3, number: 'sg', gender: 'm', roGender: 'f', enPronoun: 'it' });
   });
 
   it('finds a noun a pronoun can stand for', () => {

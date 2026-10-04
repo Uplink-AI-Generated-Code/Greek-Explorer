@@ -30,9 +30,9 @@ const qslot = (gender: Gender, number: Num, c: Case, patch: Partial<SlotOf<'quan
 });
 
 /** ψωμί: το in Greek, o in Romanian (pâine is feminine). */
-const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
+const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' };
 /** παιδί: το in Greek, -l in Romanian (copil is masculine). */
-const IT_CHILD: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm' };
+const IT_CHILD: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'him / her / it' };
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 /** A command to one person. */
 const command = (tense: Tense, extra: Partial<SlotOf<'verb'>> = {}): Slot => ({
@@ -661,7 +661,7 @@ const keepEatingTheBread: Phrase = {
   theme: 'Eating',
   level: 'beginner',
   tokens: [
-    { text: 'Τρώγε', lexeme: 'troo', slot: vslot('imperative', 'present', 2) },
+    { text: 'Τρώγε', lexeme: 'troo', slot: vslot('imperative', 'present', 2), agreesWith: 2 },
     { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
     { text: 'ψωμί!', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
   ],
