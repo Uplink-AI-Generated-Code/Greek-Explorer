@@ -518,6 +518,42 @@ const troo: GreekVerb = {
   },
 };
 
+const dino: GreekVerb = {
+  id: 'dino',
+  pos: 'verb',
+  lemma: 'δίνω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'δίνω',
+      class: 'omega',
+      stems: {
+        present: 'δίν',
+        imperfect: { strong: { augment: 'έ', stem: 'διν' }, weak: { stem: 'δίν' } },
+        aorist: { strong: { augment: 'έ', stem: 'δωσ' }, weak: { stem: 'δώσ' } },
+        perfective: 'δώσ',
+      },
+      overrides: {
+        // The usual plural of the aorist imperative is δώστε, not δώσετε.
+        'impAorist.2pl': { stem: 'δώσ', ending: 'τε' },
+      },
+      indirect: true,
+      offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
+      ro: {
+        lemma: 'a da',
+        infinitive: 'da',
+        participle: 'dat',
+        present: ['dau', 'dai', 'dă', 'dăm', 'dați', 'dau'],
+        subjunctive: ['dau', 'dai', 'dea', 'dăm', 'dați', 'dea'],
+        imperfect: ['dădeam', 'dădeai', 'dădea', 'dădeam', 'dădeați', 'dădeau'],
+        pluperfect: ['dădusem', 'dăduseși', 'dăduse', 'dăduserăm', 'dăduserăți', 'dăduseră'],
+        imperative: ['dă', 'dați'],
+      },
+      en: { gloss: 'give', base: 'give', third: 'gives', past: 'gave', pastParticiple: 'given', ing: 'giving' },
+    },
+  },
+};
+
 const pao: GreekVerb = {
   id: 'pao',
   pos: 'verb',
@@ -896,6 +932,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [troo.id]: troo,
+  [dino.id]: dino,
   [pao.id]: pao,
   [echo.id]: echo,
   [eimai.id]: eimai,

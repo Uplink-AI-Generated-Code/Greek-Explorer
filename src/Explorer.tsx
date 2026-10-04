@@ -21,7 +21,7 @@ interface OpenPiece {
 function pieceToOpen(lexemeId: string, slot: Slot, index: number): OpenPiece | null {
   if (slot.pos !== 'verb') return null;
   const piece = compose(getVerb(lexemeId), slot).pieces[index];
-  if (!piece || piece.kind === 'verb') return null;
+  if (!piece || piece.kind === 'verb' || piece.kind === 'fused') return null;
   const state: PanelState = { slot: piece.slot, noun: null, nounNumber: 'sg' };
   return {
     token: { text: pieceText(piece), lexeme: piece.lexeme, slot: piece.slot },
@@ -40,7 +40,7 @@ function pieceKindAt(from: OpenPiece, index: number): string | undefined {
 function authoredPiece(authored: Token, lexemeId: string, kind: string | undefined): number {
   if (authored.slot.pos !== 'verb') return -1;
   const pieces = compose(getVerb(authored.lexeme), authored.slot).pieces;
-  return pieces.findIndex((p) => p.kind !== 'verb' && p.kind === kind && p.lexeme === lexemeId);
+  return pieces.findIndex((p) => p.kind !== 'verb' && p.kind !== 'fused' && p.kind === kind && p.lexeme === lexemeId);
 }
 
 /** One phrase: the phrase bar, the gloss rows, the word panel and the comparison. */

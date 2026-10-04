@@ -1,37 +1,94 @@
 import { getLexeme, getVerb } from '../data/lexemes';
-import type { Form, GreekVerb, Slot, SlotOf } from '../types';
+import type { Clitic, Form, GreekVerb, IrregularNote, Slot, SlotOf } from '../types';
+import { cliticSlot, greekClitic } from './clitics';
 import { inflectVerb } from './greek';
+import { slotProblem } from './offers';
 import { formRich, formText, type Rich } from './segments';
+import { accentAt, secondAccent } from './stress';
 import { structureOf } from './tenses';
 
 /**
- * One word of a written verb group. A particle, negation or auxiliary piece carries the lexeme and slot a
- * panel would open for it (spec 4.2); the lexical verb carries its Form.
+ * One word of a written verb group. A particle, negation, auxiliary or pronoun piece carries the lexeme and slot a
+ * panel would open for it (spec 4.2); the lexical verb carries its Form; a fused short form (φάτο) opens the verb.
  */
 export type Piece =
-  | { kind: 'particle' | 'negation' | 'auxiliary'; text: string; lexeme: string; slot: Slot }
-  | { kind: 'verb'; form: Form };
+  | { kind: 'particle' | 'negation' | 'auxiliary' | 'clitic'; text: string; lexeme: string; slot: Slot }
+  | { kind: 'verb'; form: Form }
+  | { kind: 'fused'; text: string; of: string[] };
 
 export interface Composed {
   pieces: Piece[];
   /** The written form, pieces joined by spaces: "θα έχω φάει". */
   text: string;
+  /** The piece that carries the second accent the stress rule adds (spec 4.3). */
+  extraAccent?: { pieceIndex: number };
+  /** A rule that shaped the whole group: the second accent. */
+  irregular?: IrregularNote;
 }
 
 export const pieceText = (piece: Piece): string => (piece.kind === 'verb' ? formText(piece.form) : piece.text);
 
-const joined = (pieces: Piece[]): Composed => ({ pieces, text: pieces.map(pieceText).join(' ') });
+const joined = (pieces: Piece[], extra: Pick<Composed, 'extraAccent' | 'irregular'> = {}): Composed => ({
+  pieces,
+  text: pieces.map(pieceText).join(' '),
+  ...extra,
+});
 
 function wordPiece(kind: 'particle' | 'negation', id: string): Piece {
   const lexeme = getLexeme(id);
   return { kind, text: lexeme.lemma, lexeme: lexeme.id, slot: { pos: 'particle' } };
 }
 
+const cliticPiece = (c: Clitic, text: string = greekClitic(c)): Piece => ({
+  kind: 'clitic',
+  text,
+  lexeme: 'clitic',
+  slot: cliticSlot(c),
+});
+
+const CLITIC_STRESS: IrregularNote = {
+  rule: 'clitic-stress',
+  plain:
+    'The pronouns push the stress to the fourth-last syllable or further back, which Greek does not allow, so a second accent is written two syllables after the original stress.',
+};
+
+/** The form with an acute accent on the letter at `at` of its written text. */
+function accentForm(form: Form, at: number): Form {
+  const parts = [form.augment ?? '', form.stem, form.ending];
+  let offset = 0;
+  const next = parts.map((part) => {
+    const local = at - offset;
+    offset += part.length;
+    return local >= 0 && local < part.length ? accentAt(part, local) : part;
+  });
+  return { ...form, ...(form.augment ? { augment: next[0] } : {}), stem: next[1], ending: next[2] };
+}
+
+/** An affirmative command with pronouns: the verb, then the pronouns, with the second accent where the rule asks. */
+function commandWithClitics(verb: GreekVerb, slot: SlotOf<'verb'>, clitics: readonly Clitic[]): Composed {
+  const form = inflectVerb(verb, slot);
+  const texts = clitics.map((c) => greekClitic(c));
+  const pieces: Piece[] = [{ kind: 'verb', form }, ...clitics.map((c, i) => cliticPiece(c, texts[i]))];
+  const accent = secondAccent([formText(form), ...texts]);
+  if (!accent) return joined(pieces);
+  if (accent.word === 0) {
+    pieces[0] = { kind: 'verb', form: accentForm(form, accent.at) };
+  } else {
+    const target = pieces[accent.word];
+    if (target.kind === 'clitic') pieces[accent.word] = { ...target, text: accentAt(target.text, accent.at) };
+  }
+  return joined(pieces, { extraAccent: { pieceIndex: accent.word }, irregular: CLITIC_STRESS });
+}
+
 /**
  * Builds a verb group in written order: the negation (δεν before θα; μην after να), the particle (θα, να),
- * the auxiliary (έχω) and the lexical verb. A negative command is μην + the subjunctive form (spec 4.3).
+ * the auxiliary (έχω) and the lexical verb. A negative command is μην + the pronouns + the subjunctive form
+ * (μην το φας); an affirmative command puts its pronouns after the verb (φάε το). See spec 4.3.
  */
 export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
+  const problem = slotProblem(verb, slot);
+  if (problem) throw new Error(problem);
+  const clitics = slot.clitics ?? [];
   const negative = slot.polarity === 'negative';
   if (negative && slot.mood === 'imperative') {
     if (slot.person !== 2) throw new Error('commands are for "you" only');
@@ -43,8 +100,13 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
       tense: slot.tense,
       voice: slot.voice,
     };
-    return joined([wordPiece('negation', 'min'), { kind: 'verb', form: inflectVerb(verb, subjunctive) }]);
+    return joined([
+      wordPiece('negation', 'min'),
+      ...clitics.map((c) => cliticPiece(c)),
+      { kind: 'verb', form: inflectVerb(verb, subjunctive) },
+    ]);
   }
+  if (clitics.length > 0) return commandWithClitics(verb, slot, clitics);
 
   const structure = structureOf(slot.mood, slot.tense);
   const negation = negative ? wordPiece('negation', slot.mood === 'subjunctive' ? 'min' : 'den') : null;
@@ -72,13 +134,13 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
   return joined(pieces);
 }
 
-/** The group as coloured segments: negation in `neg`, particle and auxiliary in `aux`, the verb as augment, stem and ending. */
+/** The group as coloured segments: negation in `neg`, particle and auxiliary in `aux`, pronouns in `clitic`, the verb as augment, stem and ending. */
 export function composedRich(composed: Composed): Rich {
   return composed.pieces.flatMap((piece, i): Rich => {
     const body: Rich =
       piece.kind === 'verb'
         ? formRich(piece.form)
-        : [{ text: piece.text, role: piece.kind === 'negation' ? 'neg' : 'aux' }];
+        : [{ text: piece.text, role: piece.kind === 'negation' ? 'neg' : piece.kind === 'clitic' || piece.kind === 'fused' ? 'clitic' : 'aux' }];
     return i === 0 ? body : [{ text: ' ', role: 'plain' }, ...body];
   });
 }

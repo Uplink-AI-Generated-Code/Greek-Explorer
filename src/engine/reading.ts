@@ -17,6 +17,8 @@ const fill = (template: string, vars: Record<string, string>): string =>
   template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? `{${key}}`);
 
 function wordGloss(piece: Exclude<Piece, { kind: 'verb' }>, slot: SlotOf<'verb'>): string {
+  // Task 5 gives pronouns and joined short forms their own glosses.
+  if (piece.kind === 'fused' || piece.kind === 'clitic') return piece.text;
   if (piece.kind === 'auxiliary') {
     const aux = piece.slot;
     return aux.pos === 'verb' ? AUX_GLOSS[aux.tense === 'imperfect' ? 'imperfect' : 'present'][whoIndex(aux)] : piece.text;

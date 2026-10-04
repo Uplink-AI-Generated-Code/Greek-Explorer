@@ -266,6 +266,8 @@ export interface VerbVoice {
   offers: Partial<Record<Mood, Tense[]>>;
   /** Impersonal verbs (μπορεί) have one slot: the third person singular. */
   thirdSingularOnly?: boolean;
+  /** The verb takes an indirect object (δίνω: δώσε μου). */
+  indirect?: true;
   ro: RoVerbForms;
   en: EnVerbForms;
 }
@@ -385,7 +387,7 @@ export interface ReadingPart {
   text: string;
   /** The part as shown: φά-, -ει, θα. */
   label: string;
-  role: 'particle' | 'negation' | 'auxiliary' | 'augment' | 'stem' | 'ending' | 'word';
+  role: 'particle' | 'negation' | 'auxiliary' | 'clitic' | 'fused' | 'augment' | 'stem' | 'ending' | 'word';
   gloss: string;
   /** The index of the piece in compose(...).pieces, or null for a Romanian or English word. */
   piece: number | null;

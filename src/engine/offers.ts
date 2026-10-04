@@ -59,3 +59,19 @@ export function allVerbSlots(verb: GreekVerb): SlotOf<'verb'>[] {
     ),
   );
 }
+
+/** What is wrong with the pronouns of a slot, or null (spec 2, 4.2, 7). */
+export function slotProblem(verb: GreekVerb, s: SlotOf<'verb'>): string | null {
+  const clitics = s.clitics ?? [];
+  if (clitics.length === 0) return null;
+  if (s.mood !== 'imperative') return 'pronouns go only with a command';
+  const data = verb.voices[s.voice];
+  if (!data) return `${verb.id} has no ${s.voice} voice`;
+  if (clitics.length > 2) return 'a command takes at most two pronouns';
+  if (clitics.some((c) => c.person === 3 && !c.gender)) return 'a third-person pronoun needs a gender';
+  if (clitics.length === 2 && !(clitics[0].role === 'indirect' && clitics[1].role === 'object')) {
+    return 'two pronouns are an indirect object and then a direct object';
+  }
+  if (clitics.some((c) => c.role === 'indirect') && !data.indirect) return `${data.lemma} takes no indirect object`;
+  return null;
+}
