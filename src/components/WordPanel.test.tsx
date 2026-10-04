@@ -69,4 +69,29 @@ describe('WordPanel', () => {
     render(<WordPanel panel={panel} onChange={() => {}} />);
     expect(screen.getByText('mass reading')).toBeInTheDocument();
   });
+
+  it('offers a related panel and names the way back', async () => {
+    const user = userEvent.setup();
+    const onRelated = vi.fn();
+    const related = {
+      text: 'Derived from πλένω.',
+      button: 'Open πλένω',
+      backLabel: 'Back to the participle',
+      lexeme: 'pleno',
+      slot: { pos: 'particle' as const },
+      noun: null,
+    };
+    render(<WordPanel panel={{ ...panelFor(3), related }} onChange={() => {}} onRelated={onRelated} onBack={() => {}} backLabel="Back to the participle" />);
+    expect(screen.getByText(/Derived from πλένω/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open πλένω' }));
+    expect(onRelated).toHaveBeenCalledWith(related);
+    expect(screen.getByRole('button', { name: '← Back to the participle' })).toBeInTheDocument();
+  });
+
+  it('shows no related line without a handler, and the default back label is "Back to the verb"', () => {
+    const related = { text: 'Derived from πλένω.', button: 'Open πλένω', backLabel: 'x', lexeme: 'pleno', slot: { pos: 'particle' as const }, noun: null };
+    render(<WordPanel panel={{ ...panelFor(3), related }} onChange={() => {}} onBack={() => {}} />);
+    expect(screen.queryByText(/Derived from/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '← Back to the verb' })).toBeInTheDocument();
+  });
 });

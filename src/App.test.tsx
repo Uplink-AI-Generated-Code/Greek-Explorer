@@ -393,4 +393,18 @@ describe('how to read this', () => {
     expect(screen.getByRole('cell', { name: 'nu vreau nicio cafea' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: "I don't want any coffee" })).toBeInTheDocument();
   });
+
+  it('κανένας links to the numeral ένας and comes back', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), "I don't want any coffee");
+    await user.click(screen.getByRole('button', { name: 'κανέναν' }));
+    expect(screen.getByText('κανένας follows the numeral ένας.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open the numeral ένας' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'ένας / μία / ένα' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'έναν' })).toBeInTheDocument();
+    expect(screen.queryByText('Differs from the phrase.')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '← Back to κανένας' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'κανένας / καμία / κανένα' })).toBeInTheDocument();
+  });
 });

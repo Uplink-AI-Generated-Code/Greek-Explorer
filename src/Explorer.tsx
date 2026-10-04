@@ -4,9 +4,9 @@ import { GlossGrid } from './components/GlossGrid';
 import { PhraseBar } from './components/PhraseBar';
 import { WordPanel } from './components/WordPanel';
 import { DIVERGENCES } from './data/divergences';
-import { getVerb } from './data/lexemes';
+import { getLexeme, getVerb } from './data/lexemes';
 import { compose, pieceText } from './engine/compose';
-import { applyControl, buildPanel, initialState, sameState, type PanelState } from './panels/panels';
+import { applyControl, buildPanel, initialState, sameState, type PanelState, type Related } from './panels/panels';
 import type { Level, Phrase, Slot, Token } from './types';
 
 /** A panel for one piece of a verb group (a particle, a negation or the auxiliary), working on its own copy. */
@@ -14,6 +14,7 @@ interface OpenPiece {
   token: Token;
   state: PanelState;
   initial: PanelState;
+  backLabel: string;
 }
 
 /** The panel to open for piece `index` of the group that `slot` of verb `lexemeId` composes; null for the verb itself. */
@@ -22,7 +23,12 @@ function pieceToOpen(lexemeId: string, slot: Slot, index: number): OpenPiece | n
   const piece = compose(getVerb(lexemeId), slot).pieces[index];
   if (!piece || piece.kind === 'verb') return null;
   const state: PanelState = { slot: piece.slot, noun: null, nounNumber: 'sg' };
-  return { token: { text: pieceText(piece), lexeme: piece.lexeme, slot: piece.slot }, state, initial: state };
+  return {
+    token: { text: pieceText(piece), lexeme: piece.lexeme, slot: piece.slot },
+    state,
+    initial: state,
+    backLabel: 'Back to the verb',
+  };
 }
 
 function pieceKindAt(from: OpenPiece, index: number): string | undefined {
@@ -46,7 +52,12 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
   const [open, setOpen] = useState<OpenPiece | null>(null);
 
   const token = phrase.tokens[selected];
-  const current: OpenPiece = open ?? { token, state: states[selected], initial: initial[selected] };
+  const current: OpenPiece = open ?? {
+    token,
+    state: states[selected],
+    initial: initial[selected],
+    backLabel: 'Back to the verb',
+  };
   const panel = buildPanel(current.state, current.token, level);
   const divergences = selectDivergences(
     DIVERGENCES,
@@ -70,6 +81,18 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
     const opened = pieceToOpen(current.token.lexeme, current.state.slot, pieceIndex);
     setOpen(opened);
     setPiece(opened ? authoredPiece(token, opened.token.lexeme, pieceKindAt(current, pieceIndex)) : null);
+  }
+
+  /** A related panel was asked for: open it in place of this one, on its own copy, with a way back. */
+  function openRelated(related: Related) {
+    const state: PanelState = { slot: related.slot, noun: related.noun, nounNumber: 'sg' };
+    setOpen({
+      token: { text: getLexeme(related.lexeme).lemma, lexeme: related.lexeme, slot: related.slot },
+      state,
+      initial: state,
+      backLabel: related.backLabel,
+    });
+    setPiece(null);
   }
 
   function back() {
@@ -111,7 +134,9 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
         panel={panel}
         onChange={changeControl}
         onBack={open ? back : undefined}
+        backLabel={open?.backLabel}
         onPiece={open ? undefined : openFromReading}
+        onRelated={open ? undefined : openRelated}
       />
       {divergences.length > 0 && <ComparisonTable rows={divergences} word={current.token.text} />}
     </>

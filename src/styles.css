@@ -121,3 +121,5 @@ button.reading-part:focus-visible { outline: 2px solid var(--accent-border); out
 .reading-text { margin: 0; font-size: 14px; color: var(--muted); }
 
 .badge { font-size: 11px; padding: 0 8px; margin-left: 8px; border-radius: 99px; background: var(--accent-bg); color: var(--accent-text); }
+.related { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+.related .back-link { padding: 0; }

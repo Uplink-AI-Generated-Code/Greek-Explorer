@@ -27,6 +27,20 @@ export interface ReadingView {
   sentence: string;
 }
 
+/** A link from a panel to another panel: the verb a participle comes from, the numeral behind κανένας (spec 5.3). */
+export interface Related {
+  /** The line that introduces it. */
+  text: string;
+  /** The button label. */
+  button: string;
+  /** The label of the way back: "Back to the participle". */
+  backLabel: string;
+  lexeme: string;
+  slot: Slot;
+  /** The noun the opened panel goes with, when it needs one (the numeral does). */
+  noun: string | null;
+}
+
 export interface Panel {
   lemma: string;
   posLabel: string;
@@ -44,6 +58,8 @@ export interface Panel {
   note: string;
   /** A short label shown beside the part of speech: "mass reading", "count reading". */
   badge?: string;
+  /** A link to another panel (spec 5.3). */
+  related?: Related;
 }
 
 /** What the word panel works on: a copy of the token's slot plus the noun the word goes with. */

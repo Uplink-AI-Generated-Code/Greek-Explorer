@@ -17,7 +17,7 @@ import {
   npRow,
   numberControl,
 } from './shared';
-import type { Panel, PanelRow, PanelState, ReadingView } from './types';
+import type { Panel, PanelRow, PanelState, ReadingView, Related } from './types';
 
 const CLASS_LABEL: Record<AdjectiveClass, string> = {
   'adj-stressed': 'adjective · 3-ending (stressed)',
@@ -51,6 +51,19 @@ function participleView(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: Gr
   return { lang: 'el', parts: line.parts, sentence: level === 'beginner' ? line.beginner : line.improver };
 }
 
+function participleRelated(adj: GreekAdjective): Related | undefined {
+  if (!adj.derivedFrom) return undefined;
+  const verb = getVerb(adj.derivedFrom.verb);
+  return {
+    text: `Derived from ${verb.lemma} (${adj.derivedFrom.stem}- + -μένος).`,
+    button: `Open ${verb.lemma}`,
+    backLabel: 'Back to the participle',
+    lexeme: verb.id,
+    slot: { pos: 'verb', person: 1, number: 'sg', mood: 'indicative', tense: 'present', voice: 'active' },
+    noun: null,
+  };
+}
+
 export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, state: PanelState, level: Level): Panel {
   const noun = nounOf(state);
   const forms = GENDERS.map((gender) =>
@@ -71,6 +84,7 @@ export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, s
       'The Greek adjective copies gender, number and role from the noun. Romanian copies gender and number and goes after the noun. English never changes.',
     irregular: inflectAdjective(adj, slot).irregular?.plain ?? '',
     note: noun.note,
+    related: participleRelated(adj),
     reading: adj.derivedFrom ? [participleView(adj, slot, noun, level)] : undefined,
   };
 }

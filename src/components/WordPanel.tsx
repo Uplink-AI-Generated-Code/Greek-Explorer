@@ -1,4 +1,4 @@
-import type { Panel } from '../panels/panels';
+import type { Panel, Related } from '../panels/panels';
 import { FormTable } from './FormTable';
 
 interface Props {
@@ -8,14 +8,19 @@ interface Props {
   onBack?: () => void;
   /** Given while the verb's own panel is showing: opens the particle, negation or auxiliary named by a reading part. */
   onPiece?: (piece: number) => void;
+  /** The label of the way back; defaults to "Back to the verb". */
+  backLabel?: string;
+  /** Opens the panel's related panel (a participle's verb, ένας for κανένας). */
+  onRelated?: (related: Related) => void;
 }
 
-export function WordPanel({ panel, onChange, onBack, onPiece }: Props) {
+export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back to the verb', onRelated }: Props) {
+  const { related } = panel;
   return (
     <section className="card word-panel" aria-label="Word panel">
       {onBack && (
         <button type="button" className="back-link" onClick={onBack}>
-          ← Back to the verb
+          ← {backLabel}
         </button>
       )}
       <h2 lang="el">{panel.lemma}</h2>
@@ -46,6 +51,14 @@ export function WordPanel({ panel, onChange, onBack, onPiece }: Props) {
         <span className="role-ending">amber</span> ending · <span className="role-dim">dashed</span> optional or dropped
       </p>
       <p className="plain">{panel.plain}</p>
+      {related && onRelated && (
+        <p className="related">
+          {related.text}{' '}
+          <button type="button" className="back-link" onClick={() => onRelated(related)}>
+            {related.button}
+          </button>
+        </p>
+      )}
       {panel.reading && panel.reading.length > 0 && (
         <section className="reading" aria-label="How to read this">
           <p className="full-title">How to read this</p>

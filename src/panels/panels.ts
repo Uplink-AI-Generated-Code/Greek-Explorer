@@ -28,7 +28,7 @@ import type { Panel, PanelState } from './types';
 import { particlePanel } from './particle';
 import { changeVerbSlot, verbPanel } from './verb';
 
-export type { Control, Panel, PanelRow, PanelState } from './types';
+export type { Control, Panel, PanelRow, PanelState, Related } from './types';
 
 /** The state a word's panel starts in: the token's own slot and the noun it goes with in the phrase. */
 export function initialState(token: Token, phrase: Phrase): PanelState {

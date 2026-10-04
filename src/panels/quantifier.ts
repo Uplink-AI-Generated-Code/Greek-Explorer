@@ -7,7 +7,7 @@ import { dim, formRich, joinRich, numeralRich, plain, richText, type Rich } from
 import { NOT_YET_ADDED, storedText } from '../engine/stored';
 import type { Gender, GreekNoun, GreekQuantifier, Level, SlotOf } from '../types';
 import { CASES, GENDERS, GENDER_ROW, caseControl, caseName, nounControl, nounOf } from './shared';
-import type { Control, Panel, PanelRow, PanelState } from './types';
+import type { Control, Panel, PanelRow, PanelState, Related } from './types';
 
 /** A Romanian quantifier, with the noun that follows it; a pending cell reads "not yet added". */
 function roRich(q: GreekQuantifier, slot: SlotOf<'quantifier'>, roGender: Gender, noun?: string): Rich {
@@ -79,6 +79,20 @@ function improverLabel(q: GreekQuantifier): string {
   return 'quantifier · singular only';
 }
 
+/** κανένας shares its pattern with the numeral ένας (spec 5.3). */
+function numeralRelated(q: GreekQuantifier, here: SlotOf<'quantifier'>, state: PanelState): Related | undefined {
+  const how = q.greek.plain;
+  if ('stem' in how || how.table !== 'kanenas') return undefined;
+  return {
+    text: `${q.lemma} follows the numeral ένας.`,
+    button: 'Open the numeral ένας',
+    backLabel: `Back to ${q.lemma}`,
+    lexeme: 'numeral',
+    slot: { pos: 'numeral', value: 1, gender: here.gender, case: here.case },
+    noun: state.noun,
+  };
+}
+
 export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, state: PanelState, level: Level): Panel {
   const noun = nounOf(state);
   const here: SlotOf<'quantifier'> = { ...slot, gender: noun.gender };
@@ -136,5 +150,6 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
         : ''),
     irregular: inflectQuantifier(q, det).irregular?.plain ?? '',
     note: noun.note,
+    related: numeralRelated(q, here, state),
   };
 }
