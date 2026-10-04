@@ -1,4 +1,4 @@
-import type { GreekNoun, GreekNumeral, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
+import type { GreekNoun, GreekNumeral, GreekQuantifier, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
 import { voiceOf } from './offers';
 import { whoIndex } from './tenses';
 
@@ -71,4 +71,13 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
 export function enVerbText(v: GreekVerb, s: SlotOf<'verb'>, pronoun: string): string {
   const p = enVerb(v, s);
   return [p.lead, p.subject ? pronoun : '', p.verb].filter((part) => part !== '').join(' ');
+}
+
+/** The English word for a quantifier slot ("some / any", "much / a lot of", "fewer"). */
+export function enQuantifier(q: GreekQuantifier, s: SlotOf<'quantifier'>): string {
+  const set = s.degree === 'comparative' ? q.en.comparative : s.sense === 'few' && q.en.few ? q.en.few : q.en.plain;
+  if (!set) throw new Error(`${q.id} has no English ${s.degree} form`);
+  const word = set[s.use][s.number];
+  if (word === undefined) throw new Error(`${q.id} has no English ${s.use} form for the ${s.number}`);
+  return word;
 }

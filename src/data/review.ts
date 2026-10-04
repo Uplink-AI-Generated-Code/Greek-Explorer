@@ -8,6 +8,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:fem-ou', kind: 'ending-table', verified: false },
   { id: 'ending-table:neut-i', kind: 'ending-table', verified: false },
   { id: 'ending-table:neut-o', kind: 'ending-table', verified: false },
+  { id: 'ending-table:quantifier-forms', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-stressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-unstressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:article-def', kind: 'ending-table', verified: false },
@@ -24,5 +25,6 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'auxiliary-table:ro-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:en-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:negation', kind: 'auxiliary-table', verified: false },
+  { id: 'auxiliary-table:ro-comparative', kind: 'auxiliary-table', verified: false },
   { id: 'glossary:ro-en-reading-glosses', kind: 'glossary', verified: false },
 ];

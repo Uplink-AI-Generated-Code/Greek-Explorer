@@ -1,6 +1,8 @@
 import { voiceOf } from './offers';
 import { whoIndex } from './tenses';
-import type { Case, Gender, GreekAdjective, GreekNoun, GreekNumeral, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
+import type {
+  Case, Gender, GreekAdjective, GreekNoun, GreekNumeral, GreekQuantifier, GreekVerb, Num, NumeralValue, SlotOf, Stored,
+} from '../types';
 
 export function roNoun(n: GreekNoun, number: Num, c: Case, kind: 'definite' | 'indefinite'): string {
   const f = n.ro.forms[number];
@@ -72,4 +74,30 @@ export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
     default:
       throw new Error(`${s.mood} ${s.tense} is not a Greek tense`);
   }
+}
+
+/** The Romanian noun without an article or numeral, as it follows a quantifier: pâine, cafele, vreunei cafele → cafele. */
+export function roBareNoun(n: GreekNoun, number: Num, c: Case): string {
+  const f = n.ro.forms[number];
+  const form = c === 'gen' ? f.genIndefinite : f.indefinite;
+  // The singular and the genitive start with an article word (o, un, unei, unor); the plural nominative does not.
+  return number === 'sg' || c === 'gen' ? form.split(' ').slice(1).join(' ') : form;
+}
+
+/** Neuter nouns follow the masculine in the singular and the feminine in the plural (spec 10). */
+const quantifierGender = (g: Gender, number: Num): 'm' | 'f' => (g === 'n' ? (number === 'sg' ? 'm' : 'f') : g);
+
+/**
+ * The Romanian cell of a quantifier slot, for a noun of Romanian gender `roGender`. The comparative is `mai` + the
+ * plain form (a pending cell stays pending). Returns null where the form is not covered: the stand-alone genitive
+ * (spec 6.3, 16).
+ */
+export function roQuantifier(q: GreekQuantifier, s: SlotOf<'quantifier'>, roGender: Gender): Stored | null {
+  const set = s.sense === 'few' && q.ro.few ? q.ro.few : q.ro.plain;
+  const cell = set[s.use][quantifierGender(roGender, s.number)][s.number];
+  if (!cell) throw new Error(`${q.id} has no Romanian ${s.use} form for the ${s.number}`);
+  const value = s.case === 'gen' ? cell.gen : cell.nom;
+  if (value === undefined) return null;
+  if (typeof value !== 'string' || s.degree !== 'comparative') return value;
+  return `mai ${value}`;
 }

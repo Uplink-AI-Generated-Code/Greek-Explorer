@@ -4,8 +4,9 @@ import { allVerbSlots, isOffered } from '../engine/offers';
 import { compose } from '../engine/compose';
 import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
-import { enVerb } from '../engine/english';
-import { roVerb } from '../engine/romanian';
+import { formText } from '../engine/segments';
+import { enQuantifier, enVerb } from '../engine/english';
+import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
 import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
 
@@ -113,6 +114,29 @@ function checkLexeme(l: GreekLexeme): string[] {
   if (l.pos === 'particle') {
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
   }
+  if (l.pos === 'quantifier') {
+    for (const slot of quantifierSlots(l)) {
+      const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
+      for (const roGender of ['m', 'f'] as const) {
+        try {
+          const cell = roQuantifier(l, slot, roGender);
+          if (cell === null) {
+            // A stand-alone genitive pronoun is not covered (spec 6.3); a determiner must have one.
+            if (slot.use === 'determiner') errors.push(`${where}: no Romanian ${roGender} determiner form in the genitive`);
+          } else if (typeof cell === 'string' && isEmpty(cell)) {
+            errors.push(`${where}: empty Romanian ${roGender} form`);
+          }
+        } catch (e) {
+          errors.push(`${where}: ${(e as Error).message}`);
+        }
+      }
+      try {
+        if (isEmpty(enQuantifier(l, slot))) errors.push(`${where}: empty English form`);
+      } catch (e) {
+        errors.push(`${where}: ${(e as Error).message}`);
+      }
+    }
+  }
   if (l.pos === 'preposition') {
     if (isEmpty(l.ro)) errors.push(`lexeme ${l.id}: empty Romanian form`);
     if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
@@ -162,13 +186,31 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       }
     }
   }
-  if (token.slot.pos === 'adjective' || token.slot.pos === 'numeral' || token.slot.pos === 'article') {
+  if (
+    token.slot.pos === 'adjective' ||
+    token.slot.pos === 'numeral' ||
+    token.slot.pos === 'article' ||
+    token.slot.pos === 'quantifier'
+  ) {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
     const noun = target ? lexemes[target.lexeme] : undefined;
     if (!noun || noun.pos !== 'noun') {
       errors.push(`${where}: ${token.slot.pos} needs agreesWith pointing at a noun`);
     } else if (token.slot.gender !== noun.gender) {
       errors.push(`${where}: slot gender ${token.slot.gender} differs from noun gender ${noun.gender}`);
+    }
+  }
+  if (token.slot.pos === 'quantifier' && lexeme.pos === 'quantifier') {
+    const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    if (target && target.slot.pos === 'noun' && target.slot.number !== token.slot.number) {
+      errors.push(`${where}: the quantifier is ${token.slot.number} but its noun is ${target.slot.number}`);
+    }
+    if (token.slot.sense === 'few' && !lexeme.ro.few) errors.push(`${where}: ${lexeme.id} has no "few" sense`);
+    try {
+      const form = formText(inflect(lexeme, token.slot));
+      if (normalise(form) !== normalise(token.text)) errors.push(`${where}: text differs from the form ("${form}")`);
+    } catch {
+      // inflect failed: reported above.
     }
   }
   if (token.slot.pos === 'preposition') {
@@ -252,6 +294,32 @@ export function warnings(input: ValidationInput): string[] {
           out.push(
             `${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data splits it ${expected.join(' + ')}`,
           );
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** Every stored Romanian cell that is still `pending`, one line each (spec 7). */
+export function pendingCells(lexemes: Record<string, GreekLexeme>): string[] {
+  const out: string[] = [];
+  for (const l of Object.values(lexemes)) {
+    if (l.pos !== 'quantifier') continue;
+    for (const [setName, set] of [['plain', l.ro.plain], ['few', l.ro.few]] as const) {
+      if (!set) continue;
+      for (const use of ['determiner', 'pronoun'] as const) {
+        for (const g of ['m', 'f'] as const) {
+          for (const number of ['sg', 'pl'] as const) {
+            const cell = set[use][g][number];
+            if (!cell) continue;
+            for (const key of ['nom', 'gen'] as const) {
+              const value = cell[key];
+              if (value !== undefined && typeof value !== 'string') {
+                out.push(`${l.id} Romanian ${setName} ${use} ${g} ${number} ${key}`);
+              }
+            }
+          }
         }
       }
     }

@@ -3,7 +3,7 @@ import { DIVERGENCES } from '../src/data/divergences';
 import { LEXEMES } from '../src/data/lexemes';
 import { PHRASES } from '../src/data/phrases';
 import { REVIEW_ITEMS } from '../src/data/review';
-import { validate, warnings } from '../src/validate/validate';
+import { pendingCells, validate, warnings } from '../src/validate/validate';
 
 const errors = validate({ lexemes: LEXEMES, phrases: PHRASES });
 const release = process.argv.includes('--release');
@@ -22,6 +22,11 @@ if (unverified.length > 0) {
   console.log(`Unverified (${unverified.length}):\n  ${unverified.join('\n  ')}`);
 }
 
+const pending = pendingCells(LEXEMES);
+if (pending.length > 0) {
+  console.log(`Pending (${pending.length}), shown as "not yet added":\n  ${pending.join('\n  ')}`);
+}
+
 const warned = warnings({ lexemes: LEXEMES, phrases: PHRASES });
 if (warned.length > 0) {
   console.log(`Warnings (${warned.length}):\n  ${warned.join('\n  ')}`);
@@ -33,8 +38,8 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-if (release && unverified.length > 0) {
-  console.error(`\n--release: ${unverified.length} record(s) are not verified.`);
+if (release && (unverified.length > 0 || pending.length > 0)) {
+  console.error(`\n--release: ${unverified.length} record(s) are not verified and ${pending.length} cell(s) are pending.`);
   process.exit(1);
 }
 
