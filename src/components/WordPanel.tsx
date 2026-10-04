@@ -1,5 +1,7 @@
 import type { Panel, Related } from '../panels/panels';
 import { FormTable } from './FormTable';
+import { MixedText } from './MixedText';
+import { SameMeaningStrip } from './SameMeaningStrip';
 
 interface Props {
   panel: Panel;
@@ -12,26 +14,11 @@ interface Props {
   backLabel?: string;
   /** Opens the panel's related panel (a participle's verb, ένας for κανένας). */
   onRelated?: (related: Related) => void;
+  /** Chooses a member of the Same-meaning strip. */
+  onMember?: (key: string) => void;
 }
 
-/** English text with Greek words in it: the Greek runs get lang="el" so a screen reader pronounces them. */
-function MixedText({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/([\u0370-\u03FF\u1F00-\u1FFF]+)/).map((part, i) =>
-        i % 2 === 1 ? (
-          <span key={i} lang="el">
-            {part}
-          </span>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
-
-export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back to the verb', onRelated }: Props) {
+export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back to the verb', onRelated, onMember }: Props) {
   const { related } = panel;
   return (
     <section className="card word-panel" aria-label="Word panel">
@@ -72,6 +59,7 @@ export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back 
         <span className="role-article">blue</span> article, numeral or English pronoun ·{' '}
         <span className="role-ending">amber</span> ending · <span className="role-dim">dashed</span> optional or dropped
       </p>
+      {panel.sameMeaning && <SameMeaningStrip strip={panel.sameMeaning} onMember={onMember} />}
       <p className="plain">{panel.plain}</p>
       {related && onRelated && (
         <p className="related">

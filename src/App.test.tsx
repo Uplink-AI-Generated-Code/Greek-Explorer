@@ -478,4 +478,53 @@ describe('how to read this', () => {
     expect(form.getByRole('cell', { name: 'give it to me' })).toBeInTheDocument();
     expect(screen.getByText(/second accent/, { selector: '.warn' })).toBeInTheDocument();
   });
+
+  it('Eat the bread!: the strip shows the forms that mean the same, and a click changes the panel', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat the bread!');
+    await user.click(screen.getByRole('button', { name: 'Φάε' }));
+    const strip = screen.getByRole('region', { name: 'Same meaning' });
+    expect(within(strip).getByRole('button', { name: 'with noun' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(strip).queryByRole('button', { name: 'short form' })).not.toBeInTheDocument();
+    await user.click(within(strip).getByRole('button', { name: 'with clitic' }));
+    expect(within(strip).getByRole('button', { name: 'with clitic' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: 'φάε το' }).length).toBeGreaterThan(0);
+    await user.click(screen.getByRole('button', { name: 'Reset to phrase' }));
+    expect(within(screen.getByRole('region', { name: 'Same meaning' })).getByRole('button', { name: 'with noun' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('Improver: the short form is a member and Romanian and English have none', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByLabelText('Improver'));
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat it!');
+    const strip = screen.getByRole('region', { name: 'Same meaning' });
+    expect(within(strip).getByRole('button', { name: 'with clitic' })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(within(strip).getByRole('button', { name: 'short form' }));
+    expect(screen.getAllByRole('cell', { name: 'φάτο' }).length).toBeGreaterThan(0);
+    expect(within(strip).getAllByText('none')).toHaveLength(2);
+    const bare = within(strip).getByRole('button', { name: 'bare verb' });
+    await user.click(bare);
+    expect(within(screen.getByRole('region', { name: 'Same meaning' })).getByRole('button', { name: 'bare verb' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('Give it to me!: the strip lists the pair, the short form and the close row', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByLabelText('Improver'));
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Give it to me!');
+    const strip = screen.getByRole('region', { name: 'Same meaning' });
+    expect(within(strip).getByRole('cell', { name: 'δως μου το' })).toBeInTheDocument();
+    expect(within(strip).getByRole('cell', { name: 'δώσε μου το ψωμί' })).toBeInTheDocument();
+    expect(within(strip).getByText('Two pronouns: the genitive comes before the accusative.')).toBeInTheDocument();
+    expect(within(strip).getByText('no object: what to give is not said')).toBeInTheDocument();
+  });
 });

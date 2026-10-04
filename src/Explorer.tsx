@@ -144,6 +144,7 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
         backLabel={open?.backLabel}
         onPiece={open ? undefined : openFromReading}
         onRelated={open ? undefined : openRelated}
+        onMember={open ? undefined : (key) => changeControl('member', key)}
       />
       {divergences.length > 0 && <ComparisonTable rows={divergences} word={current.token.text} />}
     </>

@@ -30,6 +30,7 @@ import { roVerb } from '../engine/romanian';
 import { dim, plain, type Rich, type Segment } from '../engine/segments';
 import { MOODS, TENSES_OF_MOOD, whoIndex } from '../engine/tenses';
 import type { GreekNoun, GreekVerb, Level, Mood, Person, Reading, SlotOf, Tense, VerbClass, Voice } from '../types';
+import { sameMeaningFor } from './sameMeaning';
 import { ALL, nounControl } from './shared';
 import type { Control, Panel, PanelRow, PanelState, ReadingView } from './types';
 
@@ -265,6 +266,7 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelSta
         ? MOODS.flatMap((mood) => TENSES_OF_MOOD[mood].map((tense) => overviewRow(verb, slot, mood, tense)))
         : [],
     reading: readingViews(readingFor(verb, slot), level),
+    sameMeaning: slot.mood === 'imperative' ? sameMeaningFor(verb.id, slot, state.noun, level) : undefined,
     plain:
       PLAIN[`${slot.mood}.${slot.tense}`] +
       (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : '') +

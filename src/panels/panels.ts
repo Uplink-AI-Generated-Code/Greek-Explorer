@@ -1,4 +1,5 @@
 import { getLexeme, getNoun, getVerb } from '../data/lexemes';
+import { groupFor } from '../engine/groups';
 import { DEFAULT_OBJECT, cliticsFor, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
 import { voiceOf } from '../engine/offers';
 import type {
@@ -18,6 +19,7 @@ import type {
   Person,
   Phrase,
   QuantifierDegree,
+  SlotOf,
   Token,
 } from '../types';
 import { adjectivePanel } from './adjective';
@@ -141,6 +143,20 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         if (value === 'few') next.sense = 'few';
         else delete next.sense;
         return { ...state, slot: next };
+      }
+      break;
+    case 'member':
+      if (slot.pos === 'verb' && lexemeId) {
+        const match = groupFor(lexemeId, slot, state.noun);
+        if (!match) break;
+        const member = value === 'close' ? undefined : match.group.members[Number(value)];
+        const target = value === 'close' ? match.group.closeNotSame?.verb : member?.verb;
+        if (!target) break;
+        const direct = (target.slot.clitics ?? []).find((c) => c.role === 'object');
+        const noun = member?.object?.noun ?? (direct ? nounForClitic(direct) : null);
+        const copy: SlotOf<'verb'> = { ...target.slot };
+        if (target.slot.clitics) copy.clitics = target.slot.clitics.map((c) => ({ ...c }));
+        return { ...state, slot: copy, noun };
       }
       break;
     case 'object':

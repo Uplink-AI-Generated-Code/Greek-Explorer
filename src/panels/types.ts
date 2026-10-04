@@ -41,6 +41,29 @@ export interface Related {
   noun: string | null;
 }
 
+/** One way of saying the command in the Same-meaning strip (spec 5.4). */
+export interface SameMeaningRow {
+  /** The member's index in the group, as a string; 'close' for the bare verb. */
+  key: string;
+  tag: 'with noun' | 'with clitic' | 'short form';
+  el: Rich;
+  ro: Rich;
+  en: Rich;
+  /** The member the panel is showing. */
+  current: boolean;
+  note?: string;
+}
+
+/** The forms that mean the same as the command in the panel, built from its form group (spec 4.6, 5.4). */
+export interface SameMeaning {
+  meaning: string;
+  rows: SameMeaningRow[];
+  /** The verb with no object: close, not the same. */
+  close?: { key: 'close'; el: Rich; ro: Rich; en: Rich; reason: string; current: boolean };
+  /** Improver: the stress, short-form and order sentences. */
+  notes: string[];
+}
+
 export interface Panel {
   lemma: string;
   posLabel: string;
@@ -60,6 +83,8 @@ export interface Panel {
   badge?: string;
   /** A link to another panel (spec 5.3). */
   related?: Related;
+  /** Commands: the forms that mean the same (spec 5.4). */
+  sameMeaning?: SameMeaning;
 }
 
 /** What the word panel works on: a copy of the token's slot plus the noun the word goes with. */
