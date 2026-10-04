@@ -54,7 +54,8 @@ export type Slot =
       use: QuantifierUse;
     }
   | { pos: 'preposition' }
-  | { pos: 'particle' };
+  | { pos: 'particle' }
+  | { pos: 'conjunction' };
 
 export type Pos = Slot['pos'];
 export type SlotOf<P extends Pos> = Extract<Slot, { pos: P }>;
@@ -255,6 +256,15 @@ export interface GreekParticle extends LexemeBase {
   example: { el: string; ro: string; en: string };
 }
 
+export interface GreekConjunction extends LexemeBase {
+  pos: 'conjunction';
+  ro: string;
+  en: string;
+  /** One line of meaning for the panel. */
+  meaning: string;
+  example: { el: string; ro: string; en: string };
+}
+
 export interface GreekPreposition extends LexemeBase {
   pos: 'preposition';
   ro: string;
@@ -264,7 +274,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekQuantifier;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekQuantifier;
 
 export type TokenIndex = number;
 

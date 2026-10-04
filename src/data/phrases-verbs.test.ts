@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compose } from '../engine/compose';
 import { linksOf } from '../glossLinks';
+import type { SlotOf } from '../types';
 import { validate, warnings } from '../validate/validate';
 import { LEXEMES, getVerb } from './lexemes';
 import { PHRASES } from './phrases';
@@ -70,7 +71,7 @@ describe('phrases with verbs (voice, perfects, subjunctive)', () => {
 describe('phrases with verbs (past, imperative, conditional)', () => {
   const ids = [
     'fox-has-jumped', 'ate-the-bread', 'wanted-a-coffee', 'fox-was-jumping', 'eat-the-bread',
-    'wash-the-child', 'keep-eating-the-bread', 'may-have-eaten', 'would-like-a-coffee', 'would-have-eaten-the-bread',
+    'wash-the-child', 'keep-eating-the-bread', 'may-have-eaten', 'would-like-a-coffee', 'if-i-had-bread', 'would-have-eaten-the-bread',
   ];
 
   it('are all present, unverified, with a theme', () => {
@@ -80,7 +81,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     }
   });
 
-  it('the picker lists all 31 phrases in the spec order', () => {
+  it('the picker lists all 32 phrases in the spec order', () => {
     expect(PHRASES.map((p) => p.id)).toEqual([
       'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
       'washing-myself', 'washing-the-child', 'sleeping',
@@ -89,7 +90,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
       'dont-want-to-go', 'fox-has-jumped', 'have-washed-myself', 'ate-the-bread',
       'eat-less-bread', 'used-to-eat-bread', 'wanted-a-coffee',
       'fox-was-jumping', 'eat-the-bread', 'dont-eat-the-bread', 'wash-the-child', 'keep-eating-the-bread',
-      'may-have-eaten', 'would-like-a-coffee', 'would-have-eaten-the-bread', 'want-not-to-go',
+      'may-have-eaten', 'would-like-a-coffee', 'if-i-had-bread', 'would-have-eaten-the-bread', 'want-not-to-go',
     ]);
   });
 
@@ -157,5 +158,27 @@ describe('phrases with negation', () => {
   it('validate with no errors and no warnings', () => {
     expect(validate({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
     expect(warnings({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+  });
+});
+
+describe('phrase 30: the if-clause', () => {
+  const phrase = byId('if-i-had-bread');
+  it('has an αν token, είχα, the noun and the conditional', () => {
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Αν', 'είχα', 'ψωμί,', 'θα έτρωγα']);
+    expect(phrase.tokens[0].slot).toEqual({ pos: 'conjunction' });
+    expect(phrase.tokens[1]).toMatchObject({ lexeme: 'echo', slot: { mood: 'indicative', tense: 'imperfect' } });
+    expect(phrase.tokens[3].slot).toMatchObject({ mood: 'conditional', tense: 'imperfect' });
+  });
+  it('validates, starts unverified and is in the Eating theme', () => {
+    expect(validate({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+    expect(warnings({ lexemes: LEXEMES, phrases: PHRASES })).toEqual([]);
+    expect(phrase.verified).toBe(false);
+    expect(phrase.theme).toBe('Eating');
+  });
+  it('θα έτρωγα is a two-piece group, and the glosses link to its pieces', () => {
+    expect(compose(getVerb('troo'), phrase.tokens[3].slot as SlotOf<'verb'>).pieces).toHaveLength(2);
+    const links = phrase.glosses.flatMap((g) => g.units.flatMap((unit) => linksOf(unit)));
+    expect(links).toContainEqual({ token: 3, piece: 0 });
+    expect(links).toContainEqual({ token: 3, piece: 1 });
   });
 });

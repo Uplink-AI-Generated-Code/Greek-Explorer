@@ -682,6 +682,26 @@ const mayHaveEaten: Phrase = {
   verified: false,
 };
 
+const ifIHadBread: Phrase = {
+  id: 'if-i-had-bread',
+  title: 'If I had bread, I would eat',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Αν', lexeme: 'an', slot: { pos: 'conjunction' } },
+    { text: 'είχα', lexeme: 'echo', slot: vslot('indicative', 'imperfect') },
+    { text: 'ψωμί,', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+    { text: 'θα έτρωγα', lexeme: 'troo', slot: vslot('conditional', 'imperfect') },
+  ],
+  glosses: rows(
+    [u('If', 0), u('I had', 1), u('bread,', 2), u('I would', p(3, 0)), u('eat', p(3, 1))],
+    [u('if', 0), u('(I)', null), u('had', 1), u('bread', 2), u('(I)', null), u('will', p(3, 0)), u('ate', p(3, 1))],
+    [u('Dacă', 0), u('aș avea', 1), u('pâine,', 2), u('aș', p(3, 0)), u('mânca', p(3, 1))],
+    [u('dacă', 0), u('(eu)', null), u('aveam', 1), u('pâine', 2), u('(eu)', null), u('aș', p(3, 0)), u('mânca', p(3, 1))],
+  ),
+  verified: false,
+};
+
 const wouldLikeACoffee: Phrase = {
   id: 'would-like-a-coffee',
   title: 'I would like a coffee',
@@ -801,6 +821,7 @@ export const PHRASES: Phrase[] = [
   keepEatingTheBread,
   mayHaveEaten,
   wouldLikeACoffee,
+  ifIHadBread,
   wouldHaveEaten,
   wantNotToGo,
 ];

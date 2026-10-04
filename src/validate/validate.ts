@@ -44,6 +44,8 @@ function slotsFor(l: GreekLexeme): Slot[] {
       return allVerbSlots(l);
     case 'particle':
       return [{ pos: 'particle' }];
+    case 'conjunction':
+      return [{ pos: 'conjunction' }];
     case 'quantifier':
       return quantifierSlots(l);
   }
@@ -112,6 +114,9 @@ function checkLexeme(l: GreekLexeme): string[] {
     }
   }
   if (l.pos === 'particle') {
+    if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
+  }
+  if (l.pos === 'conjunction') {
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
   }
   if (l.pos === 'quantifier') {

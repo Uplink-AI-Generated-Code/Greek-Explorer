@@ -20,6 +20,7 @@ import type {
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
+  GreekConjunction,
   GreekParticle,
   GreekPreposition,
   GreekQuantifier,
@@ -160,6 +161,10 @@ export function inflectParticle(l: GreekParticle, _s: SlotOf<'particle'>): Form 
   return { stem: l.lemma, ending: '' };
 }
 
+export function inflectConjunction(l: GreekConjunction, _s: SlotOf<'conjunction'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
 export function inflect(l: GreekLexeme, s: Slot): Form {
   if (l.pos !== s.pos) throw new Error(`slot ${s.pos} does not fit lexeme ${l.id} (${l.pos})`);
   switch (l.pos) {
@@ -173,6 +178,8 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectNumeral(l, s as SlotOf<'numeral'>);
     case 'verb':
       return inflectVerb(l, s as SlotOf<'verb'>);
+    case 'conjunction':
+      return inflectConjunction(l, s as SlotOf<'conjunction'>);
     case 'quantifier':
       return inflectQuantifier(l, s as SlotOf<'quantifier'>);
     case 'preposition':

@@ -485,4 +485,15 @@ export const DIVERGENCES: Divergence[] = [
     level: 'extra',
     verified: false,
   },
+  {
+    id: 'if-clause',
+    appliesTo: { pos: 'conjunction' },
+    point: 'If-clause',
+    el: 'αν + the imperfect: Αν είχα ψωμί',
+    ro: 'dacă + the conditional: Dacă aș avea pâine',
+    en: 'if + the past: If I had bread',
+    tag: 'differs',
+    level: 'core',
+    verified: false,
+  },
 ];

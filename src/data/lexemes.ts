@@ -2,6 +2,7 @@ import type {
   CellOverride,
   GreekAdjective,
   GreekArticle,
+  GreekConjunction,
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
@@ -792,6 +793,18 @@ const min: GreekParticle = {
   example: { el: 'μην φας', ro: 'nu mânca', en: "don't eat" },
 };
 
+const an: GreekConjunction = {
+  id: 'an',
+  pos: 'conjunction',
+  lemma: 'αν',
+  verified: { el: false, ro: false, en: false },
+  ro: 'dacă',
+  en: 'if',
+  meaning:
+    'Starts a condition. With a past tense it says "if … were": Greek αν + the imperfect, Romanian dacă + the conditional, English if + the past.',
+  example: { el: 'αν είχα ψωμί', ro: 'dacă aș avea pâine', en: 'if I had bread' },
+};
+
 export const LEXEMES: Record<string, GreekLexeme> = {
   [kafes.id]: kafes,
   [skylos.id]: skylos,
@@ -827,6 +840,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [na.id]: na,
   [den.id]: den,
   [min.id]: min,
+  [an.id]: an,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

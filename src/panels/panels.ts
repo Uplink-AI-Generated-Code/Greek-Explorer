@@ -2,6 +2,7 @@ import { getLexeme, getVerb } from '../data/lexemes';
 import type {
   Case,
   GreekAdjective,
+  GreekConjunction,
   GreekNoun,
   GreekNumeral,
   GreekParticle,
@@ -21,6 +22,7 @@ import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
+import { conjunctionPanel } from './conjunction';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
 import { particlePanel } from './particle';
@@ -59,6 +61,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return prepositionPanel(lexeme as GreekPreposition, state, level);
     case 'particle':
       return particlePanel(lexeme as GreekParticle, level);
+    case 'conjunction':
+      return conjunctionPanel(lexeme as GreekConjunction, level);
     case 'quantifier':
       return quantifierPanel(lexeme as GreekQuantifier, slot, state, level);
   }
@@ -83,7 +87,9 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'case':
-      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle') return { ...state, slot: { ...slot, case: value as Case } };
+      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle' && slot.pos !== 'conjunction') {
+        return { ...state, slot: { ...slot, case: value as Case } };
+      }
       break;
     case 'number':
       if (slot.pos === 'adjective' || slot.pos === 'article') {
