@@ -2,7 +2,7 @@ import { getLexeme, getVerb } from '../data/lexemes';
 import type { Clitic, Form, GreekVerb, IrregularNote, Slot, SlotOf } from '../types';
 import { cliticSlot, greekClitic } from './clitics';
 import { inflectVerb } from './greek';
-import { slotProblem } from './offers';
+import { shortFormOf, slotProblem } from './offers';
 import { formRich, formText, type Rich } from './segments';
 import { accentAt, secondAccent } from './stress';
 import { structureOf } from './tenses';
@@ -64,13 +64,23 @@ function accentForm(form: Form, at: number): Form {
   return { ...form, ...(form.augment ? { augment: next[0] } : {}), stem: next[1], ending: next[2] };
 }
 
-/** An affirmative command with pronouns: the verb, then the pronouns, with the second accent where the rule asks. */
+/**
+ * An affirmative command with pronouns: the verb, then the pronouns, with the second accent where the rule asks.
+ * A short form either joins the pronoun into one word (φάτο) or shortens the verb (δως μου το); neither needs the rule.
+ */
 function commandWithClitics(verb: GreekVerb, slot: SlotOf<'verb'>, clitics: readonly Clitic[]): Composed {
-  const form = inflectVerb(verb, slot);
+  const full = inflectVerb(verb, slot);
+  const short = slot.shortForm ? shortFormOf(verb, slot) : undefined;
+  const shortNote: IrregularNote | undefined = short && { rule: 'short-imperative', plain: short.plain };
   const texts = clitics.map((c) => greekClitic(c));
+  if (short?.fuse) {
+    const fused = `${short.stem}${short.ending}${texts[0]}`;
+    return joined([{ kind: 'fused', text: fused, of: [formText(full), texts[0]] }], { irregular: shortNote });
+  }
+  const form: Form = short ? { stem: short.stem, ending: short.ending, irregular: shortNote } : full;
   const pieces: Piece[] = [{ kind: 'verb', form }, ...clitics.map((c, i) => cliticPiece(c, texts[i]))];
-  const accent = secondAccent([formText(form), ...texts]);
-  if (!accent) return joined(pieces);
+  const accent = short ? null : secondAccent([formText(form), ...texts]);
+  if (!accent) return joined(pieces, shortNote ? { irregular: shortNote } : {});
   if (accent.word === 0) {
     pieces[0] = { kind: 'verb', form: accentForm(form, accent.at) };
   } else {

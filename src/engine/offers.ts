@@ -1,5 +1,5 @@
-import type { GreekVerb, Mood, SlotOf, Tense, Voice, VerbVoice } from '../types';
-import { MOODS, TENSES_OF_MOOD } from './tenses';
+import type { GreekVerb, Mood, ShortForm, SlotOf, Tense, Voice, VerbVoice } from '../types';
+import { mainFormKind, MOODS, TENSES_OF_MOOD } from './tenses';
 
 const VOICES: Voice[] = ['active', 'mediopassive'];
 const WHO = ['1sg', '2sg', '3sg', '1pl', '2pl', '3pl'] as const;
@@ -60,11 +60,18 @@ export function allVerbSlots(verb: GreekVerb): SlotOf<'verb'>[] {
   );
 }
 
-/** What is wrong with the pronouns of a slot, or null (spec 2, 4.2, 7). */
+/** The stored short form of this command, if the verb has one (spec 4.3). */
+export function shortFormOf(verb: GreekVerb, s: SlotOf<'verb'>): ShortForm | undefined {
+  const data = verb.voices[s.voice];
+  if (!data || s.mood !== 'imperative') return undefined;
+  return data.shortForms?.[`${mainFormKind(s.mood, s.tense)}.${s.person}${s.number}`];
+}
+
+/** What is wrong with the pronouns or the short form of a slot, or null (spec 2, 4.2, 7). */
 export function slotProblem(verb: GreekVerb, s: SlotOf<'verb'>): string | null {
   const clitics = s.clitics ?? [];
-  if (clitics.length === 0) return null;
-  if (s.mood !== 'imperative') return 'pronouns go only with a command';
+  if (clitics.length === 0 && !s.shortForm) return null;
+  if (s.mood !== 'imperative') return 'pronouns and short forms go only with a command';
   const data = verb.voices[s.voice];
   if (!data) return `${verb.id} has no ${s.voice} voice`;
   if (clitics.length > 2) return 'a command takes at most two pronouns';
@@ -73,5 +80,12 @@ export function slotProblem(verb: GreekVerb, s: SlotOf<'verb'>): string | null {
     return 'two pronouns are an indirect object and then a direct object';
   }
   if (clitics.some((c) => c.role === 'indirect') && !data.indirect) return `${data.lemma} takes no indirect object`;
+  if (s.shortForm) {
+    const short = shortFormOf(verb, s);
+    if (!short) return `${data.lemma} has no short form here`;
+    if (s.polarity === 'negative') return 'a negative command has no short form';
+    if (clitics.length === 0) return 'a short form needs a pronoun';
+    if (short.fuse && clitics.length !== 1) return 'the joined short form takes one pronoun';
+  }
   return null;
 }

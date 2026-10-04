@@ -255,6 +255,17 @@ export interface EnVerbForms {
   presentNot?: readonly string[];
 }
 
+/** A lexical short form of a command with a pronoun (spec 4.3): φάε + το = φάτο, δώσε μου = δως μου. */
+export interface ShortForm {
+  /** The shortened verb: φά, δω. */
+  stem: string;
+  ending: string;
+  /** True when the pronoun joins the verb into one word (φάτο); false when the pronouns stay words (δως μου το). */
+  fuse: boolean;
+  /** One line for the reader. */
+  plain: string;
+}
+
 /** Everything a verb stores for one voice. */
 export interface VerbVoice {
   lemma: string;
@@ -268,6 +279,8 @@ export interface VerbVoice {
   thirdSingularOnly?: boolean;
   /** The verb takes an indirect object (δίνω: δώσε μου). */
   indirect?: true;
+  /** Short forms of commands, keyed '<impAorist|impPresent>.<person><number>' (impAorist.2sg). Stored per verb, not generated. */
+  shortForms?: Record<string, ShortForm>;
   ro: RoVerbForms;
   en: EnVerbForms;
 }

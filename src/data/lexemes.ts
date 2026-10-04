@@ -502,6 +502,14 @@ const troo: GreekVerb = {
         'impPresent.2sg': { stem: 'τρώγ', ending: 'ε', note: IMPERATIVE_GAMMA },
         'impPresent.2pl': { stem: 'τρώγ', ending: 'ετε', note: IMPERATIVE_GAMMA },
       },
+      shortForms: {
+        'impAorist.2sg': {
+          stem: 'φά',
+          ending: '',
+          fuse: true,
+          plain: 'A short way of saying φάε το: the final -ε drops and the pronoun joins the verb.',
+        },
+      },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
       ro: {
         lemma: 'a mânca',
@@ -538,6 +546,14 @@ const dino: GreekVerb = {
         'impAorist.2pl': { stem: 'δώσ', ending: 'τε' },
       },
       indirect: true,
+      shortForms: {
+        'impAorist.2sg': {
+          stem: 'δω',
+          ending: 'ς',
+          fuse: false,
+          plain: 'δως is a short form of δώσε: the pronouns follow it as separate words.',
+        },
+      },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
       ro: {
         lemma: 'a da',
