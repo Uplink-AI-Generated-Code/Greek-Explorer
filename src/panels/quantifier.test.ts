@@ -149,7 +149,7 @@ describe('quantifier panel: the Improver table', () => {
     expect(p.full.find((r) => r.hl?.el)?.label).toBe('neut. accusative');
     expect(p.full.find((r) => r.hl?.ro)?.label).toBe('fem. accusative');
     const genitive = p.full.filter((r) => r.label.endsWith('genitive'));
-    expect(genitive.map((r) => richText(r.ro))).toEqual(['multui', 'multei', 'multui']);
+    expect(genitive.map((r) => richText(r.ro))).toEqual(['multului', 'multei', 'multului']);
     expect(richText(p.full[0].el)).toBe('πολύς');
   });
 
