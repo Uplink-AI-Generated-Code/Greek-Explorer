@@ -375,7 +375,7 @@ describe('how to read this', () => {
       ),
     ).toBeInTheDocument();
   });
-  it('opens a quantifier, shows a pending Romanian form as "not yet added" and switches the degree', async () => {
+  it('opens a quantifier, shows the Romanian genitive and switches the degree', async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.selectOptions(screen.getByLabelText('Phrase'), 'I want a little water');
@@ -385,7 +385,7 @@ describe('how to read this', () => {
     expect(screen.getByRole('cell', { name: 'puțină apă' })).toBeInTheDocument();
     expect(screen.getByText('mass reading')).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText('Role in sentence'), 'gen');
-    expect(screen.getAllByRole('cell', { name: 'not yet added' }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('cell', { name: 'puținei ape' })).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText('Role in sentence'), 'acc');
     await user.selectOptions(screen.getByLabelText('Degree'), 'comparative');
     expect(screen.getByRole('cell', { name: 'λιγότερο νερό' })).toBeInTheDocument();

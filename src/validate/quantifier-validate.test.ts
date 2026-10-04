@@ -25,15 +25,8 @@ const withQuantifier = (lexeme: string, patch: Partial<Token> & { slot?: Token['
 const errorsOf = (phrase: Phrase) => validate({ ...real, phrases: [phrase] });
 
 describe('the pending report', () => {
-  it('lists the six pending Romanian genitives', () => {
-    expect(pendingCells(LEXEMES)).toEqual([
-      'polys Romanian plain determiner m sg gen',
-      'polys Romanian plain determiner f sg gen',
-      'ligos Romanian plain determiner m sg gen',
-      'ligos Romanian plain determiner m pl gen',
-      'ligos Romanian plain determiner f sg gen',
-      'ligos Romanian plain determiner f pl gen',
-    ]);
+  it('has no pending Romanian cells left', () => {
+    expect(pendingCells(LEXEMES)).toEqual([]);
   });
 
   it('accepts a pending cell and refuses an empty one', () => {

@@ -363,8 +363,8 @@ const polys: GreekQuantifier = {
     lemma: 'mult',
     plain: {
       determiner: {
-        m: { sg: ro1('mult', PENDING), pl: ro1('mulți', 'multor') },
-        f: { sg: ro1('multă', PENDING), pl: ro1('multe', 'multor') },
+        m: { sg: ro1('mult', 'multui'), pl: ro1('mulți', 'multor') },
+        f: { sg: ro1('multă', 'multei'), pl: ro1('multe', 'multor') },
       },
       pronoun: {
         m: { sg: ro1('mult'), pl: ro1('mulți') },
@@ -394,8 +394,8 @@ const ligos: GreekQuantifier = {
     lemma: 'puțin',
     plain: {
       determiner: {
-        m: { sg: ro1('puțin', PENDING), pl: ro1('puțini', PENDING) },
-        f: { sg: ro1('puțină', PENDING), pl: ro1('puține', PENDING) },
+        m: { sg: ro1('puțin', 'puținui'), pl: ro1('puțini', 'puținor') },
+        f: { sg: ro1('puțină', 'puținei'), pl: ro1('puține', 'puținor') },
       },
       pronoun: {
         m: { sg: ro1('puțin'), pl: ro1('puțini') },

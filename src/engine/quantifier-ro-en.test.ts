@@ -52,28 +52,31 @@ describe('Romanian quantifier cells', () => {
     expect(roQuantifier(q('kanenas'), slot({ use: 'pronoun' }), 'f')).toBe('niciuna');
   });
 
-  it('πολύς: mult, multă, mulți, multe, multor; the singular genitive is pending', () => {
+  it('πολύς: mult, multă, mulți, multe, multor; the genitives are filled in', () => {
     expect(roQuantifier(q('polys'), slot(), 'm')).toBe('mult');
     expect(roQuantifier(q('polys'), slot(), 'f')).toBe('multă');
     expect(roQuantifier(q('polys'), slot({ number: 'pl' }), 'm')).toBe('mulți');
     expect(roQuantifier(q('polys'), slot({ number: 'pl' }), 'f')).toBe('multe');
     expect(roQuantifier(q('polys'), slot({ number: 'pl', case: 'gen' }), 'f')).toBe('multor');
-    expect(roQuantifier(q('polys'), slot({ case: 'gen' }), 'f')).toMatchObject({ pending: true });
+    expect(roQuantifier(q('polys'), slot({ case: 'gen' }), 'f')).toBe('multei');
+    expect(roQuantifier(q('polys'), slot({ case: 'gen' }), 'm')).toBe('multui');
   });
 
-  it('the comparative is mai + the plain form, and a pending cell stays pending', () => {
+  it('the comparative is mai + the plain form, also in the genitive', () => {
     expect(roQuantifier(q('polys'), slot({ degree: 'comparative' }), 'f')).toBe('mai multă');
     expect(roQuantifier(q('polys'), slot({ degree: 'comparative', number: 'pl', case: 'gen' }), 'm')).toBe('mai multor');
-    expect(roQuantifier(q('polys'), slot({ degree: 'comparative', case: 'gen' }), 'm')).toMatchObject({ pending: true });
+    expect(roQuantifier(q('polys'), slot({ degree: 'comparative', case: 'gen' }), 'm')).toBe('mai multui');
     expect(roQuantifier(q('ligos'), slot({ degree: 'comparative' }), 'f')).toBe('mai puțină');
   });
 
-  it('λίγος: puțin, puțină, puțini, puține; every genitive is pending', () => {
+  it('λίγος: puțin, puțină, puțini, puține; with their genitives', () => {
     expect(roQuantifier(q('ligos'), slot(), 'm')).toBe('puțin');
     expect(roQuantifier(q('ligos'), slot(), 'f')).toBe('puțină');
     expect(roQuantifier(q('ligos'), slot({ number: 'pl' }), 'm')).toBe('puțini');
     expect(roQuantifier(q('ligos'), slot({ number: 'pl' }), 'f')).toBe('puține');
-    expect(roQuantifier(q('ligos'), slot({ number: 'pl', case: 'gen' }), 'f')).toMatchObject({ pending: true });
+    expect(roQuantifier(q('ligos'), slot({ number: 'pl', case: 'gen' }), 'f')).toBe('puținor');
+    expect(roQuantifier(q('ligos'), slot({ case: 'gen' }), 'f')).toBe('puținei');
+    expect(roQuantifier(q('ligos'), slot({ case: 'gen' }), 'm')).toBe('puținui');
   });
 
   it('a Romanian neuter follows the masculine in the singular and the feminine in the plural', () => {

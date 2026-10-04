@@ -38,15 +38,13 @@ describe('quantifier panel: the rows', () => {
     expect(p.rows[0].el.map((s) => s.role)).toEqual(['article', 'plain', 'stem', 'ending']);
   });
 
-  it('the singular genitive of πολύς is pending in Romanian, and the stand-alone genitive is not covered', () => {
+  it('the singular genitive of πολύς is filled in for Romanian, and the stand-alone genitive is not covered', () => {
     const p = panelFor('polys', slotOf({ case: 'gen' }), 'psomi');
-    expect(cells(p, 0)).toEqual({ el: 'πολλού ψωμιού', ro: 'not yet added', en: 'of much / a lot of bread' });
+    expect(cells(p, 0)).toEqual({ el: 'πολλού ψωμιού', ro: 'multei pâini', en: 'of much / a lot of bread' });
     expect(p.rows[1].dimmed).toContain('not covered');
   });
 
   it('the English notices are notice segments, not plain dim', () => {
-    const p = panelFor('polys', slotOf({ case: 'gen' }), 'psomi');
-    expect(p.rows[0].ro.map((s) => s.role)).toEqual(['notice']);
     const count = panelFor('polys', slotOf({ number: 'pl' }), 'psomi');
     expect(count.rows[0].en.map((s) => s.role)).toEqual(['notice']);
   });
@@ -145,13 +143,13 @@ describe('quantifier panel: controls and labels', () => {
 });
 
 describe('quantifier panel: the Improver table', () => {
-  it('has nine rows, outlines the Greek and the Romanian gender separately, and shows pending cells', () => {
+  it('has nine rows, outlines the Greek and the Romanian gender separately, and shows the genitives', () => {
     const p = panelFor('polys', slotOf(), 'psomi', 'improver');
     expect(p.full).toHaveLength(9);
     expect(p.full.find((r) => r.hl?.el)?.label).toBe('neut. accusative');
     expect(p.full.find((r) => r.hl?.ro)?.label).toBe('fem. accusative');
     const genitive = p.full.filter((r) => r.label.endsWith('genitive'));
-    expect(genitive.map((r) => richText(r.ro))).toEqual(['not yet added', 'not yet added', 'not yet added']);
+    expect(genitive.map((r) => richText(r.ro))).toEqual(['multui', 'multei', 'multui']);
     expect(richText(p.full[0].el)).toBe('πολύς');
   });
 

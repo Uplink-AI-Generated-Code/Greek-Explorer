@@ -17,7 +17,7 @@ const sets: RecordSets = {
   templates: READING_TEMPLATES,
   groups: FORM_GROUPS,
 };
-const sheet = reviewSheet({ ...sets, pending: pendingCells(LEXEMES) });
+const sheet = reviewSheet({ ...sets, pending: [...pendingCells(LEXEMES), 'polys Romanian plain determiner m sg gen'] });
 
 describe('unverifiedRecords', () => {
   it('lists a language of a lexeme, a review item, a phrase, a note, a template and a group', () => {
