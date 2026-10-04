@@ -395,7 +395,7 @@ const ligos: GreekQuantifier = {
     plain: {
       determiner: {
         m: { sg: ro1('puțin', 'puținului'), pl: ro1('puțini', 'puținilor') },
-        f: { sg: ro1('puțină', 'puținei'), pl: ro1('puține', 'puținilor') },
+        f: { sg: ro1('puțină', 'puținei'), pl: ro1('puține', 'puținelor') },
       },
       pronoun: {
         m: { sg: ro1('puțin'), pl: ro1('puțini') },

@@ -74,7 +74,7 @@ describe('Romanian quantifier cells', () => {
     expect(roQuantifier(q('ligos'), slot(), 'f')).toBe('puțină');
     expect(roQuantifier(q('ligos'), slot({ number: 'pl' }), 'm')).toBe('puțini');
     expect(roQuantifier(q('ligos'), slot({ number: 'pl' }), 'f')).toBe('puține');
-    expect(roQuantifier(q('ligos'), slot({ number: 'pl', case: 'gen' }), 'f')).toBe('puținilor');
+    expect(roQuantifier(q('ligos'), slot({ number: 'pl', case: 'gen' }), 'f')).toBe('puținelor');
     expect(roQuantifier(q('ligos'), slot({ case: 'gen' }), 'f')).toBe('puținei');
     expect(roQuantifier(q('ligos'), slot({ case: 'gen' }), 'm')).toBe('puținului');
   });
