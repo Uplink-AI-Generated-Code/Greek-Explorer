@@ -35,6 +35,7 @@ const CLASS_LABEL: Record<VerbClass, string> = {
   mediopassive: 'mediopassive -ομαι class',
   deponent: 'deponent -άμαι class',
   impersonal: 'impersonal',
+  copula: 'irregular copula',
 };
 
 const SPACE: Segment = { text: ' ', role: 'plain' };

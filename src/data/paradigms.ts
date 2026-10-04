@@ -21,6 +21,11 @@ export const NOUN_CLASSES: Record<NounClass, EndingTable> = {
     sg: { nom: 'ί', acc: 'ί', gen: 'ιού' },
     pl: { nom: 'ιά', acc: 'ιά', gen: 'ιών' },
   },
+  /** Neuter nouns in -ό: νερό, νερού, νερά (the stress stays on the ending). */
+  'neut-o': {
+    sg: { nom: 'ό', acc: 'ό', gen: 'ού' },
+    pl: { nom: 'ά', acc: 'ά', gen: 'ών' },
+  },
 };
 
 type NoteKey = `${Num}-${Case}`;
@@ -110,6 +115,8 @@ export const VERB_PRESENT: Record<VerbClass, Endings> = {
   mediopassive: ['ομαι', 'εσαι', 'εται', 'όμαστε', 'εστε', 'ονται'],
   deponent: ['άμαι', 'άσαι', 'άται', 'όμαστε', 'άστε', 'ούνται'],
   impersonal: [null, null, 'εί', null, null, null],
+  /** είμαι: the lexeme stores all six cells as overrides. */
+  copula: NONE,
 };
 
 /** Imperfect endings. */
@@ -120,6 +127,7 @@ export const VERB_IMPERFECT: Record<VerbClass, Endings> = {
   mediopassive: ['όμουν', 'όσουν', 'όταν', 'όμασταν', 'όσασταν', 'όνταν'],
   deponent: ['όμουν', 'όσουν', 'όταν', 'όμασταν', 'όσασταν', 'όνταν'],
   impersonal: NONE,
+  copula: NONE,
 };
 
 /** Indicative aorist endings. */
@@ -130,6 +138,7 @@ export const VERB_AORIST: Record<VerbClass, Endings> = {
   mediopassive: ['ηκα', 'ηκες', 'ηκε', 'ήκαμε', 'ήκατε', 'ηκαν'],
   deponent: ['ηκα', 'ηκες', 'ηκε', 'ήκαμε', 'ήκατε', 'ηκαν'],
   impersonal: NONE,
+  copula: NONE,
 };
 
 /** Aorist subjunctive endings, added to the perfective stem. */
@@ -140,6 +149,7 @@ export const VERB_SUBJ_AORIST: Record<VerbClass, Endings> = {
   mediopassive: ['ώ', 'είς', 'εί', 'ούμε', 'είτε', 'ούν'],
   deponent: ['ώ', 'είς', 'εί', 'ούμε', 'είτε', 'ούν'],
   impersonal: NONE,
+  copula: NONE,
 };
 
 /** Imperative endings (second person singular, plural); null = the class has no imperative here. */
@@ -153,6 +163,7 @@ export const VERB_IMPERATIVE: Record<
   mediopassive: { present: null, aorist: null },
   deponent: { present: null, aorist: null },
   impersonal: { present: null, aorist: null },
+  copula: { present: null, aorist: null },
 };
 
 /** The ending of the invariable base form used by the perfect tenses (φάει, πλυθεί). */
@@ -163,6 +174,7 @@ export const VERB_BASE: Record<VerbClass, string | null> = {
   mediopassive: 'εί',
   deponent: 'εί',
   impersonal: null,
+  copula: null,
 };
 
 const invariable = (word: string): Record<Gender, Record<Case, Pair>> => {

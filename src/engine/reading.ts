@@ -122,7 +122,8 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
     if (piece.kind === 'verb') {
       const { augment, stem, ending } = piece.form;
       if (augment) parts.push({ text: augment, label: `${augment}-`, role: 'augment', gloss: 'in the past', piece: index });
-      parts.push({ text: stem, label: `${stem}-`, role: 'stem', gloss: data.en.gloss, piece: index });
+      // A stem with no ending is a whole word (είμαι): no hyphen.
+      parts.push({ text: stem, label: ending ? `${stem}-` : stem, role: 'stem', gloss: data.en.gloss, piece: index });
       if (ending) {
         parts.push({
           text: ending,

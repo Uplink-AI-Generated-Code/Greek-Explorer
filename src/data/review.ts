@@ -7,6 +7,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:masc-os', kind: 'ending-table', verified: false },
   { id: 'ending-table:fem-ou', kind: 'ending-table', verified: false },
   { id: 'ending-table:neut-i', kind: 'ending-table', verified: false },
+  { id: 'ending-table:neut-o', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-stressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-unstressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:article-def', kind: 'ending-table', verified: false },

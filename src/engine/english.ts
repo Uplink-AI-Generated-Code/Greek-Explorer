@@ -36,7 +36,7 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
   const parts = (verb: string, lead = '', subject = true): EnParts => ({ lead, subject, verb: `${verb}${self}` });
   switch (`${s.mood}.${s.tense}`) {
     case 'indicative.present':
-      return parts(negative ? presentNot : present);
+      return parts(negative ? (en.presentNot?.[i] ?? presentNot) : (en.present?.[i] ?? present));
     case 'indicative.imperfect':
       return parts(`${negative ? WASNT[i] : WAS[i]} ${en.ing}`);
     case 'indicative.aorist':

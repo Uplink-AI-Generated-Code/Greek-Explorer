@@ -1,4 +1,5 @@
 import type {
+  CellOverride,
   GreekAdjective,
   GreekArticle,
   GreekLexeme,
@@ -102,6 +103,7 @@ const psomi: GreekNoun = {
   verified: { el: false, ro: false, en: false },
   gender: 'n',
   class: 'neut-i',
+  mass: true,
   stems: { sg: 'ψωμ', pl: 'ψωμ' },
   ro: {
     lemma: 'pâine',
@@ -114,6 +116,28 @@ const psomi: GreekNoun = {
   },
   en: { sg: 'bread', pl: 'bread' },
   note: 'Neuter in Greek, feminine in Romanian (pâine); "bread" has no gender and no plural in English.',
+};
+
+const nero: GreekNoun = {
+  id: 'nero',
+  pos: 'noun',
+  lemma: 'νερό',
+  verified: { el: false, ro: false, en: false },
+  gender: 'n',
+  class: 'neut-o',
+  mass: true,
+  stems: { sg: 'νερ', pl: 'νερ' },
+  ro: {
+    lemma: 'apă',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'apa', indefinite: 'o apă', genDefinite: 'apei', genIndefinite: 'unei ape' },
+      pl: { definite: 'apele', indefinite: 'ape', genDefinite: 'apelor', genIndefinite: 'unor ape' },
+    },
+    split: { sg: ['ap', 'a'], pl: ['ape', 'le'] },
+  },
+  en: { sg: 'water', pl: 'water' },
+  note: 'Neuter in Greek, feminine in Romanian (apă); "water" has no gender and no plural in English.',
 };
 
 const zestos: GreekAdjective = {
@@ -384,6 +408,56 @@ const echo: GreekVerb = {
   },
 };
 
+const IRREGULAR_BE = note(
+  'irregular-be',
+  'είμαι ("to be") does not follow the usual pattern: learn its six forms together.',
+);
+const beCell = (word: string): CellOverride => ({ stem: word, ending: '', note: IRREGULAR_BE });
+const NO_CELLS: readonly string[] = ['', '', '', '', '', ''];
+
+/** είμαι, the copula. It offers only the present indicative (spec 4.2); the six forms are overrides. */
+const eimai: GreekVerb = {
+  id: 'eimai',
+  pos: 'verb',
+  lemma: 'είμαι',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'είμαι',
+      class: 'copula',
+      stems: { present: 'είμαι' },
+      overrides: {
+        'present.1sg': beCell('είμαι'),
+        'present.2sg': beCell('είσαι'),
+        'present.3sg': beCell('είναι'),
+        'present.1pl': beCell('είμαστε'),
+        'present.2pl': beCell('είστε'),
+        'present.3pl': beCell('είναι'),
+      },
+      offers: { indicative: ['present'] },
+      ro: {
+        lemma: 'a fi',
+        infinitive: 'fi',
+        participle: 'fost',
+        present: ['sunt', 'ești', 'este', 'suntem', 'sunteți', 'sunt'],
+        subjunctive: NO_CELLS,
+        imperfect: NO_CELLS,
+        pluperfect: NO_CELLS,
+      },
+      en: {
+        gloss: 'be',
+        base: 'be',
+        third: 'is',
+        past: 'was',
+        pastParticiple: 'been',
+        ing: 'being',
+        present: ['am', 'are', 'is', 'are', 'are', 'are'],
+        presentNot: ['am not', "aren't", "isn't", "aren't", "aren't", "aren't"],
+      },
+    },
+  },
+};
+
 const pleno: GreekVerb = {
   id: 'pleno',
   pos: 'verb',
@@ -591,6 +665,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [alepou.id]: alepou,
   [paidi.id]: paidi,
   [psomi.id]: psomi,
+  [nero.id]: nero,
   [zestos.id]: zestos,
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
@@ -602,6 +677,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [troo.id]: troo,
   [pao.id]: pao,
   [echo.id]: echo,
+  [eimai.id]: eimai,
   [pleno.id]: pleno,
   [koimamai.id]: koimamai,
   [mporei.id]: mporei,

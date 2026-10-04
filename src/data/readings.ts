@@ -69,6 +69,14 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
     improver: '{text}: {technical}. The present imperative keeps the older stem {stem}-, unlike the rest of the present.',
     verified: false,
   },
+  {
+    rule: 'irregular-be',
+    beginner:
+      '{text}: the verb "to be" is irregular, so there are no parts to take apart. Learn the six forms together: είμαι, είσαι, είναι, είμαστε, είστε, είναι.',
+    improver:
+      '{text}: the present of είμαι is irregular and has no separate stem and ending (είμαι, είσαι, είναι, είμαστε, είστε, είναι). Romanian *a fi* and English "be" are irregular in the same way.',
+    verified: false,
+  },
 ];
 
 /**
@@ -90,6 +98,9 @@ export const RO_SHAPES: Record<string, readonly string[]> = {
 
 /** What the English function words of a compound form mean. */
 export const EN_FUNCTION: Record<string, string> = {
+  am: 'am (a form of "be")',
+  are: 'are (a form of "be")',
+  is: 'is (a form of "be")',
   will: 'will (the future)',
   "won't": 'will, not',
   would: 'would',

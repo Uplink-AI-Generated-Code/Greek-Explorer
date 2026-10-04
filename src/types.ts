@@ -55,12 +55,14 @@ export interface RoNounForms {
   genIndefinite: string;
 }
 
-export type NounClass = 'masc-es' | 'masc-os' | 'fem-ou' | 'neut-i';
+export type NounClass = 'masc-es' | 'masc-os' | 'fem-ou' | 'neut-i' | 'neut-o';
 
 export interface GreekNoun extends LexemeBase {
   pos: 'noun';
   gender: Gender;
   class: NounClass;
+  /** A mass noun (ψωμί, νερό): in English it has no plural, so "many bread" is not said. */
+  mass?: true;
   stems: Record<Num, string>;
   ro: {
     lemma: string;
@@ -103,7 +105,7 @@ export interface GreekArticle extends LexemeBase {
   pos: 'article';
 }
 
-export type VerbClass = 'omega' | 'contracted-ao' | 'athematic' | 'mediopassive' | 'deponent' | 'impersonal';
+export type VerbClass = 'omega' | 'contracted-ao' | 'athematic' | 'mediopassive' | 'deponent' | 'impersonal' | 'copula';
 
 /** A past-tense stem, with its augment when it has one (έ + τρωγ). */
 export interface StemPair {
@@ -162,6 +164,9 @@ export interface EnVerbForms {
   reflexive?: boolean;
   /** A modal verb (may) is negated with "not" after it, not with "do". */
   modal?: boolean;
+  /** The six present cells of an irregular verb (am, are, is, are, are, are); `presentNot` the negative ones. */
+  present?: readonly string[];
+  presentNot?: readonly string[];
 }
 
 /** Everything a verb stores for one voice. */

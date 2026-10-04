@@ -375,4 +375,15 @@ export const DIVERGENCES: Divergence[] = [
     level: 'core',
     verified: false,
   },
+  {
+    id: 'copula-irregular',
+    appliesTo: { pos: 'verb', lexeme: 'eimai' },
+    point: 'The verb "to be"',
+    el: 'είμαι, είσαι, είναι … (irregular)',
+    ro: 'sunt, ești, este … (irregular)',
+    en: 'am, are, is … (irregular)',
+    tag: 'same',
+    level: 'core',
+    verified: false,
+  },
 ];
