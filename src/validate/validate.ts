@@ -1,6 +1,6 @@
 import { inflect } from '../engine/greek';
 import { quantifierSlots } from '../engine/quantifier';
-import { allVerbSlots, isOffered } from '../engine/offers';
+import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
 import { compose } from '../engine/compose';
 import { READING_TEMPLATES } from '../data/readings';
@@ -9,7 +9,7 @@ import { formText } from '../engine/segments';
 import { enQuantifier, enVerb } from '../engine/english';
 import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
-import type { Case, Gender, GreekLexeme, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
+import type { Case, Clitic, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
@@ -65,6 +65,21 @@ function slotsFor(l: GreekLexeme): Slot[] {
     case 'quantifier':
       return quantifierSlots(l);
   }
+}
+
+const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f' };
+const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
+
+/** The commands with pronouns the panel can build from an offered command: one direct pronoun, and for a verb with an indirect object also "me" and the pair. */
+function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'verb'>[] {
+  if (slot.mood !== 'imperative') return [];
+  const indirect = verb.voices[slot.voice]?.indirect === true;
+  const sets: Clitic[][] = indirect ? [[IT], [ME], [ME, IT]] : [[IT]];
+  return sets.flatMap((clitics): SlotOf<'verb'>[] => [
+    { ...slot, clitics },
+    { ...slot, clitics, polarity: 'negative' },
+    ...(shortFormOf(verb, slot) ? [{ ...slot, clitics, shortForm: true }] : []),
+  ]);
 }
 
 function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {
@@ -124,8 +139,12 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
         if (cells !== undefined && cells.length !== 6) errors.push(`lexeme ${l.id}: en.${key} has ${cells.length} cells, not six`);
       }
     }
-    const slots = allVerbSlots(l).flatMap((s): SlotOf<'verb'>[] => [s, { ...s, polarity: 'negative' }]);
-    for (const slot of slots.filter((s) => isOffered(l, s))) {
+    const slots = allVerbSlots(l).flatMap((s): SlotOf<'verb'>[] => [
+      s,
+      { ...s, polarity: 'negative' },
+      ...pronounSlots(l, s),
+    ]);
+    for (const slot of slots.filter((s) => isOffered(l, s) && slotProblem(l, s) === null)) {
       const where = `lexeme ${l.id}: cannot build ${JSON.stringify(slot)}`;
       try {
         const composed = compose(l, slot);
@@ -229,8 +248,11 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     errors.push(`${where}: ${(e as Error).message}`);
   }
   if (token.slot.pos === 'verb' && lexeme.pos === 'verb') {
+    const problem = slotProblem(lexeme, token.slot);
     if (!isOffered(lexeme, token.slot)) {
       errors.push(`${where}: slot is not offered by ${lexeme.id}`);
+    } else if (problem) {
+      errors.push(`${where}: ${problem}`);
     } else {
       try {
         const composed = compose(lexeme, token.slot);

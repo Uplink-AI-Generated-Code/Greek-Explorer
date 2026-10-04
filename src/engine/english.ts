@@ -1,4 +1,5 @@
-import type { GreekNoun, GreekNumeral, GreekQuantifier, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
+import type { Clitic, GreekNoun, GreekNumeral, GreekQuantifier, GreekVerb, Num, NumeralValue, SlotOf } from '../types';
+import { enClitic } from './clitics';
 import { voiceOf } from './offers';
 import { whoIndex } from './tenses';
 
@@ -23,6 +24,15 @@ export interface EnParts {
   /** False for the imperative. */
   subject: boolean;
   verb: string;
+}
+
+/** The pronouns after an English command: "eat it", "give me", "give it to me" (the direct pronoun comes first). */
+function enObjects(clitics: readonly Clitic[]): string {
+  const direct = clitics.find((c) => c.role === 'object');
+  const indirect = clitics.find((c) => c.role === 'indirect');
+  if (direct && indirect) return ` ${enClitic(direct)} to ${enClitic(indirect)}`;
+  const only = direct ?? indirect;
+  return only ? ` ${enClitic(only)}` : '';
 }
 
 export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
@@ -57,7 +67,7 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
       return parts(`may${negative ? ' not' : ''} have ${en.pastParticiple}`);
     case 'imperative.present':
     case 'imperative.aorist':
-      return parts(negative ? `don't ${en.base}` : en.base, '', false);
+      return parts(`${negative ? `don't ${en.base}` : en.base}${enObjects(s.clitics ?? [])}`, '', false);
     case 'conditional.imperfect':
       return parts(`${negative ? "wouldn't" : 'would'} ${en.base}`);
     case 'conditional.pluperfect':

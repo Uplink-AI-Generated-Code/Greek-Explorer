@@ -1,3 +1,4 @@
+import { roClitics } from './clitics';
 import { voiceOf } from './offers';
 import { whoIndex } from './tenses';
 import type {
@@ -62,10 +63,15 @@ export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
       return `să ${nu}fi ${ro.participle}`;
     case 'imperative.present':
     case 'imperative.aorist': {
-      if (s.polarity === 'negative' && s.number === 'sg') return `nu ${ro.infinitive}`;
+      const clitics = s.clitics ?? [];
+      const negative = s.polarity === 'negative';
+      const attached = clitics.length > 0 ? roClitics(clitics) : null;
+      const after = attached ? attached.afterNu : 'nu';
+      if (negative && s.number === 'sg') return `${after} ${ro.infinitive}`;
       if (!ro.imperative) throw new Error(`${v.id} has no Romanian imperative`);
       const form = ro.imperative[s.number === 'sg' ? 0 : 1];
-      return `${nu}${form}`;
+      if (negative) return `${after} ${form}`;
+      return attached ? `${form}${attached.enclitic}` : form;
     }
     case 'conditional.imperfect':
       return `${nu}${RO_AUXILIARIES.would[i]} ${ro.infinitive}`;

@@ -28,6 +28,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'auxiliary-table:en-compound', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:negation', kind: 'auxiliary-table', verified: false },
   { id: 'auxiliary-table:ro-comparative', kind: 'auxiliary-table', verified: false },
+  { id: 'auxiliary-table:en-clitic-order', kind: 'auxiliary-table', verified: false },
   { id: 'glossary:ro-en-reading-glosses', kind: 'glossary', verified: false },
   { id: 'glossary:participle-reading', kind: 'glossary', verified: false },
 ];
