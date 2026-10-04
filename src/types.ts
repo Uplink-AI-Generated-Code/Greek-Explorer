@@ -5,6 +5,13 @@ export type Person = 1 | 2 | 3;
 export type Level = 'beginner' | 'improver';
 export type NumeralValue = 1 | 2 | 3 | 4 | 5;
 
+/** A stored Romanian cell: text, or `pending` while the form is not confirmed. A release build refuses a pending cell (spec 4.2, 7). */
+export type Stored = string | { pending: true; note?: string };
+
+export type QuantifierDegree = 'plain' | 'comparative';
+export type QuantifierSense = 'some' | 'few';
+export type QuantifierUse = 'determiner' | 'pronoun';
+
 export type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional';
 // Indicative: present, imperfect, aorist, future (θα + present), futureSimple (θα + aorist subjunctive),
 // perfect, pluperfect, futurePerfect. Subjunctive: present, aorist, perfect. Imperative: present, aorist
@@ -35,6 +42,17 @@ export type Slot =
   | { pos: 'adjective'; gender: Gender; number: Num; case: Case }
   | { pos: 'article'; gender: Gender; number: Num; case: Case }
   | { pos: 'numeral'; value: NumeralValue; gender: Gender; case: Case }
+  | {
+      pos: 'quantifier';
+      gender: Gender;
+      number: Num;
+      case: Case;
+      degree: QuantifierDegree;
+      /** μερικοί: Romanian niște (the default, 'some') or câțiva ('few'). */
+      sense?: QuantifierSense;
+      /** Beside a noun, or on its own. Greek does not change; Romanian and English do (spec 4.2). */
+      use: QuantifierUse;
+    }
   | { pos: 'preposition' }
   | { pos: 'particle' };
 
@@ -99,6 +117,45 @@ export interface GreekNumeral extends LexemeBase {
   /** Romanian forms for every value; values above 1 have no genitive of their own, so `gen` repeats `nom`. */
   ro: Record<NumeralValue, Record<Gender, { nom: string; gen: string }>>;
   en: Record<NumeralValue, string>;
+}
+
+/**
+ * How the Greek forms of one degree are made: a shared table of whole forms, or the adjective endings on a stem
+ * (the stem-stressed endings, or the ending-stressed ones when `stressed` is set: μερικός, μερικοί).
+ */
+export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' } | { stem: string; stressed?: true };
+
+/** One Romanian cell: nominative-accusative and genitive-dative. `gen` is absent where the form is not covered (a stand-alone genitive pronoun, spec 6.3). */
+export interface RoQuantifierCell {
+  nom: Stored;
+  gen?: Stored;
+}
+
+/** By use, then Romanian gender (neuter follows masculine in the singular and feminine in the plural), then number. */
+export type RoQuantifierCells = Record<QuantifierUse, Record<'m' | 'f', Partial<Record<Num, RoQuantifierCell>>>>;
+
+export type EnQuantifierCells = Record<QuantifierUse, Partial<Record<Num, string>>>;
+
+export interface GreekQuantifier extends LexemeBase {
+  pos: 'quantifier';
+  greek: { plain: QuantifierGreek; comparative?: QuantifierGreek };
+  /** The numbers the panel may offer: μερικοί is plural only, κάποιος and κανένας singular only (spec 4.2). */
+  numbers: Num[];
+  /** One line of meaning for the panel. */
+  meaning: string;
+  ro: {
+    lemma: string;
+    plain: RoQuantifierCells;
+    /** The second sense (câțiva beside niște). The comparative is generated: mai + the plain form. */
+    few?: RoQuantifierCells;
+  };
+  en: {
+    plain: EnQuantifierCells;
+    few?: EnQuantifierCells;
+    comparative?: EnQuantifierCells;
+    /** The word after a negative verb: "not … any". */
+    negated?: string;
+  };
 }
 
 export interface GreekArticle extends LexemeBase {
@@ -207,7 +264,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekQuantifier;
 
 export type TokenIndex = number;
 

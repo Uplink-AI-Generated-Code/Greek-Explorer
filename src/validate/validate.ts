@@ -1,4 +1,5 @@
 import { inflect } from '../engine/greek';
+import { quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered } from '../engine/offers';
 import { compose } from '../engine/compose';
 import { READING_TEMPLATES } from '../data/readings';
@@ -42,6 +43,8 @@ function slotsFor(l: GreekLexeme): Slot[] {
       return allVerbSlots(l);
     case 'particle':
       return [{ pos: 'particle' }];
+    case 'quantifier':
+      return quantifierSlots(l);
   }
 }
 

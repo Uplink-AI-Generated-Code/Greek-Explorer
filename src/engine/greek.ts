@@ -5,6 +5,7 @@ import {
   NOUN_CLASSES,
   NOUN_NOTES,
   NUMERAL_FORMS,
+  QUANTIFIER_FORMS,
   VERB_AORIST,
   VERB_BASE,
   VERB_IMPERATIVE,
@@ -21,6 +22,7 @@ import type {
   GreekNumeral,
   GreekParticle,
   GreekPreposition,
+  GreekQuantifier,
   GreekVerb,
   IrregularNote,
   PastStems,
@@ -131,6 +133,25 @@ export function inflectVerb(l: GreekVerb, s: SlotOf<'verb'>): Form {
   }
 }
 
+const TWO_STEMS: IrregularNote = {
+  rule: 'two-stems',
+  plain: 'πολύς has two stems: πολύ- (πολύς, πολύ) and πολλ- (all the other forms).',
+};
+
+export function inflectQuantifier(l: GreekQuantifier, s: SlotOf<'quantifier'>): Form {
+  if (!l.numbers.includes(s.number)) throw new Error(`${l.id} is not offered in the ${s.number}`);
+  const how = l.greek[s.degree];
+  if (!how) throw new Error(`${l.id} has no ${s.degree} degree`);
+  if ('stem' in how) {
+    const endings = how.stressed ? ADJ_STRESSED : ADJ_UNSTRESSED;
+    return { stem: how.stem, ending: endings[s.number][s.case][s.gender] };
+  }
+  const pair = QUANTIFIER_FORMS[how.table][s.number]?.[s.case][s.gender];
+  if (!pair) throw new Error(`${l.id} has no ${s.number} form`);
+  const form: Form = { stem: pair[0], ending: pair[1] };
+  return how.table === 'polys' ? { ...form, irregular: TWO_STEMS } : form;
+}
+
 export function inflectPreposition(l: GreekPreposition, _s: SlotOf<'preposition'>): Form {
   return { stem: l.lemma, ending: '' };
 }
@@ -152,6 +173,8 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectNumeral(l, s as SlotOf<'numeral'>);
     case 'verb':
       return inflectVerb(l, s as SlotOf<'verb'>);
+    case 'quantifier':
+      return inflectQuantifier(l, s as SlotOf<'quantifier'>);
     case 'preposition':
       return inflectPreposition(l, s as SlotOf<'preposition'>);
     case 'particle':

@@ -7,8 +7,11 @@ import type {
   GreekNumeral,
   GreekParticle,
   GreekPreposition,
+  GreekQuantifier,
   GreekVerb,
   IrregularNote,
+  RoQuantifierCell,
+  Stored,
   Tense,
 } from '../types';
 
@@ -237,6 +240,136 @@ const numeral: GreekNumeral = {
 };
 
 const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: { el: false, ro: false, en: false } };
+
+const ro1 = (nom: Stored, gen?: Stored): RoQuantifierCell => (gen === undefined ? { nom } : { nom, gen });
+/** A Romanian form not yet confirmed: shown as "not yet added" (spec 4.2). */
+const PENDING: Stored = { pending: true, note: 'not yet confirmed' };
+
+const merikoi: GreekQuantifier = {
+  id: 'merikoi',
+  pos: 'quantifier',
+  lemma: 'μερικοί',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { stem: 'μερικ', stressed: true } },
+  numbers: ['pl'],
+  meaning:
+    'Greek has no plural "a / an": μερικοί means "some" and, with the sense control, "a few". Romanian splits it into niște and câțiva.',
+  ro: {
+    lemma: 'niște',
+    plain: {
+      determiner: { m: { pl: ro1('niște', 'unor') }, f: { pl: ro1('niște', 'unor') } },
+      pronoun: { m: { pl: ro1('unii') }, f: { pl: ro1('unele') } },
+    },
+    few: {
+      determiner: { m: { pl: ro1('câțiva', 'câtorva') }, f: { pl: ro1('câteva', 'câtorva') } },
+      pronoun: { m: { pl: ro1('câțiva') }, f: { pl: ro1('câteva') } },
+    },
+  },
+  en: {
+    plain: { determiner: { pl: 'some' }, pronoun: { pl: 'some' } },
+    few: { determiner: { pl: 'a few / several' }, pronoun: { pl: 'a few' } },
+  },
+};
+
+const kapoios: GreekQuantifier = {
+  id: 'kapoios',
+  pos: 'quantifier',
+  lemma: 'κάποιος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'kapoios' } },
+  numbers: ['sg'],
+  meaning:
+    'κάποιος covers both "some" and "any": Greek does not separate them the way English does. On its own it is "someone / anyone".',
+  ro: {
+    lemma: 'vreun',
+    plain: {
+      determiner: { m: { sg: ro1('vreun', 'vreunui') }, f: { sg: ro1('vreo', 'vreunei') } },
+      pronoun: { m: { sg: ro1('vreunul') }, f: { sg: ro1('vreuna') } },
+    },
+  },
+  en: { plain: { determiner: { sg: 'some / any' }, pronoun: { sg: 'someone / anyone' } } },
+};
+
+const kanenas: GreekQuantifier = {
+  id: 'kanenas',
+  pos: 'quantifier',
+  lemma: 'κανένας',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'kanenas' } },
+  numbers: ['sg'],
+  meaning:
+    'κανένας means "no" or "none" and needs a negative verb: δεν θέλω κανέναν καφέ. It declines like the numeral ένας.',
+  ro: {
+    lemma: 'niciun',
+    plain: {
+      determiner: { m: { sg: ro1('niciun', 'niciunui') }, f: { sg: ro1('nicio', 'niciunei') } },
+      pronoun: { m: { sg: ro1('niciunul') }, f: { sg: ro1('niciuna') } },
+    },
+  },
+  en: { plain: { determiner: { sg: 'no' }, pronoun: { sg: 'none / no one' } }, negated: 'any' },
+};
+
+const polys: GreekQuantifier = {
+  id: 'polys',
+  pos: 'quantifier',
+  lemma: 'πολύς',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'polys' }, comparative: { stem: 'περισσότερ' } },
+  numbers: ['sg', 'pl'],
+  meaning:
+    'πολύς means "much" with a mass noun (πολύ ψωμί) and "many" with a count noun (πολλά ψωμιά). With the degree control it becomes περισσότερος, "more".',
+  ro: {
+    lemma: 'mult',
+    plain: {
+      determiner: {
+        m: { sg: ro1('mult', PENDING), pl: ro1('mulți', 'multor') },
+        f: { sg: ro1('multă', PENDING), pl: ro1('multe', 'multor') },
+      },
+      pronoun: {
+        m: { sg: ro1('mult'), pl: ro1('mulți') },
+        f: { sg: ro1('multă'), pl: ro1('multe') },
+      },
+    },
+  },
+  en: {
+    plain: {
+      determiner: { sg: 'much / a lot of', pl: 'many / a lot of' },
+      pronoun: { sg: 'much / a lot', pl: 'many / a lot' },
+    },
+    comparative: { determiner: { sg: 'more', pl: 'more' }, pronoun: { sg: 'more', pl: 'more' } },
+  },
+};
+
+const ligos: GreekQuantifier = {
+  id: 'ligos',
+  pos: 'quantifier',
+  lemma: 'λίγος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { stem: 'λίγ' }, comparative: { stem: 'λιγότερ' } },
+  numbers: ['sg', 'pl'],
+  meaning:
+    'λίγος means "little" with a mass noun (λίγο νερό) and "few" with a count noun (λίγα ψωμιά). With the degree control it becomes λιγότερος, "less" or "fewer".',
+  ro: {
+    lemma: 'puțin',
+    plain: {
+      determiner: {
+        m: { sg: ro1('puțin', PENDING), pl: ro1('puțini', PENDING) },
+        f: { sg: ro1('puțină', PENDING), pl: ro1('puține', PENDING) },
+      },
+      pronoun: {
+        m: { sg: ro1('puțin'), pl: ro1('puțini') },
+        f: { sg: ro1('puțină'), pl: ro1('puține') },
+      },
+    },
+  },
+  en: {
+    plain: {
+      determiner: { sg: 'little / a little', pl: 'few / a few' },
+      pronoun: { sg: 'little / a little', pl: 'few / a few' },
+    },
+    comparative: { determiner: { sg: 'less', pl: 'fewer' }, pronoun: { sg: 'less', pl: 'fewer' } },
+  },
+};
 
 const INDICATIVE_ALL: Tense[] = [
   'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
@@ -672,6 +805,11 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [kafeAdj.id]: kafeAdj,
   [numeral.id]: numeral,
   [def.id]: def,
+  [merikoi.id]: merikoi,
+  [kapoios.id]: kapoios,
+  [kanenas.id]: kanenas,
+  [polys.id]: polys,
+  [ligos.id]: ligos,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [troo.id]: troo,

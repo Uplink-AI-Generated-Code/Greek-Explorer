@@ -210,3 +210,38 @@ export const RO_ARTICLE_SUFFIX: Record<Num, Record<Gender, { direct: string; gen
     n: { direct: '-le', genitive: '-lor' },
   },
 };
+
+type PairTable = Partial<Record<Num, Record<Case, Record<Gender, Pair>>>>;
+
+/**
+ * Whole forms of the quantifiers that do not follow the adjective endings on one stem (spec 6.3).
+ * κάποιος keeps the final ν of the masculine accusative; κανένας follows the numeral ένας; πολύς has two stems.
+ */
+export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys', PairTable> = {
+  kapoios: {
+    sg: {
+      nom: { m: ['κάποι', 'ος'], f: ['κάποι', 'α'], n: ['κάποι', 'ο'] },
+      acc: { m: ['κάποι', 'ον'], f: ['κάποι', 'α'], n: ['κάποι', 'ο'] },
+      gen: { m: ['κάποι', 'ου'], f: ['κάποι', 'ας'], n: ['κάποι', 'ου'] },
+    },
+  },
+  kanenas: {
+    sg: {
+      nom: { m: ['κανένα', 'ς'], f: ['καμία', ''], n: ['κανένα', ''] },
+      acc: { m: ['κανένα', 'ν'], f: ['καμία', ''], n: ['κανένα', ''] },
+      gen: { m: ['κανενό', 'ς'], f: ['καμία', 'ς'], n: ['κανενό', 'ς'] },
+    },
+  },
+  polys: {
+    sg: {
+      nom: { m: ['πολύ', 'ς'], f: ['πολλ', 'ή'], n: ['πολύ', ''] },
+      acc: { m: ['πολύ', ''], f: ['πολλ', 'ή'], n: ['πολύ', ''] },
+      gen: { m: ['πολλ', 'ού'], f: ['πολλ', 'ής'], n: ['πολλ', 'ού'] },
+    },
+    pl: {
+      nom: { m: ['πολλ', 'οί'], f: ['πολλ', 'ές'], n: ['πολλ', 'ά'] },
+      acc: { m: ['πολλ', 'ούς'], f: ['πολλ', 'ές'], n: ['πολλ', 'ά'] },
+      gen: { m: ['πολλ', 'ών'], f: ['πολλ', 'ών'], n: ['πολλ', 'ών'] },
+    },
+  },
+};

@@ -56,6 +56,9 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return prepositionPanel(lexeme as GreekPreposition, state, level);
     case 'particle':
       return particlePanel(lexeme as GreekParticle, level);
+    case 'quantifier':
+      // The quantifier panel arrives in Task 4; no phrase uses a quantifier before then.
+      throw new Error('no quantifier panel yet');
   }
 }
 
