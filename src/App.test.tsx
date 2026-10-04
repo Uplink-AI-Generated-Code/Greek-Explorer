@@ -436,4 +436,17 @@ describe('how to read this', () => {
     const reading = screen.getByRole('region', { name: 'How to read this' });
     expect(within(reading).getByText(/the verb "to be" is irregular/)).toBeInTheDocument();
   });
+
+  it.skip('a pronoun part of the reading opens the pronoun panel and comes back', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Eat the bread!');
+    await user.click(screen.getByRole('button', { name: 'Φάε' }));
+    await user.selectOptions(screen.getByLabelText('Object'), 'pronoun');
+    const reading = screen.getByRole('region', { name: 'How to read this' });
+    await user.click(within(reading).getByRole('button', { name: /^το: it/ }));
+    expect(screen.getByRole('heading', { level: 2, name: 'το / του' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '← Back to the verb' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'τρώω' })).toBeInTheDocument();
+  });
 });

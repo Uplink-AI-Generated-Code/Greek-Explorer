@@ -36,11 +36,18 @@ function pieceKindAt(from: OpenPiece, index: number): string | undefined {
   return compose(getVerb(from.token.lexeme), from.state.slot).pieces[index]?.kind;
 }
 
-/** The piece of the authored token with this kind and lexeme, or -1 when the phrase has none (so nothing is pressed). */
-function authoredPiece(authored: Token, lexemeId: string, kind: string | undefined): number {
+/** The piece of the authored token that is the opened piece (same kind, lexeme and slot), or -1 when the phrase has none. */
+function authoredPiece(authored: Token, opened: Token, kind: string | undefined): number {
   if (authored.slot.pos !== 'verb') return -1;
   const pieces = compose(getVerb(authored.lexeme), authored.slot).pieces;
-  return pieces.findIndex((p) => p.kind !== 'verb' && p.kind !== 'fused' && p.kind === kind && p.lexeme === lexemeId);
+  return pieces.findIndex(
+    (p) =>
+      p.kind !== 'verb' &&
+      p.kind !== 'fused' &&
+      p.kind === kind &&
+      p.lexeme === opened.lexeme &&
+      JSON.stringify(p.slot) === JSON.stringify(opened.slot),
+  );
 }
 
 /** One phrase: the phrase bar, the gloss rows, the word panel and the comparison. */
@@ -80,7 +87,7 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
   function openFromReading(pieceIndex: number) {
     const opened = pieceToOpen(current.token.lexeme, current.state.slot, pieceIndex);
     setOpen(opened);
-    setPiece(opened ? authoredPiece(token, opened.token.lexeme, pieceKindAt(current, pieceIndex)) : null);
+    setPiece(opened ? authoredPiece(token, opened.token, pieceKindAt(current, pieceIndex)) : null);
   }
 
   /** A related panel was asked for: open it in place of this one, on its own copy, with a way back. */

@@ -93,7 +93,7 @@ export function WordPanel({ panel, onChange, onBack, onPiece, backLabel = 'Back 
                     onPiece !== undefined &&
                     line.lang === 'el' &&
                     part.piece !== null &&
-                    (part.role === 'particle' || part.role === 'negation' || part.role === 'auxiliary');
+                    (part.role === 'particle' || part.role === 'negation' || part.role === 'auxiliary' || part.role === 'clitic');
                   return opens ? (
                     <button
                       key={i}

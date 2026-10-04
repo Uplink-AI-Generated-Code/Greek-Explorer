@@ -31,4 +31,5 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'auxiliary-table:en-clitic-order', kind: 'auxiliary-table', verified: false },
   { id: 'glossary:ro-en-reading-glosses', kind: 'glossary', verified: false },
   { id: 'glossary:participle-reading', kind: 'glossary', verified: false },
+  { id: 'glossary:clitic-reading', kind: 'glossary', verified: false },
 ];

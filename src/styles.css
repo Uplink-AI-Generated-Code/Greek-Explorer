@@ -115,7 +115,7 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .reading-part { font: inherit; font-size: 16px; padding: 1px 6px; border: 0.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
 button.reading-part { cursor: pointer; }
 button.reading-part:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }
-.reading-particle, .reading-auxiliary { color: var(--accent-text); }
+.reading-particle, .reading-auxiliary, .reading-clitic, .reading-fused { color: var(--accent-text); }
 .reading-negation { font-weight: 600; }
 .reading-augment, .reading-ending { background: var(--warn-bg); color: var(--warn-text); border-color: transparent; }
 .reading-text { margin: 0; font-size: 14px; color: var(--muted); }

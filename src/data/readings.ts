@@ -77,6 +77,19 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
       '{text}: the present of είμαι is irregular and has no separate stem and ending (είμαι, είσαι, είναι, είμαστε, είστε, είναι). Romanian "a fi" and English "be" are irregular in the same way.',
     verified: false,
   },
+  {
+    rule: 'clitic-stress',
+    beginner: '{text}: {parts}. Greek adds a second accent so the stress is not too far back.',
+    improver:
+      '{text}: {technical}. The stress would fall on the fourth-last syllable or further back, so a second accent is written two syllables after the original stress.',
+    verified: false,
+  },
+  {
+    rule: 'short-imperative',
+    beginner: '{text}: {parts}. {note}',
+    improver: '{text}: {technical}. {note}',
+    verified: false,
+  },
 ];
 
 /**

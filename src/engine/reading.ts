@@ -1,7 +1,8 @@
 import { getVerb } from '../data/lexemes';
 import { AUX_GLOSS, EN_FUNCTION, RO_SHAPES, ENDING_GLOSS, KIND_NAME, PARTICLE_GLOSS, READING_TEMPLATES, WHO_GLOSS } from '../data/readings';
-import type { EnVerbForms, GreekAdjective, GreekNoun, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
+import type { Clitic, EnVerbForms, GreekAdjective, GreekNoun, GreekVerb, Reading, ReadingLine, ReadingPart, SlotOf } from '../types';
 import { nounPhrase } from './agree';
+import { enClitic } from './clitics';
 import { compose, type Piece } from './compose';
 import { enVerb, enVerbText } from './english';
 import { inflectAdjective } from './greek';
@@ -16,9 +17,14 @@ const capitalise = (text: string): string => text.charAt(0).toUpperCase() + text
 const fill = (template: string, vars: Record<string, string>): string =>
   template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? `{${key}}`);
 
+/** What a pronoun means in a reading: "it", "to me". */
+function cliticGloss(c: Clitic): string {
+  return c.role === 'indirect' ? `to ${enClitic(c)}` : enClitic(c);
+}
+
 function wordGloss(piece: Exclude<Piece, { kind: 'verb' }>, slot: SlotOf<'verb'>): string {
-  // Task 5 gives pronouns and joined short forms their own glosses.
-  if (piece.kind === 'fused' || piece.kind === 'clitic') return piece.text;
+  if (piece.kind === 'fused') return `${piece.of.join(' + ')}, joined`;
+  if (piece.kind === 'clitic') return piece.slot.pos === 'clitic' ? cliticGloss(piece.slot) : piece.text;
   if (piece.kind === 'auxiliary') {
     const aux = piece.slot;
     return aux.pos === 'verb' ? AUX_GLOSS[aux.tense === 'imperfect' ? 'imperfect' : 'present'][whoIndex(aux)] : piece.text;
@@ -39,6 +45,10 @@ function describe(piece: Piece, kind: ReturnType<typeof lexicalFormKind>): strin
   if (piece.kind === 'auxiliary' && piece.slot.pos === 'verb') {
     return `${piece.text} (${piece.slot.tense} ${piece.slot.person}${piece.slot.number} of έχω)`;
   }
+  if (piece.kind === 'clitic' && piece.slot.pos === 'clitic') {
+    return `${piece.slot.role === 'object' ? 'accusative' : 'genitive'} pronoun ${piece.text}`;
+  }
+  if (piece.kind === 'fused') return `${piece.of.join(' + ')} joined (${piece.text})`;
   return piece.text;
 }
 
@@ -77,6 +87,8 @@ function roGloss(key: string, en: EnVerbForms): string {
 }
 
 function romanianLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): ReadingLine | undefined {
+  // The fused forms with pronouns (mănâncă-o, nu-l mânca) do not fit the word-by-word shapes.
+  if ((slot.clitics ?? []).length > 0) return undefined;
   const en = voiceOf(verb, slot.voice).en;
   const negative = slot.polarity === 'negative';
   let shape: readonly string[] | undefined;
@@ -93,6 +105,8 @@ function romanianLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string):
 }
 
 function englishLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): ReadingLine | undefined {
+  // The fused forms with pronouns (mănâncă-o, nu-l mânca) do not fit the word-by-word shapes.
+  if ((slot.clitics ?? []).length > 0) return undefined;
   const en = voiceOf(verb, slot.voice).en;
   const parts = enVerb(verb, slot);
   // The parenthetical "(myself)" of a reflexive verb and the subject pronoun are not parts of the verb group.
@@ -148,7 +162,9 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
   const form = lexical.kind === 'verb' ? lexical.form : undefined;
   const negativeCommand = negative && slot.mood === 'imperative';
   // A negative command already has its own extra sentence, so a template would make a third.
-  const template = form?.irregular && !negativeCommand ? READING_TEMPLATES.find((t) => t.rule === form.irregular?.rule) : undefined;
+  // A rule that shaped the whole group (the second accent, a short form) comes before the verb's own irregularity.
+  const rule = composed.irregular?.rule ?? form?.irregular?.rule;
+  const template = rule && !negativeCommand ? READING_TEMPLATES.find((t) => t.rule === rule) : undefined;
 
   const listing = parts.map((p) => `${p.label} = ${p.gloss}`).join(', ');
   const technical = composed.pieces.map((piece) => describe(piece, kind)).join(' + ');
@@ -163,7 +179,7 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
     technical,
     stem: form?.stem ?? '',
     ending: form?.ending ?? '',
-    note: form?.irregular?.plain ?? '',
+    note: composed.irregular?.plain ?? form?.irregular?.plain ?? '',
   };
 
   const beginnerTail =
@@ -172,8 +188,15 @@ export function readingFor(verb: GreekVerb, slot: SlotOf<'verb'>): Reading {
       : negativeCommand
         ? ' To forbid something, Greek uses μην + the "you" form of the να-verb, not the command form.'
         : '';
+  const pair = (slot.clitics ?? []).length === 2;
   const improverTail =
-    kind === 'base' ? ' The auxiliary carries the person.' : negativeCommand ? ' The subjunctive replaces the imperative.' : '';
+    kind === 'base'
+      ? ' The auxiliary carries the person.'
+      : negativeCommand
+        ? ' The subjunctive replaces the imperative.'
+        : pair && !template
+          ? ' The genitive pronoun comes before the accusative.'
+          : '';
 
   const beginner = (template ? fill(template.beginner, vars) : `${composed.text}: ${listing}.`) + beginnerTail;
   const improver = (template ? `${negative ? `${name}: ` : ''}${fill(template.improver, vars)}` : `${name}: ${technical}.`) + improverTail;

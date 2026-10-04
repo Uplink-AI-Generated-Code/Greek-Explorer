@@ -153,9 +153,11 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
           if (isEmpty(part.gloss)) errors.push(`${where}: reading part "${part.text}" has no gloss`);
         }
         const lexical = composed.pieces[composed.pieces.length - 1];
-        const rule = lexical.kind === 'verb' ? lexical.form.irregular?.rule : undefined;
-        if (rule && !READING_TEMPLATES.some((t) => t.rule === rule)) {
-          errors.push(`lexeme ${l.id}: the irregular rule "${rule}" has no authored reading`);
+        const rules = [composed.irregular?.rule, lexical.kind === 'verb' ? lexical.form.irregular?.rule : undefined];
+        for (const rule of rules) {
+          if (rule && !READING_TEMPLATES.some((t) => t.rule === rule)) {
+            errors.push(`lexeme ${l.id}: the irregular rule "${rule}" has no authored reading`);
+          }
         }
         const ro = roVerb(l, slot);
         if (isEmpty(ro) || ro.includes('undefined') || /\s$/.test(ro) || /\s{2,}/.test(ro)) errors.push(`${where}: no Romanian form`);
