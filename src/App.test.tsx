@@ -363,4 +363,34 @@ describe('how to read this', () => {
       ),
     ).toBeInTheDocument();
   });
+  it('opens a quantifier, shows a pending Romanian form as "not yet added" and switches the degree', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'I want a little water');
+    await user.click(screen.getByRole('button', { name: 'λίγο' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'λίγος / λίγη / λίγο' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'λίγο νερό' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'puțină apă' })).toBeInTheDocument();
+    expect(screen.getByText('mass reading')).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Role in sentence'), 'gen');
+    expect(screen.getAllByRole('cell', { name: 'not yet added' }).length).toBeGreaterThan(0);
+    await user.selectOptions(screen.getByLabelText('Role in sentence'), 'acc');
+    await user.selectOptions(screen.getByLabelText('Degree'), 'comparative');
+    expect(screen.getByRole('cell', { name: 'λιγότερο νερό' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'mai puțină apă' })).toBeInTheDocument();
+    expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Reset to phrase' }));
+    expect(screen.getByRole('cell', { name: 'λίγο νερό' })).toBeInTheDocument();
+  });
+
+  it('κανένας shows the negative concord in its own row', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), "I don't want any coffee");
+    await user.click(screen.getByRole('button', { name: 'κανέναν' }));
+    expect(screen.getByRole('cell', { name: 'κανέναν καφέ' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'δεν θέλω κανέναν καφέ' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'nu vreau nicio cafea' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: "I don't want any coffee" })).toBeInTheDocument();
+  });
 });

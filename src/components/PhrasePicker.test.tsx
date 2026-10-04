@@ -11,6 +11,10 @@ describe('PhrasePicker', () => {
     expect(within(ordering).getAllByRole('option').map((o) => o.textContent)).toEqual([
       'Ordering a hot coffee',
       'Ordering three coffees',
+      'I want a little water',
+      'I want some coffees',
+      "I don't want any coffee",
+      'I want more water',
       "I'd like a coffee",
       'I would like a coffee',
     ]);

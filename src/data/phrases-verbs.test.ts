@@ -80,12 +80,14 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     }
   });
 
-  it('the picker lists all 25 phrases in the spec order', () => {
+  it('the picker lists all 31 phrases in the spec order', () => {
     expect(PHRASES.map((p) => p.id)).toEqual([
       'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
       'washing-myself', 'washing-the-child', 'sleeping',
+      'want-a-little-water', 'want-some-coffees', 'dont-want-any-coffee', 'want-more-water',
       'present-perfect', 'past-perfect', 'future-perfect', 'want-to-eat', 'want-to-eat-regularly',
-      'dont-want-to-go', 'fox-has-jumped', 'have-washed-myself', 'ate-the-bread', 'wanted-a-coffee',
+      'dont-want-to-go', 'fox-has-jumped', 'have-washed-myself', 'ate-the-bread',
+      'eat-less-bread', 'used-to-eat-bread', 'wanted-a-coffee',
       'fox-was-jumping', 'eat-the-bread', 'dont-eat-the-bread', 'wash-the-child', 'keep-eating-the-bread',
       'may-have-eaten', 'would-like-a-coffee', 'would-have-eaten-the-bread', 'want-not-to-go',
     ]);

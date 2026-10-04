@@ -1,4 +1,4 @@
-import type { GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, Slot, Tense, Token, Voice } from '../types';
+import type { Case, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, Slot, SlotOf, Tense, Token, Voice } from '../types';
 
 const verbSlot = (person: 1 | 2 | 3): Slot => ({
   pos: 'verb',
@@ -17,6 +17,17 @@ const vslot = (
   number: Num = 'sg',
   voice: Voice = 'active',
 ): Slot => ({ pos: 'verb', person, number, mood, tense, voice });
+
+/** A quantifier slot (beside a noun); `patch` sets the degree or the sense. */
+const qslot = (gender: Gender, number: Num, c: Case, patch: Partial<SlotOf<'quantifier'>> = {}): Slot => ({
+  pos: 'quantifier',
+  gender,
+  number,
+  case: c,
+  degree: 'plain',
+  use: 'determiner',
+  ...patch,
+});
 
 /** A gloss unit; `null` marks a word Greek leaves out. */
 const u = (text: string, link: Link | null): GlossUnit => ({ text, link });
@@ -301,6 +312,82 @@ const sleeping: Phrase = {
   verified: false,
 };
 
+const wantALittleWater: Phrase = {
+  id: 'want-a-little-water',
+  title: 'I want a little water',
+  theme: 'Ordering',
+  level: 'beginner',
+  tokens: [
+    { text: 'Θέλω', lexeme: 'thelo', slot: verbSlot(1) },
+    { text: 'λίγο', lexeme: 'ligos', slot: qslot('n', 'sg', 'acc'), agreesWith: 2 },
+    { text: 'νερό', lexeme: 'nero', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I want', 0), u('a little', 1), u('water', 2)],
+    [u('(I)', null), u('want', 0), u('little', 1), u('water', 2)],
+    [u('Vreau', 0), u('puțină', 1), u('apă', 2)],
+    [u('(Eu)', null), u('vreau', 0), u('puțină', 1), u('apă', 2)],
+  ),
+  verified: false,
+};
+
+const wantSomeCoffees: Phrase = {
+  id: 'want-some-coffees',
+  title: 'I want some coffees',
+  theme: 'Ordering',
+  level: 'beginner',
+  tokens: [
+    { text: 'Θέλω', lexeme: 'thelo', slot: verbSlot(1) },
+    { text: 'μερικούς', lexeme: 'merikoi', slot: qslot('m', 'pl', 'acc'), agreesWith: 2 },
+    { text: 'καφέδες', lexeme: 'kafes', slot: { pos: 'noun', number: 'pl', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I want', 0), u('some', 1), u('coffees', 2)],
+    [u('(I)', null), u('want', 0), u('some', 1), u('coffees', 2)],
+    [u('Vreau', 0), u('niște', 1), u('cafele', 2)],
+    [u('(Eu)', null), u('vreau', 0), u('niște', 1), u('cafele', 2)],
+  ),
+  verified: false,
+};
+
+const dontWantAnyCoffee: Phrase = {
+  id: 'dont-want-any-coffee',
+  title: "I don't want any coffee",
+  theme: 'Ordering',
+  level: 'improver',
+  tokens: [
+    { text: 'Δεν θέλω', lexeme: 'thelo', slot: { ...vslot('indicative', 'present'), polarity: 'negative' } as Slot },
+    { text: 'κανέναν', lexeme: 'kanenas', slot: qslot('m', 'sg', 'acc'), agreesWith: 2 },
+    { text: 'καφέ', lexeme: 'kafes', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u("I don't", p(0, 0)), u('want', p(0, 1)), u('any', 1), u('coffee', 2)],
+    [u('(I)', null), u('not', p(0, 0)), u('want', p(0, 1)), u('no-[acc]', 1), u('coffee', 2)],
+    [u('Nu', p(0, 0)), u('vreau', p(0, 1)), u('nicio', 1), u('cafea', 2)],
+    [u('(Eu)', null), u('nu', p(0, 0)), u('vreau', p(0, 1)), u('nicio', 1), u('cafea', 2)],
+  ),
+  verified: false,
+};
+
+const wantMoreWater: Phrase = {
+  id: 'want-more-water',
+  title: 'I want more water',
+  theme: 'Ordering',
+  level: 'improver',
+  tokens: [
+    { text: 'Θέλω', lexeme: 'thelo', slot: verbSlot(1) },
+    { text: 'περισσότερο', lexeme: 'polys', slot: qslot('n', 'sg', 'acc', { degree: 'comparative' }), agreesWith: 2 },
+    { text: 'νερό', lexeme: 'nero', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I want', 0), u('more', 1), u('water', 2)],
+    [u('(I)', null), u('want', 0), u('more', 1), u('water', 2)],
+    [u('Vreau', 0), u('mai multă', 1), u('apă', 2)],
+    [u('(Eu)', null), u('vreau', 0), u('mai multă', 1), u('apă', 2)],
+  ),
+  verified: false,
+};
+
 const presentPerfect: Phrase = {
   id: 'present-perfect',
   title: 'I have eaten',
@@ -437,6 +524,44 @@ const ateTheBread: Phrase = {
     [u('(I)', null), u('ate', 0), u('the-[acc]', 1), u('bread', 2)],
     [u('Am mâncat', 0), seg(['pâine', 2], ['a', 1])],
     [u('(Eu)', null), u('am mâncat', 0), seg(['pâine', 2], ['a', 1])],
+  ),
+  verified: false,
+};
+
+const eatLessBread: Phrase = {
+  id: 'eat-less-bread',
+  title: 'I will eat less bread',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Θα τρώω', lexeme: 'troo', slot: vslot('indicative', 'future') },
+    { text: 'λιγότερο', lexeme: 'ligos', slot: qslot('n', 'sg', 'acc', { degree: 'comparative' }), agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I will', p(0, 0)), u('eat', p(0, 1)), u('less', 1), u('bread', 2)],
+    [u('(I)', null), u('will', p(0, 0)), u('eat', p(0, 1)), u('less', 1), u('bread', 2)],
+    [u('Voi', p(0, 0)), u('mânca', p(0, 1)), u('mai puțină', 1), u('pâine', 2)],
+    [u('(Eu)', null), u('voi', p(0, 0)), u('mânca', p(0, 1)), u('mai puțină', 1), u('pâine', 2)],
+  ),
+  verified: false,
+};
+
+const usedToEatBread: Phrase = {
+  id: 'used-to-eat-bread',
+  title: 'I used to eat a lot of bread',
+  theme: 'Eating',
+  level: 'improver',
+  tokens: [
+    { text: 'Έτρωγα', lexeme: 'troo', slot: vslot('indicative', 'imperfect') },
+    { text: 'πολύ', lexeme: 'polys', slot: qslot('n', 'sg', 'acc'), agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+  ],
+  glosses: rows(
+    [u('I used to eat', 0), u('a lot of', 1), u('bread', 2)],
+    [u('(I)', null), u('was eating', 0), u('much', 1), u('bread', 2)],
+    [u('Mâncam', 0), u('multă', 1), u('pâine', 2)],
+    [u('(Eu)', null), u('mâncam', 0), u('multă', 1), u('pâine', 2)],
   ),
   verified: false,
 };
@@ -657,6 +782,7 @@ export const PHRASES: Phrase[] = [
   washingMyself,
   washingTheChild,
   sleeping,
+  wantALittleWater, wantSomeCoffees, dontWantAnyCoffee, wantMoreWater,
   presentPerfect,
   pastPerfect,
   futurePerfect,
@@ -666,6 +792,7 @@ export const PHRASES: Phrase[] = [
   foxHasJumped,
   haveWashedMyself,
   ateTheBread,
+  eatLessBread, usedToEatBread,
   wantedACoffee,
   foxWasJumping,
   eatTheBread,
