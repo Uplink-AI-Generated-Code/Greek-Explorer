@@ -11,6 +11,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:neut-o', kind: 'ending-table', verified: false },
   { id: 'ending-table:clitic-forms', kind: 'ending-table', verified: false },
   { id: 'clitic-table:ro-clitics', kind: 'clitic-table', verified: false },
+  { id: 'clitic-table:ro-fusions', kind: 'clitic-table', verified: false },
   { id: 'ending-table:quantifier-forms', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-stressed', kind: 'ending-table', verified: false },
   { id: 'ending-table:adj-unstressed', kind: 'ending-table', verified: false },

@@ -727,4 +727,33 @@ export const DIVERGENCES: Divergence[] = [
     level: 'core',
     verified: false,
   },
+  {
+    id: 'pronoun-position-finite',
+    appliesTo: { pos: 'verb', when: { moods: ['indicative', 'subjunctive', 'conditional', 'hortative'], clitics: 'some' } },
+    point: 'Where the pronoun goes',
+    el: 'in front of the verb group: το τρώω, δεν το τρώω, θα το φάω',
+    ro: 'in front too (îl mănânc), fused with să or the auxiliary (să-l mănânc, l-am mâncat)',
+    en: 'after the verb or the participle: "eat it", "has eaten it"',
+    tag: 'differs',
+    level: 'core',
+    verified: false,
+  },
+  {
+    id: 'pronoun-before-auxiliary',
+    appliesTo: {
+      pos: 'verb',
+      when: {
+        moods: ['indicative', 'subjunctive', 'conditional', 'hortative'],
+        tenses: ['perfect', 'pluperfect', 'futurePerfect'],
+        clitics: 'some',
+      },
+    },
+    point: 'The pronoun and the auxiliary',
+    el: 'the pronoun stands before έχω: το έχω φάει',
+    ro: 'it fuses with the auxiliary (l-am mâncat), except o, which follows the participle (am mâncat-o)',
+    en: 'it follows the participle: "has eaten it"',
+    tag: 'differs',
+    level: 'extra',
+    verified: false,
+  },
 ];
