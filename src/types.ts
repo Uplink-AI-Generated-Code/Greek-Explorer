@@ -102,7 +102,7 @@ export interface RoNounForms {
   genIndefinite: string;
 }
 
-export type NounClass = 'masc-es' | 'masc-os' | 'fem-ou' | 'neut-i' | 'neut-o';
+export type NounClass = 'masc-es' | 'masc-os' | 'fem-a' | 'fem-ou' | 'neut-i' | 'neut-o';
 
 export interface GreekNoun extends LexemeBase {
   pos: 'noun';
@@ -113,6 +113,8 @@ export interface GreekNoun extends LexemeBase {
   /** The English pronoun that stands for the noun (default "it"): "him / her / it" for a child. */
   enPronoun?: string;
   stems: Record<Num, string>;
+  /** A cell that breaks its class pattern, keyed '<number>-<case>' ('pl-gen'); the whole cell is stored. */
+  overrides?: Partial<Record<`${Num}-${Case}`, { stem: string; ending: string; note?: IrregularNote }>>;
   ro: {
     lemma: string;
     gender: Gender;

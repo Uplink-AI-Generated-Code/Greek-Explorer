@@ -147,6 +147,34 @@ const nero: GreekNoun = {
   note: 'Neuter in Greek, feminine in Romanian (apă); "water" has no gender and no plural in English.',
 };
 
+const ora: GreekNoun = {
+  id: 'ora',
+  pos: 'noun',
+  lemma: 'ώρα',
+  verified: { el: false, ro: false, en: false },
+  gender: 'f',
+  class: 'fem-a',
+  stems: { sg: 'ώρ', pl: 'ώρ' },
+  overrides: {
+    'pl-gen': {
+      stem: 'ωρ',
+      ending: 'ών',
+      note: { rule: 'accent-moves', plain: 'The accent moves onto the ending in the genitive plural: ωρών, not ώρων.' },
+    },
+  },
+  ro: {
+    lemma: 'oră',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'ora', indefinite: 'o oră', genDefinite: 'orei', genIndefinite: 'unei ore' },
+      pl: { definite: 'orele', indefinite: 'ore', genDefinite: 'orelor', genIndefinite: 'unor ore' },
+    },
+    split: { sg: ['or', 'a'], pl: ['ore', 'le'] },
+  },
+  en: { sg: 'hour', pl: 'hours' },
+  note: 'Feminine in Greek and Romanian (oră). τι ώρα is literally "what hour"; English says "what time".',
+};
+
 const zestos: GreekAdjective = {
   id: 'zestos',
   pos: 'adjective',
@@ -506,6 +534,37 @@ const thelo: GreekVerb = {
         pluperfect: ['voisem', 'voiseși', 'voise', 'voiserăm', 'voiserăți', 'voiseră'],
       },
       en: { gloss: 'want', base: 'want', third: 'wants', past: 'wanted', pastParticiple: 'wanted', ing: 'wanting' },
+    },
+  },
+};
+
+const kano: GreekVerb = {
+  id: 'kano',
+  pos: 'verb',
+  lemma: 'κάνω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'κάνω',
+      class: 'omega',
+      stems: {
+        present: 'κάν',
+        imperfect: { strong: { augment: 'έ', stem: 'καν' }, weak: { stem: 'κάν' } },
+        aorist: { strong: { augment: 'έ', stem: 'καν' }, weak: { stem: 'κάν' } },
+        perfective: 'κάν',
+      },
+      offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
+      ro: {
+        lemma: 'a face',
+        infinitive: 'face',
+        participle: 'făcut',
+        present: ['fac', 'faci', 'face', 'facem', 'faceți', 'fac'],
+        subjunctive: ['fac', 'faci', 'facă', 'facem', 'faceți', 'facă'],
+        imperfect: ['făceam', 'făceai', 'făcea', 'făceam', 'făceați', 'făceau'],
+        pluperfect: ['făcusem', 'făcuseși', 'făcuse', 'făcuserăm', 'făcuserăți', 'făcuseră'],
+        imperative: ['fă', 'faceți'],
+      },
+      en: { gloss: 'do / make', base: 'do', third: 'does', past: 'did', pastParticiple: 'done', ing: 'doing' },
     },
   },
 };
@@ -1071,6 +1130,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [paidi.id]: paidi,
   [psomi.id]: psomi,
   [nero.id]: nero,
+  [ora.id]: ora,
   [zestos.id]: zestos,
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
@@ -1088,6 +1148,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [posos.id]: posos,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
+  [kano.id]: kano,
   [troo.id]: troo,
   [dino.id]: dino,
   [pao.id]: pao,

@@ -12,6 +12,11 @@ export const NOUN_CLASSES: Record<NounClass, EndingTable> = {
     sg: { nom: 'ος', acc: 'ο', gen: 'ου' },
     pl: { nom: 'οι', acc: 'ους', gen: 'ων' },
   },
+  /** Feminine nouns in -α: ώρα, ώρας, ώρες. */
+  'fem-a': {
+    sg: { nom: 'α', acc: 'α', gen: 'ας' },
+    pl: { nom: 'ες', acc: 'ες', gen: 'ων' },
+  },
   /** Feminine nouns in -ού: the singular does not change except in the genitive, and the plural adds -δ-. */
   'fem-ou': {
     sg: { nom: '', acc: '', gen: 'ς' },

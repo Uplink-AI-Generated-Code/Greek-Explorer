@@ -38,6 +38,10 @@ import { voiceOf } from './offers';
 import { mainFormKind, whoIndex } from './tenses';
 
 export function inflectNoun(l: GreekNoun, s: SlotOf<'noun'>): Form {
+  const override = l.overrides?.[`${s.number}-${s.case}`];
+  if (override) {
+    return { stem: override.stem, ending: override.ending, ...(override.note ? { irregular: override.note } : {}) };
+  }
   const form: Form = { stem: l.stems[s.number], ending: NOUN_CLASSES[l.class][s.number][s.case] };
   const note = NOUN_NOTES[l.class]?.[`${s.number}-${s.case}` as const];
   return note ? { ...form, irregular: note } : form;
