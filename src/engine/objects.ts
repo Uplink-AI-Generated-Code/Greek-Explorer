@@ -27,11 +27,14 @@ export function nounForClitic(c: Clitic): string | null {
   return match ? match.id : null;
 }
 
-/** The kind of object a command has, from its pronouns and the noun the panel holds. */
+/**
+ * The kind of object a verb form has, from its pronouns and the noun the panel holds. A spelled-out noun is for
+ * commands only (spec 5.3): in any other mood a held noun with no pronoun means no object.
+ */
 export function objectKind(slot: SlotOf<'verb'>, noun: string | null): ObjectKind {
   const clitics = slot.clitics ?? [];
   if (clitics.some((c) => c.role === 'object')) return clitics.some((c) => c.role === 'indirect') ? 'two' : 'pronoun';
-  return noun ? 'noun' : 'none';
+  return noun && slot.mood === 'imperative' ? 'noun' : 'none';
 }
 
 /** The pronouns for an object kind; a verb with an indirect object (δίνω) gets "me" with a noun and in the pair. */

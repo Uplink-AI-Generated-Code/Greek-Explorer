@@ -141,9 +141,9 @@ export const senseOptions: Option[] = [
 ];
 
 /** The kinds of object of a command (spec 5.3). */
-export const objectOptions = (level: Level, indirect: boolean): Option[] => [
+export const objectOptions = (level: Level, indirect: boolean, command = true): Option[] => [
   { value: 'none', label: 'none' },
-  { value: 'noun', label: level === 'beginner' ? 'a noun (spelled out)' : 'a noun phrase' },
+  ...(command ? [{ value: 'noun', label: level === 'beginner' ? 'a noun (spelled out)' : 'a noun phrase' }] : []),
   { value: 'pronoun', label: level === 'beginner' ? 'a small word (it, him)' : 'a pronoun' },
   ...(indirect
     ? [{ value: 'two', label: level === 'beginner' ? 'two small words (me + it)' : 'two pronouns (indirect + direct)' }]

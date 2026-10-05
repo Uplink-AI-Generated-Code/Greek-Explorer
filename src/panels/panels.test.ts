@@ -26,10 +26,10 @@ describe('initialState', () => {
 
 describe('verb panel (θέλω)', () => {
   const panel = panelFor(0);
-  it('has lemma, label and the Who?, Mood and When? controls', () => {
+  it('has lemma, label and the Who?, Mood, When? and Object controls', () => {
     expect(panel.lemma).toBe('θέλω');
     expect(panel.posLabel).toBe('verb: to want');
-    expect(panel.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity']);
+    expect(panel.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity', 'object']);
     expect(panel.controls[0]).toMatchObject({ key: 'who', label: 'Who?', value: '1sg' });
   });
   it('shows the dropped Greek and Romanian pronouns and the required English one', () => {

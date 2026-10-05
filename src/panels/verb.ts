@@ -73,6 +73,10 @@ function classMessage(data: { class: VerbClass }): string {
     : '';
 }
 
+/** Does the verb form take an object? Reflexive (mediopassive) verbs and verbs like πάω do not. */
+const takesObject = (verb: GreekVerb, slot: SlotOf<'verb'>): boolean =>
+  slot.voice === 'active' && voiceOf(verb, slot.voice).intransitive !== true;
+
 const pronounCells = (verb: GreekVerb, slot: SlotOf<'verb'>) => {
   const data = voiceOf(verb, slot.voice);
   return { show: slot.mood !== 'imperative' && !data.thirdSingularOnly, impersonal: data.thirdSingularOnly === true };
@@ -142,11 +146,8 @@ export function changeVerbSlot(
   }
   // A negative command needs the verb to offer the matching subjunctive; if it does not, drop the negation.
   if (next.polarity === 'negative' && !isOffered(verb, next)) delete next.polarity;
-  // Pronouns and short forms are for commands; drop what no longer fits.
-  if (next.mood !== 'imperative') {
-    delete next.clitics;
-    delete next.shortForm;
-  }
+  // A short form is for commands; the pronouns stay unless the verb or the voice cannot take them (below).
+  if (next.mood !== 'imperative') delete next.shortForm;
   if (next.polarity === 'negative') delete next.shortForm;
   if (slotProblem(verb, next)) delete next.shortForm;
   if (slotProblem(verb, next)) delete next.clitics;
@@ -157,6 +158,8 @@ export function changeVerbSlot(
 const CLITIC_PLAIN = {
   affirmative: 'The pronoun follows an affirmative command (φάε το).',
   negative: 'The pronoun goes in front of the verb in a negative command (μην το φας).',
+  finite:
+    'The pronoun goes in front of the verb group, after δεν and θα / να / ας and before έχω: το τρώω, δεν το τρώω, θα το φάω, το έχω φάει.',
 };
 
 /** The command with its object spelled out: φάε το ψωμί / mănâncă pâinea / eat the bread. */
@@ -205,9 +208,14 @@ function controls(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelState, kind
     ],
     value: slot.polarity ?? 'affirmative',
   });
-  if (slot.mood === 'imperative') {
+  if (takesObject(verb, slot)) {
     const indirect = voiceOf(verb, slot.voice).indirect === true;
-    list.push({ key: 'object', label: 'Object', options: objectOptions(level, indirect), value: kind });
+    list.push({
+      key: 'object',
+      label: 'Object',
+      options: objectOptions(level, indirect, slot.mood === 'imperative'),
+      value: kind,
+    });
     if (kind !== 'none') list.push(nounControl('Object noun', state));
   }
   return list;
@@ -252,7 +260,7 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelSta
   const composed = compose(verb, slot);
   const formNote = lexicalPiece(composed)?.form.irregular?.plain;
   const who = offeredWho(verb, slot.voice, slot.mood);
-  const kind: ObjectKind = slot.mood === 'imperative' ? objectKind(slot, state.noun) : 'none';
+  const kind: ObjectKind = takesObject(verb, slot) ? objectKind(slot, state.noun) : 'none';
   const objectNoun = kind === 'noun' && state.noun ? getNoun(state.noun) : null;
   return {
     lemma: data.lemma,
@@ -277,7 +285,13 @@ export function verbPanel(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelSta
       PLAIN[`${slot.mood}.${slot.tense}`] +
       (slot.polarity === 'negative' ? ` ${NEGATION_PLAIN[slot.mood]}` : '') +
       ((slot.clitics ?? []).length > 0
-        ? ` ${slot.polarity === 'negative' ? CLITIC_PLAIN.negative : CLITIC_PLAIN.affirmative}`
+        ? ` ${
+            slot.mood !== 'imperative'
+              ? CLITIC_PLAIN.finite
+              : slot.polarity === 'negative'
+                ? CLITIC_PLAIN.negative
+                : CLITIC_PLAIN.affirmative
+          }`
         : ''),
     irregular: composed.irregular?.plain ?? formNote ?? classMessage(data),
     note: '',

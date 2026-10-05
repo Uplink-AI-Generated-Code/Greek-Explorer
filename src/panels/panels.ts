@@ -106,8 +106,8 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         }
         if (!lexemeId) throw new Error(`the ${key} control needs the lexeme`);
         const next = changeVerbSlot(getVerb(lexemeId), slot, key, value);
-        // The object noun belongs to the command: leaving the imperative leaves it behind.
-        return { ...state, slot: next, noun: next.mood === 'imperative' ? state.noun : null };
+        // The held noun is what a command's object (or a pronoun's referent) is; without either it is left behind.
+        return { ...state, slot: next, noun: next.mood === 'imperative' || (next.clitics ?? []).length > 0 ? state.noun : null };
       }
       if (key === 'who' && slot.pos === 'clitic') return { ...state, slot: withWho(slot, value) };
       break;
@@ -185,7 +185,8 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'object':
       if (slot.pos === 'verb') {
         if (!lexemeId) throw new Error('the object control needs the lexeme');
-        const kind = value as ObjectKind;
+        // A spelled-out noun is for commands only.
+        const kind = (value === 'noun' && slot.mood !== 'imperative' ? 'none' : value) as ObjectKind;
         const noun = getNoun(state.noun ?? DEFAULT_OBJECT);
         const next = { ...slot };
         delete next.shortForm;

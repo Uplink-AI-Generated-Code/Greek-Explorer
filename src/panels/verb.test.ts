@@ -51,9 +51,9 @@ describe('verb panel: the row', () => {
 });
 
 describe('verb panel: controls', () => {
-  it('θέλω: Who, Mood and When, no Voice', () => {
+  it('θέλω: Who, Mood, When and Object, no Voice', () => {
     const p = panel('thelo', vs('indicative', 'present'));
-    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity']);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity', 'object']);
     expect(control(p, 'mood')?.options.map((o) => o.value)).toEqual(['indicative', 'subjunctive', 'conditional', 'hortative']);
     expect(control(p, 'tense')?.options.map((o) => o.value)).toHaveLength(8);
     expect(control(p, 'mood')?.label).toBe('Mood');
@@ -61,7 +61,7 @@ describe('verb panel: controls', () => {
   });
   it('πλένω has a Voice control', () => {
     const p = panel('pleno', vs('indicative', 'present'));
-    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity']);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity', 'object']);
     expect(control(p, 'voice')?.options.map((o) => o.value)).toEqual(['active', 'mediopassive']);
   });
   it('the imperative offers only "you" and "you (pl.)"', () => {
@@ -238,9 +238,9 @@ describe('verb panel: negation', () => {
     expect(cells(plural)).toEqual({ el: 'μην φάτε', ro: 'nu mâncați', en: "don't eat" });
   });
 
-  it('offers a Negated? control last, with plain Yes and No', () => {
+  it('offers a Negated? control with plain Yes and No, before the Object control', () => {
     const p = panel('pleno', vs('indicative', 'present'));
-    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity']);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'voice', 'polarity', 'object']);
     expect(control(p, 'polarity')).toMatchObject({ label: 'Negated?', value: 'affirmative' });
     expect(control(p, 'polarity')?.options.map((o) => o.label)).toEqual(['No', 'Yes']);
     expect(control(panel('troo', negative(vs('indicative', 'present'))), 'polarity')?.value).toBe('negative');

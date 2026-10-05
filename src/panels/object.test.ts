@@ -57,9 +57,10 @@ describe('the verb panel of a command and its object', () => {
     expect(options('dino')).toEqual(['none', 'noun', 'pronoun', 'two']);
   });
 
-  it('outside a command there is no Object control and the full table has no pronouns', () => {
+  it('outside a command the Object control has no spelled-out noun, and the full table has no pronouns', () => {
     const present = panelOf('troo', command({ mood: 'indicative', tense: 'present' }), null);
-    expect(keys(present)).toEqual(['who', 'mood', 'tense', 'polarity']);
+    expect(keys(present)).toEqual(['who', 'mood', 'tense', 'polarity', 'object']);
+    expect(present.controls.find((c) => c.key === 'object')?.options.map((o) => o.value)).toEqual(['none', 'pronoun']);
     const improver = panelOf('troo', command({ clitics: [IT], shortForm: true }), 'psomi', 'improver');
     expect(improver.full.map((r) => richText(r.el))).toEqual(['φάε', 'φάτε']);
     expect(improver.overview).toHaveLength(17);
@@ -110,9 +111,9 @@ describe('applyControl: object and object noun', () => {
 describe('changeVerbSlot keeps pronouns and short forms valid', () => {
   const troo = getVerb('troo');
   const short = command({ clitics: [IT], shortForm: true });
-  it('leaving the command drops both', () => {
+  it('leaving the command drops the short form and keeps the pronoun', () => {
     const next = changeVerbSlot(troo, short, 'mood', 'indicative');
-    expect(next).not.toHaveProperty('clitics');
+    expect(next).toHaveProperty('clitics');
     expect(next).not.toHaveProperty('shortForm');
   });
   it('the plural, the present and a negative command drop the short form but keep the pronoun', () => {
