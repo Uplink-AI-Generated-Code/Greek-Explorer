@@ -1181,6 +1181,59 @@ const letsNotGo: Phrase = {
   verified: false,
 };
 
+/** The same verb slot with pronouns (spec 4.3). */
+const withClitics = (slot: Slot, clitics: Clitic[]): Slot => ({ ...(slot as SlotOf<'verb'>), clitics });
+
+const whatIsItCalled: Phrase = {
+  id: 'what-is-it-called',
+  title: 'What is it called?',
+  theme: 'Daily life',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πώς', lexeme: 'pos-how', slot: iq },
+    { text: 'το λένε;', lexeme: 'lego', slot: withClitics(present(3, 'pl'), [IT_CHILD]) },
+  ],
+  glosses: rows(
+    [u('What', 0), u('is', null), u('it', p(1, 0)), u('called?', p(1, 1))],
+    [u('how', 0), u('it', p(1, 0)), u('(they)', null), u('say', p(1, 1))],
+    [u('Cum', 0), u('se', null), u('numește?', p(1, 1))],
+    [u('cum', 0), u('îl', p(1, 0)), u('zic', p(1, 1))],
+  ),
+  verified: false,
+};
+
+const letsEatIt: Phrase = {
+  id: 'lets-eat-it',
+  title: "Let's eat it!",
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [{ text: 'Ας το φάμε!', lexeme: 'troo', slot: withClitics(hslot('aorist', 1, 'pl'), [IT]) }],
+  glosses: rows(
+    [u("Let's", p(0, 0)), u('eat', p(0, 2)), u('it!', p(0, 1))],
+    [u('let', p(0, 0)), u('it', p(0, 1)), u('(we)', null), u('eat', p(0, 2))],
+    [u('Să', p(0, 0)), u('o', p(0, 1)), u('mâncăm!', p(0, 2))],
+    [u('să', p(0, 0)), u('o', p(0, 1)), u('(noi)', null), u('mâncăm', p(0, 2))],
+  ),
+  verified: false,
+};
+
+const willYouGiveItToMe: Phrase = {
+  id: 'will-you-give-it-to-me',
+  title: 'Will you give it to me?',
+  theme: 'Daily life',
+  level: 'improver',
+  tokens: [
+    { text: 'Θα μου το δώσεις;', lexeme: 'dino', slot: withClitics(vslot('indicative', 'futureSimple', 2), [ME, IT]) },
+  ],
+  glosses: rows(
+    [u('Will you', p(0, 0)), u('give', p(0, 3)), u('it', p(0, 2)), u('to me?', p(0, 1))],
+    [u('will', p(0, 0)), u('to-me', p(0, 1)), u('it', p(0, 2)), u('(you)', null), u('give', p(0, 3))],
+    [seg(['Mi', p(0, 1)], ['-o', p(0, 2)]), u('vei', p(0, 0)), u('da?', p(0, 3))],
+    [u('(tu)', null), seg(['mi', p(0, 1)], ['-o', p(0, 2)]), u('vei', p(0, 0)), u('da', p(0, 3))],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1231,4 +1284,7 @@ export const PHRASES: Phrase[] = [
   letsEat,
   letHimEat,
   letsNotGo,
+  whatIsItCalled,
+  letsEatIt,
+  willYouGiveItToMe,
 ];

@@ -76,3 +76,26 @@ describe('the question words and the hortative in the app', () => {
     expect(screen.getByRole('cell', { name: "let's want" })).toBeInTheDocument();
   });
 });
+
+describe('pronouns in every form, in the app', () => {
+  it('shows a pronoun in the simple future, and takes the verb group apart', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Will you give it to me?');
+    expect(screen.getByRole('cell', { name: '(εσύ) θα μου το δώσεις' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '(tu) mi-o vei da' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'you will give it to me' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'το' }));
+    expect(screen.getByRole('button', { name: /Back to the verb/ })).toBeInTheDocument();
+  });
+
+  it('adds a pronoun to a verb with the Object control, in any mood', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Mood'), 'subjunctive');
+    await user.selectOptions(screen.getByLabelText('Object'), 'pronoun');
+    expect(screen.getByRole('cell', { name: '(εγώ) να το θέλω' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '(eu) să o vreau' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'that I want it' })).toBeInTheDocument();
+  });
+});
