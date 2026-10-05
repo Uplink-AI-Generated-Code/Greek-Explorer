@@ -38,6 +38,9 @@ import { changeVerbSlot, verbPanel } from './verb';
 
 export type { Control, Panel, PanelRow, PanelState, Related } from './types';
 
+/** The noun a quantifier panel shows when the phrase has none (ποιος είναι;): one of each Greek gender. */
+const DEFAULT_NOUN: Record<Gender, string> = { m: 'skylos', f: 'alepou', n: 'paidi' };
+
 /** The state a word's panel starts in: the token's own slot and the noun it goes with in the phrase. */
 export function initialState(token: Token, phrase: Phrase): PanelState {
   const nounToken = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
@@ -55,10 +58,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   };
 }
 
-/** The noun a quantifier panel shows when the phrase has none (ποιος είναι;): one of each Greek gender. */
-const DEFAULT_NOUN: Record<Gender, string> = { m: 'skylos', f: 'alepou', n: 'paidi' };
-
-export const sameState =(a: PanelState, b: PanelState): boolean => JSON.stringify(a) === JSON.stringify(b);
+export const sameState = (a: PanelState, b: PanelState): boolean => JSON.stringify(a) === JSON.stringify(b);
 
 export function buildPanel(state: PanelState, token: Token, level: Level): Panel {
   const lexeme = getLexeme(token.lexeme);
@@ -198,7 +198,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'noun': {
       const noun = getLexeme(value);
       // After a preposition the learner may choose a question word as well as a noun (από πού).
-      if (slot.pos === 'preposition' && noun.pos === 'interrogative') return { ...state, noun: value };
+      if (slot.pos === 'preposition' && noun.pos === 'interrogative') return { ...state, noun: value, nounNumber: 'sg' };
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
       // Without the lexeme the verb's indirect object is unknown: the control does not apply.

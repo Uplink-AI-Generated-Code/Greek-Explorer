@@ -85,4 +85,11 @@ describe('the review sheet', () => {
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });
+
+  it('shows what a reviewer needs for the question words', () => {
+    expect(sheet).toContain('Ελληνικά: Τι θέλεις;');
+    expect(sheet).toContain('de unde');
+    expect(sheet).toContain('până când');
+    expect(sheet).toContain('από τι: de la ce');
+  });
 });

@@ -23,4 +23,8 @@ describe('the question words in the validator', () => {
       'lexeme pou: roAfter names "thelo", which is not a preposition',
     ]);
   });
+
+  it('refuses an empty fused Romanian word', () => {
+    expect(check({ ...pou, roAfter: { apo: '' } })).toEqual(['lexeme pou: roAfter for apo is empty']);
+  });
 });

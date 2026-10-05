@@ -7,7 +7,7 @@ import { REVIEW_ITEMS } from '../src/data/review';
 import { unverifiedRecords } from '../src/validate/unverified';
 import { pendingCells, validate, warnings } from '../src/validate/validate';
 
-const errors = validate({ lexemes: LEXEMES, phrases: PHRASES, groups: FORM_GROUPS });
+const errors = validate({ lexemes: LEXEMES, phrases: PHRASES, groups: FORM_GROUPS, divergences: DIVERGENCES });
 const release = process.argv.includes('--release');
 
 const unverified = unverifiedRecords({

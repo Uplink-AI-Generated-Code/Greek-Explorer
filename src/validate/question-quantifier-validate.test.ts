@@ -38,6 +38,13 @@ describe('question-word quantifiers in the validator', () => {
     );
   });
 
+  it('refuses a question word that offers the subject role only', () => {
+    const narrow: GreekQuantifier = { ...poios, cases: ['nom'] };
+    expect(validate({ lexemes: { ...LEXEMES, poios: narrow }, phrases: [] })).toContain(
+      'lexeme poios: a question word offers the subject and object roles only',
+    );
+  });
+
   it('refuses the genitive in a token and in the lexeme data', () => {
     const token = withToken({ text: 'ποιου', slot: { pos: 'quantifier', gender: 'm', number: 'sg', case: 'gen', degree: 'plain', use: 'pronoun' } });
     expect(validate({ ...real, phrases: [token] })).toContain('ordering-hot-coffee token 0 (ποιου): poios does not offer the gen role');

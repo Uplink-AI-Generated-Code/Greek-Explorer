@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { richText } from '../engine/segments';
 import type { Phrase, Token } from '../types';
-import { applyControl, buildPanel, initialState, type PanelState } from './panels';
+import { applyControl, buildPanel, initialState, sameState, type PanelState } from './panels';
 
 const apo: Token = { text: 'Από', lexeme: 'apo', slot: { pos: 'preposition' }, agreesWith: 1 };
 const pou: Token = { text: 'πού', lexeme: 'pou', slot: { pos: 'interrogative' } };
@@ -55,5 +55,14 @@ describe('a preposition before a question word', () => {
     expect(cells(full, 4)).toEqual({ el: 'από πού', ro: 'de unde', en: 'from where' });
     expect(cells(full, 5)).toEqual({ el: 'μέχρι πού', ro: 'până la unde', en: 'until where' });
     expect(full.filter((r) => r.hl).map((r) => r.label)).toEqual(['from']);
+  });
+});
+
+describe('choosing the phrase\'s own question word again', () => {
+  it('equals the phrase state even after a noun and "many" were chosen', () => {
+    let next = applyControl(state, 'noun', 'skylos');
+    next = applyControl(next, 'number', 'pl');
+    expect(sameState(next, state)).toBe(false);
+    expect(sameState(applyControl(next, 'noun', 'pou'), state)).toBe(true);
   });
 });

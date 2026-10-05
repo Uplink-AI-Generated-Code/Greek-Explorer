@@ -10,7 +10,7 @@ import { formText } from '../engine/segments';
 import { enQuantifier, enVerb } from '../engine/english';
 import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
-import type { Case, Clitic, FormGroup, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
+import type { Case, Clitic, Divergence, FormGroup, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
@@ -21,6 +21,7 @@ export interface ValidationInput {
   lexemes: Record<string, GreekLexeme>;
   phrases: Phrase[];
   groups?: FormGroup[];
+  divergences?: Divergence[];
 }
 
 const isEmpty = (s: string | undefined): boolean => !s || s.trim() === '';
@@ -186,10 +187,13 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
   }
   if (l.pos === 'interrogative') {
-    const texts = [l.ro, l.en, l.meaning, ...Object.values(l.question), ...Object.values(l.answer ?? { el: 'x' })];
+    const texts = [l.ro, l.en, l.meaning, ...Object.values(l.question), ...(l.answer ? Object.values(l.answer) : [])];
     if (texts.some(isEmpty)) errors.push(`lexeme ${l.id}: an empty Romanian, English, meaning or example text`);
     for (const key of Object.keys(l.roAfter ?? {})) {
       if (lexemes[key]?.pos !== 'preposition') errors.push(`lexeme ${l.id}: roAfter names "${key}", which is not a preposition`);
+    }
+    for (const [key, value] of Object.entries(l.roAfter ?? {})) {
+      if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
     }
   }
   if (l.pos === 'clitic') {
@@ -208,7 +212,7 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
   if (l.pos === 'quantifier') {
     if (l.numbers.length === 0) errors.push(`lexeme ${l.id}: a quantifier must offer at least one number`);
     if (l.ro.few && !l.en.few) errors.push(`lexeme ${l.id}: ro.few has no en.few`);
-    if (l.question && (!l.cases || l.cases.length === 0 || l.cases.some((c) => c === 'gen'))) {
+    if (l.question && !(l.cases?.length === 2 && l.cases.includes('nom') && l.cases.includes('acc'))) {
       errors.push(`lexeme ${l.id}: a question word offers the subject and object roles only`);
     }
     for (const slot of quantifierSlots(l)) {
@@ -432,12 +436,26 @@ function checkGroup(group: FormGroup, lexemes: Record<string, GreekLexeme>): str
   return errors;
 }
 
+/** Spec 7: a divergence note that names a lexeme must name one that exists, of the part of speech the note applies to. */
+function checkDivergence(d: Divergence, lexemes: Record<string, GreekLexeme>): string[] {
+  const named = d.appliesTo.lexeme;
+  if (named === undefined) return [];
+  const errors: string[] = [];
+  for (const id of Array.isArray(named) ? named : [named]) {
+    const lexeme = lexemes[id];
+    if (!lexeme) errors.push(`divergence ${d.id}: unknown lexeme "${id}"`);
+    else if (lexeme.pos !== d.appliesTo.pos) errors.push(`divergence ${d.id}: lexeme ${id} is a ${lexeme.pos}, not a ${d.appliesTo.pos}`);
+  }
+  return errors;
+}
+
 /** Returns a list of problems; an empty list means the data is valid. */
 export function validate(input: ValidationInput): string[] {
   const errors: string[] = [];
   for (const lexeme of Object.values(input.lexemes)) errors.push(...checkLexeme(lexeme, input.lexemes));
   for (const phrase of input.phrases) errors.push(...checkPhrase(phrase, input.lexemes));
   for (const group of input.groups ?? []) errors.push(...checkGroup(group, input.lexemes));
+  for (const divergence of input.divergences ?? []) errors.push(...checkDivergence(divergence, input.lexemes));
   return errors;
 }
 

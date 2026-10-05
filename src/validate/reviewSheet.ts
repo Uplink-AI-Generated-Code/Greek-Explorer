@@ -8,7 +8,7 @@ import { roVerb } from '../engine/romanian';
 import { formText, richText } from '../engine/segments';
 import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
-import type { GreekLexeme, GreekVerb, SlotOf } from '../types';
+import type { GreekInterrogative, GreekLexeme, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -66,6 +66,23 @@ function cliticLines(): string[] {
   ];
 }
 
+/** A question word: its example, its answer use, the fused Romanian words after a preposition, and the pairs Romanian builds. */
+function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, GreekLexeme>): string[] {
+  const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
+  const pairs = Object.values(lexemes)
+    .flatMap((p) => (p.pos === 'preposition' ? [p] : []))
+    .map((p) =>
+      l.roAfter?.[p.id]
+        ? `- ${LANG_NAME.ro} after ${p.lemma} (stored): ${p.lemma} ${l.lemma}: ${l.roAfter[p.id]}`
+        : `- ${LANG_NAME.ro} after ${p.lemma} (generated): ${p.lemma} ${l.lemma}: ${p.ro} ${l.ro}`,
+    );
+  return [
+    `- Question: ${example(l.question)}`,
+    ...(l.answer ? [`- Answer: ${example(l.answer)}`] : []),
+    ...pairs,
+  ];
+}
+
 /** Any other lexeme: its Greek forms slot by slot, then the stored Romanian and English data as it is. */
 function otherLines(l: Exclude<GreekLexeme, GreekVerb>): string[] {
   const greek = slotsFor(l).map((slot) => {
@@ -76,14 +93,14 @@ function otherLines(l: Exclude<GreekLexeme, GreekVerb>): string[] {
   return [...greek, ...stored.filter((line) => line !== '')];
 }
 
-function lexemeSection(l: GreekLexeme): string[] {
+function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {
   const missing = (['el', 'ro', 'en'] as const).filter((lang) => !l.verified[lang]);
   if (missing.length === 0) return [];
   return [
     `### ${l.pos === 'verb' ? l.lemma : l.lemma} (${l.id})`,
     `Unverified: ${missing.join(', ')}. Part of speech: ${l.pos}.`,
     '',
-    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines() : otherLines(l)),
+    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines() : [...otherLines(l), ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : [])]),
     '',
   ];
 }
@@ -110,7 +127,7 @@ export function reviewSheet(sets: RecordSets & { pending: string[] }): string {
     '',
     '## Lexemes',
     '',
-    ...Object.values(sets.lexemes).flatMap(lexemeSection),
+    ...Object.values(sets.lexemes).flatMap((l) => lexemeSection(l, sets.lexemes)),
     '## Phrases',
     '',
     ...sets.phrases.flatMap((phrase) => [
