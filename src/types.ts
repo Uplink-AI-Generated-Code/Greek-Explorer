@@ -399,7 +399,8 @@ export interface Divergence {
   id: string;
   appliesTo: {
     pos: Pos;
-    lexeme?: string;
+    /** One lexeme, or several that share the row (ποιος and πόσος). */
+    lexeme?: string | string[];
     /** For verbs: show the row only when the panel's slot matches every listed dimension. */
     when?: { moods?: Mood[]; tenses?: Tense[]; voices?: Voice[]; polarity?: Polarity; clitics?: 'some' | 'two' };
   };

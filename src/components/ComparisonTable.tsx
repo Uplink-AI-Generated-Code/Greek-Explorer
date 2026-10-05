@@ -22,7 +22,7 @@ export function selectDivergences(
   return all.filter(
     (d) =>
       d.appliesTo.pos === pos &&
-      (d.appliesTo.lexeme === undefined || d.appliesTo.lexeme === lexemeId) &&
+      (d.appliesTo.lexeme === undefined || [d.appliesTo.lexeme].flat().includes(lexemeId)) &&
       matchesWhen(d.appliesTo.when, slot) &&
       (level === 'improver' || d.level === 'core'),
   );
