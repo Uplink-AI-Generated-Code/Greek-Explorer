@@ -120,9 +120,29 @@ describe('every stored pronoun, in every position', () => {
     }
   });
 
-  it('stores the pairs for "to me" and "to you" with the four third-person accusatives', () => {
-    expect(Object.keys(RO_CLUSTERS)).toHaveLength(8);
+  it('stores the pairs for every dative with the four third-person accusatives', () => {
+    expect(Object.keys(RO_CLUSTERS)).toHaveLength(6 * 4);
     expect(roClitics([YOU, O]).fused).toBe('ți-');
     expect(roClitics([YOU, O]).after).toBe('-o');
+  });
+
+  it('says ni-, vi-, li- for "to us", "to you (pl.)" and "to them" in front of the accusative', () => {
+    const to = (person: Person, number: 'sg' | 'pl'): Clitic => ({ role: 'indirect', person, number, ...(person === 3 ? { gender: 'm' as const } : {}) });
+    expect(give(slot('indicative', 'present', [to(1, 'pl'), L], 3))).toBe('ni-l dă');
+    expect(give(slot('indicative', 'present', [to(2, 'pl'), O], 3))).toBe('vi-o dă');
+    expect(give(slot('indicative', 'present', [to(3, 'pl'), L], 3))).toBe('li-l dă');
+    expect(give(slot('indicative', 'present', [to(3, 'sg'), L], 3))).toBe('i-l dă');
+    expect(give(slot('indicative', 'present', [to(3, 'sg'), L], 3, 'sg', true))).toBe('nu i-l dă');
+  });
+
+  it('fuses the dative with the auxiliary for o, and the accusative for the others', () => {
+    const to = (person: Person, number: 'sg' | 'pl'): Clitic => ({ role: 'indirect', person, number, ...(person === 3 ? { gender: 'm' as const } : {}) });
+    expect(give(slot('indicative', 'perfect', [to(1, 'pl'), O], 3))).toBe('ne-a dat-o');
+    expect(give(slot('indicative', 'perfect', [to(1, 'pl'), L], 3))).toBe('ni l-a dat');
+    expect(give(slot('indicative', 'perfect', [to(2, 'pl'), O], 1))).toBe('v-am dat-o');
+    expect(give(slot('indicative', 'perfect', [to(3, 'pl'), O], 1))).toBe('le-am dat-o');
+    expect(give(slot('indicative', 'perfect', [to(3, 'pl'), L], 1))).toBe('li l-am dat');
+    expect(give(slot('subjunctive', 'aorist', [to(3, 'sg'), O], 1))).toBe('să i-o dau');
+    expect(give(slot('conditional', 'imperfect', [to(1, 'pl'), O], 3))).toBe('ne-ar da-o');
   });
 });

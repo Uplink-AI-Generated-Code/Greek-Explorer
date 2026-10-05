@@ -146,6 +146,6 @@ export const objectOptions = (level: Level, indirect: boolean, command = true): 
   ...(command ? [{ value: 'noun', label: level === 'beginner' ? 'a noun (spelled out)' : 'a noun phrase' }] : []),
   { value: 'pronoun', label: level === 'beginner' ? 'a small word (it, him)' : 'a pronoun' },
   ...(indirect
-    ? [{ value: 'two', label: level === 'beginner' ? 'two small words (me + it)' : 'two pronouns (indirect + direct)' }]
+    ? [{ value: 'two', label: level === 'beginner' ? 'two small words (to someone + it)' : 'two pronouns (indirect + direct)' }]
     : []),
 ];

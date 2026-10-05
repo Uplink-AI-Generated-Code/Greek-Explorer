@@ -8,6 +8,35 @@ export const DEFAULT_OBJECT = 'psomi';
 
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
+/** The people an indirect pronoun can stand for in the Object control. A third person needs a gender; "to them" takes none in Greek (τους). */
+export interface Recipient {
+  value: string;
+  label: string;
+  clitic: Clitic;
+}
+
+export const RECIPIENTS: Recipient[] = [
+  { value: '1sg', label: 'to me', clitic: ME },
+  { value: '2sg', label: 'to you', clitic: { role: 'indirect', person: 2, number: 'sg' } },
+  { value: '3sg-m', label: 'to him', clitic: { role: 'indirect', person: 3, number: 'sg', gender: 'm' } },
+  { value: '3sg-f', label: 'to her', clitic: { role: 'indirect', person: 3, number: 'sg', gender: 'f' } },
+  { value: '1pl', label: 'to us', clitic: { role: 'indirect', person: 1, number: 'pl' } },
+  { value: '2pl', label: 'to you (all)', clitic: { role: 'indirect', person: 2, number: 'pl' } },
+  { value: '3pl', label: 'to them', clitic: { role: 'indirect', person: 3, number: 'pl', gender: 'm' } },
+];
+
+/** The indirect pronoun a verb form has, or undefined. */
+export const indirectOf = (slot: SlotOf<'verb'>): Clitic | undefined => (slot.clitics ?? []).find((c) => c.role === 'indirect');
+
+/** Which recipient an indirect pronoun is; "to me" when it is none of them. */
+export function recipientValue(c: Clitic | undefined): string {
+  if (!c) return RECIPIENTS[0].value;
+  const match = RECIPIENTS.find(
+    (r) => r.clitic.person === c.person && r.clitic.number === c.number && (c.person !== 3 || c.number === 'pl' || r.clitic.gender === c.gender),
+  );
+  return (match ?? RECIPIENTS[0]).value;
+}
+
 /** The direct pronoun that stands for a noun: the Greek gender from the Greek noun, the Romanian gender from the Romanian one, the English word from the noun ("it" unless it says otherwise). */
 export const pronounFor = (noun: GreekNoun): Clitic => ({
   role: 'object',
@@ -37,16 +66,19 @@ export function objectKind(slot: SlotOf<'verb'>, noun: string | null): ObjectKin
   return noun && slot.mood === 'imperative' ? 'noun' : 'none';
 }
 
-/** The pronouns for an object kind; a verb with an indirect object (δίνω) gets "me" with a noun and in the pair. */
-export function cliticsFor(kind: ObjectKind, noun: GreekNoun, indirect: boolean): Clitic[] {
+/**
+ * The pronouns for an object kind; a verb with an indirect object (δίνω) gets the indirect pronoun (`to`, "me" unless
+ * the learner chose another) with a noun and in the pair.
+ */
+export function cliticsFor(kind: ObjectKind, noun: GreekNoun, indirect: boolean, to: Clitic = ME): Clitic[] {
   switch (kind) {
     case 'none':
       return [];
     case 'noun':
-      return indirect ? [ME] : [];
+      return indirect ? [to] : [];
     case 'pronoun':
       return [pronounFor(noun)];
     case 'two':
-      return [ME, pronounFor(noun)];
+      return [to, pronounFor(noun)];
   }
 }

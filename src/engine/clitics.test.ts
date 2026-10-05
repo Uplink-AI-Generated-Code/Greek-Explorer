@@ -100,7 +100,7 @@ describe('Romanian pronouns', () => {
   });
 
   it('refuses a cluster that is not stored, and a list that is not one or two', () => {
-    expect(() => roClitics([c('indirect', 3, 'sg'), c('object', 3, 'sg', 'm', 'm')])).toThrow(/no Romanian cluster/);
+    expect(() => roClitics([c('indirect', 1, 'sg'), c('object', 1, 'sg')])).toThrow(/no Romanian cluster/);
     expect(() => roClitics([])).toThrow(/one or two/);
   });
 });

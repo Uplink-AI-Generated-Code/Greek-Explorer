@@ -90,7 +90,8 @@ export const RO_CLITICS: Record<string, RoClitic> = {
 
 /**
  * Two pronouns, dative then accusative, keyed '<dative key>+<accusative key>': dă-mi-o, nu mi-o, mi-o vei da.
- * Stored for the datives "to me" and "to you" with the four third-person accusatives.
+ * Stored for every dative (me, you, him / her, us, you pl., them) with the four third-person accusatives: *ne* becomes
+ * *ni-*, *vă* becomes *vi-* and *le* becomes *li-* in front of the accusative (ni-l, vi-l, li-l).
  */
 export const RO_CLUSTERS: Record<string, RoClitic> = {
   'ind.1sg+obj.3sg.m': ro('mi-l', '-mi-l', 'nu mi-l', 'să mi-l', 'mi l-'),
@@ -101,4 +102,20 @@ export const RO_CLUSTERS: Record<string, RoClitic> = {
   'ind.2sg+obj.3sg.f': ro('ți-o', '-ți-o', 'nu ți-o', 'să ți-o', 'ți-', '-o'),
   'ind.2sg+obj.3pl.m': ro('ți-i', '-ți-i', 'nu ți-i', 'să ți-i', 'ți i-'),
   'ind.2sg+obj.3pl.f': ro('ți-le', '-ți-le', 'nu ți-le', 'să ți-le', 'ți le-'),
+  'ind.3sg+obj.3sg.m': ro('i-l', '-i-l', 'nu i-l', 'să i-l', 'i l-'),
+  'ind.3sg+obj.3sg.f': ro('i-o', '-i-o', 'nu i-o', 'să i-o', 'i-', '-o'),
+  'ind.3sg+obj.3pl.m': ro('i-i', '-i-i', 'nu i-i', 'să i-i', 'i i-'),
+  'ind.3sg+obj.3pl.f': ro('i-le', '-i-le', 'nu i-le', 'să i-le', 'i le-'),
+  'ind.1pl+obj.3sg.m': ro('ni-l', '-ni-l', 'nu ni-l', 'să ni-l', 'ni l-'),
+  'ind.1pl+obj.3sg.f': ro('ni-o', '-ni-o', 'nu ni-o', 'să ni-o', 'ne-', '-o'),
+  'ind.1pl+obj.3pl.m': ro('ni-i', '-ni-i', 'nu ni-i', 'să ni-i', 'ni i-'),
+  'ind.1pl+obj.3pl.f': ro('ni-le', '-ni-le', 'nu ni-le', 'să ni-le', 'ni le-'),
+  'ind.2pl+obj.3sg.m': ro('vi-l', '-vi-l', 'nu vi-l', 'să vi-l', 'vi l-'),
+  'ind.2pl+obj.3sg.f': ro('vi-o', '-vi-o', 'nu vi-o', 'să vi-o', 'v-', '-o'),
+  'ind.2pl+obj.3pl.m': ro('vi-i', '-vi-i', 'nu vi-i', 'să vi-i', 'vi i-'),
+  'ind.2pl+obj.3pl.f': ro('vi-le', '-vi-le', 'nu vi-le', 'să vi-le', 'vi le-'),
+  'ind.3pl+obj.3sg.m': ro('li-l', '-li-l', 'nu li-l', 'să li-l', 'li l-'),
+  'ind.3pl+obj.3sg.f': ro('li-o', '-li-o', 'nu li-o', 'să li-o', 'le-', '-o'),
+  'ind.3pl+obj.3pl.m': ro('li-i', '-li-i', 'nu li-i', 'să li-i', 'li i-'),
+  'ind.3pl+obj.3pl.f': ro('li-le', '-li-le', 'nu li-le', 'să li-le', 'li le-'),
 };

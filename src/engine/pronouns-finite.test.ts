@@ -104,11 +104,12 @@ describe('which verbs take pronouns', () => {
     expect(slotProblem(troo, { ...slot('indicative', 'present'), shortForm: true })).toMatch(/only with a command/);
   });
 
-  it('the validator builds the pronoun slots of every mood: two Romanian genders, and the pair for δίνω', () => {
+  it('the validator builds the pronoun slots of every mood: two Romanian genders, and a pair for every recipient of δίνω', () => {
     const present = slot('indicative', 'present', undefined);
     delete present.clitics;
     expect(pronounSlots(troo, present)).toHaveLength(4);
-    expect(pronounSlots(dino, present)).toHaveLength(8);
+    // (1 direct + 7 recipients) × 2 Romanian genders × affirmative and negative
+    expect(pronounSlots(dino, present)).toHaveLength(2 * (1 + 7) * 2);
     expect(pronounSlots(getVerb('pao'), present)).toEqual([]);
     expect(pronounSlots(troo, { ...present, voice: 'mediopassive' })).toEqual([]);
   });

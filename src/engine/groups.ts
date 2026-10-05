@@ -4,6 +4,7 @@ import type { FormGroup, GroupMember, SlotOf } from '../types';
 import { nounPhrase } from './agree';
 import { compose, composedRich } from './compose';
 import { enVerbText } from './english';
+import { indirectOf } from './objects';
 import { roVerb } from './romanian';
 import type { Rich } from './segments';
 
@@ -63,6 +64,9 @@ export interface GroupMatch {
  */
 export function groupFor(lexemeId: string, slot: SlotOf<'verb'>, noun: string | null): GroupMatch | null {
   if (slot.mood !== 'imperative') return null;
+  // The groups are about "me" (Give me the bread!): another recipient is not in one.
+  const to = indirectOf(slot);
+  if (to && !(to.person === 1 && to.number === 'sg')) return null;
   for (const group of FORM_GROUPS) {
     const family = group.members.some((m) => m.verb.lexeme === lexemeId && familyKey(m.verb.slot) === familyKey(slot));
     if (!family) continue;

@@ -2,6 +2,7 @@ import { inflect } from '../engine/greek';
 import { offeredCases, quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
+import { RECIPIENTS } from '../engine/objects';
 import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
 import { READING_TEMPLATES } from '../data/readings';
@@ -73,14 +74,14 @@ export function slotsFor(l: GreekLexeme): Slot[] {
 }
 
 const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' };
-const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
 /** The same pronoun for a noun that is masculine in Romanian (παιδί: îl), so both Romanian forms are built. */
 const IT_M: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'it' };
 
 /**
  * The forms with pronouns the panel can build from an offered slot: one direct pronoun (in both Romanian genders)
- * and, for a verb with an indirect object, the pair "me + it"; for a command also "me" alone, beside a spelled-out noun.
+ * and, for a verb with an indirect object, the pair "to someone + it" for every recipient; for a command also the
+ * recipient alone, beside a spelled-out noun.
  * Each comes affirmative and negative, and a command also with its short form.
  */
 export function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'verb'>[] {
@@ -90,7 +91,9 @@ export function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'ver
   const sets: Clitic[][] = [
     [IT],
     [IT_M],
-    ...(data.indirect === true ? [[ME, IT], [ME, IT_M], ...(command ? [[ME]] : [])] : []),
+    ...(data.indirect === true
+      ? RECIPIENTS.flatMap(({ clitic }) => [[clitic, IT], [clitic, IT_M], ...(command ? [[clitic]] : [])])
+      : []),
   ];
   return sets.flatMap((clitics): SlotOf<'verb'>[] => [
     { ...slot, clitics },

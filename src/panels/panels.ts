@@ -1,6 +1,6 @@
 import { getLexeme, getNoun, getVerb } from '../data/lexemes';
 import { groupFor } from '../engine/groups';
-import { DEFAULT_OBJECT, cliticsFor, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
+import { DEFAULT_OBJECT, RECIPIENTS, cliticsFor, indirectOf, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
 import { voiceOf } from '../engine/offers';
 import type {
   Case,
@@ -190,10 +190,17 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         const noun = getNoun(state.noun ?? DEFAULT_OBJECT);
         const next = { ...slot };
         delete next.shortForm;
-        const clitics = cliticsFor(kind, noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
+        const clitics = cliticsFor(kind, noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true, indirectOf(slot));
         if (clitics.length > 0) next.clitics = clitics;
         else delete next.clitics;
         return { ...state, slot: next, noun: kind === 'none' ? null : noun.id };
+      }
+      break;
+    case 'recipient':
+      if (slot.pos === 'verb' && indirectOf(slot)) {
+        const to = RECIPIENTS.find((r) => r.value === value);
+        if (!to) break;
+        return { ...state, slot: { ...slot, clitics: (slot.clitics ?? []).map((c) => (c.role === 'indirect' ? { ...to.clitic } : c)) } };
       }
       break;
     case 'noun': {
@@ -206,7 +213,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'verb' && lexemeId) {
         const next = { ...slot };
         delete next.shortForm;
-        const clitics = cliticsFor(objectKind(slot, state.noun), noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
+        const clitics = cliticsFor(objectKind(slot, state.noun), noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true, indirectOf(slot));
         if (clitics.length > 0) next.clitics = clitics;
         else delete next.clitics;
         return { ...state, slot: next, noun: value };

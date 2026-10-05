@@ -24,7 +24,7 @@ import {
   slotProblem,
   voiceOf,
 } from '../engine/offers';
-import { objectKind, type ObjectKind } from '../engine/objects';
+import { RECIPIENTS, indirectOf, objectKind, recipientValue, type ObjectKind } from '../engine/objects';
 import { readingFor } from '../engine/reading';
 import { roVerb } from '../engine/romanian';
 import { dim, plain, type Rich, type Segment } from '../engine/segments';
@@ -220,6 +220,15 @@ function controls(verb: GreekVerb, slot: SlotOf<'verb'>, state: PanelState, kind
       options: objectOptions(level, indirect, slot.mood === 'imperative'),
       value: kind,
     });
+    // Who the indirect pronoun stands for (δίνω: to me, to you, to him …), once the form has one.
+    if (indirectOf(slot)) {
+      list.push({
+        key: 'recipient',
+        label: 'To whom?',
+        options: RECIPIENTS.map(({ value, label }) => ({ value, label })),
+        value: recipientValue(indirectOf(slot)),
+      });
+    }
     if (kind !== 'none') list.push(nounControl('Object noun', state));
   }
   return list;

@@ -117,3 +117,58 @@ describe('leaving a command with an indirect object', () => {
     expect(control(panelOf('dino', next), 'object')?.value).toBe('two');
   });
 });
+
+describe('the "To whom?" control (the indirect pronoun of δίνω)', () => {
+  const two = (patch: Partial<SlotOf<'verb'>> = {}) =>
+    applyControl(stateOf(verbSlot('indicative', 'futureSimple', 2, 'sg', patch)), 'object', 'two', 'dino');
+
+  it('appears once there is an indirect pronoun, and starts with "to me"', () => {
+    const none = panelOf('dino', stateOf(verbSlot('indicative', 'futureSimple', 2)));
+    expect(control(none, 'recipient')).toBeUndefined();
+    const p = panelOf('dino', two());
+    expect(control(p, 'recipient')?.value).toBe('1sg');
+    expect(control(p, 'recipient')?.options.map((o) => o.label)).toEqual([
+      'to me', 'to you', 'to him', 'to her', 'to us', 'to you (all)', 'to them',
+    ]);
+    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity', 'object', 'recipient', 'noun']);
+  });
+
+  it('builds the pair for the chosen person in the three languages', () => {
+    const expected: Record<string, { el: string; ro: string; en: string }> = {
+      '2sg': { el: '(εσύ) θα σου το δώσεις', ro: '(tu) ți-o vei da', en: 'you will give it to you' },
+      '3sg-f': { el: '(εσύ) θα της το δώσεις', ro: '(tu) i-o vei da', en: 'you will give it to her' },
+      '1pl': { el: '(εσύ) θα μας το δώσεις', ro: '(tu) ni-o vei da', en: 'you will give it to us' },
+      '2pl': { el: '(εσύ) θα σας το δώσεις', ro: '(tu) vi-o vei da', en: 'you will give it to you' },
+      '3pl': { el: '(εσύ) θα τους το δώσεις', ro: '(tu) li-o vei da', en: 'you will give it to them' },
+    };
+    for (const [value, cells] of Object.entries(expected)) {
+      expect(row(panelOf('dino', applyControl(two(), 'recipient', value, 'dino'))), value).toEqual(cells);
+    }
+  });
+
+  it('keeps the recipient when the tense, the noun or the negation changes, and drops it with the pronoun', () => {
+    const toHer = applyControl(two(), 'recipient', '3sg-f', 'dino');
+    const perfect = applyControl(toHer, 'tense', 'perfect', 'dino');
+    expect(row(panelOf('dino', perfect)).en).toBe('you have given it to her');
+    const other = applyControl(toHer, 'noun', 'kafes', 'dino');
+    expect(control(panelOf('dino', other), 'recipient')?.value).toBe('3sg-f');
+    const single = applyControl(toHer, 'object', 'pronoun', 'dino');
+    expect(control(panelOf('dino', single), 'recipient')).toBeUndefined();
+  });
+
+  it('also chooses the person of "give me the bread", and the Same-meaning strip is only about "me"', () => {
+    const command = applyControl(stateOf(verbSlot('imperative', 'aorist', 2)), 'object', 'noun', 'dino');
+    expect(control(panelOf('dino', command), 'recipient')?.value).toBe('1sg');
+    expect(panelOf('dino', command).sameMeaning).toBeDefined();
+    const toUs = applyControl(command, 'recipient', '1pl', 'dino');
+    expect(row(panelOf('dino', toUs)).el).toContain('δώσε μας');
+    expect(panelOf('dino', toUs).sameMeaning).toBeUndefined();
+  });
+
+  it('ignores a recipient it does not know, and does nothing without an indirect pronoun', () => {
+    const start = two();
+    expect(applyControl(start, 'recipient', 'nobody', 'dino')).toBe(start);
+    const bare = stateOf(verbSlot('indicative', 'present'));
+    expect(applyControl(bare, 'recipient', '2sg', 'dino')).toBe(bare);
+  });
+});
