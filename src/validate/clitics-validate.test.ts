@@ -54,11 +54,11 @@ describe('a verb token with pronouns', () => {
     const errors = validate({ ...base, phrases: [phraseWith({ text: 'Φάε!', lexeme: 'troo', slot: slot({ clitics: [it_] }) })] });
     expect(errors).toContain('test token 0 (Φάε!): text differs from what compose produces ("φάε το")');
   });
-  it('reports pronouns outside a command', () => {
+  it('reports pronouns with a verb that takes no object', () => {
     const errors = validate({
       ...base,
-      phrases: [phraseWith({ text: 'Τρώω το', lexeme: 'troo', slot: slot({ mood: 'indicative', tense: 'present', clitics: [it_] }) })],
+      phrases: [phraseWith({ text: 'Το πάω', lexeme: 'pao', slot: slot({ mood: 'indicative', tense: 'present', clitics: [it_] }) })],
     });
-    expect(errors.some((e) => e.includes('pronouns and short forms go only with a command'))).toBe(true);
+    expect(errors.some((e) => e.includes('πάω takes no object'))).toBe(true);
   });
 });

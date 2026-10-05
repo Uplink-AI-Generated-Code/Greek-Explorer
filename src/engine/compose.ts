@@ -95,9 +95,10 @@ function commandWithClitics(verb: GreekVerb, slot: SlotOf<'verb'>, clitics: read
 }
 
 /**
- * Builds a verb group in written order: the negation (δεν before θα; μην after να), the particle (θα, να),
- * the auxiliary (έχω) and the lexical verb. A negative command is μην + the pronouns + the subjunctive form
- * (μην το φας); an affirmative command puts its pronouns after the verb (φάε το). See spec 4.3.
+ * Builds a verb group in written order: the negation (δεν before θα; μην after να and ας), the particle (θα, να, ας),
+ * the pronouns, the auxiliary (έχω) and the lexical verb: δεν θα το φάω, να μην το φάω, το έχω φάει. A negative command
+ * is μην + the pronouns + the subjunctive form (μην το φας); an affirmative command puts its pronouns after the verb
+ * (φάε το). See spec 4.3.
  */
 export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
   const problem = slotProblem(verb, slot);
@@ -120,7 +121,7 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
       { kind: 'verb', form: inflectVerb(verb, subjunctive) },
     ]);
   }
-  if (clitics.length > 0) return commandWithClitics(verb, slot, clitics);
+  if (slot.mood === 'imperative' && clitics.length > 0) return commandWithClitics(verb, slot, clitics);
 
   const structure = structureOf(slot.mood, slot.tense);
   // μην follows να and ας; δεν goes in front of everything else.
@@ -130,6 +131,8 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
   if (negation && !afterParticle) pieces.push(negation);
   if (structure.particle) pieces.push(wordPiece('particle', structure.particle));
   if (negation && afterParticle) pieces.push(negation);
+  // Outside a command the pronouns stand in front of the auxiliary or the verb, after the particle and μην (spec 4.3).
+  pieces.push(...clitics.map((c) => cliticPiece(c)));
   if (structure.aux) {
     const auxSlot: SlotOf<'verb'> = {
       pos: 'verb',

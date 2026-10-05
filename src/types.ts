@@ -298,6 +298,8 @@ export interface VerbVoice {
   thirdSingularOnly?: boolean;
   /** The verb takes an indirect object (δίνω: δώσε μου). */
   indirect?: true;
+  /** The verb takes no object (πάω, πηδάω, είμαι, μπορεί): it takes no pronouns. */
+  intransitive?: true;
   /** Short forms of commands, keyed '<impAorist|impPresent>.<person><number>' (impAorist.2sg). Stored per verb, not generated. */
   shortForms?: Record<string, ShortForm>;
   ro: RoVerbForms;

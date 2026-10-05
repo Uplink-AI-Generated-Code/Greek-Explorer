@@ -114,8 +114,15 @@ describe('slotProblem', () => {
     expect(slotProblem(dino, command([mou, to]))).toBeNull();
     expect(slotProblem(dino, command([mou]))).toBeNull();
   });
-  it('refuses pronouns outside a command', () => {
-    expect(slotProblem(troo, command([to], { mood: 'indicative', tense: 'present' }))).toMatch(/only with a command/);
+  it('accepts pronouns outside a command, but not a short form, and not with a verb that takes no object', () => {
+    expect(slotProblem(troo, command([to], { mood: 'indicative', tense: 'present' }))).toBeNull();
+    expect(slotProblem(troo, command([to], { mood: 'indicative', tense: 'present', shortForm: true }))).toMatch(
+      /only with a command/,
+    );
+    expect(slotProblem(getVerb('pao'), command([to], { mood: 'indicative', tense: 'present' }))).toMatch(/takes no object/);
+    expect(slotProblem(getVerb('pleno'), command([to], { mood: 'indicative', tense: 'present', voice: 'mediopassive' }))).toMatch(
+      /takes no object/,
+    );
   });
   it('refuses three pronouns, the wrong order, a missing gender and an indirect object the verb cannot take', () => {
     expect(slotProblem(dino, command([mou, to, to]))).toMatch(/at most two/);

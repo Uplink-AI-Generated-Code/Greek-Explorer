@@ -67,13 +67,15 @@ export function shortFormOf(verb: GreekVerb, s: SlotOf<'verb'>): ShortForm | und
   return data.shortForms?.[`${mainFormKind(s.mood, s.tense)}.${s.person}${s.number}`];
 }
 
-/** What is wrong with the pronouns or the short form of a slot, or null (spec 2, 4.2, 7). */
+/** What is wrong with the pronouns or the short form of a slot, or null (spec 2, 4.2, 4.3, 7). */
 export function slotProblem(verb: GreekVerb, s: SlotOf<'verb'>): string | null {
   const clitics = s.clitics ?? [];
   if (clitics.length === 0 && !s.shortForm) return null;
-  if (s.mood !== 'imperative') return 'pronouns and short forms go only with a command';
+  if (s.shortForm && s.mood !== 'imperative') return 'a short form goes only with a command';
   const data = verb.voices[s.voice];
   if (!data) return `${verb.id} has no ${s.voice} voice`;
+  // A verb that takes no object, and a reflexive (mediopassive) verb, take no pronouns (spec 4.3).
+  if (clitics.length > 0 && (s.voice !== 'active' || data.intransitive)) return `${data.lemma} takes no object`;
   if (clitics.length > 2) return 'a command takes at most two pronouns';
   if (clitics.some((c) => c.person === 3 && !c.gender)) return 'a third-person pronoun needs a gender';
   if (clitics.length === 2 && !(clitics[0].role === 'indirect' && clitics[1].role === 'object')) {

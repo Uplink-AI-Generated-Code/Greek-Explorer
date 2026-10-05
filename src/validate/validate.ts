@@ -75,15 +75,27 @@ export function slotsFor(l: GreekLexeme): Slot[] {
 const IT: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'f', enPronoun: 'it' };
 const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
 
-/** The commands with pronouns the panel can build from an offered command: one direct pronoun, and for a verb with an indirect object also "me" and the pair. */
+/** The same pronoun for a noun that is masculine in Romanian (παιδί: îl), so both Romanian forms are built. */
+const IT_M: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'it' };
+
+/**
+ * The forms with pronouns the panel can build from an offered slot: one direct pronoun (in both Romanian genders)
+ * and, for a verb with an indirect object, the pair "me + it"; for a command also "me" alone, beside a spelled-out noun.
+ * Each comes affirmative and negative, and a command also with its short form.
+ */
 export function pronounSlots(verb: GreekVerb, slot: SlotOf<'verb'>): SlotOf<'verb'>[] {
-  if (slot.mood !== 'imperative') return [];
-  const indirect = verb.voices[slot.voice]?.indirect === true;
-  const sets: Clitic[][] = indirect ? [[IT], [ME], [ME, IT]] : [[IT]];
+  const data = verb.voices[slot.voice];
+  if (!data || slot.voice !== 'active' || data.intransitive) return [];
+  const command = slot.mood === 'imperative';
+  const sets: Clitic[][] = [
+    [IT],
+    [IT_M],
+    ...(data.indirect === true ? [[ME, IT], [ME, IT_M], ...(command ? [[ME]] : [])] : []),
+  ];
   return sets.flatMap((clitics): SlotOf<'verb'>[] => [
     { ...slot, clitics },
     { ...slot, clitics, polarity: 'negative' },
-    ...(shortFormOf(verb, slot) ? [{ ...slot, clitics, shortForm: true }] : []),
+    ...(command && shortFormOf(verb, slot) ? [{ ...slot, clitics, shortForm: true }] : []),
   ]);
 }
 

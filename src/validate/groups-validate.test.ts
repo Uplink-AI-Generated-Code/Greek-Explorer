@@ -23,7 +23,7 @@ describe('the validator checks form groups (spec 7)', () => {
   it('refuses a member that does not compose', () => {
     const broken = {
       ...eat.members[1],
-      verb: { ...eat.members[1].verb, slot: { ...eat.members[1].verb.slot, mood: 'indicative' as const, tense: 'present' as const } },
+      verb: { ...eat.members[1].verb, slot: { ...eat.members[1].verb.slot, mood: 'indicative' as const, tense: 'present' as const, shortForm: true } },
     };
     const errors = validate(input([{ ...eat, members: [eat.members[0], broken] }]));
     expect(errors.some((e) => e.startsWith('group eat-the-bread: member 1'))).toBe(true);

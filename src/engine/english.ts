@@ -49,10 +49,12 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
   // "do"-support, or "not" after a modal.
   const presentNot = en.modal ? `${present} not` : `${DONT[i]} ${en.base}`;
   const self = en.reflexive ? ` (${SELF[i]})` : '';
+  // The pronouns follow the verb, or the participle: "eat it", "has eaten it", "will give it to me".
+  const objects = enObjects(s.clitics ?? []);
   const parts = (verb: string, lead = '', subject = true, pronoun?: string): EnParts => ({
     lead,
     subject,
-    verb: `${verb}${self}`,
+    verb: `${verb}${self}${objects}`,
     ...(pronoun ? { pronoun } : {}),
   });
   switch (`${s.mood}.${s.tense}`) {
@@ -78,7 +80,7 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
       return parts(`may${negative ? ' not' : ''} have ${en.pastParticiple}`);
     case 'imperative.present':
     case 'imperative.aorist':
-      return parts(`${negative ? `don't ${en.base}` : en.base}${enObjects(s.clitics ?? [])}`, '', false);
+      return parts(negative ? `don't ${en.base}` : en.base, '', false);
     case 'hortative.present':
     case 'hortative.aorist':
       return parts(`${negative ? 'not ' : ''}${en.base}`, HORTATIVE_LEAD[i], true, HORTATIVE_WHO[i]);

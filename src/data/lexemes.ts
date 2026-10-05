@@ -578,6 +578,7 @@ const pidao: GreekVerb = {
     active: {
       lemma: 'πηδάω',
       class: 'contracted-ao',
+      intransitive: true,
       stems: {
         present: 'πηδ',
         imperfect: { strong: { stem: 'πηδ' }, weak: { stem: 'πηδ' } },
@@ -698,6 +699,7 @@ const pao: GreekVerb = {
     active: {
       lemma: 'πάω',
       class: 'athematic',
+      intransitive: true,
       stems: {
         present: 'πά',
         imperfect: { strong: { stem: 'πήγαιν' }, weak: { stem: 'πηγαίν' } },
@@ -769,6 +771,7 @@ const eimai: GreekVerb = {
     active: {
       lemma: 'είμαι',
       class: 'copula',
+      intransitive: true,
       stems: { present: 'είμαι' },
       overrides: {
         'present.1sg': beCell('είμαι'),
@@ -947,6 +950,7 @@ const mporei: GreekVerb = {
     active: {
       lemma: 'μπορεί',
       class: 'impersonal',
+      intransitive: true,
       stems: { present: 'μπορ' },
       offers: { indicative: ['present'] },
       thirdSingularOnly: true,
