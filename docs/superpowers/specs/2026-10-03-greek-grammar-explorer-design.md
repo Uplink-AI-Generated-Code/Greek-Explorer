@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 4 and Plans 3, 5 and 6; extended with question words, ας and pronouns in every form (changes listed in sections 13 to 20)
+Status: revised after review 4 and Plans 3, 5 and 6; extended with question words, ας and pronouns in every form and σε with the article contractions (changes listed in sections 13 to 23)
 
 ## 1. Purpose
 
@@ -16,8 +16,8 @@ Interactive mockups made during brainstorming (v1 to v5, plus the quantifier pan
 ### In scope (prototype)
 
 - Vite + React + TypeScript single-page app, no backend.
-- Hand-curated content: 56 phrases (section 6.1) and the lexemes they use (section 6.6).
-- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition, quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
+- Hand-curated content: 62 phrases (section 6.1) and the lexemes they use (section 6.6).
+- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition (σε also as the six forms fused with the article: στον, στην, στο, στους, στις, στα), quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
 - Verb tenses and moods: indicative present, imperfect, aorist (simple past), future (continuous and simple), present perfect, past perfect and future perfect; subjunctive present, aorist and perfect (να + verb); imperative present and aorist (second person only), with its negative and with object clitics; the hortative present and aorist (ας + the subjunctive form, every person, with its negative); conditional (θα + imperfect or θα + pluperfect). Object clitics also go with every indicative, subjunctive, conditional and hortative form (4.3). Voices: active and mediopassive (reflexive and deponent examples). Detail in sections 6.4 and 6.5.
 - Languages: Greek (focus), Romanian and English (comparison). The interface language is English.
 
@@ -164,7 +164,8 @@ type Slot =
       sense?: 'some' | 'few';                 // μερικοί: Romanian niște or câțiva
       use: 'determiner' | 'pronoun' }         // Romanian changes form between the two; Greek does not
   | { pos: 'clitic' } & Clitic                // the weak pronoun as a word of its own
-  | { pos: 'preposition' } | { pos: 'particle' } | { pos: 'conjunction' } | { pos: 'interrogative' };   // no dimensions
+  | { pos: 'preposition'; sense?: 'to' | 'at' | 'in' | 'on' | 'person' }   // only σε has senses (below)
+  | { pos: 'particle' } | { pos: 'conjunction' } | { pos: 'interrogative' };   // no dimensions
 // 'interrogative' is the slot of the question words that never change (τι, πού, πότε, γιατί, πώς). ποιος and πόσος are
 // 'quantifier' lexemes flagged as question words (6.3); their panel offers the subject and object roles only.
 // 'particle' is the slot of the particle panel (δεν, μην, να, θα, ας), opened from a piece of a verb
@@ -173,6 +174,8 @@ type Slot =
 ```
 
 Sense and use are slot dimensions, not lexeme fields: one lexeme (κάποιος, μερικοί) appears both as a determiner and on its own, and the panel offers the sense as a control. `use` stays on the slot (a token says which reading the phrase has), and the panel always shows both rows ("with a noun", "on its own"), as 5.3 says. Prepositions, particles and conjunctions have a slot with no dimensions, so every token has a slot.
+
+σε is the only preposition with senses: **to** (direction: πάω στο σπίτι), **at** (place: είμαι στο σπίτι), **in** (inside or into: πηδάει στο νερό), **on** (a surface: στον δρόμο) and **person** (the indirect object: δίνω στο παιδί). The slot carries the sense a phrase uses, and the panel offers it as the Meaning control. Each sense has its Romanian and English word (*la*, *la*, *în*, *pe*, and the dative case for a person; to, at, in, on, to). The panel works out the article that fuses with σε from the noun.
 
 Each lexeme declares `offers`: the slots its panel may offer. For a quantifier, `offers` is the `numbers` the panel may offer; the degrees and senses offered are the ones the lexeme's data has. A paradigm class may restrict a lexeme to one number (μερικοί is plural only; κάποιος and κανένας are singular only in the prototype). The copula είμαι offers only the present indicative, the impersonal μπορεί only the third person singular, and so on. The validator rejects a token whose slot lies outside its lexeme's `offers`, and the panel builds its controls from `offers`.
 
@@ -231,6 +234,8 @@ interface Token { text: string; lexeme: LexemeId; slot: Slot; agreesWith?: Token
 Every token has a slot. A token's `text` is what the phrase shows. For a verb token it is the written text that `compose` produces for the authored slot, so the phrase and the panel start in agreement. The validator compares them ignoring capitals and trailing punctuation («Δώσε μού το!» matches `δώσε μού το`).
 
 A token is one clickable Greek unit. A multi-word unit such as πάνω από is one token. `agreesWith` links an article, numeral or adjective to its noun so the panel can show the whole noun phrase in the selected state. A preposition's `agreesWith` may point at a noun or at a question word (από πού), and a quantifier used on its own (Ποιος είναι;) needs none.
+
+**A fused preposition is one token with two parts.** σε and the article after it are written as one word (στον), so the phrase has one token `{ text: 'στον', lexeme: 'se', slot: { pos: 'preposition', sense }, agreesWith: <the noun> }`. The article is not a token of its own: its gender and number come from the noun, and its case is the accusative that σε governs. The chip shows two parts, like the pieces of a verb group: the first opens the σε panel, the second the article panel for that noun, each with a "Back" link, and a gloss unit may link to either part (`{ token, piece }`: piece 0 is σε, piece 1 is the article). The six fused forms (σε + τον = στον, and so on) are stored data, not built by a rule; a ReviewItem covers them. σε before a vowel can lose its ε (σ' αυτόν) and από and με do not fuse with the article; both are notes only.
 
 ### 4.5 Glosses (natural and literal, together)
 
@@ -379,6 +384,10 @@ Divergence types the prototype must cover:
 | hortative-persons | English changes with the person (let me, let's, let him / her, let them); Greek and Romanian change only the verb ending. |
 | pronoun-position-finite | Greek puts the pronoun before the verb group (το τρώω, δεν το τρώω, θα το φάω, το έχω φάει); Romanian too (*îl mănânc*) and fuses it with the auxiliary (*l-am mâncat*); English keeps it after the verb ("eat it", "has eaten it"). |
 | pronoun-before-auxiliary | In Greek the pronoun stands before the auxiliary έχω (το έχω φάει); in Romanian it fuses with the auxiliary (*l-am mâncat*), except *o*, which follows the participle (*am mâncat-o*). |
+| preposition-meaning | Greek σε covers "to", "at", "in" and "on"; Romanian splits it into *la*, *în* and *pe* (and the dative case for a person); English into to, at, in and on. |
+| preposition-article-fusion | Greek writes σε and the article as one word (στο, στον, στην); Romanian and English keep them apart (*la câinele*, "to the dog"). |
+| direction-and-place | Greek uses σε + the accusative for both direction and place (πάω στο σπίτι, είμαι στο σπίτι); English separates "to" from "at", and Romanian *acasă* covers both. |
+| indirect-object-dative | Greek marks the indirect object with σε + the accusative (δίνω το ψωμί στο παιδί); Romanian uses the dative case and no preposition (*dau pâinea copilului*); English says "to the child" or "the child the bread". |
 
 ### 5.3 Panels per part of speech
 
@@ -389,7 +398,7 @@ Divergence types the prototype must cover:
 | Definite article | Noun it goes with, number, role | Article + noun | Gender × case for the selected number; Romanian suffix and English "the" in the other columns |
 | Numeral / indefinite article | Number (1 to 5), noun it counts, role | The numeral; then the counted noun phrase | Gender × case |
 | Adjective | Noun it describes, number, role | "the" and "a / an" noun phrases (singular); "none in plural" for the second | Gender × case for the selected number |
-| Preposition | Noun or question word after it, number | Preposition + noun in the accusative (or + the question word: από πού) | Other prepositions with the same noun |
+| Preposition | Noun or question word after it, number; for σε also Meaning (to / at / in / on / to a person) | Preposition + noun in the accusative (σε fused with the article: στον σκύλο; or + the question word: από πού); for σε, the Romanian and English word of the chosen meaning | Other prepositions with the same noun; for σε, the six fused forms for the noun and number, with the one in use outlined |
 | Quantifier | Noun it goes with, role; plus Romanian counterpart (μερικοί), kind of noun (mass or count) and degree (πολύς, λίγος) | "with a noun", then "on its own"; for κανένας also "with negation" | Gender × role for the selected number, in each language |
 | Question word (τι, πού, πότε, γιατί, πώς) | none | "on its own" (the word in three languages) and "in a question" (an example question in three languages); γιατί also "as an answer" (because) | none |
 | Question word that declines (ποιος, πόσος) | As a quantifier: noun it goes with, role (subject or object only), number (one or many, for ποιος only; mass or count, for πόσος only); the badge reads "question word" | "with a noun", "on its own" | Gender × role for the selected number |
@@ -521,8 +530,14 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 54 | Πώς το λένε; | What is it called? | a pronoun with an indicative verb (το λένε), verb λέω; Romanian natural *Cum se numește?*, literal *cum îl zic* |
 | 55 | Ας το φάμε! | Let's eat it! | a pronoun with the hortative; Romanian *Să o mâncăm!* (pâine is feminine) |
 | 56 | Θα μου το δώσεις; | Will you give it to me? | two pronouns with the simple future; Romanian *Mi-o vei da?* |
+| 57 | Πάω στο σπίτι | I'm going home | σε + το fused into στο (one chip, two parts), meaning "to"; Romanian *Merg acasă.*, literal *merg la casa* |
+| 58 | Είμαι στο σπίτι | I'm at home | the same στο with the meaning "at"; Romanian *Sunt acasă.* |
+| 59 | Πάμε στη θάλασσα; | Shall we go to the sea? | the feminine fusion στη; Romanian *Mergem la mare?* |
+| 60 | Ο σκύλος είναι στον δρόμο | The dog is on the road | the masculine fusion στον, meaning "on"; Romanian *Câinele este pe drum.* |
+| 61 | Δίνω το ψωμί στο παιδί | I give the bread to the child | σε marks the indirect object; Romanian uses the dative, *Dau pâinea copilului.* |
+| 62 | Ο σκύλος πηδάει στο νερό | The dog jumps into the water | meaning "in" (into); Romanian *Câinele sare în apă.* |
 
-**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *The fox sentence* (3, 17, 23).
+**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56, 61); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *Places* (57 to 60, 62); *The fox sentence* (3, 17, 23).
 
 Further phrases (greetings, introductions, directions, past and future in context) are added after the prototype validates the model. The set includes the aorist (phrase 19), the continuous future (phrase 20) and the future perfect (phrase 13). The simple future (θα φάω) is reachable through the verb panel's tense control on phrases 11, 14 and 19, and is written out with its Romanian and English counterparts in section 6.4.
 
@@ -649,18 +664,18 @@ The past forms these examples use (είχα, ήθελα, έτρωγα) come from
 
 All Greek forms are monotonic. Every form in the prototype comes from the tables in sections 6.3 to 6.5 and the lexeme inventory below. These are the single source for the files in `data/`. The brainstorming mockups were used only to draft those tables; where a mockup and this section disagree, this section wins. All entries start unverified and are checked in section 9.
 
-**Lexeme inventory** (the lexemes the 56 phrases need):
+**Lexeme inventory** (the lexemes the 62 phrases need):
 
 - **Verbs:** θέλω, πηδάω, πλένω and πλένομαι, κοιμάμαι, τρώω, πάω, δίνω, έχω (also the auxiliary), είμαι (copula), μπορεί (impersonal), ψήνω (needed only for its participle). Added for the question words and pronouns: κάνω (Plan 7) and λέω (Plan 8; present, imperfect and subjunctive present).
-- **Nouns:** καφές, νερό, ψωμί, παιδί, αλεπού, σκύλος. Added: ώρα (a feminine noun in -α; Plan 7).
+- **Nouns:** καφές, νερό, ψωμί, παιδί, αλεπού, σκύλος. Added: ώρα (a feminine noun in -α; Plan 7). Added for σε (Plan 9): σπίτι (neuter in -ί, like παιδί), δρόμος (masculine in -ος) and θάλασσα (feminine in -α, genitive plural θαλασσών).
 - **Adjectives:** ζεστός, γρήγορος, τεμπέλικος, καφέ (indeclinable); the participles πλυμένος and ψημένος.
 - **Determiners and quantifiers:** the definite article; ένας / μία / ένα and the numerals 2 to 5; μερικοί, κάποιος, κανένας, πολύς, λίγος and the comparatives περισσότερος and λιγότερος. Added: the question words ποιος (own forms, like κάποιος, with a plural) and πόσος (the adjective endings); both singular and plural, subject and object roles.
-- **Function words:** πάνω από (with κάτω από, με, για for the preposition table), δεν, μην, να, θα, αν, and the clitic pronouns. Added: από and μέχρι (prepositions that may govern a question word), the particle ας, and the question words τι, πού, πότε, γιατί, πώς (a new part of speech, "interrogative").
+- **Function words:** πάνω από (with κάτω από, με, για for the preposition table), δεν, μην, να, θα, αν, and the clitic pronouns. Added: από and μέχρι (prepositions that may govern a question word), the particle ας, and the question words τι, πού, πότε, γιατί, πώς (a new part of speech, "interrogative"). Added for σε (Plan 9): σε itself, with its senses and the six fused forms.
 - **Strong subject pronouns** (shown as dropped or optional beside verbs): εγώ, εσύ, αυτός / αυτή / αυτό, εμείς, εσείς, αυτοί / αυτές / αυτά.
 
-**Romanian lexemes:** verbs *a vrea, a sări, a spăla* (and *a se spăla*), *a dormi, a mânca, a merge, a da, a avea* (also the auxiliary), *a fi* (copula and auxiliary), *a putea* (*poate*), *a coace*; nouns *cafea, apă, pâine, copil, vulpe, câine*; adjectives *cald, rapid, leneș, maro* and the participles *spălat, copt*; numerals *un / o, doi / două, trei, patru, cinci*; quantifiers *niște, câțiva, vreun / vreo, niciun / nicio, mult, puțin, mai*; function words *peste, sub, cu, pentru, nu, să, dacă*; the clitic table; the subject pronouns *eu, tu, el / ea, noi, voi, ei / ele*. Added: *a face* (κάνω), *a zice* (λέω), *oră*, *a costa* (in the gloss), *cine, care, ce, cât, unde, când, de ce, cum*, *de la, până la*, and *să* as the hortative particle.
+**Romanian lexemes:** verbs *a vrea, a sări, a spăla* (and *a se spăla*), *a dormi, a mânca, a merge, a da, a avea* (also the auxiliary), *a fi* (copula and auxiliary), *a putea* (*poate*), *a coace*; nouns *cafea, apă, pâine, copil, vulpe, câine*; adjectives *cald, rapid, leneș, maro* and the participles *spălat, copt*; numerals *un / o, doi / două, trei, patru, cinci*; quantifiers *niște, câțiva, vreun / vreo, niciun / nicio, mult, puțin, mai*; function words *peste, sub, cu, pentru, nu, să, dacă*; the clitic table; the subject pronouns *eu, tu, el / ea, noi, voi, ei / ele*. Added: *a face* (κάνω), *a zice* (λέω), *oră*, *a costa* (in the gloss), *cine, care, ce, cât, unde, când, de ce, cum*, *de la, până la*, and *să* as the hortative particle. Added for σε: *casă* and *acasă*, *drum*, *mare*, and the prepositions *la*, *în*, *pe*.
 
-**English lexemes:** verbs *want, jump, wash, sleep, eat, go, give, keep, have* (also the auxiliary), *be* (copula and auxiliary), *do* (for "don't"), *used to*, *may, bake*; nouns *coffee, water, bread, child, fox, dog*; adjectives *hot, quick, lazy, brown* and the participles *washed, baked*; numerals one to five; quantifiers *some, a few, several, any, anyone, someone, no, none, no one, much, many, a lot of, little, a little, few, more, less, fewer*; function words *over, above, under, with, for, not, if, to, will, would, the, a / an*; the pronouns *I, you, he / she / it, we, they, me, him, her, us, them, myself*. Added: do / make (κάνω), say (λέω), hour / time, who, which, what, where, when, why, how, how much, how many, from, until, let / let's.
+**English lexemes:** verbs *want, jump, wash, sleep, eat, go, give, keep, have* (also the auxiliary), *be* (copula and auxiliary), *do* (for "don't"), *used to*, *may, bake*; nouns *coffee, water, bread, child, fox, dog*; adjectives *hot, quick, lazy, brown* and the participles *washed, baked*; numerals one to five; quantifiers *some, a few, several, any, anyone, someone, no, none, no one, much, many, a lot of, little, a little, few, more, less, fewer*; function words *over, above, under, with, for, not, if, to, will, would, the, a / an*; the pronouns *I, you, he / she / it, we, they, me, him, her, us, them, myself*. Added: do / make (κάνω), say (λέω), hour / time, who, which, what, where, when, why, how, how much, how many, from, until, let / let's. Added for σε: house / home, road, sea, and the prepositions to, at, in, on.
 
 **Test fixtures only:** τηλεφωνώ and διαβάζω appear only in the stress unit tests (4.3). They live in the test fixtures, not in `data/`, so the inventory and the validator never see them.
 
@@ -681,6 +696,7 @@ A build-time script (`npm run validate`) fails the build when:
 - a form group has fewer than two members, its members use different verb lexemes or moods, a member does not compose, or its `closeNotSame` verb has clitics;
 - a phrase has no `theme`, or any record that needs a `verified` flag lacks one.
 - a question-word quantifier (`question`) that does not offer exactly the subject and object roles, or a quantifier token outside the roles its lexeme offers; a quantifier token with no `agreesWith` unless it is used on its own; a preposition token whose `agreesWith` is neither a noun nor an interrogative (τι, πού, πότε, γιατί, πώς); an interrogative whose `roAfter` names something that is not a preposition; a hortative slot of a verb that does not offer the subjunctive present and aorist; a pronoun that the Romanian clitic table cannot place (for every offered slot and every pronoun the panel can build);
+- a σε token whose slot sense is not one of σε's senses, a fused preposition token with no noun in `agreesWith`, a gloss link to a part (piece) of a fused token other than 0 or 1, and a σε token whose text is not the fused form of its noun's article (στον for a masculine singular noun);
 
 The script also fails the build when an irregular form has no authored reading, or a compound form's generated reading has a part with no gloss.
 
@@ -728,6 +744,8 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 
 - Plan 7 and 8 additions: the question words and their Romanian and English counterparts (*cine / care / ce*, *de unde*, *până când*, *de la ce*, *ce oră*, *cât costă*); whether the Romanian object role of *cine* and *care* needs *pe* (*pe cine*), which the cells do not show; the Romanian forms *cât, câtă, câți, câte*; the forms of ποιος and πόσος; whether γιατί, πώς and the compounds are used as written; ώρα, κάνω (the price idiom Πόσο κάνει) and λέω; the hortative ας (every person, the English renderings "let me / let's / let him / let them", and the second person "may you eat / go ahead and eat"); phrases 40 to 56; and, for Plan 8, every Romanian pronoun fusion (*l-am mâncat*, *am mâncat-o*, *l-aș mânca*, *să-l mănânc*, *nu l-am mâncat*, the dative-accusative pairs), the Greek placement of the pronouns, and the natural Romanian *Cum se numește?* for Πώς το λένε.
 
+- Plan 9 additions: the six fused forms (στον, στην, στο, στους, στις, στα); the senses of σε with their Romanian and English words (*la*, *în*, *pe*, the dative for a person; to, at, in, on) and their examples; the nouns σπίτι, δρόμος, θάλασσα and *casă / acasă*, *drum*, *mare*; whether στο σπίτι should read "at home" or "in the house" in English; and phrases 57 to 62 (*Merg acasă*, *Sunt acasă*, *Mergem la mare?*, *Câinele este pe drum*, *Dau pâinea copilului*, *Câinele sare în apă*).
+
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
 ## 10. Risks
@@ -749,7 +767,7 @@ Reviewed content is marked verified in the data, on the record that holds it (4.
 
 ## 11. Definition of done for the prototype
 
-1. All fifty-six phrases render, with the correct token chips and four gloss rows each.
+1. All sixty-two phrases render, with the correct token chips and four gloss rows each.
 2. Every part of speech in the phrases has a working panel with controls, a current-form table and (Improver) a full table, in all three languages.
 3. Clicking between Greek tokens and gloss units, including segments, works in both directions.
 4. `npm run validate`, the unit tests and the component tests pass.
@@ -914,3 +932,15 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | λέω | Offers the present, the imperfect and the present subjunctive (so no hortative); Romanian *a zice*, English "say / call"; phrase 54 uses the 3pl *λένε* | 6.6 |
 | Comparison notes | `pronoun-position-finite` (all moods but the imperative) and `pronoun-before-auxiliary` (the perfect tenses, Improver) | 5.2 |
 | Review | The new item `clitic-table:ro-fusions`; the review sheet prints every position of every pronoun and pair | 9 |
+
+## 23. Changes for σε and the article contractions
+
+| Source | Change | Where |
+|---|---|---|
+| New request: σε | σε is a preposition that fuses with the article in the six forms στον, στην, στο, στους, στις, στα; the fusion is stored data and a ReviewItem covers it | 2, 4.4 |
+| Token model | A fused preposition is one token with two parts (σε and the article): one chip with two clickable parts, each opening its own panel, and gloss units that link to either part | 4.4, 5.3 |
+| Meaning control | σε has five senses (to, at, in, on, person) carried on the slot (`sense`) and offered as the Meaning control; the person sense is the indirect object, which Romanian renders with the dative | 4.2, 5.3 |
+| Panels | The σε panel shows the fused form with the noun, the Romanian and English word of the chosen meaning, and the six fused forms in the Improver table; the other prepositions are unchanged | 5.3 |
+| Notes | Four rows: preposition-meaning, preposition-article-fusion, direction-and-place, indirect-object-dative | 5.2 |
+| Content | Nouns σπίτι, δρόμος, θάλασσα; phrases 57 to 62 in a new *Places* theme (61 is *Daily life*) | 6.1, 6.6 |
+| Delivery | Plan 9: σε, the contractions, the meaning control, the new nouns and phrases 57 to 62 | 6.1 |
