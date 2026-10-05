@@ -191,7 +191,7 @@ The **hortative** is ας + the present or aorist subjunctive form (ας τρώ�
 The **clitic engine** (`clitics.ts`, with the stress rule in `stress.ts` and the placement in `compose`) handles weak pronouns with commands and with every other finite form. It takes the verb form, the clitic or clitics and the mood, and returns a placed form:
 
 - **Placement.** Affirmative imperative: clitics follow the verb (φάε το). Negative imperative: the subjunctive is used, and the clitics precede the verb (μην το φας).
-- **Other moods.** The pronouns stand before the verb group's auxiliary or lexical verb, after the particle and the negation: [δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb], as in το τρώω, δεν το τρώω, θα το φάω, να μην το φάω, το έχω φάει, ας το φάμε. No stress rule applies. Romanian fuses the pronoun with the auxiliary or the particle (*l-am mâncat*, *l-aș mânca*, *să-l mănânc*, *nu l-am mâncat*) and puts *o* and the dative-accusative pairs after the participle or the infinitive where Romanian does (*am mâncat-o*, *aș mânca-o*); every fusion is stored in the Romanian clitic table, for every person, not derived. English puts the pronoun after the verb, or after the participle ("has eaten it").
+- **Other moods.** The pronouns stand before the verb group's auxiliary or lexical verb, after the particle and the negation: [δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb], as in το τρώω, δεν το τρώω, θα το φάω, να μην το φάω, το έχω φάει, ας το φάμε. No stress rule applies. Romanian fuses the pronoun with the auxiliary or the particle (*l-am mâncat*, *l-aș mânca*, *să-l mănânc*, *nu l-am mâncat*) and puts *o* and the dative-accusative pairs after the participle or the infinitive where Romanian does (*am mâncat-o*, *aș mânca-o*); every fusion is stored in the Romanian clitic table, for every pronoun, not derived: each of the fourteen pronouns and each of the twenty-four pairs (every dative with the four third-person accusatives) has six positions (free, attached to a command, after *nu*, after *să*, fused with a vowel-initial auxiliary, behind the participle or the infinitive), and one function builds the form for each tense from them. English puts the pronoun after the verb, or after the participle ("has eaten it").
 - **Order.** With two clitics, the genitive (indirect) comes before the accusative (direct): δώσε μού το. English and Romanian orders are stored per example.
 - **Stress.** Greek stress may not fall further back than the third-last syllable of the whole unit (verb plus clitics). When the original stress would fall on the fourth-last syllable or further back, a second accent is written **two syllables after the original stress**: δώσε μού το (δώ-σε-μού), τηλεφώνησέ μου (φώ-νη-σέ), διάβασέ μου το (διά-βα-σέ). The prototype exercises the rule through phrase 36; the other two cases are unit tests only, because no phrase uses a verb of that shape. A Greek speaker must confirm the rule (section 9).
 - **Shortening.** Some verbs shorten before a clitic and have a second, equal form (φάε το ~ φάτο; δώσε μού το ~ δως μου το). The shortening table is data, not a rule. It is applied when the verb slot has `shortForm: true`. Forms that mean the same are stored as members of one **form group** (4.6).
@@ -669,7 +669,7 @@ No phrase uses μπύρα, so it is not in the prototype.
 A build-time script (`npm run validate`) fails the build when:
 
 - a token refers to a missing lexeme, or its slot is invalid or outside the lexeme's `offers`;
-- a verb token's `text` differs from the text `compose` produces for its authored slot (compared ignoring capitals and trailing punctuation), or its slot asks for clitics outside an imperative, or for negation or a short form that the mood or the lexeme does not allow;
+- a verb token's `text` differs from the text `compose` produces for its authored slot (compared ignoring capitals and trailing punctuation), or its slot asks for pronouns with a reflexive (mediopassive) voice or a verb that takes no object (`intransitive`: πάω, πηδάω, είμαι, μπορεί), or for a short form outside a command, or for negation or a short form that the mood or the lexeme does not allow;
 - a slot has no Greek form;
 - a stored Romanian or English cell is missing or empty and is **not** marked `pending` (a `pending` cell is accepted and reported, see below);
 - an override refers to a slot that does not exist;
@@ -742,7 +742,7 @@ Reviewed content is marked verified in the data, on the record that holds it (4.
 - **Generated Romanian and English compounds.** Generating the compounds from shared tables (4.3) cuts the stored data, but the generators must handle irregular auxiliaries and participles correctly. The irregular verbs that stress the generators are the Romanian and English ones: *a vrea* (*voiam*, *aș vrea*), *a da* (*dădusem*, *dă-mi*), *a fi*, *a avea* and the clitic fusions (*m-am spălat*); and eat / ate / eaten, go / went / gone, give / gave / given, be. Mitigated by per-verb flags for irregular cells and by unit tests on every tense for those verbs.
 - **Romanian gender in tables.** Romanian neuter behaves as masculine in the singular and feminine in the plural. The prototype phrases only use masculine and feminine Romanian nouns; neuter handling is deferred.
 
-- **Pronouns in every form.** Romanian fuses the pronoun with the auxiliary, the particle and the conditional, differently for *o*, for the plural and for the dative-accusative pairs, and the fusions are stored for every person (several hundred strings), each one a chance of a wrong form. Mitigated by storing them as one reviewed table keyed by pronoun and position, by unit tests on every auxiliary, and by the review sheet.
+- **Pronouns in every form.** Romanian fuses the pronoun with the auxiliary, the particle and the conditional, differently for *o*, for the plural and for the dative-accusative pairs, and the fusions are stored for every person (fourteen pronouns and twenty-four pairs with six positions each, about 230 strings), each one a chance of a wrong form. Mitigated by storing them as one reviewed table keyed by pronoun and position, by unit tests on every pronoun and every auxiliary, and by the review sheet.
 - **The hortative and the subjunctive look alike.** ας φάμε and να φάμε share the verb form; the difference is the meaning. The panel and the notes state it, and a speaker must confirm the English renderings per person.
 
 ## 11. Definition of done for the prototype
@@ -897,3 +897,18 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Nouns | `GreekNoun.overrides` stores a whole irregular cell; ώρα is class `fem-a` with the genitive plural ωρών | 4.3, 6.6 |
 | Comparison notes | Thirteen rows for the eleven notes of 5.2: question-order, question-mark, question-words (two rows), why-because, question-declension, question-compounds (two rows), price-idiom and four hortative rows; a row may name several lexemes | 5.2 |
 | Counts | 17 mood and tense combinations; every verb with the subjunctive present and aorist offers the hortative | 4.2, 4.3 |
+
+## 22. Decisions made in Plan 8
+
+| Source | Decision | Where |
+|---|---|---|
+| Delivery | Plan 8 delivers pronouns in every indicative, subjunctive, conditional and hortative form, the verb λέω, the Romanian fusion table and phrases 54 to 56, so the picker lists all 56 phrases | 6.1, 11 |
+| Which verbs take pronouns | Any active verb except one flagged `intransitive` (πάω, πηδάω, είμαι, μπορεί); a reflexive voice takes none. The Object control appears for those verbs in every mood; "a noun (spelled out)" stays for commands only | 4.3, 5.3 |
+| Greek placement | [δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb]; no second accent outside commands; a short form is for commands only | 4.3 |
+| English | The pronouns follow the verb or the participle ("has eaten it", "will give it to me"); the pair keeps "it to me" | 4.3 |
+| Romanian table | `RoClitic` gains `afterSa`, `fused` and `after`; the pairs are stored for every dative with the four third-person accusatives (24 pairs; *ne*, *vă* and *le* become *ni-*, *vi-* and *li-* in front of the accusative) | 4.3, 6.5 |
+| Object control | A "To whom?" control chooses the indirect pronoun (to me, to you, to him, to her, to us, to you pl., to them) once the form has one; the Same-meaning strip is about "me" only | 4.6, 5.3 |
+| Readings | A form with pronouns has a Greek reading line only; the Romanian and English lines are not produced | 5.5 |
+| λέω | Offers the present, the imperfect and the present subjunctive (so no hortative); Romanian *a zice*, English "say / call"; phrase 54 uses the 3pl *λένε* | 6.6 |
+| Comparison notes | `pronoun-position-finite` (all moods but the imperative) and `pronoun-before-auxiliary` (the perfect tenses, Improver) | 5.2 |
+| Review | The new item `clitic-table:ro-fusions`; the review sheet prints every position of every pronoun and pair | 9 |
