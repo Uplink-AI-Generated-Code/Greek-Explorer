@@ -33,8 +33,55 @@ export const RO_AUXILIARIES = {
   would: ['aș', 'ai', 'ar', 'am', 'ați', 'ar'],
 } as const;
 
+/**
+ * A verb form with pronouns outside a command (spec 4.3): the stored pronoun forms go in front of the verb group
+ * (îl mănânc, nu-l mănânc, să-l mănânc, îl voi mânca), fuse with a vowel-initial auxiliary (l-am mâncat, l-aș mânca)
+ * or, for *o* and the pairs with it, stay behind the participle or the infinitive (am mâncat-o, aș mânca-o).
+ */
+function roWithPronouns(v: GreekVerb, s: SlotOf<'verb'>): string {
+  const ro = voiceOf(v, s.voice).ro;
+  const i = whoIndex(s);
+  const pronoun = roClitics(s.clitics ?? []);
+  const negative = s.polarity === 'negative';
+  const nu = negative ? 'nu ' : '';
+  // Before a consonant-initial word, and after să.
+  const pre = negative ? pronoun.afterNu : pronoun.free;
+  const afterSa = negative ? `să ${pronoun.afterNu}` : pronoun.afterSa;
+  const fused = (aux: string, rest: string) => `${nu}${pronoun.fused}${aux} ${rest}${pronoun.after}`;
+  switch (`${s.mood}.${s.tense}`) {
+    case 'indicative.present':
+      return `${pre} ${ro.present[i]}`;
+    case 'indicative.imperfect':
+      return `${pre} ${ro.imperfect[i]}`;
+    case 'indicative.pluperfect':
+      return `${pre} ${ro.pluperfect[i]}`;
+    case 'indicative.aorist':
+    case 'indicative.perfect':
+      return fused(RO_AUXILIARIES.have[i], ro.participle);
+    case 'indicative.future':
+    case 'indicative.futureSimple':
+      return `${pre} ${RO_AUXILIARIES.will[i]} ${ro.infinitive}`;
+    case 'indicative.futurePerfect':
+      return `${pre} ${RO_AUXILIARIES.will[i]} fi ${ro.participle}`;
+    case 'subjunctive.present':
+    case 'subjunctive.aorist':
+    case 'hortative.present':
+    case 'hortative.aorist':
+      return `${afterSa} ${ro.subjunctive[i]}`;
+    case 'subjunctive.perfect':
+      return `${afterSa} fi ${ro.participle}`;
+    case 'conditional.imperfect':
+      return fused(RO_AUXILIARIES.would[i], ro.infinitive);
+    case 'conditional.pluperfect':
+      return fused(RO_AUXILIARIES.would[i], `fi ${ro.participle}`);
+    default:
+      throw new Error(`${s.mood} ${s.tense} takes no pronouns`);
+  }
+}
+
 /** The Romanian cell for a verb slot: stored forms for the simple tenses, generated for the compound ones. */
 export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
+  if ((s.clitics ?? []).length > 0 && s.mood !== 'imperative') return roWithPronouns(v, s);
   const ro = voiceOf(v, s.voice).ro;
   const i = whoIndex(s);
   // Negation: nu in front of the verb group; să nu in the subjunctive (spec 6.4).

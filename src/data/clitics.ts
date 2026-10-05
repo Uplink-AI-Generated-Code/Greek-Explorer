@@ -44,39 +44,61 @@ export const EN_CLITICS: Record<string, ByGender> = {
 };
 
 export interface RoClitic {
-  /** On its own: îl. */
+  /** Before a consonant-initial word, on its own: îl mănânc, mi-o vei da. */
   free: string;
   /** Attached to a command with a hyphen: mănâncă-l. */
   enclitic: string;
   /** After nu, with the fusions: nu-l, nu o. */
   afterNu: string;
+  /** After să, with the fusions: să-l, să o. */
+  afterSa: string;
+  /** Joined to a vowel-initial auxiliary (am, aș): l-am, mi l-ai; empty when the pronoun stays behind the participle or the infinitive. */
+  fused: string;
+  /** Behind the participle or the infinitive where Romanian puts it there: -o in am mâncat-o, aș mânca-o; otherwise empty. */
+  after: string;
 }
+
+const ro = (
+  free: string,
+  enclitic: string,
+  afterNu: string,
+  afterSa: string,
+  fused: string,
+  after = '',
+): RoClitic => ({ free, enclitic, afterNu, afterSa, fused, after });
 
 /**
  * The Romanian pronouns, keyed 'obj' or 'ind', then person and number, then the Romanian gender of a third-person
  * accusative ('obj.3sg.m'). Fusions are stored, not derived (spec 4.3). A ReviewItem covers this table.
  */
 export const RO_CLITICS: Record<string, RoClitic> = {
-  'obj.1sg': { free: 'mă', enclitic: '-mă', afterNu: 'nu mă' },
-  'obj.2sg': { free: 'te', enclitic: '-te', afterNu: 'nu te' },
-  'obj.3sg.m': { free: 'îl', enclitic: '-l', afterNu: 'nu-l' },
-  'obj.3sg.f': { free: 'o', enclitic: '-o', afterNu: 'nu o' },
-  'obj.1pl': { free: 'ne', enclitic: '-ne', afterNu: 'nu ne' },
-  'obj.2pl': { free: 'vă', enclitic: '-vă', afterNu: 'nu vă' },
-  'obj.3pl.m': { free: 'îi', enclitic: '-i', afterNu: 'nu-i' },
-  'obj.3pl.f': { free: 'le', enclitic: '-le', afterNu: 'nu le' },
-  'ind.1sg': { free: 'îmi', enclitic: '-mi', afterNu: 'nu-mi' },
-  'ind.2sg': { free: 'îți', enclitic: '-ți', afterNu: 'nu-ți' },
-  'ind.3sg': { free: 'îi', enclitic: '-i', afterNu: 'nu-i' },
-  'ind.1pl': { free: 'ne', enclitic: '-ne', afterNu: 'nu ne' },
-  'ind.2pl': { free: 'vă', enclitic: '-vă', afterNu: 'nu vă' },
-  'ind.3pl': { free: 'le', enclitic: '-le', afterNu: 'nu le' },
+  'obj.1sg': ro('mă', '-mă', 'nu mă', 'să mă', 'm-'),
+  'obj.2sg': ro('te', '-te', 'nu te', 'să te', 'te-'),
+  'obj.3sg.m': ro('îl', '-l', 'nu-l', 'să-l', 'l-'),
+  'obj.3sg.f': ro('o', '-o', 'nu o', 'să o', '', '-o'),
+  'obj.1pl': ro('ne', '-ne', 'nu ne', 'să ne', 'ne-'),
+  'obj.2pl': ro('vă', '-vă', 'nu vă', 'să vă', 'v-'),
+  'obj.3pl.m': ro('îi', '-i', 'nu-i', 'să-i', 'i-'),
+  'obj.3pl.f': ro('le', '-le', 'nu le', 'să le', 'le-'),
+  'ind.1sg': ro('îmi', '-mi', 'nu-mi', 'să-mi', 'mi-'),
+  'ind.2sg': ro('îți', '-ți', 'nu-ți', 'să-ți', 'ți-'),
+  'ind.3sg': ro('îi', '-i', 'nu-i', 'să-i', 'i-'),
+  'ind.1pl': ro('ne', '-ne', 'nu ne', 'să ne', 'ne-'),
+  'ind.2pl': ro('vă', '-vă', 'nu vă', 'să vă', 'v-'),
+  'ind.3pl': ro('le', '-le', 'nu le', 'să le', 'le-'),
 };
 
-/** Two pronouns, dative then accusative, keyed '<dative key>+<accusative key>': dă-mi-o, nu mi-o. */
-export const RO_CLUSTERS: Record<string, { enclitic: string; afterNu: string }> = {
-  'ind.1sg+obj.3sg.m': { enclitic: '-mi-l', afterNu: 'nu mi-l' },
-  'ind.1sg+obj.3sg.f': { enclitic: '-mi-o', afterNu: 'nu mi-o' },
-  'ind.1sg+obj.3pl.m': { enclitic: '-mi-i', afterNu: 'nu mi-i' },
-  'ind.1sg+obj.3pl.f': { enclitic: '-mi-le', afterNu: 'nu mi-le' },
+/**
+ * Two pronouns, dative then accusative, keyed '<dative key>+<accusative key>': dă-mi-o, nu mi-o, mi-o vei da.
+ * Stored for the datives "to me" and "to you" with the four third-person accusatives.
+ */
+export const RO_CLUSTERS: Record<string, RoClitic> = {
+  'ind.1sg+obj.3sg.m': ro('mi-l', '-mi-l', 'nu mi-l', 'să mi-l', 'mi l-'),
+  'ind.1sg+obj.3sg.f': ro('mi-o', '-mi-o', 'nu mi-o', 'să mi-o', 'mi-', '-o'),
+  'ind.1sg+obj.3pl.m': ro('mi-i', '-mi-i', 'nu mi-i', 'să mi-i', 'mi i-'),
+  'ind.1sg+obj.3pl.f': ro('mi-le', '-mi-le', 'nu mi-le', 'să mi-le', 'mi le-'),
+  'ind.2sg+obj.3sg.m': ro('ți-l', '-ți-l', 'nu ți-l', 'să ți-l', 'ți l-'),
+  'ind.2sg+obj.3sg.f': ro('ți-o', '-ți-o', 'nu ți-o', 'să ți-o', 'ți-', '-o'),
+  'ind.2sg+obj.3pl.m': ro('ți-i', '-ți-i', 'nu ți-i', 'să ți-i', 'ți i-'),
+  'ind.2sg+obj.3pl.f': ro('ți-le', '-ți-le', 'nu ți-le', 'să ți-le', 'ți le-'),
 };

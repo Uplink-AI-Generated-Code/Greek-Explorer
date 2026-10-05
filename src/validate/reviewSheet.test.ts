@@ -46,7 +46,8 @@ describe('the review sheet', () => {
   it('shows the pronoun tables a reviewer needs for clitic-table:ro-clitics', () => {
     expect(sheet).toContain('### το (clitic)');
     expect(sheet).toContain('- obj.3sg.m: free îl · attached -l · after nu nu-l');
-    expect(sheet).toContain('- ind.1sg+obj.3sg.f: attached -mi-o · after nu nu mi-o');
+    expect(sheet).toContain('- ind.1sg+obj.3sg.f: free mi-o · attached -mi-o · after nu nu mi-o · after să să mi-o · fused mi- · behind the participle -o');
+    expect(sheet).toContain('- obj.3sg.m: free îl · attached -l · after nu nu-l · after să să-l · fused l- · behind the participle —');
     expect(sheet).toContain('- 3sg: him / her / it');
     expect(sheet).toContain('- 3sg: αυτόν / αυτήν / αυτό');
     const section = sheet.slice(sheet.indexOf('### το (clitic)')).split('\n### ')[0];

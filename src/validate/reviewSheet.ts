@@ -10,10 +10,14 @@ import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import type { GreekInterrogative, GreekLexeme, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
-import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS } from '../data/clitics';
+import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
 import { isOffered, slotProblem } from '../engine/offers';
 import { pronounSlots, slotsFor } from './validate';
+
+/** One line of the Romanian pronoun table: every position the pronoun can take. */
+const roForms = (c: RoClitic): string =>
+  `free ${c.free} · attached ${c.enclitic} · after nu ${c.afterNu} · after să ${c.afterSa} · fused ${c.fused || '—'} · behind the participle ${c.after || '—'}`;
 
 const LANG_NAME = { el: 'Ελληνικά', ro: 'Română', en: 'English' } as const;
 
@@ -52,11 +56,11 @@ const byGender = (cells: Record<string, string>): string => unique(['m', 'f', 'n
 /** The weak pronoun: the tables a reviewer checks for clitic-table:ro-clitics, printed as they are stored. */
 function cliticLines(): string[] {
   return [
-    'Romanian pronouns (free, attached to a command, after nu):',
-    ...Object.entries(RO_CLITICS).map(([key, c]) => `- ${key}: free ${c.free} · attached ${c.enclitic} · after nu ${c.afterNu}`),
+    'Romanian pronouns (free, attached to a command, after nu, after să, fused with an auxiliary, behind the participle):',
+    ...Object.entries(RO_CLITICS).map(([key, c]) => `- ${key}: ${roForms(c)}`),
     '',
     'Romanian clusters (dative + accusative):',
-    ...Object.entries(RO_CLUSTERS).map(([key, c]) => `- ${key}: attached ${c.enclitic} · after nu ${c.afterNu}`),
+    ...Object.entries(RO_CLUSTERS).map(([key, c]) => `- ${key}: ${roForms(c)}`),
     '',
     'English pronouns:',
     ...Object.entries(EN_CLITICS).map(([key, cells]) => `- ${key}: ${byGender(cells)}`),

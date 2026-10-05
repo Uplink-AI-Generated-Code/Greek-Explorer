@@ -69,10 +69,10 @@ describe('English pronouns', () => {
 
 describe('Romanian pronouns', () => {
   it('free, attached after a command, and after nu', () => {
-    expect(roClitic(c('object', 3, 'sg', 'm', 'm'))).toEqual({ free: 'îl', enclitic: '-l', afterNu: 'nu-l' });
-    expect(roClitic(c('object', 3, 'sg', 'n', 'f'))).toEqual({ free: 'o', enclitic: '-o', afterNu: 'nu o' });
-    expect(roClitic(c('indirect', 1, 'sg'))).toEqual({ free: 'îmi', enclitic: '-mi', afterNu: 'nu-mi' });
-    expect(roClitic(c('object', 1, 'pl'))).toEqual({ free: 'ne', enclitic: '-ne', afterNu: 'nu ne' });
+    expect(roClitic(c('object', 3, 'sg', 'm', 'm'))).toMatchObject({ free: 'îl', enclitic: '-l', afterNu: 'nu-l' });
+    expect(roClitic(c('object', 3, 'sg', 'n', 'f'))).toMatchObject({ free: 'o', enclitic: '-o', afterNu: 'nu o' });
+    expect(roClitic(c('indirect', 1, 'sg'))).toMatchObject({ free: 'îmi', enclitic: '-mi', afterNu: 'nu-mi' });
+    expect(roClitic(c('object', 1, 'pl'))).toMatchObject({ free: 'ne', enclitic: '-ne', afterNu: 'nu ne' });
   });
 
   it('follows the Romanian gender of the noun, not the Greek one (clitic-gender)', () => {
@@ -89,8 +89,8 @@ describe('Romanian pronouns', () => {
   });
 
   it('one pronoun or a cluster of two (dative then accusative)', () => {
-    expect(roClitics([c('object', 3, 'sg', 'n', 'f')])).toEqual({ enclitic: '-o', afterNu: 'nu o' });
-    expect(roClitics([c('indirect', 1, 'sg'), c('object', 3, 'sg', 'n', 'f')])).toEqual({
+    expect(roClitics([c('object', 3, 'sg', 'n', 'f')])).toMatchObject({ enclitic: '-o', afterNu: 'nu o' });
+    expect(roClitics([c('indirect', 1, 'sg'), c('object', 3, 'sg', 'n', 'f')])).toMatchObject({
       enclitic: '-mi-o',
       afterNu: 'nu mi-o',
     });
@@ -100,7 +100,7 @@ describe('Romanian pronouns', () => {
   });
 
   it('refuses a cluster that is not stored, and a list that is not one or two', () => {
-    expect(() => roClitics([c('indirect', 2, 'sg'), c('object', 3, 'sg', 'm', 'm')])).toThrow(/no Romanian cluster/);
+    expect(() => roClitics([c('indirect', 3, 'sg'), c('object', 3, 'sg', 'm', 'm')])).toThrow(/no Romanian cluster/);
     expect(() => roClitics([])).toThrow(/one or two/);
   });
 });

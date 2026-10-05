@@ -35,12 +35,9 @@ export function roClitic(c: Clitic): RoClitic {
   return entry;
 }
 
-/** The attached form (after a command) and the form after nu, for one pronoun or a dative + accusative pair. */
-export function roClitics(list: readonly Clitic[]): { enclitic: string; afterNu: string } {
-  if (list.length === 1) {
-    const { enclitic, afterNu } = roClitic(list[0]);
-    return { enclitic, afterNu };
-  }
+/** Every form of one pronoun or of a dative + accusative pair: attached to a command, after nu, after să, fused with an auxiliary. */
+export function roClitics(list: readonly Clitic[]): RoClitic {
+  if (list.length === 1) return roClitic(list[0]);
   if (list.length === 2) {
     const key = `${roKey(list[0])}+${roKey(list[1])}`;
     const entry = RO_CLUSTERS[key];
