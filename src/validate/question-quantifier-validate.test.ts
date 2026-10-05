@@ -47,3 +47,27 @@ describe('question-word quantifiers in the validator', () => {
     );
   });
 });
+
+describe('a preposition before a question word', () => {
+  const withPreposition = (target: string, slot: Token['slot']): Phrase => ({
+    ...PHRASES[0],
+    tokens: [
+      { text: 'από', lexeme: 'apo', slot: { pos: 'preposition' }, agreesWith: 1 },
+      { text: 'x', lexeme: target, slot },
+    ],
+  });
+
+  it('accepts a question word after the preposition', () => {
+    const phrase = withPreposition('pou', { pos: 'interrogative' });
+    expect(validate({ ...real, phrases: [phrase] }).filter((e) => e.includes('token 0'))).toEqual([]);
+  });
+
+  it('refuses a verb after the preposition', () => {
+    const phrase = withPreposition('thelo', {
+      pos: 'verb', person: 1, number: 'sg', mood: 'indicative', tense: 'present', voice: 'active',
+    });
+    expect(validate({ ...real, phrases: [phrase] })).toContain(
+      'ordering-hot-coffee token 0 (από): preposition needs agreesWith pointing at the noun or question word it governs',
+    );
+  });
+});

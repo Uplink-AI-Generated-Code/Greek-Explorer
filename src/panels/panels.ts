@@ -197,6 +197,8 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       break;
     case 'noun': {
       const noun = getLexeme(value);
+      // After a preposition the learner may choose a question word as well as a noun (από πού).
+      if (slot.pos === 'preposition' && noun.pos === 'interrogative') return { ...state, noun: value };
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
       // Without the lexeme the verb's indirect object is unknown: the control does not apply.

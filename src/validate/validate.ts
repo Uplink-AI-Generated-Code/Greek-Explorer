@@ -324,9 +324,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
   }
   if (token.slot.pos === 'preposition') {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
-    const noun = target ? lexemes[target.lexeme] : undefined;
-    if (!noun || noun.pos !== 'noun') {
-      errors.push(`${where}: preposition needs agreesWith pointing at the noun it governs`);
+    const governed = target ? lexemes[target.lexeme] : undefined;
+    if (!governed || (governed.pos !== 'noun' && governed.pos !== 'interrogative')) {
+      errors.push(`${where}: preposition needs agreesWith pointing at the noun or question word it governs`);
     }
   }
   return errors;

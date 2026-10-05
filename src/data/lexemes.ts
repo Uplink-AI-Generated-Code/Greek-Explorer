@@ -1121,7 +1121,7 @@ export const DEF_ARTICLE: GreekArticle = def;
 export const NUMERAL: GreekNumeral = numeral;
 
 /** The prepositions shown together in the Improver table, in display order. */
-export const PREPOSITIONS: GreekPreposition[] = [pano, kato, me, gia];
+export const PREPOSITIONS: GreekPreposition[] = [pano, kato, me, gia, apo, mexri];
 
 export function getLexeme(id: string): GreekLexeme {
   const lexeme = LEXEMES[id];
