@@ -4,7 +4,7 @@
 
 **Goal:** Let the weak pronouns go with every indicative, subjunctive, conditional and hortative form (not only commands), store the Romanian fusions for every pronoun, add the verb λέω, and add phrases 54 to 56.
 
-**Architecture:** Outside a command the Greek pronouns are extra pieces of the verb group, placed after the particle and μην and before the auxiliary (`[δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb]`), with no stress rule. English appends them after the verb or the participle. Romanian gets one function (`roWithPronouns`) that builds each tense from a stored table: every pronoun and every stored pair has six positions (free, attached to a command, after *nu*, after *să*, fused with a vowel-initial auxiliary, behind the participle). The verb panel's Object control works in every mood for verbs that take an object, and the pronoun survives the other controls whenever the verb and voice can take it.
+**Architecture:** Outside a command the Greek pronouns are extra pieces of the verb group, placed after the particle and μην and before the auxiliary (`[δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb]`), with no stress rule. English appends them after the verb or the participle. Romanian gets one function (`roWithPronouns`) that builds each tense from a stored table: every pronoun and every stored pair has six positions (free, attached to a command, after *nu*, after *să*, fused with a vowel-initial auxiliary, behind the participle). The verb panel's Object control works in every mood for verbs that take an object, with a "To whom?" control for the indirect pronoun, and the pronoun survives the other controls whenever the verb and voice can take it.
 
 **Tech Stack:** Vite, React 19, TypeScript (strict), Vitest, Testing Library. No new dependencies.
 
@@ -25,12 +25,13 @@
 These settle what the spec leaves open. Each is a ruling the reviewer may reverse; none changes a spec requirement except where it says so.
 
 1. **Which verbs take pronouns.** Any active verb except one flagged `intransitive` on its voice (πάω, πηδάω, είμαι, μπορεί); a mediopassive voice takes none (a reflexive verb has no object). `slotProblem` refuses the rest with "<lemma> takes no object". A short form is still for commands only. The Object control is offered for exactly these verbs, in every mood.
-2. **The Romanian table.** `RoClitic` gains `afterSa` (*să-l*), `fused` (*l-*, joined to a vowel-initial auxiliary) and `after` (*-o*, behind the participle or the infinitive). The pairs are stored for the datives "to me" and "to you" with the four third-person accusatives (eight pairs). The spec says "for every person"; the singles are stored for every person, but the other datives (third person, plural) have no pair because the panel cannot build one (its Object control makes only a third-person accusative and "me"). A pair that is not stored throws "no Romanian cluster", as before.
+2. **The Romanian table.** `RoClitic` gains `afterSa` (*să-l*), `fused` (*l-*, joined to a vowel-initial auxiliary) and `after` (*-o*, behind the participle or the infinitive). The singles are stored for every person. Task 1 stores the pairs for "to me" and "to you" with the four third-person accusatives (eight pairs); Task 7 completes them for every dative (to me, to you, to him / her, to us, to you pl., to them): 24 pairs. In front of an accusative *ne* becomes *ni-*, *vă* becomes *vi-* and *le* becomes *li-* (*ni-l*, *vi-o*, *li-l*). A pair that is not stored (a first- or second-person accusative with a dative) throws "no Romanian cluster", as before; the panel cannot build one.
 3. **Which Romanian positions each tense uses.** Present, imperfect and pluperfect: the free form (or the form after *nu*) before the verb. The compound past and both conditionals: the fused form before the vowel-initial auxiliary, with *o* and the pairs with *o* behind the participle or the infinitive (*am mâncat-o*, *aș mânca-o*). The future and the future perfect: the free form before *voi / vei …* (a consonant). The subjunctive and the hortative: the form after *să*.
 4. **Pronouns survive the other controls.** `changeVerbSlot` no longer drops the pronouns when the mood changes; it drops them only when the verb or the voice cannot take them, and drops the short form outside a command. The held noun stays while the verb has pronouns (or is a command), and is cleared otherwise.
 5. **Both Romanian genders are validated.** The validator builds the direct pronoun for a noun that is feminine in Romanian (*o*) and for one that is masculine (*îl*), because the fusion differs.
 6. **English.** The pronouns are appended to the English verb cell for every mood (`EnParts.verb`), so the subject pronoun and "let's / may you" stay where they are. There is still no English or Romanian "How to read this" line for a form with pronouns.
-7. **Delivery.** With this plan the picker lists all 56 phrases.
+7. **The Object control chooses the recipient.** Once a form has an indirect pronoun (δίνω: the pair, or a command with a spelled-out noun) a new control, "To whom?" (key `recipient`), chooses it: to me, to you, to him, to her, to us, to you (all), to them. It keeps its value when the tense, the person, the negation or the noun changes, and is dropped with the indirect pronoun. The Same-meaning strip (Give me the bread!) is about "me" only, so it is hidden for any other recipient.
+8. **Delivery.** With this plan the picker lists all 56 phrases.
 
 ## File Structure
 
@@ -39,8 +40,8 @@ These settle what the spec leaves open. Each is a ruling the reviewer may revers
 | `src/types.ts` | `VerbVoice.intransitive` |
 | `src/data/clitics.ts` | the Romanian table gets `afterSa`, `fused`, `after` and eight pairs |
 | `src/data/{lexemes,phrases,divergences,review}.ts` | `intransitive` on four verbs; the verb λέω; phrases 54 to 56; two comparison rows; one review item |
-| `src/engine/{romanian,english,compose,offers,objects,labels,clitics}.ts` | `roWithPronouns`; the English objects in every mood; the Greek placement outside commands; `slotProblem`; the object kind and options by mood |
-| `src/panels/{verb,panels}.ts` | the Object control in every mood; the pronoun survives the other controls |
+| `src/engine/{romanian,english,compose,offers,objects,labels,clitics,groups}.ts` | `roWithPronouns`; the English objects in every mood; the Greek placement outside commands; `slotProblem`; the object kind and options by mood; the recipients; the form groups are about "me" only |
+| `src/panels/{verb,panels,types}.ts` | the Object control in every mood; the "To whom?" control; the pronoun survives the other controls |
 | `src/validate/{validate,reviewSheet}.ts` | pronoun slots for every mood; the review sheet prints every position |
 | tests | one new test file per task, plus the expectations the new rules change |
 
@@ -1685,13 +1686,423 @@ git commit -m "feat: comparison notes and a review item for pronouns in every fo
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ```
 
-### Task 7: Update the spec and check the whole branch
+### Task 7: Every recipient: the remaining Romanian pairs and the "To whom?" control
+
+**Files:**
+- Modify: `src/data/clitics.ts`
+- Modify: `src/engine/groups.ts`
+- Modify: `src/engine/labels.ts`
+- Modify: `src/engine/objects.ts`
+- Modify: `src/panels/panels.ts`
+- Modify: `src/panels/types.ts`
+- Modify: `src/panels/verb.ts`
+- Modify: `src/validate/validate.ts`
+- Modify (test): `src/engine/clitics.test.ts`
+- Modify (test): `src/engine/pronouns-finite.test.ts`
+- Modify (test): `src/engine/ro-pronouns.test.ts`
+- Modify (test): `src/panels/pronoun-panel.test.ts`
+
+**Interfaces:**
+- Consumes: `RO_CLUSTERS`, `cliticsFor`, `objectKind`, `applyControl`, the verb panel controls, `groupFor` and `pronounSlots` (Tasks 1 to 3).
+- Produces: `RO_CLUSTERS` with 24 pairs; `RECIPIENTS`, `indirectOf`, `recipientValue` and `cliticsFor(kind, noun, indirect, to = ME)` in `src/engine/objects.ts`; the control key `recipient` ("To whom?"); `applyControl(state, 'recipient', value, lexemeId)`; `groupFor` returns null for a recipient other than "me"; `pronounSlots` builds the pair for every recipient.
+
+The three third-person datives and the three plurals complete the table (*ne* → *ni-*, *vă* → *vi-*, *le* → *li-* in front of an accusative). The new control appears once a form has an indirect pronoun, after the Object control and before the Object noun. Three existing tests change: the not-stored pair, the count of pronoun slots, and the count of stored pairs.
+
+- [ ] **Step 1: Write the tests**
+
+Change `src/engine/clitics.test.ts` (a unified diff: lines starting with `-` go, lines starting with `+` come in, `@@` marks the place):
+
+```diff
+@@ -101,5 +101,5 @@
+ 
+   it('refuses a cluster that is not stored, and a list that is not one or two', () => {
+-    expect(() => roClitics([c('indirect', 3, 'sg'), c('object', 3, 'sg', 'm', 'm')])).toThrow(/no Romanian cluster/);
++    expect(() => roClitics([c('indirect', 1, 'sg'), c('object', 1, 'sg')])).toThrow(/no Romanian cluster/);
+     expect(() => roClitics([])).toThrow(/one or two/);
+   });
+```
+
+Change `src/engine/pronouns-finite.test.ts` (a unified diff: lines starting with `-` go, lines starting with `+` come in, `@@` marks the place):
+
+```diff
+@@ -105,9 +105,10 @@
+   });
+ 
+-  it('the validator builds the pronoun slots of every mood: two Romanian genders, and the pair for δίνω', () => {
++  it('the validator builds the pronoun slots of every mood: two Romanian genders, and a pair for every recipient of δίνω', () => {
+     const present = slot('indicative', 'present', undefined);
+     delete present.clitics;
+     expect(pronounSlots(troo, present)).toHaveLength(4);
+-    expect(pronounSlots(dino, present)).toHaveLength(8);
++    // (1 direct + 7 recipients) × 2 Romanian genders × affirmative and negative
++    expect(pronounSlots(dino, present)).toHaveLength(2 * (1 + 7) * 2);
+     expect(pronounSlots(getVerb('pao'), present)).toEqual([]);
+     expect(pronounSlots(troo, { ...present, voice: 'mediopassive' })).toEqual([]);
+```
+
+Change `src/engine/ro-pronouns.test.ts` (a unified diff: lines starting with `-` go, lines starting with `+` come in, `@@` marks the place):
+
+```diff
+@@ -121,8 +121,28 @@
+   });
+ 
+-  it('stores the pairs for "to me" and "to you" with the four third-person accusatives', () => {
+-    expect(Object.keys(RO_CLUSTERS)).toHaveLength(8);
++  it('stores the pairs for every dative with the four third-person accusatives', () => {
++    expect(Object.keys(RO_CLUSTERS)).toHaveLength(6 * 4);
+     expect(roClitics([YOU, O]).fused).toBe('ți-');
+     expect(roClitics([YOU, O]).after).toBe('-o');
+   });
++
++  it('says ni-, vi-, li- for "to us", "to you (pl.)" and "to them" in front of the accusative', () => {
++    const to = (person: Person, number: 'sg' | 'pl'): Clitic => ({ role: 'indirect', person, number, ...(person === 3 ? { gender: 'm' as const } : {}) });
++    expect(give(slot('indicative', 'present', [to(1, 'pl'), L], 3))).toBe('ni-l dă');
++    expect(give(slot('indicative', 'present', [to(2, 'pl'), O], 3))).toBe('vi-o dă');
++    expect(give(slot('indicative', 'present', [to(3, 'pl'), L], 3))).toBe('li-l dă');
++    expect(give(slot('indicative', 'present', [to(3, 'sg'), L], 3))).toBe('i-l dă');
++    expect(give(slot('indicative', 'present', [to(3, 'sg'), L], 3, 'sg', true))).toBe('nu i-l dă');
++  });
++
++  it('fuses the dative with the auxiliary for o, and the accusative for the others', () => {
++    const to = (person: Person, number: 'sg' | 'pl'): Clitic => ({ role: 'indirect', person, number, ...(person === 3 ? { gender: 'm' as const } : {}) });
++    expect(give(slot('indicative', 'perfect', [to(1, 'pl'), O], 3))).toBe('ne-a dat-o');
++    expect(give(slot('indicative', 'perfect', [to(1, 'pl'), L], 3))).toBe('ni l-a dat');
++    expect(give(slot('indicative', 'perfect', [to(2, 'pl'), O], 1))).toBe('v-am dat-o');
++    expect(give(slot('indicative', 'perfect', [to(3, 'pl'), O], 1))).toBe('le-am dat-o');
++    expect(give(slot('indicative', 'perfect', [to(3, 'pl'), L], 1))).toBe('li l-am dat');
++    expect(give(slot('subjunctive', 'aorist', [to(3, 'sg'), O], 1))).toBe('să i-o dau');
++    expect(give(slot('conditional', 'imperfect', [to(1, 'pl'), O], 3))).toBe('ne-ar da-o');
++  });
+ });
+```
+
+Change `src/panels/pronoun-panel.test.ts` (a unified diff: lines starting with `-` go, lines starting with `+` come in, `@@` marks the place):
+
+```diff
+@@ -98,2 +98,57 @@
+   });
+ });
++
++describe('the "To whom?" control (the indirect pronoun of δίνω)', () => {
++  const two = (patch: Partial<SlotOf<'verb'>> = {}) =>
++    applyControl(stateOf(verbSlot('indicative', 'futureSimple', 2, 'sg', patch)), 'object', 'two', 'dino');
++
++  it('appears once there is an indirect pronoun, and starts with "to me"', () => {
++    const none = panelOf('dino', stateOf(verbSlot('indicative', 'futureSimple', 2)));
++    expect(control(none, 'recipient')).toBeUndefined();
++    const p = panelOf('dino', two());
++    expect(control(p, 'recipient')?.value).toBe('1sg');
++    expect(control(p, 'recipient')?.options.map((o) => o.label)).toEqual([
++      'to me', 'to you', 'to him', 'to her', 'to us', 'to you (all)', 'to them',
++    ]);
++    expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity', 'object', 'recipient', 'noun']);
++  });
++
++  it('builds the pair for the chosen person in the three languages', () => {
++    const expected: Record<string, { el: string; ro: string; en: string }> = {
++      '2sg': { el: '(εσύ) θα σου το δώσεις', ro: '(tu) ți-o vei da', en: 'you will give it to you' },
++      '3sg-f': { el: '(εσύ) θα της το δώσεις', ro: '(tu) i-o vei da', en: 'you will give it to her' },
++      '1pl': { el: '(εσύ) θα μας το δώσεις', ro: '(tu) ni-o vei da', en: 'you will give it to us' },
++      '2pl': { el: '(εσύ) θα σας το δώσεις', ro: '(tu) vi-o vei da', en: 'you will give it to you' },
++      '3pl': { el: '(εσύ) θα τους το δώσεις', ro: '(tu) li-o vei da', en: 'you will give it to them' },
++    };
++    for (const [value, cells] of Object.entries(expected)) {
++      expect(row(panelOf('dino', applyControl(two(), 'recipient', value, 'dino'))), value).toEqual(cells);
++    }
++  });
++
++  it('keeps the recipient when the tense, the noun or the negation changes, and drops it with the pronoun', () => {
++    const toHer = applyControl(two(), 'recipient', '3sg-f', 'dino');
++    const perfect = applyControl(toHer, 'tense', 'perfect', 'dino');
++    expect(row(panelOf('dino', perfect)).en).toBe('you have given it to her');
++    const other = applyControl(toHer, 'noun', 'kafes', 'dino');
++    expect(control(panelOf('dino', other), 'recipient')?.value).toBe('3sg-f');
++    const single = applyControl(toHer, 'object', 'pronoun', 'dino');
++    expect(control(panelOf('dino', single), 'recipient')).toBeUndefined();
++  });
++
++  it('also chooses the person of "give me the bread", and the Same-meaning strip is only about "me"', () => {
++    const command = applyControl(stateOf(verbSlot('imperative', 'aorist', 2)), 'object', 'noun', 'dino');
++    expect(control(panelOf('dino', command), 'recipient')?.value).toBe('1sg');
++    expect(panelOf('dino', command).sameMeaning).toBeDefined();
++    const toUs = applyControl(command, 'recipient', '1pl', 'dino');
++    expect(row(panelOf('dino', toUs)).el).toContain('δώσε μας');
++    expect(panelOf('dino', toUs).sameMeaning).toBeUndefined();
++  });
++
++  it('ignores a recipient it does not know, and does nothing without an indirect pronoun', () => {
++    const start = two();
++    expect(applyControl(start, 'recipient', 'nobody', 'dino')).toBe(start);
++    const bare = stateOf(verbSlot('indicative', 'present'));
++    expect(applyControl(bare, 'recipient', '2sg', 'dino')).toBe(bare);
++  });
++});
+```
+
+- [ ] **Step 2: Run the tests to see them fail**
+
+Run: `npx vitest run`
+
+Expected: FAIL (the code the tests ask for is not written yet).
+
+- [ ] **Step 3: Write the code**
+
+Change `src/data/clitics.ts` (unified diff):
+
+```diff
+@@ -91,5 +91,6 @@
+ /**
+  * Two pronouns, dative then accusative, keyed '<dative key>+<accusative key>': dă-mi-o, nu mi-o, mi-o vei da.
+- * Stored for the datives "to me" and "to you" with the four third-person accusatives.
++ * Stored for every dative (me, you, him / her, us, you pl., them) with the four third-person accusatives: *ne* becomes
++ * *ni-*, *vă* becomes *vi-* and *le* becomes *li-* in front of the accusative (ni-l, vi-l, li-l).
+  */
+ export const RO_CLUSTERS: Record<string, RoClitic> = {
+@@ -102,3 +103,19 @@
+   'ind.2sg+obj.3pl.m': ro('ți-i', '-ți-i', 'nu ți-i', 'să ți-i', 'ți i-'),
+   'ind.2sg+obj.3pl.f': ro('ți-le', '-ți-le', 'nu ți-le', 'să ți-le', 'ți le-'),
++  'ind.3sg+obj.3sg.m': ro('i-l', '-i-l', 'nu i-l', 'să i-l', 'i l-'),
++  'ind.3sg+obj.3sg.f': ro('i-o', '-i-o', 'nu i-o', 'să i-o', 'i-', '-o'),
++  'ind.3sg+obj.3pl.m': ro('i-i', '-i-i', 'nu i-i', 'să i-i', 'i i-'),
++  'ind.3sg+obj.3pl.f': ro('i-le', '-i-le', 'nu i-le', 'să i-le', 'i le-'),
++  'ind.1pl+obj.3sg.m': ro('ni-l', '-ni-l', 'nu ni-l', 'să ni-l', 'ni l-'),
++  'ind.1pl+obj.3sg.f': ro('ni-o', '-ni-o', 'nu ni-o', 'să ni-o', 'ne-', '-o'),
++  'ind.1pl+obj.3pl.m': ro('ni-i', '-ni-i', 'nu ni-i', 'să ni-i', 'ni i-'),
++  'ind.1pl+obj.3pl.f': ro('ni-le', '-ni-le', 'nu ni-le', 'să ni-le', 'ni le-'),
++  'ind.2pl+obj.3sg.m': ro('vi-l', '-vi-l', 'nu vi-l', 'să vi-l', 'vi l-'),
++  'ind.2pl+obj.3sg.f': ro('vi-o', '-vi-o', 'nu vi-o', 'să vi-o', 'v-', '-o'),
++  'ind.2pl+obj.3pl.m': ro('vi-i', '-vi-i', 'nu vi-i', 'să vi-i', 'vi i-'),
++  'ind.2pl+obj.3pl.f': ro('vi-le', '-vi-le', 'nu vi-le', 'să vi-le', 'vi le-'),
++  'ind.3pl+obj.3sg.m': ro('li-l', '-li-l', 'nu li-l', 'să li-l', 'li l-'),
++  'ind.3pl+obj.3sg.f': ro('li-o', '-li-o', 'nu li-o', 'să li-o', 'le-', '-o'),
++  'ind.3pl+obj.3pl.m': ro('li-i', '-li-i', 'nu li-i', 'să li-i', 'li i-'),
++  'ind.3pl+obj.3pl.f': ro('li-le', '-li-le', 'nu li-le', 'să li-le', 'li le-'),
+ };
+```
+
+Change `src/engine/groups.ts` (unified diff):
+
+```diff
+@@ -5,4 +5,5 @@
+ import { compose, composedRich } from './compose';
+ import { enVerbText } from './english';
++import { indirectOf } from './objects';
+ import { roVerb } from './romanian';
+ import type { Rich } from './segments';
+@@ -64,4 +65,7 @@
+ export function groupFor(lexemeId: string, slot: SlotOf<'verb'>, noun: string | null): GroupMatch | null {
+   if (slot.mood !== 'imperative') return null;
++  // The groups are about "me" (Give me the bread!): another recipient is not in one.
++  const to = indirectOf(slot);
++  if (to && !(to.person === 1 && to.number === 'sg')) return null;
+   for (const group of FORM_GROUPS) {
+     const family = group.members.some((m) => m.verb.lexeme === lexemeId && familyKey(m.verb.slot) === familyKey(slot));
+```
+
+Change `src/engine/labels.ts` (unified diff):
+
+```diff
+@@ -147,5 +147,5 @@
+   { value: 'pronoun', label: level === 'beginner' ? 'a small word (it, him)' : 'a pronoun' },
+   ...(indirect
+-    ? [{ value: 'two', label: level === 'beginner' ? 'two small words (me + it)' : 'two pronouns (indirect + direct)' }]
++    ? [{ value: 'two', label: level === 'beginner' ? 'two small words (to someone + it)' : 'two pronouns (indirect + direct)' }]
+     : []),
+ ];
+```
+
+Change `src/engine/objects.ts` (unified diff):
+
+```diff
+@@ -9,4 +9,33 @@
+ const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
+ 
++/** The people an indirect pronoun can stand for in the Object control. A third person needs a gender; "to them" takes none in Greek (τους). */
++export interface Recipient {
++  value: string;
++  label: string;
++  clitic: Clitic;
++}
++
++export const RECIPIENTS: Recipient[] = [
++  { value: '1sg', label: 'to me', clitic: ME },
++  { value: '2sg', label: 'to you', clitic: { role: 'indirect', person: 2, number: 'sg' } },
++  { value: '3sg-m', label: 'to him', clitic: { role: 'indirect', person: 3, number: 'sg', gender: 'm' } },
++  { value: '3sg-f', label: 'to her', clitic: { role: 'indirect', person: 3, number: 'sg', gender: 'f' } },
++  { value: '1pl', label: 'to us', clitic: { role: 'indirect', person: 1, number: 'pl' } },
++  { value: '2pl', label: 'to you (all)', clitic: { role: 'indirect', person: 2, number: 'pl' } },
++  { value: '3pl', label: 'to them', clitic: { role: 'indirect', person: 3, number: 'pl', gender: 'm' } },
++];
++
++/** The indirect pronoun a verb form has, or undefined. */
++export const indirectOf = (slot: SlotOf<'verb'>): Clitic | undefined => (slot.clitics ?? []).find((c) => c.role === 'indirect');
++
++/** Which recipient an indirect pronoun is; "to me" when it is none of them. */
++export function recipientValue(c: Clitic | undefined): string {
++  if (!c) return RECIPIENTS[0].value;
++  const match = RECIPIENTS.find(
++    (r) => r.clitic.person === c.person && r.clitic.number === c.number && (c.person !== 3 || c.number === 'pl' || r.clitic.gender === c.gender),
++  );
++  return (match ?? RECIPIENTS[0]).value;
++}
++
+ /** The direct pronoun that stands for a noun: the Greek gender from the Greek noun, the Romanian gender from the Romanian one, the English word from the noun ("it" unless it says otherwise). */
+ export const pronounFor = (noun: GreekNoun): Clitic => ({
+@@ -38,15 +67,18 @@
+ }
+ 
+-/** The pronouns for an object kind; a verb with an indirect object (δίνω) gets "me" with a noun and in the pair. */
+-export function cliticsFor(kind: ObjectKind, noun: GreekNoun, indirect: boolean): Clitic[] {
++/**
++ * The pronouns for an object kind; a verb with an indirect object (δίνω) gets the indirect pronoun (`to`, "me" unless
++ * the learner chose another) with a noun and in the pair.
++ */
++export function cliticsFor(kind: ObjectKind, noun: GreekNoun, indirect: boolean, to: Clitic = ME): Clitic[] {
+   switch (kind) {
+     case 'none':
+       return [];
+     case 'noun':
+-      return indirect ? [ME] : [];
++      return indirect ? [to] : [];
+     case 'pronoun':
+       return [pronounFor(noun)];
+     case 'two':
+-      return [ME, pronounFor(noun)];
++      return [to, pronounFor(noun)];
+   }
+ }
+```
+
+Change `src/panels/panels.ts` (unified diff):
+
+```diff
+@@ -1,5 +1,5 @@
+ import { getLexeme, getNoun, getVerb } from '../data/lexemes';
+ import { groupFor } from '../engine/groups';
+-import { DEFAULT_OBJECT, cliticsFor, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
++import { DEFAULT_OBJECT, RECIPIENTS, cliticsFor, indirectOf, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
+ import { voiceOf } from '../engine/offers';
+ import type {
+@@ -192,5 +192,5 @@
+         const next = { ...slot };
+         delete next.shortForm;
+-        const clitics = cliticsFor(kind, noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
++        const clitics = cliticsFor(kind, noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true, indirectOf(slot));
+         if (clitics.length > 0) next.clitics = clitics;
+         else delete next.clitics;
+@@ -198,4 +198,11 @@
+       }
+       break;
++    case 'recipient':
++      if (slot.pos === 'verb' && indirectOf(slot)) {
++        const to = RECIPIENTS.find((r) => r.value === value);
++        if (!to) break;
++        return { ...state, slot: { ...slot, clitics: (slot.clitics ?? []).map((c) => (c.role === 'indirect' ? { ...to.clitic } : c)) } };
++      }
++      break;
+     case 'noun': {
+       const noun = getLexeme(value);
+@@ -208,5 +215,5 @@
+         const next = { ...slot };
+         delete next.shortForm;
+-        const clitics = cliticsFor(objectKind(slot, state.noun), noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true);
++        const clitics = cliticsFor(objectKind(slot, state.noun), noun, voiceOf(getVerb(lexemeId), slot.voice).indirect === true, indirectOf(slot));
+         if (clitics.length > 0) next.clitics = clitics;
+         else delete next.clitics;
+```
+
+Change `src/panels/types.ts` (unified diff):
+
+```diff
+@@ -4,5 +4,5 @@
+ 
+ export interface Control {
+-  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object';
++  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient';
+   label: string;
+   options: Option[];
+```
+
+Change `src/panels/verb.ts` (unified diff):
+
+```diff
+@@ -25,5 +25,5 @@
+   voiceOf,
+ } from '../engine/offers';
+-import { objectKind, type ObjectKind } from '../engine/objects';
++import { RECIPIENTS, indirectOf, objectKind, recipientValue, type ObjectKind } from '../engine/objects';
+ import { readingFor } from '../engine/reading';
+ import { roVerb } from '../engine/romanian';
+@@ -217,4 +217,13 @@
+       value: kind,
+     });
++    // Who the indirect pronoun stands for (δίνω: to me, to you, to him …), once the form has one.
++    if (indirectOf(slot)) {
++      list.push({
++        key: 'recipient',
++        label: 'To whom?',
++        options: RECIPIENTS.map(({ value, label }) => ({ value, label })),
++        value: recipientValue(indirectOf(slot)),
++      });
++    }
+     if (kind !== 'none') list.push(nounControl('Object noun', state));
+   }
+```
+
+Change `src/validate/validate.ts` (unified diff):
+
+```diff
+@@ -3,4 +3,5 @@
+ import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
+ import { enClitic, roClitic } from '../engine/clitics';
++import { RECIPIENTS } from '../engine/objects';
+ import { compose, lexicalPiece } from '../engine/compose';
+ import { memberKind, memberText } from '../engine/groups';
+@@ -76,9 +77,9 @@
+ /** The same pronoun for a noun that is masculine in Romanian (παιδί: îl), so both Romanian forms are built. */
+ const IT_M: Clitic = { role: 'object', person: 3, number: 'sg', gender: 'n', roGender: 'm', enPronoun: 'it' };
+-const ME: Clitic = { role: 'indirect', person: 1, number: 'sg' };
+ 
+ /**
+  * The forms with pronouns the panel can build from an offered slot: one direct pronoun (in both Romanian genders)
+- * and, for a verb with an indirect object, the pair "me + it"; for a command also "me" alone, beside a spelled-out noun.
++ * and, for a verb with an indirect object, the pair "to someone + it" for every recipient; for a command also the
++ * recipient alone, beside a spelled-out noun.
+  * Each comes affirmative and negative, and a command also with its short form.
+  */
+@@ -90,5 +91,7 @@
+     [IT],
+     [IT_M],
+-    ...(data.indirect === true ? [[ME, IT], [ME, IT_M], ...(command ? [[ME]] : [])] : []),
++    ...(data.indirect === true
++      ? RECIPIENTS.flatMap(({ clitic }) => [[clitic, IT], [clitic, IT_M], ...(command ? [[clitic]] : [])])
++      : []),
+   ];
+   return sets.flatMap((clitics): SlotOf<'verb'>[] => [
+```
+
+- [ ] **Step 4: Run everything**
+
+Run: `npx tsc --noEmit && npx vitest run && npm run validate`
+
+Expected: no type errors; 1117 tests pass; the validator ends with "Data is valid."
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/data/clitics.ts src/engine/clitics.test.ts src/engine/groups.ts src/engine/labels.ts src/engine/objects.ts src/engine/pronouns-finite.test.ts src/engine/ro-pronouns.test.ts src/panels/panels.ts src/panels/pronoun-panel.test.ts src/panels/types.ts src/panels/verb.ts src/validate/validate.ts
+git commit -m "feat: every recipient for the indirect pronoun (the remaining Romanian pairs and a To whom? control)
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+```
+
+### Task 8: Update the spec and check the whole branch
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md`
 
 **Interfaces:**
-- Consumes: everything from Tasks 1 to 6.
+- Consumes: everything from Tasks 1 to 7.
 - Produces: a spec that records what Plan 8 decided (new section 22), the validator rule and the Romanian table as built (sections 4.3, 7 and 10).
 
 - [ ] **Step 1: Apply the spec edits**
@@ -1715,11 +2126,11 @@ sub(
 )
 sub(
     "every fusion is stored in the Romanian clitic table, for every person, not derived.",
-    "every fusion is stored in the Romanian clitic table, for every pronoun, not derived: each of the fourteen pronouns and each stored pair has six positions (free, attached to a command, after *nu*, after *să*, fused with a vowel-initial auxiliary, behind the participle or the infinitive), and one function builds the form for each tense from them.",
+    "every fusion is stored in the Romanian clitic table, for every pronoun, not derived: each of the fourteen pronouns and each of the twenty-four pairs (every dative with the four third-person accusatives) has six positions (free, attached to a command, after *nu*, after *să*, fused with a vowel-initial auxiliary, behind the participle or the infinitive), and one function builds the form for each tense from them.",
 )
 sub(
     "(several hundred strings), each one a chance of a wrong form. Mitigated by storing them as one reviewed table keyed by pronoun and position, by unit tests on every auxiliary, and by the review sheet.",
-    "(fourteen pronouns and eight pairs with six positions each, about 130 strings), each one a chance of a wrong form. Mitigated by storing them as one reviewed table keyed by pronoun and position, by unit tests on every pronoun and every auxiliary, and by the review sheet.",
+    "(fourteen pronouns and twenty-four pairs with six positions each, about 230 strings), each one a chance of a wrong form. Mitigated by storing them as one reviewed table keyed by pronoun and position, by unit tests on every pronoun and every auxiliary, and by the review sheet.",
 )
 s = s.rstrip() + """
 
@@ -1731,7 +2142,8 @@ s = s.rstrip() + """
 | Which verbs take pronouns | Any active verb except one flagged `intransitive` (πάω, πηδάω, είμαι, μπορεί); a reflexive voice takes none. The Object control appears for those verbs in every mood; "a noun (spelled out)" stays for commands only | 4.3, 5.3 |
 | Greek placement | [δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb]; no second accent outside commands; a short form is for commands only | 4.3 |
 | English | The pronouns follow the verb or the participle ("has eaten it", "will give it to me"); the pair keeps "it to me" | 4.3 |
-| Romanian table | `RoClitic` gains `afterSa`, `fused` and `after`; the pairs are stored for the datives "to me" and "to you" with the four third-person accusatives (eight pairs); the other datives have no pair, so the panel cannot build one | 4.3, 6.5 |
+| Romanian table | `RoClitic` gains `afterSa`, `fused` and `after`; the pairs are stored for every dative with the four third-person accusatives (24 pairs; *ne*, *vă* and *le* become *ni-*, *vi-* and *li-* in front of the accusative) | 4.3, 6.5 |
+| Object control | A "To whom?" control chooses the indirect pronoun (to me, to you, to him, to her, to us, to you pl., to them) once the form has one; the Same-meaning strip is about "me" only | 4.6, 5.3 |
 | Readings | A form with pronouns has a Greek reading line only; the Romanian and English lines are not produced | 5.5 |
 | λέω | Offers the present, the imperfect and the present subjunctive (so no hortative); Romanian *a zice*, English "say / call"; phrase 54 uses the 3pl *λένε* | 6.6 |
 | Comparison notes | `pronoun-position-finite` (all moods but the imperative) and `pronoun-before-auxiliary` (the perfect tenses, Improver) | 5.2 |
@@ -1742,7 +2154,7 @@ open(path, 'w').write(s)
 
 - [ ] **Step 2: Check the edits**
 
-Run: `grep -c "intransitive" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md && grep -c "## 22. Decisions made in Plan 8" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md && grep -c "about 130 strings" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md`
+Run: `grep -c "intransitive" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md && grep -c "## 22. Decisions made in Plan 8" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md && grep -c "about 230 strings" docs/superpowers/specs/2026-10-03-greek-grammar-explorer-design.md`
 Expected: three numbers, each at least `1`, one per line.
 
 - [ ] **Step 3: Check the whole branch**
@@ -1767,9 +2179,10 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 |---|---|
 | 4.3, 20: weak pronouns with every indicative, subjunctive, conditional and hortative form; placement `[δεν] [θα / να / ας] [μην] [pronouns] [έχω] [verb]`, no stress rule | 2 |
 | 4.3: English puts the pronoun after the verb or the participle | 2 |
-| 4.3, 6.5, 10: Romanian fusions (*l-am mâncat*, *aș mânca-o*, *să-l mănânc*, *nu l-am mâncat*, the pairs) stored in one table for every pronoun, built by one function per tense | 1 |
+| 4.3, 6.5, 10: Romanian fusions (*l-am mâncat*, *aș mânca-o*, *să-l mănânc*, *nu l-am mâncat*, the pairs) stored in one table for every pronoun, built by one function per tense | 1, 7 |
 | 5.3: the Object control in every mood; a spelled-out noun for commands only | 3 |
+| 4.3, 6.5: the Romanian pairs for every dative, and a way to choose the recipient in the Object control | 7 |
 | 6.6: λέω (present, imperfect, present subjunctive), *a zice*, "say / call" | 4 |
 | 6.1: phrases 54 to 56 | 5 |
 | 5.2: pronoun-position-finite, pronoun-before-auxiliary | 6 |
-| 7, 9, 10, 22: the validator rule, the review item and sheet, the risk text, the decisions | 2, 6, 7 |
+| 7, 9, 10, 22: the validator rule, the review item and sheet, the risk text, the decisions | 2, 6, 8 |
