@@ -922,6 +922,265 @@ const wantNotToGo: Phrase = {
   verified: false,
 };
 
+/** A question word that never changes (τι, πού, πότε, γιατί, πώς). */
+const iq: Slot = { pos: 'interrogative' };
+/** A hortative slot: ας + the subjunctive form. */
+const hslot = (tense: Tense, person: Person, number: Num, negative = false): Slot => ({
+  ...(vslot('hortative', tense, person, number) as SlotOf<'verb'>),
+  ...(negative ? { polarity: 'negative' as const } : {}),
+});
+const present = (person: Person, number: Num = 'sg', negative = false): Slot => ({
+  ...(vslot('indicative', 'present', person, number) as SlotOf<'verb'>),
+  ...(negative ? { polarity: 'negative' as const } : {}),
+});
+
+const whatDoYouWant: Phrase = {
+  id: 'what-do-you-want',
+  title: 'What do you want?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Τι', lexeme: 'ti', slot: iq },
+    { text: 'θέλεις;', lexeme: 'thelo', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('What', 0), u('do', null), u('you want?', 1)],
+    [u('what', 0), u('(you)', null), u('want', 1)],
+    [u('Ce', 0), u('vrei?', 1)],
+    [u('ce', 0), u('(tu)', null), u('vrei', 1)],
+  ),
+  verified: false,
+};
+
+const whereAreYouGoing: Phrase = {
+  id: 'where-are-you-going',
+  title: 'Where are you going?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πού', lexeme: 'pou', slot: iq },
+    { text: 'πας;', lexeme: 'pao', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('Where', 0), u('are you going?', 1)],
+    [u('where', 0), u('(you)', null), u('go', 1)],
+    [u('Unde', 0), u('mergi?', 1)],
+    [u('unde', 0), u('(tu)', null), u('mergi', 1)],
+  ),
+  verified: false,
+};
+
+const whenWillYouEat: Phrase = {
+  id: 'when-will-you-eat',
+  title: 'When will you eat?',
+  theme: 'Questions',
+  level: 'improver',
+  tokens: [
+    { text: 'Πότε', lexeme: 'pote', slot: iq },
+    { text: 'θα φας;', lexeme: 'troo', slot: vslot('indicative', 'futureSimple', 2) },
+  ],
+  glosses: rows(
+    [u('When', 0), u('will you', p(1, 0)), u('eat?', p(1, 1))],
+    [u('when', 0), u('will', p(1, 0)), u('(you)', null), u('eat', p(1, 1))],
+    [u('Când', 0), u('vei', p(1, 0)), u('mânca?', p(1, 1))],
+    [u('când', 0), u('vei', p(1, 0)), u('mânca', p(1, 1))],
+  ),
+  verified: false,
+};
+
+const whyArentYouEating: Phrase = {
+  id: 'why-arent-you-eating',
+  title: "Why aren't you eating?",
+  theme: 'Questions',
+  level: 'improver',
+  tokens: [
+    { text: 'Γιατί', lexeme: 'giati', slot: iq },
+    { text: 'δεν τρως;', lexeme: 'troo', slot: present(2, 'sg', true) },
+  ],
+  glosses: rows(
+    [u('Why', 0), u("aren't you", p(1, 0)), u('eating?', p(1, 1))],
+    [u('why', 0), u('not', p(1, 0)), u('(you)', null), u('eat', p(1, 1))],
+    [u('De ce', 0), u('nu', p(1, 0)), u('mănânci?', p(1, 1))],
+    [u('de ce', 0), u('nu', p(1, 0)), u('(tu)', null), u('mănânci', p(1, 1))],
+  ),
+  verified: false,
+};
+
+const howAreYou: Phrase = {
+  id: 'how-are-you',
+  title: 'How are you?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πώς', lexeme: 'pos-how', slot: iq },
+    { text: 'είσαι;', lexeme: 'eimai', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('How', 0), u('are you?', 1)],
+    [u('how', 0), u('(you)', null), u('are', 1)],
+    [u('Cum', 0), u('ești?', 1)],
+    [u('cum', 0), u('(tu)', null), u('ești', 1)],
+  ),
+  verified: false,
+};
+
+const whoIsIt: Phrase = {
+  id: 'who-is-it',
+  title: 'Who is it?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Ποιος', lexeme: 'poios', slot: qslot('m', 'sg', 'nom', { use: 'pronoun' }) },
+    { text: 'είναι;', lexeme: 'eimai', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('Who', 0), u('is it?', 1)],
+    [u('who', 0), u('is', 1)],
+    [u('Cine', 0), u('este?', 1)],
+    [u('cine', 0), u('este', 1)],
+  ),
+  verified: false,
+};
+
+const howMuchBread: Phrase = {
+  id: 'how-much-bread',
+  title: 'How much bread do you want?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πόσο', lexeme: 'posos', slot: qslot('n', 'sg', 'acc'), agreesWith: 1 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: { pos: 'noun', number: 'sg', case: 'acc' } },
+    { text: 'θέλεις;', lexeme: 'thelo', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('How much', 0), u('bread', 1), u('do', null), u('you want?', 2)],
+    [u('how-much', 0), u('bread', 1), u('(you)', null), u('want', 2)],
+    [u('Câtă', 0), u('pâine', 1), u('vrei?', 2)],
+    [u('câtă', 0), u('pâine', 1), u('(tu)', null), u('vrei', 2)],
+  ),
+  verified: false,
+};
+
+const whereAreYouFrom: Phrase = {
+  id: 'where-are-you-from',
+  title: 'Where are you from?',
+  theme: 'Questions',
+  level: 'improver',
+  tokens: [
+    { text: 'Από', lexeme: 'apo', slot: { pos: 'preposition' }, agreesWith: 1 },
+    { text: 'πού', lexeme: 'pou', slot: iq },
+    { text: 'είσαι;', lexeme: 'eimai', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('Where', 1), u('are you', 2), u('from?', 0)],
+    [u('from', 0), u('where', 1), u('(you)', null), u('are', 2)],
+    [u('De', 0), u('unde', 1), u('ești?', 2)],
+    [u('de', 0), u('unde', 1), u('(tu)', null), u('ești', 2)],
+  ),
+  verified: false,
+};
+
+const untilWhenWillYouGo: Phrase = {
+  id: 'until-when-will-you-go',
+  title: 'Until when will you go?',
+  theme: 'Questions',
+  level: 'improver',
+  tokens: [
+    { text: 'Μέχρι', lexeme: 'mexri', slot: { pos: 'preposition' }, agreesWith: 1 },
+    { text: 'πότε', lexeme: 'pote', slot: iq },
+    { text: 'θα πας;', lexeme: 'pao', slot: vslot('indicative', 'futureSimple', 2) },
+  ],
+  glosses: rows(
+    [u('Until', 0), u('when', 1), u('will you', p(2, 0)), u('go?', p(2, 1))],
+    [u('until', 0), u('when', 1), u('will', p(2, 0)), u('(you)', null), u('go', p(2, 1))],
+    [u('Până', 0), u('când', 1), u('vei', p(2, 0)), u('merge?', p(2, 1))],
+    [u('până', 0), u('când', 1), u('vei', p(2, 0)), u('merge', p(2, 1))],
+  ),
+  verified: false,
+};
+
+const whatTimeIsIt: Phrase = {
+  id: 'what-time-is-it',
+  title: 'What time is it?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Τι', lexeme: 'ti', slot: iq },
+    { text: 'ώρα', lexeme: 'ora', slot: { pos: 'noun', number: 'sg', case: 'nom' } },
+    { text: 'είναι;', lexeme: 'eimai', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('What', 0), u('time', 1), u('is it?', 2)],
+    [u('what', 0), u('hour', 1), u('is', 2)],
+    [u('Ce', 0), u('oră', 1), u('este?', 2)],
+    [u('ce', 0), u('oră', 1), u('este', 2)],
+  ),
+  verified: false,
+};
+
+const howMuchIsIt: Phrase = {
+  id: 'how-much-is-it',
+  title: 'How much is it?',
+  theme: 'Questions',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πόσο', lexeme: 'posos', slot: qslot('n', 'sg', 'acc', { use: 'pronoun' }) },
+    { text: 'κάνει;', lexeme: 'kano', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('How much', 0), u('is it?', 1)],
+    [u('how-much', 0), u('(it)', null), u('does', 1)],
+    [u('Cât', 0), u('costă?', 1)],
+    [u('cât', 0), u('(el)', null), u('face', 1)],
+  ),
+  verified: false,
+};
+
+const letsEat: Phrase = {
+  id: 'lets-eat',
+  title: "Let's eat!",
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [{ text: 'Ας φάμε!', lexeme: 'troo', slot: hslot('aorist', 1, 'pl') }],
+  glosses: rows(
+    [u("Let's", p(0, 0)), u('eat!', p(0, 1))],
+    [u('let', p(0, 0)), u('(we)', null), u('eat', p(0, 1))],
+    [u('Să', p(0, 0)), u('mâncăm!', p(0, 1))],
+    [u('să', p(0, 0)), u('(noi)', null), u('mâncăm', p(0, 1))],
+  ),
+  verified: false,
+};
+
+const letHimEat: Phrase = {
+  id: 'let-him-eat',
+  title: 'Let him / her eat',
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [{ text: 'Ας φάει.', lexeme: 'troo', slot: hslot('aorist', 3, 'sg') }],
+  glosses: rows(
+    [u('Let him / her', p(0, 0)), u('eat.', p(0, 1))],
+    [u('let', p(0, 0)), u('(he/she)', null), u('eat', p(0, 1))],
+    [u('Să', p(0, 0)), u('mănânce.', p(0, 1))],
+    [u('să', p(0, 0)), u('(el/ea)', null), u('mănânce', p(0, 1))],
+  ),
+  verified: false,
+};
+
+const letsNotGo: Phrase = {
+  id: 'lets-not-go',
+  title: "Let's not go",
+  theme: 'Wishes and possibility',
+  level: 'improver',
+  tokens: [{ text: 'Ας μην πάμε.', lexeme: 'pao', slot: hslot('aorist', 1, 'pl', true) }],
+  glosses: rows(
+    [u("Let's", p(0, 0)), u('not', p(0, 1)), u('go.', p(0, 2))],
+    [u('let', p(0, 0)), u('not', p(0, 1)), u('(we)', null), u('go', p(0, 2))],
+    [u('Să', p(0, 0)), u('nu', p(0, 1)), u('mergem.', p(0, 2))],
+    [u('să', p(0, 0)), u('nu', p(0, 1)), u('(noi)', null), u('mergem', p(0, 2))],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -958,4 +1217,18 @@ export const PHRASES: Phrase[] = [
   dontEatIt,
   eatBare,
   wantNotToGo,
+  whatDoYouWant,
+  whereAreYouGoing,
+  whenWillYouEat,
+  whyArentYouEating,
+  howAreYou,
+  whoIsIt,
+  howMuchBread,
+  whereAreYouFrom,
+  untilWhenWillYouGo,
+  whatTimeIsIt,
+  howMuchIsIt,
+  letsEat,
+  letHimEat,
+  letsNotGo,
 ];
