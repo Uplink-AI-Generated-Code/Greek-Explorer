@@ -569,6 +569,39 @@ const kano: GreekVerb = {
   },
 };
 
+/** λέω, "say" and "call": it offers the present, the imperfect and the present subjunctive (spec 6.6). */
+const lego: GreekVerb = {
+  id: 'lego',
+  pos: 'verb',
+  lemma: 'λέω',
+  verified: { el: false, ro: false, en: false },
+  voices: {
+    active: {
+      lemma: 'λέω',
+      class: 'athematic',
+      stems: {
+        present: 'λέ',
+        imperfect: { strong: { augment: 'έ', stem: 'λεγ' }, weak: { stem: 'λέγ' } },
+      },
+      overrides: {
+        'present.2sg': { stem: 'λε', ending: 'ς', note: ACCENT_DROP },
+      },
+      offers: { indicative: ['present', 'imperfect'], subjunctive: ['present'] },
+      ro: {
+        lemma: 'a zice',
+        infinitive: 'zice',
+        participle: 'zis',
+        present: ['zic', 'zici', 'zice', 'zicem', 'ziceți', 'zic'],
+        subjunctive: ['zic', 'zici', 'zică', 'zicem', 'ziceți', 'zică'],
+        imperfect: ['ziceam', 'ziceai', 'zicea', 'ziceam', 'ziceați', 'ziceau'],
+        pluperfect: ['zisesem', 'ziseseși', 'zisese', 'ziseserăm', 'ziseserăți', 'ziseseră'],
+        imperative: ['zi', 'ziceți'],
+      },
+      en: { gloss: 'say / call', base: 'say', third: 'says', past: 'said', pastParticiple: 'said', ing: 'saying' },
+    },
+  },
+};
+
 const pidao: GreekVerb = {
   id: 'pidao',
   pos: 'verb',
@@ -1153,6 +1186,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [kano.id]: kano,
+  [lego.id]: lego,
   [troo.id]: troo,
   [dino.id]: dino,
   [pao.id]: pao,
