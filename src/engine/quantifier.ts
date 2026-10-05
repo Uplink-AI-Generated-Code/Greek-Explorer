@@ -4,6 +4,9 @@ const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
 const USES: QuantifierUse[] = ['determiner', 'pronoun'];
 
+/** The roles a quantifier offers: all three, or the few its data names (the question words). */
+export const offeredCases = (q: GreekQuantifier): Case[] => q.cases ?? CASES;
+
 /** The degrees a quantifier has: the comparative only where its data has one. */
 export const offeredDegrees = (q: GreekQuantifier): QuantifierDegree[] =>
   q.greek.comparative ? ['plain', 'comparative'] : ['plain'];
@@ -15,7 +18,7 @@ export const offeredSenses = (q: GreekQuantifier): QuantifierSense[] => (q.ro.fe
 export function quantifierSlots(q: GreekQuantifier): SlotOf<'quantifier'>[] {
   return GENDERS.flatMap((gender) =>
     q.numbers.flatMap((number) =>
-      CASES.flatMap((c) =>
+      offeredCases(q).flatMap((c) =>
         offeredDegrees(q).flatMap((degree) =>
           offeredSenses(q).flatMap((sense) =>
             USES.map(

@@ -1,5 +1,5 @@
 import { inflect } from '../engine/greek';
-import { quantifierSlots } from '../engine/quantifier';
+import { offeredCases, quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
 import { compose, lexicalPiece } from '../engine/compose';
@@ -208,6 +208,9 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
   if (l.pos === 'quantifier') {
     if (l.numbers.length === 0) errors.push(`lexeme ${l.id}: a quantifier must offer at least one number`);
     if (l.ro.few && !l.en.few) errors.push(`lexeme ${l.id}: ro.few has no en.few`);
+    if (l.question && (!l.cases || l.cases.length === 0 || l.cases.some((c) => c === 'gen'))) {
+      errors.push(`lexeme ${l.id}: a question word offers the subject and object roles only`);
+    }
     for (const slot of quantifierSlots(l)) {
       const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
       for (const roGender of ['m', 'f'] as const) {
@@ -285,11 +288,14 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       }
     }
   }
+  // A quantifier on its own (Ποιος είναι;) needs no noun; a quantifier that points at a noun must agree with it.
+  const aloneQuantifier = token.slot.pos === 'quantifier' && token.slot.use === 'pronoun' && token.agreesWith === undefined;
   if (
-    token.slot.pos === 'adjective' ||
-    token.slot.pos === 'numeral' ||
-    token.slot.pos === 'article' ||
-    token.slot.pos === 'quantifier'
+    !aloneQuantifier &&
+    (token.slot.pos === 'adjective' ||
+      token.slot.pos === 'numeral' ||
+      token.slot.pos === 'article' ||
+      token.slot.pos === 'quantifier')
   ) {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
     const noun = target ? lexemes[target.lexeme] : undefined;
@@ -307,6 +313,7 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     if (target && target.slot.pos === 'noun' && target.slot.case !== token.slot.case) {
       errors.push(`${where}: the quantifier is ${token.slot.case} but its noun is ${target.slot.case}`);
     }
+    if (!offeredCases(lexeme).includes(token.slot.case)) errors.push(`${where}: ${lexeme.id} does not offer the ${token.slot.case} role`);
     if (token.slot.sense === 'few' && !lexeme.ro.few) errors.push(`${where}: ${lexeme.id} has no "few" sense`);
     try {
       const form = formText(inflect(lexeme, token.slot));

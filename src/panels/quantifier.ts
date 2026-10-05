@@ -1,12 +1,12 @@
 import { enQuantifier } from '../engine/english';
 import { inflectNoun, inflectQuantifier } from '../engine/greek';
 import { degreeOptions, kindOptions, senseOptions } from '../engine/labels';
-import { offeredDegrees, offeredSenses } from '../engine/quantifier';
+import { offeredCases, offeredDegrees, offeredSenses } from '../engine/quantifier';
 import { roBareNoun, roQuantifier } from '../engine/romanian';
 import { formRich, joinRich, notice, numeralRich, plain, richText, type Rich } from '../engine/segments';
 import { NOT_YET_ADDED, storedText } from '../engine/stored';
-import type { Gender, GreekNoun, GreekQuantifier, Level, SlotOf } from '../types';
-import { CASES, GENDERS, GENDER_ROW, caseControl, caseName, nounControl, nounOf } from './shared';
+import type { Case, Gender, GreekNoun, GreekQuantifier, Level, SlotOf } from '../types';
+import { GENDERS, GENDER_ROW, caseControl, caseName, nounControl, nounOf, numberControl } from './shared';
 import type { Control, Panel, PanelRow, PanelState, Related } from './types';
 
 /** A Romanian quantifier, with the noun that follows it; a pending cell reads "not yet added". */
@@ -44,7 +44,7 @@ function negationRow(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: Greek
 
 function quantifierFull(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: GreekNoun): PanelRow[] {
   return GENDERS.flatMap((g) =>
-    CASES.map((c) => {
+    offeredCases(q).map((c) => {
       const s: SlotOf<'quantifier'> = { ...here, gender: g, case: c, use: 'determiner' };
       return {
         label: `${GENDER_ROW[g]} ${caseName(c)}`,
@@ -58,9 +58,17 @@ function quantifierFull(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: Gr
 }
 
 function controls(q: GreekQuantifier, slot: SlotOf<'quantifier'>, state: PanelState, level: Level): Control[] {
-  const list: Control[] = [nounControl('Noun it goes with', state), caseControl(slot, level)];
+  const role = caseControl(slot, level);
+  const list: Control[] = [
+    nounControl('Noun it goes with', state),
+    { ...role, options: role.options.filter((o) => offeredCases(q).includes(o.value as Case)) },
+  ];
   if (q.numbers.length > 1) {
-    list.push({ key: 'kind', label: 'Kind of noun', options: kindOptions, value: slot.number === 'sg' ? 'mass' : 'count' });
+    list.push(
+      q.question === 'who'
+        ? numberControl(slot.number)
+        : { key: 'kind', label: 'Kind of noun', options: kindOptions, value: slot.number === 'sg' ? 'mass' : 'count' },
+    );
   }
   if (offeredDegrees(q).length > 1) {
     list.push({ key: 'degree', label: 'Degree', options: degreeOptions(level), value: slot.degree });
@@ -76,6 +84,7 @@ function improverLabel(q: GreekQuantifier): string {
   if ('stem' in how) return 'quantifier · declines like an adjective';
   if (how.table === 'kanenas') return 'quantifier · declines like the numeral ένας';
   if (how.table === 'polys') return 'quantifier · two stems (πολύ-, πολλ-)';
+  if (how.table === 'poios') return 'quantifier · declines like κάποιος, with a plural';
   return 'quantifier · singular only';
 }
 
@@ -137,15 +146,21 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
     lemma: [...new Set(forms)].join(' / '),
     posLabel:
       level === 'beginner'
-        ? `quantifier: ${enQuantifier(q, { ...det, degree: 'plain', sense: undefined })}`
+        ? `${q.question ? 'question word' : 'quantifier'}: ${enQuantifier(q, { ...det, degree: 'plain', sense: undefined })}`
         : improverLabel(q),
-    badge: q.numbers.length > 1 ? (slot.number === 'sg' ? 'mass reading' : 'count reading') : undefined,
+    badge: q.question
+      ? 'question word'
+      : q.numbers.length > 1
+        ? slot.number === 'sg'
+          ? 'mass reading'
+          : 'count reading'
+        : undefined,
     controls: controls(q, slot, state, level),
     rows: [withNoun, alone, ...(negation ? [negation] : [])],
     full: level === 'improver' ? quantifierFull(q, here, noun) : [],
     plain:
       q.meaning +
-      (q.numbers.length > 1
+      (q.numbers.length > 1 && q.question !== 'who'
         ? ' The singular is the mass reading (one lump), the plural the count reading (separate things).'
         : '') +
       (slot.case === 'gen' && q.ro.genitiveWithArticle?.includes(slot.number)

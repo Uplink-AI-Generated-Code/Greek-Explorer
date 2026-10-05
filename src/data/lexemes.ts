@@ -417,6 +417,53 @@ const ligos: GreekQuantifier = {
   },
 };
 
+const poios: GreekQuantifier = {
+  id: 'poios',
+  pos: 'quantifier',
+  lemma: 'ποιος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'poios' } },
+  numbers: ['sg', 'pl'],
+  question: 'who',
+  cases: ['nom', 'acc'],
+  meaning:
+    'ποιος means "who" on its own and "which" in front of a noun (ποιο ψωμί, "which bread"). It changes with gender, number and role, like κάποιος. Romanian splits it into cine (who) and care (which).',
+  ro: {
+    lemma: 'care',
+    plain: {
+      determiner: { m: { sg: ro1('care'), pl: ro1('care') }, f: { sg: ro1('care'), pl: ro1('care') } },
+      pronoun: { m: { sg: ro1('cine'), pl: ro1('cine') }, f: { sg: ro1('cine'), pl: ro1('cine') } },
+    },
+  },
+  en: { plain: { determiner: { sg: 'which', pl: 'which' }, pronoun: { sg: 'who', pl: 'who' } } },
+};
+
+const posos: GreekQuantifier = {
+  id: 'posos',
+  pos: 'quantifier',
+  lemma: 'πόσος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { stem: 'πόσ' } },
+  numbers: ['sg', 'pl'],
+  question: 'amount',
+  cases: ['nom', 'acc'],
+  meaning:
+    'πόσος asks "how much" with a mass noun (πόσο ψωμί) and "how many" with a count noun (πόσα ψωμιά). It declines like an adjective; Romanian cât, câtă, câți, câte changes too, English does not.',
+  ro: {
+    lemma: 'cât',
+    plain: {
+      determiner: { m: { sg: ro1('cât'), pl: ro1('câți') }, f: { sg: ro1('câtă'), pl: ro1('câte') } },
+      pronoun: { m: { sg: ro1('cât'), pl: ro1('câți') }, f: { sg: ro1('câtă'), pl: ro1('câte') } },
+    },
+  },
+  en: {
+    plain: {
+      determiner: { sg: 'how much', pl: 'how many' },
+      pronoun: { sg: 'how much', pl: 'how many' },
+    },
+  },
+};
+
 const INDICATIVE_ALL: Tense[] = [
   'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
 ];
@@ -1037,6 +1084,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [kanenas.id]: kanenas,
   [polys.id]: polys,
   [ligos.id]: ligos,
+  [poios.id]: poios,
+  [posos.id]: posos,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [troo.id]: troo,

@@ -217,7 +217,19 @@ type PairTable = Partial<Record<Num, Record<Case, Record<Gender, Pair>>>>;
  * Whole forms of the quantifiers that do not follow the adjective endings on one stem (spec 6.3).
  * κάποιος keeps the final ν of the masculine accusative; κανένας follows the numeral ένας; πολύς has two stems.
  */
-export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys', PairTable> = {
+export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys' | 'poios', PairTable> = {
+  poios: {
+    sg: {
+      nom: { m: ['ποι', 'ος'], f: ['ποι', 'α'], n: ['ποι', 'ο'] },
+      acc: { m: ['ποι', 'ον'], f: ['ποι', 'α'], n: ['ποι', 'ο'] },
+      gen: { m: ['ποι', 'ου'], f: ['ποι', 'ας'], n: ['ποι', 'ου'] },
+    },
+    pl: {
+      nom: { m: ['ποι', 'οι'], f: ['ποι', 'ες'], n: ['ποι', 'α'] },
+      acc: { m: ['ποι', 'ους'], f: ['ποι', 'ες'], n: ['ποι', 'α'] },
+      gen: { m: ['ποι', 'ων'], f: ['ποι', 'ων'], n: ['ποι', 'ων'] },
+    },
+  },
   kapoios: {
     sg: {
       nom: { m: ['κάποι', 'ος'], f: ['κάποι', 'α'], n: ['κάποι', 'ο'] },

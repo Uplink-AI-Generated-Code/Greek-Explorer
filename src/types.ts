@@ -156,7 +156,7 @@ export interface GreekNumeral extends LexemeBase {
  * How the Greek forms of one degree are made: a shared table of whole forms, or the adjective endings on a stem
  * (the stem-stressed endings, or the ending-stressed ones when `stressed` is set: μερικός, μερικοί).
  */
-export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' } | { stem: string; stressed?: true };
+export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' | 'poios' } | { stem: string; stressed?: true };
 
 /** One Romanian cell: nominative-accusative and genitive-dative. `gen` is absent where the form is not covered (a stand-alone genitive pronoun, spec 6.3). */
 export interface RoQuantifierCell {
@@ -176,6 +176,13 @@ export interface GreekQuantifier extends LexemeBase {
   numbers: Num[];
   /** One line of meaning for the panel. */
   meaning: string;
+  /**
+   * A question word (ποιος, πόσος). `who` takes the number control "one / many", `amount` the kind control
+   * "a mass / separate things" (spec 5.3).
+   */
+  question?: 'who' | 'amount';
+  /** The roles the panel may offer; absent means all three. Question words offer the subject and object only (spec 4.2). */
+  cases?: Case[];
   ro: {
     lemma: string;
     plain: RoQuantifierCells;

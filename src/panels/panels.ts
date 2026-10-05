@@ -47,6 +47,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
     const direct = (token.slot.clitics ?? []).find((c) => c.role === 'object');
     if (direct) noun = nounForClitic(direct);
   }
+  if (!noun && token.slot.pos === 'quantifier') noun = DEFAULT_NOUN[token.slot.gender];
   return {
     slot: token.slot,
     noun,
@@ -54,7 +55,10 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   };
 }
 
-export const sameState = (a: PanelState, b: PanelState): boolean => JSON.stringify(a) === JSON.stringify(b);
+/** The noun a quantifier panel shows when the phrase has none (ποιος είναι;): one of each Greek gender. */
+const DEFAULT_NOUN: Record<Gender, string> = { m: 'skylos', f: 'alepou', n: 'paidi' };
+
+export const sameState =(a: PanelState, b: PanelState): boolean => JSON.stringify(a) === JSON.stringify(b);
 
 export function buildPanel(state: PanelState, token: Token, level: Level): Panel {
   const lexeme = getLexeme(token.lexeme);
@@ -132,7 +136,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'number':
-      if (slot.pos === 'adjective' || slot.pos === 'article') {
+      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'quantifier') {
         return { ...state, slot: { ...slot, number: value as Num } };
       }
       if (slot.pos === 'preposition') return { ...state, nounNumber: value as Num };
