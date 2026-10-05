@@ -7,6 +7,7 @@ import type {
   Gender,
   GreekAdjective,
   GreekConjunction,
+  GreekInterrogative,
   GreekNoun,
   GreekNumeral,
   GreekParticle,
@@ -29,6 +30,7 @@ import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
 import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
+import { interrogativePanel } from './interrogative';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
 import { particlePanel } from './particle';
@@ -77,6 +79,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return cliticPanel(slot, level);
     case 'conjunction':
       return conjunctionPanel(lexeme as GreekConjunction, level);
+    case 'interrogative':
+      return interrogativePanel(lexeme as GreekInterrogative, level);
     case 'quantifier':
       return quantifierPanel(lexeme as GreekQuantifier, slot, state, level);
   }
@@ -116,7 +120,14 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'clitic') return { ...state, slot: { ...slot, role: value as 'object' | 'indirect' } };
       break;
     case 'case':
-      if (slot.pos !== 'verb' && slot.pos !== 'preposition' && slot.pos !== 'particle' && slot.pos !== 'conjunction' && slot.pos !== 'clitic') {
+      if (
+        slot.pos !== 'verb' &&
+        slot.pos !== 'preposition' &&
+        slot.pos !== 'particle' &&
+        slot.pos !== 'conjunction' &&
+        slot.pos !== 'interrogative' &&
+        slot.pos !== 'clitic'
+      ) {
         return { ...state, slot: { ...slot, case: value as Case } };
       }
       break;

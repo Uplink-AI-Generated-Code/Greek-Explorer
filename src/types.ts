@@ -82,6 +82,7 @@ export type Slot =
   | { pos: 'preposition' }
   | { pos: 'particle' }
   | { pos: 'conjunction' }
+  | { pos: 'interrogative' }
   | ({ pos: 'clitic' } & Clitic);
 
 export type Pos = Slot['pos'];
@@ -317,6 +318,21 @@ export interface GreekConjunction extends LexemeBase {
   example: { el: string; ro: string; en: string };
 }
 
+/** A question word that never changes: τι, πού, πότε, γιατί, πώς (spec 5.3). ποιος and πόσος are quantifiers. */
+export interface GreekInterrogative extends LexemeBase {
+  pos: 'interrogative';
+  ro: string;
+  en: string;
+  /** One line of meaning for the panel. */
+  meaning: string;
+  /** The Romanian word after a preposition, where it is one fused word (de unde, până când), by preposition id. */
+  roAfter?: Record<string, string>;
+  /** An example question in each language. */
+  question: { el: string; ro: string; en: string };
+  /** γιατί is also "because": the word used as an answer. */
+  answer?: { el: string; ro: string; en: string };
+}
+
 /** The weak pronoun as a word of its own: the panel a clitic piece of a verb group opens (spec 5.3). */
 export interface GreekClitic extends LexemeBase {
   pos: 'clitic';
@@ -331,7 +347,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekQuantifier;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekQuantifier | GreekInterrogative;
 
 export type TokenIndex = number;
 

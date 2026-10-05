@@ -4,6 +4,7 @@ import type {
   GreekArticle,
   GreekClitic,
   GreekConjunction,
+  GreekInterrogative,
   GreekLexeme,
   GreekNoun,
   GreekNumeral,
@@ -879,6 +880,8 @@ const pano = preposition('pano', 'πάνω από', 'peste', 'over', 'above');
 const kato = preposition('kato', 'κάτω από', 'sub', 'under', 'below');
 const me = preposition('me', 'με', 'cu', 'with', 'with');
 const gia = preposition('gia', 'για', 'pentru', 'for', 'for');
+const apo = preposition('apo', 'από', 'de la', 'from', 'from');
+const mexri = preposition('mexri', 'μέχρι', 'până la', 'until', 'until');
 
 const theta: GreekParticle = {
   id: 'theta',
@@ -948,6 +951,70 @@ const an: GreekConjunction = {
   example: { el: 'αν είχα ψωμί', ro: 'dacă aș avea pâine', en: 'if I had bread' },
 };
 
+const interrogative = (
+  id: string,
+  lemma: string,
+  ro: string,
+  en: string,
+  meaning: string,
+  question: GreekInterrogative['question'],
+  extra: Pick<GreekInterrogative, 'roAfter' | 'answer'> = {},
+): GreekInterrogative => ({
+  id,
+  pos: 'interrogative',
+  lemma,
+  verified: { el: false, ro: false, en: false },
+  ro,
+  en,
+  meaning,
+  question,
+  ...extra,
+});
+
+const ti = interrogative(
+  'ti',
+  'τι',
+  'ce',
+  'what',
+  'τι means "what". It never changes, and it can stand in front of a noun: τι ώρα, "what time".',
+  { el: 'Τι θέλεις;', ro: 'Ce vrei?', en: 'What do you want?' },
+);
+const pou = interrogative(
+  'pou',
+  'πού',
+  'unde',
+  'where',
+  'πού means "where". After από it means "from where": Greek and English use two words, Romanian one (de unde).',
+  { el: 'Πού πας;', ro: 'Unde mergi?', en: 'Where are you going?' },
+  { roAfter: { apo: 'de unde' } },
+);
+const pote = interrogative(
+  'pote',
+  'πότε',
+  'când',
+  'when',
+  'πότε means "when". After μέχρι it means "until when": Romanian has the fused phrase până când.',
+  { el: 'Πότε θα φας;', ro: 'Când vei mânca?', en: 'When will you eat?' },
+  { roAfter: { mexri: 'până când' } },
+);
+const giati = interrogative(
+  'giati',
+  'γιατί',
+  'de ce',
+  'why',
+  'γιατί means both "why" (in a question) and "because" (in an answer). Romanian has two words, de ce and pentru că.',
+  { el: 'Γιατί δεν τρως;', ro: 'De ce nu mănânci?', en: "Why aren't you eating?" },
+  { answer: { el: 'γιατί δεν θέλω', ro: 'pentru că nu vreau', en: "because I don't want to" } },
+);
+const posHow = interrogative(
+  'pos-how',
+  'πώς',
+  'cum',
+  'how',
+  'πώς means "how". It never changes.',
+  { el: 'Πώς είσαι;', ro: 'Cum ești?', en: 'How are you?' },
+);
+
 const clitic: GreekClitic = { id: 'clitic', pos: 'clitic', lemma: 'το', verified: { el: false, ro: false, en: false } };
 
 export const LEXEMES: Record<string, GreekLexeme> = {
@@ -985,6 +1052,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [kato.id]: kato,
   [me.id]: me,
   [gia.id]: gia,
+  [apo.id]: apo,
+  [mexri.id]: mexri,
   [theta.id]: theta,
   [na.id]: na,
   [as.id]: as,
@@ -992,6 +1061,11 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [min.id]: min,
   [an.id]: an,
   [clitic.id]: clitic,
+  [ti.id]: ti,
+  [pou.id]: pou,
+  [pote.id]: pote,
+  [giati.id]: giati,
+  [posHow.id]: posHow,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

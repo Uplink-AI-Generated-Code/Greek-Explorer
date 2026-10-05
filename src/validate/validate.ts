@@ -62,6 +62,8 @@ export function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'particle' }];
     case 'conjunction':
       return [{ pos: 'conjunction' }];
+    case 'interrogative':
+      return [{ pos: 'interrogative' }];
     case 'clitic':
       return cliticSlots();
     case 'quantifier':
@@ -182,6 +184,13 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
   }
   if (l.pos === 'conjunction') {
     if (isEmpty(l.ro) || isEmpty(l.en) || isEmpty(l.example.el)) errors.push(`lexeme ${l.id}: empty Romanian, English or example`);
+  }
+  if (l.pos === 'interrogative') {
+    const texts = [l.ro, l.en, l.meaning, ...Object.values(l.question), ...Object.values(l.answer ?? { el: 'x' })];
+    if (texts.some(isEmpty)) errors.push(`lexeme ${l.id}: an empty Romanian, English, meaning or example text`);
+    for (const key of Object.keys(l.roAfter ?? {})) {
+      if (lexemes[key]?.pos !== 'preposition') errors.push(`lexeme ${l.id}: roAfter names "${key}", which is not a preposition`);
+    }
   }
   if (l.pos === 'clitic') {
     for (const slot of cliticSlots()) {

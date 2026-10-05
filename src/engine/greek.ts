@@ -22,6 +22,7 @@ import type {
   GreekNumeral,
   GreekClitic,
   GreekConjunction,
+  GreekInterrogative,
   GreekParticle,
   GreekPreposition,
   GreekQuantifier,
@@ -171,6 +172,10 @@ export function inflectConjunction(l: GreekConjunction, _s: SlotOf<'conjunction'
   return { stem: l.lemma, ending: '' };
 }
 
+export function inflectInterrogative(l: GreekInterrogative, _s: SlotOf<'interrogative'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
 export function inflect(l: GreekLexeme, s: Slot): Form {
   if (l.pos !== s.pos) throw new Error(`slot ${s.pos} does not fit lexeme ${l.id} (${l.pos})`);
   switch (l.pos) {
@@ -194,5 +199,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectPreposition(l, s as SlotOf<'preposition'>);
     case 'particle':
       return inflectParticle(l, s as SlotOf<'particle'>);
+    case 'interrogative':
+      return inflectInterrogative(l, s as SlotOf<'interrogative'>);
   }
 }
