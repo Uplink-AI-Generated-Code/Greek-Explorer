@@ -148,6 +148,10 @@ export function changeVerbSlot(
   if (next.polarity === 'negative' && !isOffered(verb, next)) delete next.polarity;
   // A short form is for commands; the pronouns stay unless the verb or the voice cannot take them (below).
   if (next.mood !== 'imperative') delete next.shortForm;
+  // An indirect-only list only makes sense beside a spelled-out noun, which is for commands only.
+  if (next.mood !== 'imperative' && next.clitics?.length && next.clitics.every((c) => c.role === 'indirect')) {
+    delete next.clitics;
+  }
   if (next.polarity === 'negative') delete next.shortForm;
   if (slotProblem(verb, next)) delete next.shortForm;
   if (slotProblem(verb, next)) delete next.clitics;

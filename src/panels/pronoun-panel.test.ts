@@ -97,3 +97,23 @@ describe('the pronoun survives the other controls when it can', () => {
     expect(p.reading?.[0].parts.map((part) => part.role)).toEqual(['clitic', 'auxiliary', 'stem', 'ending']);
   });
 });
+
+describe('leaving a command with an indirect object', () => {
+  const command = stateOf(verbSlot('imperative', 'aorist', 2));
+
+  it('drops an indirect-only pronoun, and the noun, when the spelled-out noun cannot stay', () => {
+    const spelled = applyControl(command, 'object', 'noun', 'dino');
+    expect(spelled.slot).toHaveProperty('clitics');
+    const next = applyControl(spelled, 'mood', 'indicative', 'dino');
+    expect(next.slot).not.toHaveProperty('clitics');
+    expect(next.noun).toBeNull();
+    expect(control(panelOf('dino', next), 'object')?.value).toBe('none');
+  });
+
+  it('keeps both pronouns when the object is two pronouns', () => {
+    const two = applyControl(command, 'object', 'two', 'dino');
+    const next = applyControl(two, 'mood', 'indicative', 'dino');
+    expect(next.slot.pos === 'verb' && next.slot.clitics?.length).toBe(2);
+    expect(control(panelOf('dino', next), 'object')?.value).toBe('two');
+  });
+});
