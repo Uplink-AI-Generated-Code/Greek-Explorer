@@ -118,12 +118,12 @@ describe('what the new verbs offer', () => {
     expect(offeredVoices(getVerb('thelo'))).toEqual(['active']);
   });
 
-  it('counts the slots: 13 combinations × 6 persons, plus the imperative for τρώω and πλένω', () => {
-    expect(allVerbSlots(getVerb('troo'))).toHaveLength(13 * 6 + 4);
-    expect(allVerbSlots(getVerb('pao'))).toHaveLength(13 * 6);
-    expect(allVerbSlots(getVerb('koimamai'))).toHaveLength(13 * 6);
-    expect(allVerbSlots(getVerb('pleno')).filter((s) => s.voice === 'active')).toHaveLength(13 * 6 + 4);
-    expect(allVerbSlots(getVerb('pleno')).filter((s) => s.voice === 'mediopassive')).toHaveLength(7 * 6);
+  it('counts the slots: 15 combinations × 6 persons, plus the imperative for τρώω and πλένω', () => {
+    expect(allVerbSlots(getVerb('troo'))).toHaveLength(15 * 6 + 4);
+    expect(allVerbSlots(getVerb('pao'))).toHaveLength(15 * 6);
+    expect(allVerbSlots(getVerb('koimamai'))).toHaveLength(15 * 6);
+    expect(allVerbSlots(getVerb('pleno')).filter((s) => s.voice === 'active')).toHaveLength(15 * 6 + 4);
+    expect(allVerbSlots(getVerb('pleno')).filter((s) => s.voice === 'mediopassive')).toHaveLength(9 * 6);
     expect(allVerbSlots(getVerb('echo'))).toHaveLength(5 * 6);
     expect(allVerbSlots(getVerb('mporei'))).toHaveLength(1);
   });

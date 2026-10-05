@@ -96,7 +96,8 @@ function romanianLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string):
     shape = negative ? ['NOT', slot.number === 'sg' ? 'INF' : 'VERBPL'] : undefined;
   } else {
     const base = RO_SHAPES[`${slot.mood}.${slot.tense}`];
-    if (base) shape = !negative ? base : slot.mood === 'subjunctive' ? [base[0], 'NOT', ...base.slice(1)] : ['NOT', ...base];
+    const afterParticle = slot.mood === 'subjunctive' || slot.mood === 'hortative';
+    if (base) shape = !negative ? base : afterParticle ? [base[0], 'NOT', ...base.slice(1)] : ['NOT', ...base];
   }
   const text = roVerb(verb, slot);
   const words = text.split(' ');
@@ -107,6 +108,8 @@ function romanianLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string):
 function englishLine(verb: GreekVerb, slot: SlotOf<'verb'>, greekText: string): ReadingLine | undefined {
   // The fused forms with pronouns (mănâncă-o, nu-l mânca) do not fit the word-by-word shapes.
   if ((slot.clitics ?? []).length > 0) return undefined;
+  // "let me / let him / may you" carry a pronoun the word-by-word shapes leave out.
+  if (slot.mood === 'hortative') return undefined;
   const en = voiceOf(verb, slot.voice).en;
   const parts = enVerb(verb, slot);
   // The parenthetical "(myself)" of a reflexive verb and the subject pronoun are not parts of the verb group.

@@ -24,7 +24,13 @@ export interface EnParts {
   /** False for the imperative. */
   subject: boolean;
   verb: string;
+  /** The word shown where the subject pronoun stands, when it is not the usual one: "me" in "let me eat". */
+  pronoun?: string;
 }
+
+/** "let me", "let's", "let him / her", "let them"; the second person is "may you" (spec 5.2, hortative-persons). */
+const HORTATIVE_LEAD = ['let', 'may', 'let', '', 'may', 'let'];
+const HORTATIVE_WHO = ['me', 'you', 'him / her', "let's", 'you', 'them'];
 
 /** The pronouns after an English command: "eat it", "give me", "give it to me" (the direct pronoun comes first). */
 function enObjects(clitics: readonly Clitic[]): string {
@@ -43,7 +49,12 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
   // "do"-support, or "not" after a modal.
   const presentNot = en.modal ? `${present} not` : `${DONT[i]} ${en.base}`;
   const self = en.reflexive ? ` (${SELF[i]})` : '';
-  const parts = (verb: string, lead = '', subject = true): EnParts => ({ lead, subject, verb: `${verb}${self}` });
+  const parts = (verb: string, lead = '', subject = true, pronoun?: string): EnParts => ({
+    lead,
+    subject,
+    verb: `${verb}${self}`,
+    ...(pronoun ? { pronoun } : {}),
+  });
   switch (`${s.mood}.${s.tense}`) {
     case 'indicative.present':
       return parts(negative ? (en.presentNot?.[i] ?? presentNot) : (en.present?.[i] ?? present));
@@ -68,6 +79,9 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
     case 'imperative.present':
     case 'imperative.aorist':
       return parts(`${negative ? `don't ${en.base}` : en.base}${enObjects(s.clitics ?? [])}`, '', false);
+    case 'hortative.present':
+    case 'hortative.aorist':
+      return parts(`${negative ? 'not ' : ''}${en.base}`, HORTATIVE_LEAD[i], true, HORTATIVE_WHO[i]);
     case 'conditional.imperfect':
       return parts(`${negative ? "wouldn't" : 'would'} ${en.base}`);
     case 'conditional.pluperfect':
@@ -80,7 +94,7 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
 /** The whole English cell as text: "that I eat", "I have eaten", "eat". */
 export function enVerbText(v: GreekVerb, s: SlotOf<'verb'>, pronoun: string): string {
   const p = enVerb(v, s);
-  return [p.lead, p.subject ? pronoun : '', p.verb].filter((part) => part !== '').join(' ');
+  return [p.lead, p.subject ? (p.pronoun ?? pronoun) : '', p.verb].filter((part) => part !== '').join(' ');
 }
 
 /** The English word for a quantifier slot ("some / any", "much / a lot of", "fewer"). */

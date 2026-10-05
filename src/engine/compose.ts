@@ -123,11 +123,13 @@ export function compose(verb: GreekVerb, slot: SlotOf<'verb'>): Composed {
   if (clitics.length > 0) return commandWithClitics(verb, slot, clitics);
 
   const structure = structureOf(slot.mood, slot.tense);
-  const negation = negative ? wordPiece('negation', slot.mood === 'subjunctive' ? 'min' : 'den') : null;
+  // μην follows να and ας; δεν goes in front of everything else.
+  const afterParticle = slot.mood === 'subjunctive' || slot.mood === 'hortative';
+  const negation = negative ? wordPiece('negation', afterParticle ? 'min' : 'den') : null;
   const pieces: Piece[] = [];
-  if (negation && slot.mood !== 'subjunctive') pieces.push(negation);
+  if (negation && !afterParticle) pieces.push(negation);
   if (structure.particle) pieces.push(wordPiece('particle', structure.particle));
-  if (negation && slot.mood === 'subjunctive') pieces.push(negation);
+  if (negation && afterParticle) pieces.push(negation);
   if (structure.aux) {
     const auxSlot: SlotOf<'verb'> = {
       pos: 'verb',

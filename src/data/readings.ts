@@ -22,6 +22,7 @@ export const ENDING_GLOSS: Record<FormKind, string> = {
 export const PARTICLE_GLOSS: Record<string, string> = {
   theta: 'will',
   na: 'to / that',
+  as: 'let',
   den: 'not',
   min: 'not',
 };
@@ -107,6 +108,8 @@ export const RO_SHAPES: Record<string, readonly string[]> = {
   'subjunctive.perfect': ['to', 'be', 'PART'],
   'conditional.imperfect': ['would', 'INF'],
   'conditional.pluperfect': ['would', 'be', 'PART'],
+  'hortative.present': ['to', 'VERB'],
+  'hortative.aorist': ['to', 'VERB'],
 };
 
 /** What the English function words of a compound form mean. */

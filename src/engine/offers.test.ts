@@ -16,7 +16,7 @@ const withVoice = (extra: Partial<VerbVoice>): GreekVerb => ({
 describe('offers', () => {
   it('lists voices, moods and tenses in their canonical order', () => {
     expect(offeredVoices(thelo)).toEqual(['active']);
-    expect(offeredMoods(thelo, 'active')).toEqual(['indicative', 'subjunctive', 'conditional']);
+    expect(offeredMoods(thelo, 'active')).toEqual(['indicative', 'subjunctive', 'conditional', 'hortative']);
     expect(offeredTenses(thelo, 'active', 'indicative')).toEqual([
       'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
     ]);
@@ -57,8 +57,8 @@ describe('offers', () => {
 
   it('lists every offered slot once', () => {
     const slots = allVerbSlots(thelo);
-    expect(slots).toHaveLength(13 * 6);
-    expect(new Set(slots.map((s) => JSON.stringify(s))).size).toBe(13 * 6);
+    expect(slots).toHaveLength(15 * 6);
+    expect(new Set(slots.map((s) => JSON.stringify(s))).size).toBe(15 * 6);
     expect(slots.every((s) => isOffered(thelo, s))).toBe(true);
   });
 });

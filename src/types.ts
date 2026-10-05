@@ -12,10 +12,11 @@ export type QuantifierDegree = 'plain' | 'comparative';
 export type QuantifierSense = 'some' | 'few';
 export type QuantifierUse = 'determiner' | 'pronoun';
 
-export type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional';
+export type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional' | 'hortative';
 // Indicative: present, imperfect, aorist, future (θα + present), futureSimple (θα + aorist subjunctive),
 // perfect, pluperfect, futurePerfect. Subjunctive: present, aorist, perfect. Imperative: present, aorist
 // (second person only). Conditional: imperfect (θα + imperfect) and pluperfect (θα + pluperfect).
+// Hortative: present and aorist, ας + the subjunctive form (ας φάμε), every person.
 export type Tense =
   | 'present' | 'imperfect' | 'aorist' | 'future' | 'futureSimple' | 'perfect' | 'pluperfect' | 'futurePerfect';
 export type Voice = 'active' | 'mediopassive';

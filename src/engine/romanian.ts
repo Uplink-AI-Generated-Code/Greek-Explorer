@@ -58,6 +58,9 @@ export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
       return `${nu}${RO_AUXILIARIES.will[i]} fi ${ro.participle}`;
     case 'subjunctive.present':
     case 'subjunctive.aorist':
+    // The hortative is the subjunctive: ας φάμε is *să mâncăm* (spec 6.4).
+    case 'hortative.present':
+    case 'hortative.aorist':
       return `să ${nu}${ro.subjunctive[i]}`;
     case 'subjunctive.perfect':
       return `să ${nu}fi ${ro.participle}`;

@@ -40,8 +40,20 @@ export const RO_PRONOUNS = ['eu', 'tu', 'el/ea', 'noi', 'voi', 'ei/ele'];
 export const EN_PRONOUNS = ['I', 'you', 'he/she', 'we', 'you', 'they'];
 
 const MOOD_LABEL: Record<Level, Record<Mood, string>> = {
-  beginner: { indicative: 'a fact', subjunctive: 'wish or possibility', imperative: 'a command', conditional: 'would' },
-  improver: { indicative: 'indicative', subjunctive: 'subjunctive', imperative: 'imperative', conditional: 'conditional' },
+  beginner: {
+    indicative: 'a fact',
+    subjunctive: 'wish or possibility',
+    imperative: 'a command',
+    conditional: 'would',
+    hortative: "let's / let him",
+  },
+  improver: {
+    indicative: 'indicative',
+    subjunctive: 'subjunctive',
+    imperative: 'imperative',
+    conditional: 'conditional',
+    hortative: 'hortative',
+  },
 };
 
 /** Keyed '<mood>.<tense>'. Beginner uses plain words, Improver the technical name (spec 3). */
@@ -62,6 +74,8 @@ const TENSE_LABEL: Record<Level, Record<string, string>> = {
     'imperative.aorist': 'do it!',
     'conditional.imperfect': 'would do',
     'conditional.pluperfect': 'would have done',
+    'hortative.present': 'let us (do), ongoing',
+    'hortative.aorist': 'let us (do), once',
   },
   improver: {
     'indicative.present': 'present',
@@ -79,6 +93,8 @@ const TENSE_LABEL: Record<Level, Record<string, string>> = {
     'imperative.aorist': 'aorist (do it once)',
     'conditional.imperfect': 'θα + imperfect',
     'conditional.pluperfect': 'θα + pluperfect',
+    'hortative.present': 'present',
+    'hortative.aorist': 'aorist',
   },
 };
 

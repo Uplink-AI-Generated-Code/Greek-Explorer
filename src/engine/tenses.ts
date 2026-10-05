@@ -1,12 +1,13 @@
 import type { Mood, Num, Person, Tense } from '../types';
 
-export const MOODS: Mood[] = ['indicative', 'subjunctive', 'imperative', 'conditional'];
+export const MOODS: Mood[] = ['indicative', 'subjunctive', 'imperative', 'conditional', 'hortative'];
 
 export const TENSES_OF_MOOD: Record<Mood, Tense[]> = {
   indicative: ['present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect'],
   subjunctive: ['present', 'aorist', 'perfect'],
   imperative: ['present', 'aorist'],
   conditional: ['imperfect', 'pluperfect'],
+  hortative: ['present', 'aorist'],
 };
 
 /** Which stored form of the lexical verb a slot uses. */
@@ -15,7 +16,7 @@ export type FormKind = 'present' | 'imperfect' | 'aorist' | 'subjAorist' | 'impP
 export interface Structure {
   /** The lexical verb's contribution. */
   form: FormKind;
-  particle?: 'theta' | 'na';
+  particle?: 'theta' | 'na' | 'as';
   /** έχω, in the present or the imperfect, carrying the person. */
   aux?: 'present' | 'imperfect';
 }
@@ -37,6 +38,8 @@ export const STRUCTURE: Record<string, Structure> = {
   'imperative.aorist': { form: 'impAorist' },
   'conditional.imperfect': { form: 'imperfect', particle: 'theta' },
   'conditional.pluperfect': { form: 'base', particle: 'theta', aux: 'imperfect' },
+  'hortative.present': { form: 'present', particle: 'as' },
+  'hortative.aorist': { form: 'subjAorist', particle: 'as' },
 };
 
 export function structureOf(mood: Mood, tense: Tense): Structure {

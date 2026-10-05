@@ -141,6 +141,12 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
         if (cells !== undefined && cells.length !== 6) errors.push(`lexeme ${l.id}: en.${key} has ${cells.length} cells, not six`);
       }
     }
+    for (const [name, voice] of Object.entries(l.voices)) {
+      const subjunctive = voice?.offers.subjunctive ?? [];
+      if ((voice?.offers.hortative ?? []).length > 0 && !(subjunctive.includes('present') && subjunctive.includes('aorist'))) {
+        errors.push(`lexeme ${l.id}: the ${name} voice offers the hortative but not the subjunctive present and aorist`);
+      }
+    }
     const slots = allVerbSlots(l).flatMap((s): SlotOf<'verb'>[] => [
       s,
       { ...s, polarity: 'negative' },

@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { MOODS, STRUCTURE, TENSES_OF_MOOD, mainFormKind, whoIndex } from './tenses';
 
 describe('tenses', () => {
-  it('has the 15 mood and tense combinations of the spec', () => {
-    expect(MOODS).toEqual(['indicative', 'subjunctive', 'imperative', 'conditional']);
-    expect(MOODS.flatMap((m) => TENSES_OF_MOOD[m])).toHaveLength(15);
-    expect(Object.keys(STRUCTURE)).toHaveLength(15);
+  it('has the 17 mood and tense combinations of the spec', () => {
+    expect(MOODS).toEqual(['indicative', 'subjunctive', 'imperative', 'conditional', 'hortative']);
+    expect(MOODS.flatMap((m) => TENSES_OF_MOOD[m])).toHaveLength(17);
+    expect(Object.keys(STRUCTURE)).toHaveLength(17);
   });
 
   it('says which stored form the lexical verb contributes', () => {
@@ -18,6 +18,8 @@ describe('tenses', () => {
     expect(mainFormKind('subjunctive', 'perfect')).toBe('base');
     expect(mainFormKind('imperative', 'present')).toBe('impPresent');
     expect(mainFormKind('imperative', 'aorist')).toBe('impAorist');
+    expect(mainFormKind('hortative', 'present')).toBe('present');
+    expect(mainFormKind('hortative', 'aorist')).toBe('subjAorist');
     expect(mainFormKind('conditional', 'imperfect')).toBe('imperfect');
     expect(mainFormKind('conditional', 'pluperfect')).toBe('base');
   });

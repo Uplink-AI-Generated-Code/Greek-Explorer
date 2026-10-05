@@ -62,7 +62,7 @@ describe('the verb panel of a command and its object', () => {
     expect(keys(present)).toEqual(['who', 'mood', 'tense', 'polarity']);
     const improver = panelOf('troo', command({ clitics: [IT], shortForm: true }), 'psomi', 'improver');
     expect(improver.full.map((r) => richText(r.el))).toEqual(['φάε', 'φάτε']);
-    expect(improver.overview).toHaveLength(15);
+    expect(improver.overview).toHaveLength(17);
   });
 
   it('the plain-language line says where the pronoun goes', () => {

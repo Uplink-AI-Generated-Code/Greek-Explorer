@@ -63,6 +63,8 @@ const PLAIN: Record<string, string> = {
   'imperative.aorist': 'The aorist imperative asks for something to be done once and finished ("eat up"). It is used for the second person only.',
   'conditional.imperfect': 'Greek has no conditional forms: θα + the imperfect says "would". It is also the polite way to ask: θα ήθελα.',
   'conditional.pluperfect': 'θα + the past perfect says "would have": what would have happened.',
+  'hortative.present': 'ας + the present form suggests or allows something ongoing: ας τρώμε, "let\'s eat (regularly)". Where να gives a wish or a purpose, ας invites or permits.',
+  'hortative.aorist': 'ας + the aorist-subjunctive form suggests or allows something once: ας φάμε, "let\'s eat"; ας φάει, "let him eat". It looks like the subjunctive with ας in place of να.',
 };
 
 function classMessage(data: { class: VerbClass }): string {
@@ -80,7 +82,7 @@ export function verbRow(verb: GreekVerb, slot: SlotOf<'verb'>): PanelRow {
   const index = whoIndex(slot);
   const { show, impersonal } = pronounCells(verb, slot);
   const en = enVerb(verb, slot);
-  const enPronoun = impersonal ? 'it' : EN_PRONOUNS[index];
+  const enPronoun = impersonal ? 'it' : (en.pronoun ?? EN_PRONOUNS[index]);
   const label = impersonal ? 'it' : whoOptions[index].label;
   const lead: Rich = en.lead ? [{ text: en.lead, role: 'plain' }, SPACE] : [];
   const subject: Rich = en.subject ? [{ text: enPronoun, role: 'pronoun' }, SPACE] : [];
@@ -106,6 +108,7 @@ const NEGATION_PLAIN: Record<Mood, string> = {
   conditional: 'δεν goes in front of the whole group, even in front of θα: δεν θα έτρωγα.',
   subjunctive: 'μην goes after να: να μην φάω.',
   imperative: 'A negative command is not the imperative: Greek uses μην + the subjunctive form, as in μην φας.',
+  hortative: 'μην goes after ας: ας μην φάμε.',
 };
 
 /** A new slot with one verb control applied; anything the new value makes invalid falls back to the first valid choice. */

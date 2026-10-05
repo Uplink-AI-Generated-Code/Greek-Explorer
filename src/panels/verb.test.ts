@@ -54,7 +54,7 @@ describe('verb panel: controls', () => {
   it('θέλω: Who, Mood and When, no Voice', () => {
     const p = panel('thelo', vs('indicative', 'present'));
     expect(p.controls.map((c) => c.key)).toEqual(['who', 'mood', 'tense', 'polarity']);
-    expect(control(p, 'mood')?.options.map((o) => o.value)).toEqual(['indicative', 'subjunctive', 'conditional']);
+    expect(control(p, 'mood')?.options.map((o) => o.value)).toEqual(['indicative', 'subjunctive', 'conditional', 'hortative']);
     expect(control(p, 'tense')?.options.map((o) => o.value)).toHaveLength(8);
     expect(control(p, 'mood')?.label).toBe('Mood');
     expect(control(p, 'tense')?.label).toBe('When?');
@@ -151,7 +151,7 @@ describe('verb panel: full table and tense overview (Improver)', () => {
   it('the overview lists every mood and tense for the selected person, with the form in use highlighted', () => {
     const p = panel('troo', vs('indicative', 'perfect', 1), 'improver');
     const overview = p.overview ?? [];
-    expect(overview).toHaveLength(15);
+    expect(overview).toHaveLength(17);
     expect(overview[0].label).toBe('indicative · present');
     expect(richText(overview[0].el)).toBe('(εγώ) τρώω');
     expect(richText(overview[5].el)).toBe('(εγώ) έχω φάει');

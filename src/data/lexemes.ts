@@ -422,8 +422,15 @@ const INDICATIVE_ALL: Tense[] = [
 const SUBJUNCTIVE_ALL: Tense[] = ['present', 'aorist', 'perfect'];
 const CONDITIONAL_ALL: Tense[] = ['imperfect', 'pluperfect'];
 const IMPERATIVE_ALL: Tense[] = ['present', 'aorist'];
+/** The hortative (ας + the subjunctive) goes with the subjunctive present and aorist (spec 4.3). */
+const HORTATIVE_ALL: Tense[] = ['present', 'aorist'];
 /** Every mood except the imperative, which only some verbs offer. */
-const OFFERS_NO_IMPERATIVE = { indicative: INDICATIVE_ALL, subjunctive: SUBJUNCTIVE_ALL, conditional: CONDITIONAL_ALL };
+const OFFERS_NO_IMPERATIVE = {
+  indicative: INDICATIVE_ALL,
+  subjunctive: SUBJUNCTIVE_ALL,
+  conditional: CONDITIONAL_ALL,
+  hortative: HORTATIVE_ALL,
+};
 
 const thelo: GreekVerb = {
   id: 'thelo',
@@ -767,6 +774,7 @@ const pleno: GreekVerb = {
       offers: {
         indicative: ['present', 'imperfect', 'aorist', 'perfect', 'pluperfect'],
         subjunctive: ['present', 'aorist'],
+        hortative: HORTATIVE_ALL,
       },
       ro: {
         lemma: 'a se spăla',
@@ -905,6 +913,18 @@ const den: GreekParticle = {
   example: { el: 'δεν θέλω', ro: 'nu vreau', en: "don't want" },
 };
 
+const as: GreekParticle = {
+  id: 'as',
+  pos: 'particle',
+  lemma: 'ας',
+  verified: { el: false, ro: false, en: false },
+  ro: 'să (+ verb)',
+  en: "let / let's",
+  meaning:
+    'Suggests or allows: ας φάμε "let\'s eat", ας φάει "let him eat". Where να gives a wish or a purpose (θέλω να φάω), ας invites or permits.',
+  example: { el: 'ας φάμε', ro: 'să mâncăm', en: "let's eat" },
+};
+
 const min: GreekParticle = {
   id: 'min',
   pos: 'particle',
@@ -967,6 +987,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [gia.id]: gia,
   [theta.id]: theta,
   [na.id]: na,
+  [as.id]: as,
   [den.id]: den,
   [min.id]: min,
   [an.id]: an,
