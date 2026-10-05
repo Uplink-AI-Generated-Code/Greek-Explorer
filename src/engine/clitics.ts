@@ -44,7 +44,7 @@ export function roClitics(list: readonly Clitic[]): RoClitic {
     if (!entry) throw new Error(`no Romanian cluster ${key}`);
     return entry;
   }
-  throw new Error('a command takes one or two pronouns');
+  throw new Error('a verb form takes one or two pronouns');
 }
 
 export const cliticSlot = (c: Clitic): SlotOf<'clitic'> => ({ pos: 'clitic', ...c });

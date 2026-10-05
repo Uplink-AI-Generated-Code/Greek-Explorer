@@ -32,7 +32,7 @@ export interface EnParts {
 const HORTATIVE_LEAD = ['let', 'may', 'let', '', 'may', 'let'];
 const HORTATIVE_WHO = ['me', 'you', 'him / her', "let's", 'you', 'them'];
 
-/** The pronouns after an English command: "eat it", "give me", "give it to me" (the direct pronoun comes first). */
+/** The pronouns after an English verb form: "eat it", "give me", "give it to me" (the direct pronoun comes first). */
 function enObjects(clitics: readonly Clitic[]): string {
   const direct = clitics.find((c) => c.role === 'object');
   const indirect = clitics.find((c) => c.role === 'indirect');

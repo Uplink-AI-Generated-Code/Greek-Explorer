@@ -75,7 +75,7 @@ function classMessage(data: { class: VerbClass }): string {
 
 /** Does the verb form take an object? Reflexive (mediopassive) verbs and verbs like πάω do not. */
 const takesObject = (verb: GreekVerb, slot: SlotOf<'verb'>): boolean =>
-  slot.voice === 'active' && voiceOf(verb, slot.voice).intransitive !== true;
+  slot.voice === 'active' && voiceOf(verb, slot.voice).intransitive !== true && voiceOf(verb, slot.voice).thirdSingularOnly !== true;
 
 const pronounCells = (verb: GreekVerb, slot: SlotOf<'verb'>) => {
   const data = voiceOf(verb, slot.voice);

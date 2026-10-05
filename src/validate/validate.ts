@@ -2,6 +2,7 @@ import { inflect } from '../engine/greek';
 import { offeredCases, quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
+import { RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { RECIPIENTS } from '../engine/objects';
 import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
@@ -26,6 +27,18 @@ export interface ValidationInput {
 }
 
 const isEmpty = (s: string | undefined): boolean => !s || s.trim() === '';
+
+/** Problems in the stored Romanian pronoun and pair tables: a blank field, or neither a fusion nor a postposed form. */
+export function roTableProblems(clitics: Record<string, RoClitic>, clusters: Record<string, RoClitic>): string[] {
+  const problems: string[] = [];
+  for (const [key, entry] of [...Object.entries(clitics), ...Object.entries(clusters)]) {
+    for (const field of ['free', 'enclitic', 'afterNu', 'afterSa'] as const) {
+      if (isEmpty(entry[field])) problems.push(`lexeme clitic: ${key} has an empty ${field}`);
+    }
+    if (isEmpty(entry.fused) && isEmpty(entry.after)) problems.push(`lexeme clitic: ${key} has an empty fused and after`);
+  }
+  return problems;
+}
 
 /** Every pronoun slot: both roles, both numbers, and the three genders of the third person. */
 function cliticSlots(): SlotOf<'clitic'>[] {
@@ -185,7 +198,7 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
           }
         }
         const ro = roVerb(l, slot);
-        if (isEmpty(ro) || ro.includes('undefined') || /\s$/.test(ro) || /\s{2,}/.test(ro)) errors.push(`${where}: no Romanian form`);
+        if (isEmpty(ro) || ro.includes('undefined') || /^\s/.test(ro) || /\s$/.test(ro) || /\s{2,}/.test(ro)) errors.push(`${where}: no Romanian form`);
         const en = enVerb(l, slot).verb;
         if (isEmpty(en) || en.includes('undefined') || /\s$/.test(en) || /\s{2,}/.test(en)) {
           errors.push(`lexeme ${l.id}: empty English form for ${JSON.stringify(slot)}`);
@@ -212,6 +225,7 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     }
   }
   if (l.pos === 'clitic') {
+    errors.push(...roTableProblems(RO_CLITICS, RO_CLUSTERS));
     for (const slot of cliticSlots()) {
       const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
       try {

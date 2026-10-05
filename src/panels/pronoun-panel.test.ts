@@ -55,14 +55,20 @@ describe('the Object control in every mood', () => {
     expect(row(panelOf('troo', next))).toEqual({ el: '(εμείς) ας μην το φάμε', ro: '(noi) să nu o mâncăm', en: "let's not eat it" });
   });
 
-  it('ignores a spelled-out noun outside a command', () => {
+  it('gives no spelled-out noun outside a command (the form stays without an object)', () => {
     const start = stateOf(verbSlot('indicative', 'present'));
     expect(applyControl(start, 'object', 'noun', 'troo').slot).not.toHaveProperty('clitics');
+    // Current behaviour: from a form with a pronoun, choosing a noun leaves neither a noun nor a pronoun.
+    const withPronoun = applyControl(start, 'object', 'pronoun', 'troo');
+    const next = applyControl(withPronoun, 'object', 'noun', 'troo');
+    expect(next.noun).toBeNull();
+    expect(next.slot).not.toHaveProperty('clitics');
   });
 
   it('a verb that takes no object has no Object control', () => {
     expect(control(panelOf('pao', stateOf(verbSlot('indicative', 'present'))), 'object')).toBeUndefined();
     expect(control(panelOf('eimai', stateOf(verbSlot('indicative', 'present'))), 'object')).toBeUndefined();
+    expect(control(panelOf('mporei', stateOf(verbSlot('indicative', 'present', 3, 'sg'))), 'object')).toBeUndefined();
   });
 });
 

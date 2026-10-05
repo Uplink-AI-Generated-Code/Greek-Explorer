@@ -140,7 +140,7 @@ export const senseOptions: Option[] = [
   { value: 'few', label: 'a few (câțiva)' },
 ];
 
-/** The kinds of object of a command (spec 5.3). */
+/** The kinds of object of a verb form (spec 5.3); a spelled-out noun only for a command. */
 export const objectOptions = (level: Level, indirect: boolean, command = true): Option[] => [
   { value: 'none', label: 'none' },
   ...(command ? [{ value: 'noun', label: level === 'beginner' ? 'a noun (spelled out)' : 'a noun phrase' }] : []),

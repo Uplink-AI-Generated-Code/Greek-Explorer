@@ -77,7 +77,7 @@ export function cliticPanel(slot: SlotOf<'clitic'>, level: Level): Panel {
           }))
         : [],
     plain:
-      `Weak pronouns are short and unstressed. Greek puts them after a command (φάε το) and before a negative one (μην το φας); Romanian attaches them with a hyphen after a command (mănâncă-l). The strong form, used for emphasis, is ${greekStrong(slot)}.`,
+      `Weak pronouns are short and unstressed. Greek puts them after a command (φάε το) and before a negative one (μην το φας). In every other form the pronoun goes in front of the verb group (το τρώω, θα το φάω, το έχω φάει). Romanian attaches them with a hyphen after a command (mănâncă-l). The strong form, used for emphasis, is ${greekStrong(slot)}.`,
     irregular: '',
     note: '',
   };

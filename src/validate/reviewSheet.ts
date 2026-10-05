@@ -8,7 +8,8 @@ import { roVerb } from '../engine/romanian';
 import { formText, richText } from '../engine/segments';
 import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
-import type { GreekInterrogative, GreekLexeme, GreekVerb, SlotOf } from '../types';
+import { RECIPIENTS } from '../engine/objects';
+import type { Clitic, GreekInterrogative, GreekLexeme, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -53,8 +54,48 @@ function commandLines(verb: GreekVerb): string[] {
 const unique = (values: string[]): string => [...new Set(values)].join(' / ');
 const byGender = (cells: Record<string, string>): string => unique(['m', 'f', 'n'].map((g) => cells[g]));
 
+const verbSlotOf = (mood: string, tense: string, person: 1 | 2 | 3, number: 'sg' | 'pl', clitics: Clitic[], polarity?: 'negative'): SlotOf<'verb'> =>
+  ({ pos: 'verb', person, number, mood, tense, voice: 'active', clitics, ...(polarity ? { polarity } : {}) }) as SlotOf<'verb'>;
+
+/** Romanian forms built from the pronoun table, for a feminine and a masculine pronoun, and for the pair with each recipient. */
+function generatedFormLines(lexemes: Record<string, GreekLexeme>): string[] {
+  const lines = ['Romanian forms with pronouns (generated):'];
+  const troo = lexemes.troo;
+  const dino = lexemes.dino;
+  const it = (roGender: 'f' | 'm'): Clitic => ({ role: 'object', person: 3, number: 'sg', gender: 'n', roGender });
+  if (troo?.pos === 'verb') {
+    const cases: [string, string, string, 1 | 2 | 3, 'sg' | 'pl', 'negative'?][] = [
+      ['present', 'indicative', 'present', 1, 'sg'],
+      ['present negative', 'indicative', 'present', 1, 'sg', 'negative'],
+      ['perfect', 'indicative', 'perfect', 1, 'sg'],
+      ['perfect negative', 'indicative', 'perfect', 1, 'sg', 'negative'],
+      ['simple future', 'indicative', 'futureSimple', 1, 'sg'],
+      ['subjunctive aorist', 'subjunctive', 'aorist', 1, 'sg'],
+      ['subjunctive aorist negative', 'subjunctive', 'aorist', 1, 'sg', 'negative'],
+      ['conditional imperfect', 'conditional', 'imperfect', 1, 'sg'],
+      ['conditional pluperfect', 'conditional', 'pluperfect', 1, 'sg'],
+      ['hortative aorist 1pl', 'hortative', 'aorist', 1, 'pl'],
+    ];
+    lines.push(`- ${troo.lemma}: tense · masculine pronoun · feminine pronoun`);
+    for (const [label, mood, tense, person, number, polarity] of cases) {
+      const text = (roGender: 'f' | 'm') => roVerb(troo, verbSlotOf(mood, tense, person, number, [it(roGender)], polarity));
+      lines.push(`  - ${label} · ${text('m')} · ${text('f')}`);
+    }
+  }
+  if (dino?.pos === 'verb') {
+    lines.push(`- ${dino.lemma} with a recipient and a feminine pronoun`);
+    for (const r of RECIPIENTS) {
+      for (const [label, tense] of [['simple future 2sg', 'futureSimple'], ['perfect 2sg', 'perfect']] as const) {
+        const slot = verbSlotOf('indicative', tense, 2, 'sg', [r.clitic, it('f')]);
+        lines.push(`  - ${r.label} · ${label} · ${roVerb(dino, slot)}`);
+      }
+    }
+  }
+  return lines;
+}
+
 /** The weak pronoun: the tables a reviewer checks for clitic-table:ro-clitics, printed as they are stored. */
-function cliticLines(): string[] {
+function cliticLines(lexemes: Record<string, GreekLexeme>): string[] {
   return [
     'Romanian pronouns (free, attached to a command, after nu, after să, fused with an auxiliary, behind the participle):',
     ...Object.entries(RO_CLITICS).map(([key, c]) => `- ${key}: ${roForms(c)}`),
@@ -67,6 +108,8 @@ function cliticLines(): string[] {
     '',
     'Greek strong forms:',
     ...Object.entries(GREEK_STRONG).map(([key, cells]) => `- ${key}: ${byGender(cells)}`),
+    '',
+    ...generatedFormLines(lexemes),
   ];
 }
 
@@ -104,7 +147,7 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
     `### ${l.pos === 'verb' ? l.lemma : l.lemma} (${l.id})`,
     `Unverified: ${missing.join(', ')}. Part of speech: ${l.pos}.`,
     '',
-    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines() : [...otherLines(l), ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : [])]),
+    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines(lexemes) : [...otherLines(l), ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : [])]),
     '',
   ];
 }

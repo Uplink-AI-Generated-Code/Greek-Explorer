@@ -76,7 +76,7 @@ export function slotProblem(verb: GreekVerb, s: SlotOf<'verb'>): string | null {
   if (!data) return `${verb.id} has no ${s.voice} voice`;
   // A verb that takes no object, and a reflexive (mediopassive) verb, take no pronouns (spec 4.3).
   if (clitics.length > 0 && (s.voice !== 'active' || data.intransitive)) return `${data.lemma} takes no object`;
-  if (clitics.length > 2) return 'a command takes at most two pronouns';
+  if (clitics.length > 2) return 'a verb form takes at most two pronouns';
   if (clitics.some((c) => c.person === 3 && !c.gender)) return 'a third-person pronoun needs a gender';
   if (clitics.length === 2 && !(clitics[0].role === 'indirect' && clitics[1].role === 'object')) {
     return 'two pronouns are an indirect object and then a direct object';

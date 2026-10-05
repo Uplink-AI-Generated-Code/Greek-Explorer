@@ -21,6 +21,15 @@ const cells = (p: ReturnType<typeof panelFor>, i = 0) => ({
 });
 
 describe('clitic panel', () => {
+  it('says where the pronoun goes in a command and in every other form', () => {
+    const plain = panelFor(slotOf()).plain;
+    expect(plain).toContain('φάε το');
+    expect(plain).toContain('μην το φας');
+    expect(plain).toContain('το τρώω');
+    expect(plain).toContain('θα το φάω');
+    expect(plain).toContain('το έχω φάει');
+  });
+
   it('shows the weak form in the three languages', () => {
     const p = panelFor(slotOf({ roGender: 'f' }));
     expect(p.lemma).toBe('το / του');

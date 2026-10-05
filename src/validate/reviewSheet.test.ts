@@ -19,6 +19,13 @@ const sets: RecordSets = {
 };
 const sheet = reviewSheet({ ...sets, pending: [...pendingCells(LEXEMES), 'polys Romanian plain determiner m sg gen'] });
 
+describe('the Romanian forms with pronouns', () => {
+  it('are printed after the pronoun table', () => {
+    expect(sheet).toContain('Romanian forms with pronouns (generated)');
+    for (const form of ['l-am mâncat', 'am mâncat-o', 'mi-o vei da', 'ni-o vei da']) expect(sheet).toContain(form);
+  });
+});
+
 describe('unverifiedRecords', () => {
   it('lists a language of a lexeme, a review item, a phrase, a note, a template and a group', () => {
     const records = unverifiedRecords(sets);
