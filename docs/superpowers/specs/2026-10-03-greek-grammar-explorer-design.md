@@ -678,7 +678,7 @@ A build-time script (`npm run validate`) fails the build when:
 - a divergence note refers to a missing lexeme or part of speech;
 - a form group has fewer than two members, its members use different verb lexemes or moods, a member does not compose, or its `closeNotSame` verb has clitics;
 - a phrase has no `theme`, or any record that needs a `verified` flag lacks one.
-- a question-word token that is not an interrogative or a question-word quantifier; a preposition token whose `agreesWith` is neither a noun nor a question word; a hortative slot of a verb that does not offer the subjunctive present and aorist; a pronoun that the Romanian clitic table cannot place (for every offered slot and every pronoun the panel can build);
+- a question-word quantifier (`question`) that does not offer exactly the subject and object roles, or a quantifier token outside the roles its lexeme offers; a quantifier token with no `agreesWith` unless it is used on its own; a preposition token whose `agreesWith` is neither a noun nor an interrogative (τι, πού, πότε, γιατί, πώς); an interrogative whose `roAfter` names something that is not a preposition; a hortative slot of a verb that does not offer the subjunctive present and aorist; a pronoun that the Romanian clitic table cannot place (for every offered slot and every pronoun the panel can build);
 
 The script also fails the build when an irregular form has no authored reading, or a compound form's generated reading has a part with no gloss.
 
@@ -724,6 +724,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
   - Review item M7: μην is written throughout (μην το φας); standard spelling drops the -ν before most consonants (μη φας, μη μου το δώσεις). The reviewer decides.
   - The pronoun panel's English cell for the indirect role reads "me" where the reading says "to me". The reviewer decides whether the cell should say "to me".
 
+- Plan 7 addition: whether the Romanian object role of *cine* and *care* needs *pe* (*pe cine*), which the cells do not show; whether the English second person of the hortative should be "may you eat" or "go ahead and eat"; and the Romanian forms *cât, câtă, câți, câte*, *de unde*, *până când*, *de la ce*.
 - Plan 7 and 8 additions: the question words and their Romanian and English counterparts (*cine / care / ce*, *de unde*, *până când*, *ce oră*, *cât costă*); the forms of ποιος and πόσος; whether γιατί, πώς and the compounds are used as written; ώρα, κάνω (the price idiom Πόσο κάνει) and λέω; the hortative ας (every person, the English renderings "let me / let's / let him / let them", and the second person "may you eat / go ahead and eat"); phrases 40 to 56; and, for Plan 8, every Romanian pronoun fusion (*l-am mâncat*, *am mâncat-o*, *l-aș mânca*, *să-l mănânc*, *nu l-am mâncat*, the dative-accusative pairs), the Greek placement of the pronouns, and the natural Romanian *Cum se numește?* for Πώς το λένε.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
@@ -884,3 +885,16 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Compound questions | από πού, μέχρι πότε, τι ώρα and πόσο κάνει are separate tokens (preposition + question word, question word + noun, question word + verb), so each literal unit links to its own word; a preposition may govern a question word; new words ώρα, κάνω, από, μέχρι | 4.4, 5.3, 6.6 |
 | New request: Πώς το λένε | Weak pronouns are allowed in every indicative, subjunctive, conditional and hortative form, not only in commands; Romanian fusions are stored for every person; new verb λέω | 2, 4.3, 5.2, 6.6 |
 | Delivery | Plan 7: question words, ας, the new words, phrases 40 to 53. Plan 8: pronouns in every form, λέω, phrases 54 to 56 | 6.1 |
+
+## 21. Decisions made in Plan 7
+
+| Source | Decision | Where |
+|---|---|---|
+| Delivery | Plan 7 delivers the question words, ας, the hortative, ώρα, κάνω, από, μέχρι and phrases 40 to 53, so the picker lists 53 phrases; phrases 54 to 56 follow in Plan 8 | 6.1, 11 |
+| English hortative | One rendering per person (*let me*, *may you* for both second persons, *let him / her*, *let's*, *let them*); the English cell takes the pronoun word from `EnParts.pronoun`; there is no English reading line for the hortative | 5.2, 5.5 |
+| A preposition and a question word | A preposition governs a noun or an interrogative; `roAfter` stores the fused Romanian word (*de unde*, *până când*); ποιος and πόσος after a preposition are out of scope | 4.4, 5.3 |
+| ποιος and πόσος | `question: 'who' \| 'amount'` and `cases: ['nom', 'acc']` on the quantifier lexeme; ποιος uses the "How many?" control, πόσος the mass / count control; Romanian *care* before a noun and *cine* on its own | 4.2, 5.3, 6.6 |
+| A quantifier with no noun token | The panel starts with σκύλος (m), αλεπού (f) or παιδί (n) as its noun, so Romanian shows *cine* and *cât* | 5.3 |
+| Nouns | `GreekNoun.overrides` stores a whole irregular cell; ώρα is class `fem-a` with the genitive plural ωρών | 4.3, 6.6 |
+| Comparison notes | Thirteen rows for the eleven notes of 5.2: question-order, question-mark, question-words (two rows), why-because, question-declension, question-compounds (two rows), price-idiom and four hortative rows; a row may name several lexemes | 5.2 |
+| Counts | 17 mood and tense combinations; every verb with the subjunctive present and aorist offers the hortative | 4.2, 4.3 |
