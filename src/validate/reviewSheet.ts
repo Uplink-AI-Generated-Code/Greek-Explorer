@@ -10,9 +10,11 @@ import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import { RECIPIENTS } from '../engine/objects';
 import { nounPhrase, ownAlone, ownPhrase } from '../engine/agree';
+import { offeredCases } from '../engine/quantifier';
+import { buildPanel } from '../panels/panels';
 import { POSSESSORS } from '../engine/possessive';
 import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
-import type { Clitic, GreekAdjective, GreekInterrogative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import type { Clitic, GreekAdjective, GreekAdverb, GreekInterrogative, GreekQuantifier, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -116,21 +118,56 @@ function cliticLines(lexemes: Record<string, GreekLexeme>): string[] {
   ];
 }
 
-/** A question word: its example, its answer use, the fused Romanian words after a preposition, and the pairs Romanian builds. */
-function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, GreekLexeme>): string[] {
-  const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
-  const pairs = Object.values(lexemes)
+/** The Romanian words after each preposition: the stored one where Romanian fuses the pair, else the generated pair. */
+function prepositionPairs(l: GreekInterrogative | GreekAdverb, lexemes: Record<string, GreekLexeme>): string[] {
+  return Object.values(lexemes)
     .flatMap((p) => (p.pos === 'preposition' && !p.fused ? [p] : []))
     .map((p) =>
       l.roAfter?.[p.id]
         ? `- ${LANG_NAME.ro} after ${p.lemma} (stored): ${p.lemma} ${l.lemma}: ${l.roAfter[p.id]}`
         : `- ${LANG_NAME.ro} after ${p.lemma} (generated): ${p.lemma} ${l.lemma}: ${p.ro} ${l.ro}`,
     );
+}
+
+/** A question word: its example, its answer use, the fused Romanian words after a preposition, and the pairs Romanian builds. */
+function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, GreekLexeme>): string[] {
+  const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
+  const pairs = prepositionPairs(l, lexemes);
   return [
     `- Question: ${example(l.question)}`,
     ...(l.answer ? [`- Answer: ${example(l.answer)}`] : []),
     ...pairs,
   ];
+}
+
+/** A place word: its example and the Romanian words after each preposition. */
+function adverbLines(l: GreekAdverb, lexemes: Record<string, GreekLexeme>): string[] {
+  const e = l.example;
+  return [`- Example: ${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`, ...prepositionPairs(l, lexemes)];
+}
+
+/**
+ * A demonstrative with every noun, in the three languages: the "with a noun" row of its panel, which is what the app
+ * shows (spec 9, 25). The genitive and the spoken Romanian forms are printed where the lexeme has them.
+ */
+function demonstrativeLines(q: GreekQuantifier, lexemes: Record<string, GreekLexeme>): string[] {
+  const nouns = Object.values(lexemes).filter((l): l is GreekNoun => l.pos === 'noun');
+  const line = (noun: GreekNoun, number: 'sg' | 'pl', c: 'nom' | 'gen', register?: 'spoken') => {
+    const slot: SlotOf<'quantifier'> = { pos: 'quantifier', gender: noun.gender, number, case: c, degree: 'plain', use: 'determiner', ...(register ? { register } : {}) };
+    const row = buildPanel({ slot, noun: noun.id, nounNumber: number }, { text: '', lexeme: q.id, slot }, 'beginner').rows[0];
+    return `${richText(row.el)} · ${richText(row.ro)} · ${richText(row.en)}`;
+  };
+  return nouns.flatMap((noun) =>
+    (['sg', 'pl'] as const).flatMap((number) => {
+      if (!q.numbers.includes(number)) return [];
+      const cases = (['nom', 'gen'] as const).filter((c) => offeredCases(q).includes(c));
+      return [
+        `- ${noun.lemma} (${number === 'sg' ? 'singular' : 'plural'}):`,
+        ...cases.map((c) => `  - ${c === 'nom' ? 'nominative' : 'genitive'}: ${line(noun, number, c)}`),
+        ...(q.ro.spoken ? [`  - spoken: ${line(noun, number, 'nom', 'spoken')}`] : []),
+      ];
+    }),
+  );
 }
 
 /** A preposition that fuses with the article (σε): the six fused forms, the στη rule and each meaning with its example. */
@@ -239,6 +276,8 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
     ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines(lexemes) : [
       ...otherLines(l),
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
+      ...(l.pos === 'adverb' ? adverbLines(l, lexemes) : []),
+      ...(l.pos === 'quantifier' && l.demonstrative ? demonstrativeLines(l, lexemes) : []),
       ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
       ...(l.pos === 'possessive' ? possessiveLines(lexemes) : []),
       ...(l.pos === 'adjective' && l.emphatic ? ownLines(l, lexemes) : []),

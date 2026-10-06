@@ -128,6 +128,23 @@ describe('the review sheet', () => {
     expect(sheet).toContain('ο σκύλος της θάλασσας');
   });
 
+  it('shows the demonstratives with every noun, in both Romanian registers', () => {
+    expect(sheet).toContain('αυτό το σπίτι · această casă / casa aceasta · this house');
+    expect(sheet).toContain('αυτού του σπιτιού · acestei case / casei acesteia · of this house');
+    expect(sheet).toContain('αυτό το σπίτι · casa asta · this house');
+    expect(sheet).toContain('εκείνος ο σκύλος · acel câine / câinele acela · that dog');
+    expect(sheet).toContain('ένα τέτοιο σπίτι · o asemenea casă · such a house');
+    expect(sheet).toContain('τέτοιο ψωμί · asemenea pâine · such bread');
+    expect(sheet).toContain('τόσο ψωμί · atâta pâine · so much bread');
+  });
+
+  it('shows the place words: the example and the Romanian words after each preposition', () => {
+    expect(sheet).toContain('Example: Ελληνικά: Εδώ είναι το σπίτι; Română: Aici este casa; English: Here is the house');
+    expect(sheet).toContain('after από (stored): από εδώ: de aici');
+    expect(sheet).toContain('after μέχρι (stored): μέχρι εκεί: până acolo');
+    expect(sheet).toContain('after με (generated): με εδώ: cu aici');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });
