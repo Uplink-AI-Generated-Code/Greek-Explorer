@@ -568,3 +568,20 @@ export interface FormGroup {
   /** Covers the meaning, the member notes, the close-not-the-same reason and the claim that the members mean the same (spec 4.3). */
   verified: boolean;
 }
+
+/** One file of the split review sheet: the records of a topic a speaker reviews in one sitting (spec 9). */
+export interface ReviewFeature {
+  /** The path of the file without its extension: 'adjectives', 'verbs/troo'. */
+  id: string;
+  title: string;
+  lexemes: string[];
+  /** Ending tables, auxiliary tables and glossaries (`ReviewItem` ids). */
+  items: string[];
+  phrases: string[];
+  /** Comparison note ids. */
+  divergences: string[];
+  /** Authored reading rules. */
+  readings: string[];
+  /** Form group ids. */
+  groups: string[];
+}

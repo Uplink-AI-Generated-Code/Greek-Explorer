@@ -1095,3 +1095,12 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Free relatives, model | ό,τι and όπου are a new part of speech, the free relative, with the slot `{ pos: 'freeRelative' }` and a lexeme that stores both readings (Romanian *orice / ce*, *oriunde / unde*; English whatever / what, wherever / where) and an example of each; όποιος is a quantifier lexeme flagged `free`, with the Greek table of ποιος, the subject and object only, Romanian *orice* beside a noun and *oricine* on its own, and English whichever and whoever | 4.2 |
 | Plan 14 built | The free relatives ό,τι, όπου and όποιος, their panels, phrases 90 to 94 (94 in all), two notes and the review-sheet sections; the "-ever" relatives in the genitive and the construction with an auxiliary (όπου κι αν πας) are not covered | 26 |
 | Validator (free relatives) | όποιος offers the subject and object only, takes no article, and stands alone without a noun to agree with; ό,τι and όπου are never governed by a preposition | 4.2 |
+
+## 27. Changes to the review sheet
+
+| Source | Change | Where |
+|---|---|---|
+| New request: review one feature at a time | `npm run review-sheet` writes a folder `review/sheets/` (git-ignored) instead of one file: `index.md` (every file with the number of records not verified), one file per topic (nouns and the article, adjectives, the verb tables, weak pronouns, quantifiers, the particles and the conjunction, prepositions, question words and place words, possessives, demonstratives, relative pronouns) and one file per verb in `verbs/`. Each file has the layout of the old sheet, limited to its topic: checklist, ending tables, lexemes, phrases, comparison notes, readings, form groups and pending cells | 9 |
+| The feature map | `src/data/review-features.ts` names the records of each file; a test checks that every lexeme, ending table, phrase, comparison note, authored reading and form group is named exactly once. A record that no file names goes to `general.md`, which exists only then | 9 |
+| Unchanged | The records and their `verified` flags, and `npm run validate -- --release`, which counts every record in every file | 9 |
+

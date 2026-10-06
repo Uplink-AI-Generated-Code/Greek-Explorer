@@ -17,7 +17,7 @@ import { POSSESSORS } from '../engine/possessive';
 import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
 import { RELATIVE_PREPOSITIONS, RELATIVE_ROLES, RO_CARE_DATIVE, RO_CARE_GENITIVE } from '../data/relatives';
 import { relativeGroup } from '../engine/relativeGroup';
-import type { Clitic, GreekAdjective, GreekAdverb, GreekFreeRelative, GreekInterrogative, GreekQuantifier, GreekRelative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import type { Clitic, GreekAdjective, ReviewFeature, GreekAdverb, GreekFreeRelative, GreekInterrogative, GreekQuantifier, GreekRelative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -338,15 +338,35 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
   ];
 }
 
+/** The records of one feature, as the sets the sheet is built from (the lexemes keep their order). */
+export function scopeSets(sets: RecordSets, feature: ReviewFeature): RecordSets {
+  const pick = <T,>(list: T[], ids: string[], key: (t: T) => string): T[] => list.filter((t) => ids.includes(key(t)));
+  return {
+    lexemes: Object.fromEntries(Object.entries(sets.lexemes).filter(([id]) => feature.lexemes.includes(id))),
+    items: pick(sets.items, feature.items, (i) => i.id),
+    phrases: pick(sets.phrases, feature.phrases, (p) => p.id),
+    divergences: pick(sets.divergences, feature.divergences, (d) => d.id),
+    templates: pick(sets.templates, feature.readings, (t) => t.rule),
+    groups: pick(sets.groups, feature.groups, (g) => g.id),
+  };
+}
+
 /**
  * The content review sheet (spec 9): a checklist of every unverified record, then what a speaker needs to check each one.
- * The review itself is not done here; a record becomes verified when its flag is set in the data.
+ * The review itself is not done here; a record becomes verified when its flag is set in the data. With a `feature` the
+ * sheet is one file of the split sheet: only that feature's records, with the whole data as context for the generated lines.
  */
-export function reviewSheet(sets: RecordSets & { pending: string[] }): string {
-  const records = unverifiedRecords(sets);
+export function reviewSheet(sets: RecordSets & { pending: string[] }, feature?: ReviewFeature): string {
+  const all = sets;
+  const here: RecordSets = feature ? scopeSets(sets, feature) : sets;
+  const pending = feature ? sets.pending.filter((cell) => feature.lexemes.includes(cell.split(' ')[0])) : sets.pending;
+  const records = unverifiedRecords(here);
+  // In a feature file an empty section is left out.
+  const part = (head: string[], body: string[]): string[] => (feature && body.every((line) => line === '') ? [] : [...head, ...body]);
   const lines: string[] = [
-    '# Content review sheet',
+    feature ? `# Review: ${feature.title}` : '# Content review sheet',
     '',
+    ...(feature ? ['One file of the split review sheet; `index.md` lists the others.', ''] : []),
     `${records.length} records are not verified. Every Greek, Romanian and English form below was written from memory (spec section 9).`,
     'Check each, then set its `verified` flag in the data. `npm run validate -- --release` passes when every record is verified and no cell is pending.',
     '',
@@ -354,62 +374,54 @@ export function reviewSheet(sets: RecordSets & { pending: string[] }): string {
     '',
     ...records.map((r) => `- [ ] ${r}`),
     '',
-    '## Review items (ending tables, auxiliary tables, glossaries)',
-    '',
-    ...sets.items.map((item) => `- ${item.id} (${item.kind})${item.verified ? ' — verified' : ''}`),
-    '',
-    '## Lexemes',
-    '',
-    ...Object.values(sets.lexemes).flatMap((l) => lexemeSection(l, sets.lexemes)),
-    '## Noun possessors (generated)',
-    '',
-    'Each noun in the singular nominative, owned by each noun in the genitive (the owners in the order of the nouns listed here).',
-    '',
-    ...ownerLines(sets.lexemes),
-    '',
-    '## Phrases',
-    '',
-    ...sets.phrases.flatMap((phrase) => [
-      `### ${phrase.id}: ${phrase.title}${phrase.verified ? ' — verified' : ''}`,
-      `Greek: ${phrase.tokens.map((t) => t.text).join(' ')}`,
-      ...phrase.glosses.map(
-        (row) => `${row.language === 'en' ? 'English' : 'Română'} ${row.kind}: ${row.units.map(unitText).join(' ')}`,
+    ...part(['## Review items (ending tables, auxiliary tables, glossaries)', ''], [...here.items.map((item) => `- ${item.id} (${item.kind})${item.verified ? ' — verified' : ''}`), '']),
+    ...part(['## Lexemes', ''], Object.values(here.lexemes).flatMap((l) => lexemeSection(l, all.lexemes))),
+    ...(!feature || feature.divergences.includes('noun-possessor')
+      ? [
+          '## Noun possessors (generated)',
+          '',
+          'Each noun in the singular nominative, owned by each noun in the genitive (the owners in the order of the nouns listed here).',
+          '',
+          ...ownerLines(all.lexemes),
+          '',
+        ]
+      : []),
+    ...part(['## Phrases', ''], [
+      ...here.phrases.flatMap((phrase) => [
+        `### ${phrase.id}: ${phrase.title}${phrase.verified ? ' — verified' : ''}`,
+        `Greek: ${phrase.tokens.map((t) => t.text).join(' ')}`,
+        ...phrase.glosses.map(
+          (row) => `${row.language === 'en' ? 'English' : 'Română'} ${row.kind}: ${row.units.map(unitText).join(' ')}`,
+        ),
+        '',
+      ]),
+    ]),
+    ...part(['## Comparison notes', ''], [
+      ...here.divergences.map(
+        (d) => `- ${d.id} (${d.point}, ${d.tag}${d.verified ? ', verified' : ''}) — ${LANG_NAME.el}: ${d.el}; ${LANG_NAME.ro}: ${d.ro}; ${LANG_NAME.en}: ${d.en}`,
       ),
       '',
     ]),
-    '## Comparison notes',
-    '',
-    ...sets.divergences.map(
-      (d) => `- ${d.id} (${d.point}, ${d.tag}${d.verified ? ', verified' : ''}) — ${LANG_NAME.el}: ${d.el}; ${LANG_NAME.ro}: ${d.ro}; ${LANG_NAME.en}: ${d.en}`,
-    ),
-    '',
-    '## Authored readings',
-    '',
-    ...sets.templates.flatMap((t) => [`### ${t.rule}`, `- Beginner: ${t.beginner}`, `- Improver: ${t.improver}`, '']),
-    '## Form groups',
-    '',
-    ...sets.groups.flatMap((group) => [
-      `### ${group.meaning}`,
-      ...group.members.map((member) => {
-        const text = memberText(member);
-        return `- ${memberKind(member)}: ${richText(text.el)} · ${text.ro} · ${text.en}${member.note ? ` (${member.note})` : ''}`;
-      }),
-      ...(group.closeNotSame
-        ? [
-            (() => {
-              const text = memberText({ verb: group.closeNotSame.verb });
-              return `- close, not the same: ${richText(text.el)} · ${text.ro} · ${text.en} (${group.closeNotSame.reason})`;
-            })(),
-          ]
-        : []),
-      '',
+    ...part(['## Authored readings', ''], here.templates.flatMap((t) => [`### ${t.rule}`, `- Beginner: ${t.beginner}`, `- Improver: ${t.improver}`, ''])),
+    ...part(['## Form groups', ''], [
+      ...here.groups.flatMap((group) => [
+        `### ${group.meaning}`,
+        ...group.members.map((member) => {
+          const text = memberText(member);
+          return `- ${memberKind(member)}: ${richText(text.el)} · ${text.ro} · ${text.en}${member.note ? ` (${member.note})` : ''}`;
+        }),
+        ...(group.closeNotSame
+          ? [
+              (() => {
+                const text = memberText({ verb: group.closeNotSame.verb });
+                return `- close, not the same: ${richText(text.el)} · ${text.ro} · ${text.en} (${group.closeNotSame.reason})`;
+              })(),
+            ]
+          : []),
+        '',
+      ]),
     ]),
-    '## Pending Romanian cells',
-    '',
-    'These must be filled in before release (the panel shows "not yet added").',
-    '',
-    ...sets.pending.map((cell) => `- ${cell}`),
-    '',
+    ...part(['## Pending Romanian cells', '', 'These must be filled in before release (the panel shows "not yet added").', ''], [...pending.map((cell) => `- ${cell}`), '']),
   ];
   return lines.join('\n');
 }
