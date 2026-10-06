@@ -36,6 +36,12 @@ describe('the σε panel', () => {
     expect(cells(panelOf(stateOf('psomi', 'in', 'pl')).rows, 0)).toEqual({ el: 'στα ψωμιά', ro: 'în pâinile', en: 'in the bread' });
   });
 
+  it('writes στη before most consonants and στην before a vowel', () => {
+    expect(cells(panelOf(stateOf('thalassa', 'to')).rows, 0)).toEqual({ el: 'στη θάλασσα', ro: 'la marea', en: 'to the sea' });
+    expect(cells(panelOf(stateOf('alepou', 'to')).rows, 0).el).toBe('στην αλεπού');
+    expect(panelOf(stateOf('thalassa', 'to'), 'improver').full.map((r) => richText(r.el))).toContain('στην');
+  });
+
   it('for a person Romanian uses the dative and no preposition', () => {
     const p = panelOf(stateOf('paidi', 'person'));
     expect(cells(p.rows, 0)).toEqual({ el: 'στο παιδί', ro: 'copilului', en: 'to the child' });

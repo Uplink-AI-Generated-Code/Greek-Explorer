@@ -4,7 +4,7 @@ import { inflectNoun } from '../engine/greek';
 import { numberOptions, type Option } from '../engine/labels';
 import { fusedForm, senseOf } from '../engine/preposition';
 import { roNoun } from '../engine/romanian';
-import { formRich, plain } from '../engine/segments';
+import { formRich, formText, plain } from '../engine/segments';
 import type { GreekInterrogative, GreekNoun, GreekPreposition, Level, Num, PrepSense } from '../types';
 import { ALL, GENDERS, GENDER_ROW, NUMS, nounOf, nounOptions } from './shared';
 import type { Control, Panel, PanelRow, PanelState } from './types';
@@ -39,13 +39,14 @@ export function prepositionRow(
   sense?: PrepSense,
 ): PanelRow {
   const np = nounPhrase(noun, number, 'acc', { article: 'definite' });
-  const fused = fusedForm(prep, noun, number);
+  const nounForm = inflectNoun(noun, { pos: 'noun', number, case: 'acc' });
+  const fused = fusedForm(prep, noun, number, formText(nounForm));
   const meaning = senseOf(prep, sense);
   const space = { text: ' ', role: 'plain' as const };
   return {
     label,
     el: fused
-      ? [{ text: fused, role: 'article' }, space, ...formRich(inflectNoun(noun, { pos: 'noun', number, case: 'acc' }))]
+      ? [{ text: fused, role: 'article' }, space, ...formRich(nounForm)]
       : [{ text: prep.lemma, role: 'plain' }, space, ...np.el],
     ro: plain(meaning?.dative ? roNoun(noun, number, 'gen', 'definite') : `${meaning?.ro ?? prep.ro} ${np.ro}`),
     en: plain(`${meaning?.en ?? prep.en} ${np.en}`),
@@ -121,7 +122,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
     plain:
       after.kind === 'noun'
         ? prep.fused
-          ? 'σε is followed by the accusative and is written as one word with the article: σε + τον = στον. Romanian and English keep the preposition and the article apart. Where English and Romanian choose between to, at, in and on (la, în, pe), Greek uses σε for all of them.'
+          ? 'σε is followed by the accusative and is written as one word with the article: σε + τον = στον. The feminine στην loses its ν before most consonants (στη θάλασσα). Romanian and English keep the preposition and the article apart. Where English and Romanian choose between to, at, in and on (la, în, pe), Greek uses σε for all of them.'
           : 'Greek prepositions are followed by the accusative, so the article and noun switch to accusative (τον σκύλο). The preposition itself never changes.'
         : 'A question word follows a preposition as a noun would: από πού, "from where". Greek and English build it from two words; Romanian often has one fused word (de unde, până când).',
     irregular: '',

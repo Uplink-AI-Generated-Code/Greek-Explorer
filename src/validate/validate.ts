@@ -381,7 +381,7 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     }
     if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'noun' && target?.slot.pos === 'noun') {
       // σε is written as one word with the article of its noun: στον for a masculine singular noun.
-      const expected = fusedForm(lexeme, governed, target.slot.number);
+      const expected = fusedForm(lexeme, governed, target.slot.number, phrase.tokens[index + 1]?.text);
       if (expected && normalise(expected) !== normalise(token.text)) {
         errors.push(`${where}: text differs from the fused form ("${expected}")`);
       }
@@ -540,7 +540,7 @@ export function warnings(input: ValidationInput): string[] {
         }
         const expected = noun.ro.split[nounToken.slot.number];
         const actual = unit.segments.map((s) => s.text.replace(/[!?.,;]+$/u, ''));
-        if (actual.length !== 2 || actual[0] !== expected[0] || actual[1] !== expected[1]) {
+        if (actual.length !== 2 || actual[0].toLowerCase() !== expected[0].toLowerCase() || actual[1] !== expected[1]) {
           out.push(
             `${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data splits it ${expected.join(' + ')}`,
           );

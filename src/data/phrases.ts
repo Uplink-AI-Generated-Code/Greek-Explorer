@@ -1,4 +1,4 @@
-import type { Case, Clitic, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, Slot, SlotOf, Tense, Token, Voice } from '../types';
+import type { Case, Clitic, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, PrepSense, Slot, SlotOf, Tense, Token, Voice } from '../types';
 
 const verbSlot = (person: 1 | 2 | 3): Slot => ({
   pos: 'verb',
@@ -1234,6 +1234,133 @@ const willYouGiveItToMe: Phrase = {
   verified: false,
 };
 
+/** σε with the meaning a phrase uses; the token text is the fused form (στο, στον …). */
+const preposition = (sense: PrepSense): Slot => ({ pos: 'preposition', sense });
+const accSg = { pos: 'noun', number: 'sg', case: 'acc' } as const;
+const nomSg = { pos: 'noun', number: 'sg', case: 'nom' } as const;
+const theDog: Token[] = [
+  { text: 'Ο', lexeme: 'def', slot: { pos: 'article', gender: 'm', number: 'sg', case: 'nom' }, agreesWith: 1 },
+  { text: 'σκύλος', lexeme: 'skylos', slot: nomSg },
+];
+
+const goingHome: Phrase = {
+  id: 'going-home',
+  title: "I'm going home",
+  theme: 'Places',
+  level: 'beginner',
+  tokens: [
+    { text: 'Πάω', lexeme: 'pao', slot: present(1) },
+    { text: 'στο', lexeme: 'se', slot: preposition('to'), agreesWith: 2 },
+    { text: 'σπίτι', lexeme: 'spiti', slot: accSg },
+  ],
+  glosses: rows(
+    [u("I'm going", 0), u('home', 2)],
+    [u('(I)', null), u('go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('house', 2)],
+    [u('Merg', 0), u('acasă', 2)],
+    [u('(eu)', null), u('merg', 0), u('la', p(1, 0)), seg(['cas', 2], ['a', p(1, 1)])],
+  ),
+  verified: false,
+};
+
+const atHome: Phrase = {
+  id: 'at-home',
+  title: "I'm at home",
+  theme: 'Places',
+  level: 'beginner',
+  tokens: [
+    { text: 'Είμαι', lexeme: 'eimai', slot: present(1) },
+    { text: 'στο', lexeme: 'se', slot: preposition('at'), agreesWith: 2 },
+    { text: 'σπίτι', lexeme: 'spiti', slot: accSg },
+  ],
+  glosses: rows(
+    [u("I'm", 0), u('at', p(1, 0)), u('home', 2)],
+    [u('(I)', null), u('am', 0), u('at', p(1, 0)), u('the', p(1, 1)), u('house', 2)],
+    [u('Sunt', 0), u('acasă', 2)],
+    [u('(eu)', null), u('sunt', 0), u('la', p(1, 0)), seg(['cas', 2], ['a', p(1, 1)])],
+  ),
+  verified: false,
+};
+
+const goToTheSea: Phrase = {
+  id: 'go-to-the-sea',
+  title: 'Shall we go to the sea?',
+  theme: 'Places',
+  level: 'improver',
+  tokens: [
+    { text: 'Πάμε', lexeme: 'pao', slot: present(1, 'pl') },
+    { text: 'στη', lexeme: 'se', slot: preposition('to'), agreesWith: 2 },
+    { text: 'θάλασσα;', lexeme: 'thalassa', slot: accSg },
+  ],
+  glosses: rows(
+    [u('Shall we go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('sea?', 2)],
+    [u('(we)', null), u('go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('sea', 2)],
+    [u('Mergem', 0), u('la', p(1, 0)), u('mare?', 2)],
+    [u('(noi)', null), u('mergem', 0), u('la', p(1, 0)), seg(['mare', 2], ['a', p(1, 1)])],
+  ),
+  verified: false,
+};
+
+const dogOnTheRoad: Phrase = {
+  id: 'dog-on-the-road',
+  title: 'The dog is on the road',
+  theme: 'Places',
+  level: 'improver',
+  tokens: [
+    ...theDog,
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { text: 'στον', lexeme: 'se', slot: preposition('on'), agreesWith: 4 },
+    { text: 'δρόμο', lexeme: 'dromos', slot: accSg },
+  ],
+  glosses: rows(
+    [u('The', 0), u('dog', 1), u('is', 2), u('on', p(3, 0)), u('the', p(3, 1)), u('road', 4)],
+    [u('the', 0), u('dog', 1), u('is', 2), u('on', p(3, 0)), u('the', p(3, 1)), u('road', 4)],
+    [seg(['Câine', 1], ['le', 0]), u('este', 2), u('pe', p(3, 0)), u('drum', 4)],
+    [seg(['câine', 1], ['le', 0]), u('este', 2), u('pe', p(3, 0)), seg(['drum', 4], ['ul', p(3, 1)])],
+  ),
+  verified: false,
+};
+
+const giveBreadToTheChild: Phrase = {
+  id: 'give-bread-to-the-child',
+  title: 'I give the bread to the child',
+  theme: 'Daily life',
+  level: 'improver',
+  tokens: [
+    { text: 'Δίνω', lexeme: 'dino', slot: present(1) },
+    { text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'acc' }, agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: accSg },
+    { text: 'στο', lexeme: 'se', slot: preposition('person'), agreesWith: 4 },
+    { text: 'παιδί', lexeme: 'paidi', slot: accSg },
+  ],
+  glosses: rows(
+    [u('I give', 0), u('the', 1), u('bread', 2), u('to', p(3, 0)), u('the', p(3, 1)), u('child', 4)],
+    [u('(I)', null), u('give', 0), u('the', 1), u('bread', 2), u('to', p(3, 0)), u('the', p(3, 1)), u('child', 4)],
+    [u('Dau', 0), seg(['pâine', 2], ['a', 1]), u('copilului', 4)],
+    [u('(eu)', null), u('dau', 0), seg(['pâine', 2], ['a', 1]), u('la', p(3, 0)), seg(['copil', 4], ['ul', p(3, 1)])],
+  ),
+  verified: false,
+};
+
+const dogJumpsIntoTheWater: Phrase = {
+  id: 'dog-jumps-into-the-water',
+  title: 'The dog jumps into the water',
+  theme: 'Places',
+  level: 'improver',
+  tokens: [
+    ...theDog,
+    { text: 'πηδάει', lexeme: 'pidao', slot: present(3) },
+    { text: 'στο', lexeme: 'se', slot: preposition('in'), agreesWith: 4 },
+    { text: 'νερό', lexeme: 'nero', slot: accSg },
+  ],
+  glosses: rows(
+    [u('The', 0), u('dog', 1), u('jumps', 2), u('into', p(3, 0)), u('the', p(3, 1)), u('water', 4)],
+    [u('the', 0), u('dog', 1), u('jumps', 2), u('in', p(3, 0)), u('the', p(3, 1)), u('water', 4)],
+    [seg(['Câine', 1], ['le', 0]), u('sare', 2), u('în', p(3, 0)), u('apă', 4)],
+    [seg(['câine', 1], ['le', 0]), u('sare', 2), u('în', p(3, 0)), seg(['ap', 4], ['a', p(3, 1)])],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1287,4 +1414,10 @@ export const PHRASES: Phrase[] = [
   whatIsItCalled,
   letsEatIt,
   willYouGiveItToMe,
+  goingHome,
+  atHome,
+  goToTheSea,
+  dogOnTheRoad,
+  giveBreadToTheChild,
+  dogJumpsIntoTheWater,
 ];

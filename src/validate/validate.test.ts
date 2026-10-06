@@ -155,6 +155,14 @@ describe('segmented gloss units', () => {
     );
   });
 
+  it('does not mind a capital at the start of a split (Câine + le)', () => {
+    const capital = withDogUnit([
+      { text: 'Câine', link: 8 },
+      { text: 'le', link: 6 },
+    ]);
+    expect(warnings({ ...real, phrases: [capital] })).toEqual([]);
+  });
+
   it('warns when a segmented unit is not linked to a noun', () => {
     const bad = withDogUnit([
       { text: 'câine', link: 6 },

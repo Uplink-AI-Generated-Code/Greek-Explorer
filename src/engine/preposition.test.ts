@@ -15,6 +15,25 @@ describe('σε with the article', () => {
     expect(fusedForm(se, getNoun('psomi'), 'pl')).toBe('στα');
   });
 
+  it('drops the ν of στην in front of most consonants, and keeps it in front of vowels and κ π τ ξ ψ γκ μπ ντ τσ τζ', () => {
+    const alepou = getNoun('alepou');
+    const next = (word: string) => fusedForm(se, alepou, 'sg', word);
+    expect(next('θάλασσα')).toBe('στη');
+    expect(next('βιβλιοθήκη')).toBe('στη');
+    expect(next('αλεπού')).toBe('στην');
+    expect(next('κουζίνα')).toBe('στην');
+    expect(next('πόλη')).toBe('στην');
+    expect(next('ξενοδοχείο')).toBe('στην');
+    expect(next('μπάλα')).toBe('στην');
+    expect(next('τσάντα')).toBe('στην');
+  });
+
+  it('keeps every other form whole, whatever follows', () => {
+    expect(fusedForm(se, getNoun('skylos'), 'sg', 'θάλασσα')).toBe('στον');
+    expect(fusedForm(se, getNoun('alepou'), 'pl', 'θάλασσες')).toBe('στις');
+    expect(fusedForm(se, getNoun('psomi'), 'sg', 'θάλασσα')).toBe('στο');
+  });
+
   it('is not defined for a preposition that does not fuse', () => {
     expect(fusedForm(getLexeme('pano') as GreekPreposition, getNoun('skylos'), 'sg')).toBeUndefined();
   });
