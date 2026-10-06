@@ -1,6 +1,7 @@
 import { getLexeme, getNoun, getVerb } from '../data/lexemes';
 import { groupFor } from '../engine/groups';
 import { POSSESSORS } from '../engine/possessive';
+import { RELATIVE_PREPOSITIONS } from '../data/relatives';
 import { DEFAULT_OBJECT, RECIPIENTS, cliticsFor, indirectOf, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
 import { voiceOf } from '../engine/offers';
 import type {
@@ -24,6 +25,7 @@ import type {
   Person,
   Phrase,
   PrepSense,
+  RelativeRole,
   QuantifierDegree,
   SlotOf,
   Token,
@@ -70,6 +72,11 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   const at = phrase.tokens.indexOf(token);
   const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === at && phrase.tokens.indexOf(t) === at + 1) : undefined;
   // A noun shows the noun that owns it: the genitive noun that points back at it (το σπίτι του παιδιού).
+  // A relative pronoun for "whose" shows the noun owned: the article and noun that follow it (του οποίου το σπίτι).
+  const ownedToken =
+    token.slot.pos === 'relative' && token.slot.role === 'whose' && phrase.tokens[at + 1]?.lexeme === 'def' && phrase.tokens[at + 2]?.slot.pos === 'noun'
+      ? phrase.tokens[at + 2]
+      : undefined;
   const owner = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'noun' && t.slot.case === 'gen' && t.agreesWith === at) : undefined;
   // δικός shows the possessive that follows it: το δικό μου σπίτι.
   const after = phrase.tokens[at + 1];
@@ -79,6 +86,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
     ...(possessive && possessive.slot.pos === 'possessive' ? { possessor: possessive.slot } : {}),
     ...(own && own.slot.pos === 'possessive' ? { possessor: own.slot } : {}),
     ...(owner ? { owner: owner.lexeme } : {}),
+    ...(ownedToken ? { owned: ownedToken.lexeme } : {}),
     ...(token.slot.pos === 'possessive' && nounToken?.slot.pos === 'noun' ? { nounCase: nounToken.slot.case } : {}),
     noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
@@ -157,6 +165,12 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       break;
     case 'role':
       if (slot.pos === 'clitic') return { ...state, slot: { ...slot, role: value as 'object' | 'indirect' } };
+      if (slot.pos === 'relative') {
+        // The preposition belongs to the job after a preposition only; it starts as με.
+        const { preposition: _kept, ...rest } = slot;
+        const role = value as RelativeRole;
+        return { ...state, slot: role === 'preposition' ? { ...rest, role, preposition: slot.preposition ?? 'me' } : { ...rest, role } };
+      }
       break;
     case 'case':
       if (slot.pos === 'possessive') return { ...state, nounCase: value as Case };
@@ -174,7 +188,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'number':
-      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'quantifier') {
+      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'quantifier' || slot.pos === 'relative') {
         return { ...state, slot: { ...slot, number: value as Num } };
       }
       if (slot.pos === 'possessive') return { ...state, nounNumber: value as Num };
@@ -258,6 +272,18 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         return { slot: state.slot, ...(to ? { owner: to } : {}), ...rest };
       }
       break;
+    case 'preposition':
+      if (slot.pos === 'relative' && slot.role === 'preposition' && (RELATIVE_PREPOSITIONS as readonly string[]).includes(value)) {
+        return { ...state, slot: { ...slot, preposition: value } };
+      }
+      break;
+    case 'owned':
+      if (slot.pos === 'relative' && getLexeme(value).pos === 'noun') {
+        const { owned: _old, slot: _slot, ...rest } = state;
+        // A fixed key order, so that sameState (which compares JSON) is true after choosing the phrase's own noun again.
+        return { slot: state.slot, owned: value, ...rest };
+      }
+      break;
     case 'register':
       if (slot.pos === 'quantifier') {
         const next = { ...slot };
@@ -294,7 +320,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         else delete next.clitics;
         return { ...state, slot: next, noun: value };
       }
-      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral' || slot.pos === 'quantifier') {
+      if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'numeral' || slot.pos === 'quantifier' || slot.pos === 'relative') {
         return { ...state, noun: value, slot: { ...slot, gender: noun.gender } };
       }
       break;
