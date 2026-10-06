@@ -81,7 +81,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     }
   });
 
-  it('the picker lists all 70 phrases in the spec order', () => {
+  it('the picker lists all 72 phrases in the spec order', () => {
     expect(PHRASES.map((p) => p.id)).toEqual([
       'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
       'washing-myself', 'washing-the-child', 'sleeping',
@@ -100,7 +100,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
       'what-is-it-called', 'lets-eat-it', 'will-you-give-it-to-me',
       'going-home', 'at-home', 'go-to-the-sea', 'dog-on-the-road', 'give-bread-to-the-child', 'dog-jumps-into-the-water',
       'my-house', 'our-sea', 'your-dog', 'his-child', 'where-is-your-house', 'my-hot-coffee',
-      'my-own-house', 'the-house-is-mine',
+      'my-own-house', 'the-house-is-mine', 'the-childs-house', 'the-childs-dog',
     ]);
   });
 

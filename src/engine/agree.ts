@@ -15,6 +15,8 @@ export interface NpOptions {
   /** A counted plural: τρεις καφέδες. Cannot be combined with `article`. */
   count?: Exclude<NumeralValue, 1>;
   adjective?: GreekAdjective;
+  /** A noun possessor in the genitive after the noun (το σπίτι του παιδιού); the possessor is singular and definite. */
+  owner?: GreekNoun;
 }
 
 export interface NounPhrase {
@@ -37,6 +39,9 @@ export function possessedNounForm(noun: GreekNoun, number: Num, c: Case, possess
 export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOptions = {}): NounPhrase {
   if (opts.article && opts.count) throw new Error('A noun phrase has an article or a count, not both');
   if (opts.possessor && opts.article !== 'definite') throw new Error('A possessive goes with the definite article');
+  if (opts.owner && (opts.article !== 'definite' || opts.possessor || opts.adjective)) {
+    throw new Error('A noun possessor goes with the definite article alone, with no possessive or adjective');
+  }
   if (opts.article === 'one' && number === 'pl') throw new Error('Greek has no plural indefinite article');
   if (opts.count && number !== 'pl') throw new Error('A counted noun phrase is plural');
   const gender = noun.gender;
@@ -56,6 +61,10 @@ export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOption
   }
   el.push(formRich(opts.possessor ? possessedNounForm(noun, number, c, opts.possessor) : inflectNoun(noun, { pos: 'noun', number, case: c })));
   if (opts.possessor) el.push([{ text: greekPossessive(opts.possessor), role: 'clitic' }]);
+  if (opts.owner) {
+    el.push(articleRich(inflectArticle(DEF_ARTICLE, { pos: 'article', gender: opts.owner.gender, number: 'sg', case: 'gen' })));
+    el.push(formRich(inflectNoun(opts.owner, { pos: 'noun', number: 'sg', case: 'gen' })));
+  }
 
   const roAdj = opts.adjective ? roAdjective(opts.adjective, noun.ro.gender, number, c) : '';
   const roText = opts.count
@@ -63,6 +72,7 @@ export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOption
     : [
         roNoun(noun, number, c, opts.article === 'definite' ? 'definite' : 'indefinite'),
         opts.possessor ? roPossessive(opts.possessor, noun, number, c) : '',
+        opts.owner ? roNoun(opts.owner, 'sg', 'gen', 'definite') : '',
         roAdj,
       ];
 
@@ -76,7 +86,8 @@ export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOption
         : opts.article === 'one'
           ? enIndefiniteArticle(core)
           : '';
-  const enText = [word, core].filter(Boolean).join(' ');
+  // The child's house: the possessor takes the place of the article.
+  const enText = opts.owner ? `the ${opts.owner.en.sg}'s ${core}` : [word, core].filter(Boolean).join(' ');
 
   return { el: joinRich(el), ro: roText.filter(Boolean).join(' '), en: c === 'gen' ? `of ${enText}` : enText };
 }

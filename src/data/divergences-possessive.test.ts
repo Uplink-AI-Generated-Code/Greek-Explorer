@@ -40,3 +40,15 @@ describe('the comparison note for δικός', () => {
     expect(DIVERGENCES.find((d) => d.id === 'emphatic-possessive')?.verified).toBe(false);
   });
 });
+
+describe('the comparison note for a noun possessor', () => {
+  it('shows on a noun at both levels', () => {
+    for (const level of ['beginner', 'improver'] as const) {
+      expect(selectDivergences(DIVERGENCES, 'noun', 'spiti', level).map((d) => d.id)).toContain('noun-possessor');
+    }
+  });
+
+  it('is unverified', () => {
+    expect(DIVERGENCES.find((d) => d.id === 'noun-possessor')?.verified).toBe(false);
+  });
+});

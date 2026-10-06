@@ -64,6 +64,8 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   // A noun that a possessive points at shows it: το σπίτι μου.
   const at = phrase.tokens.indexOf(token);
   const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === at) : undefined;
+  // A noun shows the noun that owns it: the genitive noun that points back at it (το σπίτι του παιδιού).
+  const owner = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'noun' && t.slot.case === 'gen' && t.agreesWith === at) : undefined;
   // δικός shows the possessive that follows it: το δικό μου σπίτι.
   const after = phrase.tokens[at + 1];
   const own = lexemeIsEmphatic(token) && after?.slot.pos === 'possessive' ? after : undefined;
@@ -71,6 +73,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
     slot: token.slot,
     ...(possessive && possessive.slot.pos === 'possessive' ? { possessor: possessive.slot } : {}),
     ...(own && own.slot.pos === 'possessive' ? { possessor: own.slot } : {}),
+    ...(owner ? { owner: owner.lexeme } : {}),
     ...(token.slot.pos === 'possessive' && nounToken?.slot.pos === 'noun' ? { nounCase: nounToken.slot.case } : {}),
     noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
@@ -225,13 +228,21 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'possessor':
       if (slot.pos === 'noun' || slot.pos === 'adjective') {
         const to = POSSESSORS.find((p) => p.value === value);
-        const { possessor: _old, slot: _slot, ...rest } = state;
+        const { possessor: _old, owner: _owner, slot: _slot, ...rest } = state;
         // A fixed key order, so that sameState (which compares JSON) is true after nobody → the phrase's own possessor.
         return { slot: state.slot, ...(to ? { possessor: { ...to.slot } } : {}), ...rest };
       }
       if (slot.pos === 'possessive') {
         const to = POSSESSORS.find((p) => p.value === value);
         if (to) return { ...state, slot: { ...to.slot } };
+      }
+      break;
+    case 'owner':
+      if (slot.pos === 'noun') {
+        const { possessor: _old, owner: _owner, slot: _slot, ...rest } = state;
+        const to = value !== 'none' && getLexeme(value).pos === 'noun' ? value : undefined;
+        // A fixed key order, as for the possessor.
+        return { slot: state.slot, ...(to ? { owner: to } : {}), ...rest };
       }
       break;
     case 'recipient':

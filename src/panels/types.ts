@@ -3,7 +3,7 @@ import type { Rich } from '../engine/segments';
 import type { Case, Num, ReadingPart, Slot, SlotOf } from '../types';
 
 export interface Control {
-  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient' | 'possessor';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient' | 'possessor' | 'owner';
   label: string;
   options: Option[];
   value: string;
@@ -98,4 +98,6 @@ export interface PanelState {
   nounCase?: Case;
   /** The noun panel's Whose? control: the possessor shown after the noun (absent: nobody). */
   possessor?: SlotOf<'possessive'>;
+  /** The noun panel's second Whose? control: a noun that owns it, in the genitive (το σπίτι του παιδιού); a lexeme id. */
+  owner?: string;
 }

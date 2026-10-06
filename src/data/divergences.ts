@@ -855,4 +855,15 @@ export const DIVERGENCES: Divergence[] = [
     level: 'core',
     verified: false,
   },
+  {
+    id: 'noun-possessor',
+    appliesTo: { pos: 'noun' },
+    point: 'A noun as the possessor',
+    el: 'the genitive after the noun, with its own article: το σπίτι του παιδιού',
+    ro: 'the genitive-dative after the noun, with the suffix article: casa copilului',
+    en: '"the child\'s house" or "the house of the child"',
+    tag: 'differs',
+    level: 'core',
+    verified: false,
+  },
 ];

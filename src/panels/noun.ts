@@ -3,8 +3,9 @@ import { inflectNoun } from '../engine/greek';
 import { GENDER_NAME, type Option } from '../engine/labels';
 import { POSSESSORS, possessorValue } from '../engine/possessive';
 import { plain, richText } from '../engine/segments';
+import { getNoun } from '../data/lexemes';
 import type { GreekNoun, Level, SlotOf } from '../types';
-import { ALL, CASES, NUMS, caseControl, caseName, noPluralArticleRow, npRow } from './shared';
+import { ALL, CASES, NUMS, caseControl, caseName, noPluralArticleRow, nounOptions, npRow } from './shared';
 import type { Panel, PanelRow, PanelState } from './types';
 
 export const countOptions: Option[] = [
@@ -40,6 +41,7 @@ function nounFull(noun: GreekNoun, slot: SlotOf<'noun'>): PanelRow[] {
 
 export function nounPanel(noun: GreekNoun, slot: SlotOf<'noun'>, level: Level, state?: PanelState): Panel {
   const possessor = state?.possessor;
+  const owner = state?.owner ? getNoun(state.owner) : undefined;
   const second =
     slot.number === 'sg'
       ? npRow('a / an', nounPhrase(noun, 'sg', slot.case, { article: 'one' }))
@@ -61,12 +63,21 @@ export function nounPanel(noun: GreekNoun, slot: SlotOf<'noun'>, level: Level, s
         options: [{ value: 'none', label: 'nobody' }, ...POSSESSORS.map(({ value, label }) => ({ value, label }))],
         value: possessor ? possessorValue(possessor) : 'none',
       },
+      {
+        key: 'owner',
+        label: 'Owned by a noun?',
+        options: [{ value: 'none', label: 'nobody' }, ...nounOptions()],
+        value: state?.owner ?? 'none',
+      },
     ],
     rows: [
       npRow('the', nounPhrase(noun, slot.number, slot.case, { article: 'definite' })),
       second,
       ...(possessor
         ? [npRow('with a possessive', nounPhrase(noun, slot.number, slot.case, { article: 'definite', possessor }))]
+        : []),
+      ...(owner && slot.count === undefined
+        ? [npRow('with a noun possessor', nounPhrase(noun, slot.number, slot.case, { article: 'definite', owner }))]
         : []),
     ],
     full: level === 'improver' ? nounFull(noun, slot) : [],

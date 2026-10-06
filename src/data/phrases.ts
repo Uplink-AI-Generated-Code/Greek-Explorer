@@ -1533,6 +1533,48 @@ const theHouseIsMine: Phrase = {
   verified: false,
 };
 
+const genSg = (gender: Gender): Slot => ({ pos: 'article', gender, number: 'sg', case: 'gen' });
+
+const theChildsHouse: Phrase = {
+  id: 'the-childs-house',
+  title: "The child's house",
+  theme: 'Possession',
+  level: 'beginner',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'του', lexeme: 'def', slot: genSg('n'), agreesWith: 3 },
+    { text: 'παιδιού', lexeme: 'paidi', slot: { pos: 'noun', number: 'sg', case: 'gen' }, agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('The', 2), u("child's", 3), u('house', 1)],
+    [u('the', 0), u('house', 1), u('of the', 2), u('child', 3)],
+    [seg(['Cas', 1], ['a', 0]), seg(['copil', 3], ['ului', 2])],
+    [seg(['cas', 1], ['a', 0]), seg(['copil', 3], ['ului', 2])],
+  ),
+  verified: false,
+};
+
+const theChildsDog: Phrase = {
+  id: 'the-childs-dog',
+  title: "The child's dog",
+  theme: 'Possession',
+  level: 'beginner',
+  tokens: [
+    { ...article('m', 'nom', 1), text: 'Ο' },
+    { text: 'σκύλος', lexeme: 'skylos', slot: nomSg },
+    { text: 'του', lexeme: 'def', slot: genSg('n'), agreesWith: 3 },
+    { text: 'παιδιού', lexeme: 'paidi', slot: { pos: 'noun', number: 'sg', case: 'gen' }, agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('The', 2), u("child's", 3), u('dog', 1)],
+    [u('the', 0), u('dog', 1), u('of the', 2), u('child', 3)],
+    [seg(['Câine', 1], ['le', 0]), seg(['copil', 3], ['ului', 2])],
+    [seg(['câine', 1], ['le', 0]), seg(['copil', 3], ['ului', 2])],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1600,4 +1642,6 @@ export const PHRASES: Phrase[] = [
   myHotCoffee,
   myOwnHouse,
   theHouseIsMine,
+  theChildsHouse,
+  theChildsDog,
 ];

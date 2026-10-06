@@ -428,6 +428,22 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       errors.push(`${where}: δικός needs the possessive of the same noun directly after it`);
     }
   }
+  if (token.slot.pos === 'noun' && token.agreesWith !== undefined) {
+    // A noun possessor: the genitive singular noun after the possessed noun and its own definite article (το σπίτι του παιδιού).
+    const owned = phrase.tokens[token.agreesWith];
+    if (!owned || owned.slot.pos !== 'noun') {
+      errors.push(`${where}: a noun possessor needs agreesWith pointing at the noun it belongs to`);
+    } else {
+      if (token.slot.case !== 'gen' || token.slot.number !== 'sg') errors.push(`${where}: a noun possessor is the genitive singular`);
+      if (index !== token.agreesWith + 2) errors.push(`${where}: a noun possessor comes after its noun and its own article`);
+      const article = phrase.tokens[index - 1];
+      if (!article || article.slot.pos !== 'article' || article.lexeme !== 'def' || article.agreesWith !== index) {
+        errors.push(`${where}: a noun possessor needs the definite article just before it`);
+      }
+      const hasArticle = phrase.tokens.some((t) => t.slot.pos === 'article' && t.lexeme === 'def' && t.agreesWith === token.agreesWith);
+      if (!hasArticle) errors.push(`${where}: the noun of a noun possessor needs the definite article`);
+    }
+  }
   if (token.slot.pos === 'noun' && lexeme.pos === 'noun') {
     // A noun with a possessive after it is written with the second accent where the stress rule asks for it (θάλασσά μου).
     const possessive = phrase.tokens[index + 1];
@@ -608,8 +624,16 @@ export function warnings(input: ValidationInput): string[] {
           out.push(`${where}: segmented unit "${unitText(unit)}" is not linked to a noun`);
           continue;
         }
-        const expected = noun.ro.split[nounToken.slot.number];
         const actual = unit.segments.map((s) => s.text.replace(/[!?.,;]+$/u, ''));
+        if (nounToken.slot.case === 'gen') {
+          // The genitive is not a split of the nominative: the two parts must make up the stored genitive (copil + ului).
+          const whole = noun.ro.forms[nounToken.slot.number].genDefinite;
+          if (actual.length !== 2 || actual.join('').toLowerCase() !== whole.toLowerCase()) {
+            out.push(`${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data has the genitive ${whole}`);
+          }
+          continue;
+        }
+        const expected = noun.ro.split[nounToken.slot.number];
         if (actual.length !== 2 || actual[0].toLowerCase() !== expected[0].toLowerCase() || actual[1] !== expected[1]) {
           out.push(
             `${where}: "${unitText(unit)}" is split ${actual.join(' + ')}, the noun data splits it ${expected.join(' + ')}`,
