@@ -165,6 +165,20 @@ describe('the review sheet', () => {
     expect(sheet).toContain('για: που … για αυτό · pentru care · for which');
   });
 
+  it('shows the free relatives: both readings and an example of each', () => {
+    expect(sheet).toContain('- whatever: ό,τι · orice · whatever');
+    expect(sheet).toContain('- what: ό,τι · ce · what');
+    expect(sheet).toContain('- Example (whatever): Ελληνικά: Ό,τι θέλεις; Română: Orice vrei; English: Whatever you want');
+    expect(sheet).toContain('- Example (what): Ελληνικά: Ό,τι έχω; Română: Ce am; English: What I have');
+    expect(sheet).toContain('- wherever: όπου · oriunde · wherever');
+    expect(sheet).toContain('- where: όπου · unde · where');
+  });
+
+  it('shows όποιος with every noun', () => {
+    expect(sheet).toContain('όποιο ψωμί · orice pâine · whichever bread');
+    expect(sheet).toContain('όποιος σκύλος · orice câine · whichever dog');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });

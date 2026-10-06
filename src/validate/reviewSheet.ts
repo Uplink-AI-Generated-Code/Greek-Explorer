@@ -17,7 +17,7 @@ import { POSSESSORS } from '../engine/possessive';
 import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
 import { RELATIVE_PREPOSITIONS, RELATIVE_ROLES, RO_CARE_DATIVE, RO_CARE_GENITIVE } from '../data/relatives';
 import { relativeGroup } from '../engine/relativeGroup';
-import type { Clitic, GreekAdjective, GreekAdverb, GreekInterrogative, GreekQuantifier, GreekRelative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import type { Clitic, GreekAdjective, GreekAdverb, GreekFreeRelative, GreekInterrogative, GreekQuantifier, GreekRelative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -177,6 +177,17 @@ function relativeLines(l: GreekRelative, lexemes: Record<string, GreekLexeme>): 
   return [...tables, ...jobs, ...prepositions];
 }
 
+/** A free relative (ό,τι, όπου): the word in each reading, with the Romanian and English words, and an example of each. */
+function freeRelativeLines(l: GreekFreeRelative): string[] {
+  const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
+  return [
+    `- ${l.en.ever}: ${l.lemma} · ${l.ro.ever} · ${l.en.ever}`,
+    `- ${l.en.plain}: ${l.lemma} · ${l.ro.plain} · ${l.en.plain}`,
+    `- Example (${l.en.ever}): ${example(l.examples.ever)}`,
+    `- Example (${l.en.plain}): ${example(l.examples.plain)}`,
+  ];
+}
+
 /** A place word: its example and the Romanian words after each preposition. */
 function adverbLines(l: GreekAdverb, lexemes: Record<string, GreekLexeme>): string[] {
   const e = l.example;
@@ -184,7 +195,7 @@ function adverbLines(l: GreekAdverb, lexemes: Record<string, GreekLexeme>): stri
 }
 
 /**
- * A demonstrative with every noun, in the three languages: the "with a noun" row of its panel, which is what the app
+ * A demonstrative or a free relative (όποιος) with every noun, in the three languages: the "with a noun" row of its panel, which is what the app
  * shows (spec 9, 25). The genitive and the spoken Romanian forms are printed where the lexeme has them.
  */
 function demonstrativeLines(q: GreekQuantifier, lexemes: Record<string, GreekLexeme>): string[] {
@@ -316,8 +327,9 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
       ...(l.pos === 'relative' && l.kind === 'pou' ? [] : otherLines(l)),
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
       ...(l.pos === 'adverb' ? adverbLines(l, lexemes) : []),
+      ...(l.pos === 'freeRelative' ? freeRelativeLines(l) : []),
       ...(l.pos === 'relative' ? relativeLines(l, lexemes) : []),
-      ...(l.pos === 'quantifier' && l.demonstrative ? demonstrativeLines(l, lexemes) : []),
+      ...(l.pos === 'quantifier' && (l.demonstrative || l.free) ? demonstrativeLines(l, lexemes) : []),
       ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
       ...(l.pos === 'possessive' ? possessiveLines(lexemes) : []),
       ...(l.pos === 'adjective' && l.emphatic ? ownLines(l, lexemes) : []),
