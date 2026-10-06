@@ -26,6 +26,11 @@ export const NOUN_CLASSES: Record<NounClass, EndingTable> = {
     sg: { nom: 'ί', acc: 'ί', gen: 'ιού' },
     pl: { nom: 'ιά', acc: 'ιά', gen: 'ιών' },
   },
+  /** Neuter nouns in -ι with the stress on the stem: σπίτι, σπίτια. The genitive moves the accent (σπιτιού, σπιτιών), so the noun stores it. */
+  'neut-i-stem': {
+    sg: { nom: 'ι', acc: 'ι', gen: 'ιού' },
+    pl: { nom: 'ια', acc: 'ια', gen: 'ιών' },
+  },
   /** Neuter nouns in -ό: νερό, νερού, νερά (the stress stays on the ending). */
   'neut-o': {
     sg: { nom: 'ό', acc: 'ό', gen: 'ού' },

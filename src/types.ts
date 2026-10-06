@@ -105,7 +105,7 @@ export interface RoNounForms {
   genIndefinite: string;
 }
 
-export type NounClass = 'masc-es' | 'masc-os' | 'fem-a' | 'fem-ou' | 'neut-i' | 'neut-o';
+export type NounClass = 'masc-es' | 'masc-os' | 'fem-a' | 'fem-ou' | 'neut-i' | 'neut-i-stem' | 'neut-o';
 
 export interface GreekNoun extends LexemeBase {
   pos: 'noun';

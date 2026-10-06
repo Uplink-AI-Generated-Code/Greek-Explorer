@@ -175,6 +175,82 @@ const ora: GreekNoun = {
   note: 'Feminine in Greek and Romanian (oră). τι ώρα is literally "what hour"; English says "what time".',
 };
 
+const ACCENT_MOVES = { rule: 'accent-moves', plain: 'The accent moves onto the ending in the genitive: σπιτιού, not σπίτιου.' };
+
+const spiti: GreekNoun = {
+  id: 'spiti',
+  pos: 'noun',
+  lemma: 'σπίτι',
+  verified: { el: false, ro: false, en: false },
+  gender: 'n',
+  class: 'neut-i-stem',
+  stems: { sg: 'σπίτ', pl: 'σπίτ' },
+  overrides: {
+    'sg-gen': { stem: 'σπιτ', ending: 'ιού', note: ACCENT_MOVES },
+    'pl-gen': { stem: 'σπιτ', ending: 'ιών', note: { ...ACCENT_MOVES, plain: 'The accent moves onto the ending in the genitive plural: σπιτιών.' } },
+  },
+  ro: {
+    lemma: 'casă',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'casa', indefinite: 'o casă', genDefinite: 'casei', genIndefinite: 'unei case' },
+      pl: { definite: 'casele', indefinite: 'case', genDefinite: 'caselor', genIndefinite: 'unor case' },
+    },
+    split: { sg: ['cas', 'a'], pl: ['case', 'le'] },
+  },
+  en: { sg: 'house', pl: 'houses' },
+  note: 'Neuter in Greek, feminine in Romanian (casă). στο σπίτι is "at home" or "in the house"; Romanian says acasă for "home".',
+};
+
+const dromos: GreekNoun = {
+  id: 'dromos',
+  pos: 'noun',
+  lemma: 'δρόμος',
+  verified: { el: false, ro: false, en: false },
+  gender: 'm',
+  class: 'masc-os',
+  stems: { sg: 'δρόμ', pl: 'δρόμ' },
+  ro: {
+    lemma: 'drum',
+    gender: 'm',
+    forms: {
+      sg: { definite: 'drumul', indefinite: 'un drum', genDefinite: 'drumului', genIndefinite: 'unui drum' },
+      pl: { definite: 'drumurile', indefinite: 'drumuri', genDefinite: 'drumurilor', genIndefinite: 'unor drumuri' },
+    },
+    split: { sg: ['drum', 'ul'], pl: ['drumuri', 'le'] },
+  },
+  en: { sg: 'road', pl: 'roads' },
+  note: 'Masculine in Greek and Romanian. δρόμος is the road or the street.',
+};
+
+const thalassa: GreekNoun = {
+  id: 'thalassa',
+  pos: 'noun',
+  lemma: 'θάλασσα',
+  verified: { el: false, ro: false, en: false },
+  gender: 'f',
+  class: 'fem-a',
+  stems: { sg: 'θάλασσ', pl: 'θάλασσ' },
+  overrides: {
+    'pl-gen': {
+      stem: 'θαλασσ',
+      ending: 'ών',
+      note: { rule: 'accent-moves', plain: 'The accent moves onto the ending in the genitive plural: θαλασσών, not θάλασσων.' },
+    },
+  },
+  ro: {
+    lemma: 'mare',
+    gender: 'f',
+    forms: {
+      sg: { definite: 'marea', indefinite: 'o mare', genDefinite: 'mării', genIndefinite: 'unei mări' },
+      pl: { definite: 'mările', indefinite: 'mări', genDefinite: 'mărilor', genIndefinite: 'unor mări' },
+    },
+    split: { sg: ['mare', 'a'], pl: ['mări', 'le'] },
+  },
+  en: { sg: 'sea', pl: 'seas' },
+  note: 'Feminine in Greek and Romanian (mare).',
+};
+
 const zestos: GreekAdjective = {
   id: 'zestos',
   pos: 'adjective',
@@ -1198,6 +1274,9 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [psomi.id]: psomi,
   [nero.id]: nero,
   [ora.id]: ora,
+  [spiti.id]: spiti,
+  [dromos.id]: dromos,
+  [thalassa.id]: thalassa,
   [zestos.id]: zestos,
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
