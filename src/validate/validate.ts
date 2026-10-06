@@ -503,6 +503,38 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       if (owned.slot.case !== token.slot.case) errors.push(`${where}: δικός is ${token.slot.case} but its noun is ${owned.slot.case}`);
     }
   }
+  if (token.slot.pos === 'relative' && lexeme.pos === 'relative') {
+    const slot = token.slot;
+    const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    if (!target || target.slot.pos !== 'noun' || lexemes[target.lexeme]?.pos !== 'noun') {
+      errors.push(`${where}: a relative pronoun needs agreesWith pointing at the noun it refers to`);
+    } else {
+      const noun = lexemes[target.lexeme];
+      if (noun.pos === 'noun' && slot.gender !== noun.gender) errors.push(`${where}: slot gender ${slot.gender} differs from noun gender ${noun.gender}`);
+      if (slot.number !== target.slot.number) errors.push(`${where}: the relative pronoun is ${slot.number} but its noun is ${target.slot.number}`);
+      if (token.agreesWith !== index - 1) errors.push(`${where}: a relative pronoun comes directly after its noun`);
+    }
+    if ((slot.role === 'preposition') !== (slot.preposition !== undefined)) {
+      errors.push(`${where}: only the job after a preposition takes a preposition`);
+    }
+    if (slot.preposition !== undefined && !(RELATIVE_PREPOSITIONS as readonly string[]).includes(slot.preposition)) {
+      errors.push(`${where}: ${slot.preposition} is not a preposition a relative pronoun may follow`);
+    }
+    if (lexeme.kind === 'pou' && (slot.role === 'whose' || slot.role === 'preposition')) {
+      errors.push(`${where}: που is a token for the subject, the object and "to whom"; the other jobs need pronoun tokens and are shown in the panel only`);
+    }
+    if (slot.role === 'whose') {
+      const owner = phrase.tokens[index + 1];
+      const owned = phrase.tokens[index + 2];
+      if (owner?.lexeme !== 'def' || owner.agreesWith !== index + 2 || owned?.slot.pos !== 'noun') {
+        errors.push(`${where}: "whose" is followed by the article and the noun owned`);
+      }
+    }
+    if (inflected) {
+      const form = formText(inflect(lexeme, slot));
+      if (normalise(form) !== normalise(token.text)) errors.push(`${where}: text differs from the form ("${form}")`);
+    }
+  }
   if (token.slot.pos === 'noun' && token.agreesWith !== undefined) {
     // A noun possessor: the genitive singular noun after the possessed noun and its own definite article (το σπίτι του παιδιού).
     const owned = phrase.tokens[token.agreesWith];

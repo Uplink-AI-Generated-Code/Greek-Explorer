@@ -1,4 +1,4 @@
-import type { Case, Clitic, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, PrepSense, Slot, SlotOf, Tense, Token, Voice } from '../types';
+import type { Case, Clitic, Gender, GlossRow, GlossUnit, Link, Mood, Num, Person, Phrase, PrepSense, RelativeRole, Slot, SlotOf, Tense, Token, Voice } from '../types';
 
 const verbSlot = (person: 1 | 2 | 3): Slot => ({
   pos: 'verb',
@@ -1731,6 +1731,202 @@ const soMuchBread: Phrase = {
   verified: false,
 };
 
+/** A relative pronoun: the job it does in its clause, and the gender and number of the noun it refers to. */
+const relative = (role: RelativeRole, gender: Gender, number: Num = 'sg', preposition?: string): Slot => ({
+  pos: 'relative',
+  role,
+  gender,
+  number,
+  ...(preposition ? { preposition } : {}),
+});
+/** The weak pronoun "to him / to it" of the neuter singular (του). */
+const TO_IT: Clitic = { role: 'indirect', person: 3, number: 'sg', gender: 'n' };
+
+const theDogThatJumps: Phrase = {
+  id: 'the-dog-that-jumps',
+  title: 'The dog that jumps',
+  theme: 'Relative clauses',
+  level: 'beginner',
+  tokens: [
+    ...theDog,
+    { text: 'που', lexeme: 'rel-pou', slot: relative('subject', 'm'), agreesWith: 1 },
+    { text: 'πηδάει', lexeme: 'pidao', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('The', 0), u('dog', 1), u('that', 2), u('jumps', 3)],
+    [u('the', 0), u('dog', 1), u('that', 2), u('jumps', 3)],
+    [seg(['Câine', 1], ['le', 0]), u('care', 2), u('sare', 3)],
+    [seg(['câine', 1], ['le', 0]), u('care', 2), u('sare', 3)],
+  ),
+  verified: false,
+};
+
+const theBreadThatIAte: Phrase = {
+  id: 'the-bread-that-i-ate',
+  title: 'The bread that I ate',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'ψωμί', lexeme: 'psomi', slot: nomSg },
+    { text: 'που', lexeme: 'rel-pou', slot: relative('object', 'n'), agreesWith: 1 },
+    { text: 'έφαγα', lexeme: 'troo', slot: vslot('indicative', 'aorist') },
+  ],
+  glosses: rows(
+    [u('The', 0), u('bread', 1), u('that', 2), u('I ate', 3)],
+    [u('the', 0), u('bread', 1), u('that', 2), u('(I)', null), u('ate', 3)],
+    [seg(['Pâine', 1], ['a', 0]), u('pe care', 2), u('am mâncat-o', 3)],
+    [seg(['pâine', 1], ['a', 0]), u('pe care', 2), u('(eu)', null), u('am mâncat-o', 3)],
+  ),
+  verified: false,
+};
+
+const theCoffeeIWant: Phrase = {
+  id: 'the-coffee-i-want',
+  title: 'The coffee I want',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('m', 'nom', 1), text: 'Ο' },
+    { text: 'καφές', lexeme: 'kafes', slot: nomSg },
+    { text: 'που', lexeme: 'rel-pou', slot: relative('object', 'm'), agreesWith: 1 },
+    { text: 'θέλω', lexeme: 'thelo', slot: verbSlot(1) },
+  ],
+  glosses: rows(
+    [u('The', 0), u('coffee', 1), u('I want', 3)],
+    [u('the', 0), u('coffee', 1), u('that', 2), u('(I)', null), u('want', 3)],
+    [seg(['Cafea', 1], ['ua', 0]), u('pe care', 2), u('o vreau', 3)],
+    [seg(['cafea', 1], ['ua', 0]), u('pe care', 2), u('(eu)', null), u('o vreau', 3)],
+  ),
+  verified: false,
+};
+
+const theChildIGaveTheBreadTo: Phrase = {
+  id: 'the-child-i-gave-the-bread-to',
+  title: 'The child I gave the bread to',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'παιδί', lexeme: 'paidi', slot: nomSg },
+    { text: 'που', lexeme: 'rel-pou', slot: relative('indirect', 'n'), agreesWith: 1 },
+    { text: 'του έδωσα', lexeme: 'dino', slot: { ...vslot('indicative', 'aorist'), clitics: [TO_IT] } as Slot },
+    { ...article('n', 'acc', 5), text: 'το' },
+    { text: 'ψωμί', lexeme: 'psomi', slot: accSg },
+  ],
+  glosses: rows(
+    [u('The', 0), u('child', 1), u('I gave', 3), u('the', 4), u('bread', 5), u('to', 2)],
+    [u('the', 0), u('child', 1), u('that', 2), u('to-him gave (I)', 3), u('the', 4), u('bread', 5)],
+    [seg(['Copil', 1], ['ul', 0]), u('căruia', 2), u('i-am dat', 3), seg(['pâine', 5], ['a', 4])],
+    [seg(['copil', 1], ['ul', 0]), u('căruia', 2), u('(eu)', null), u('i-am dat', 3), seg(['pâine', 5], ['a', 4])],
+  ),
+  verified: false,
+};
+
+const theChildWhoseDogJumps: Phrase = {
+  id: 'the-child-whose-dog-jumps',
+  title: 'The child whose dog jumps',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'παιδί', lexeme: 'paidi', slot: nomSg },
+    { text: 'του οποίου', lexeme: 'rel-opoios', slot: relative('whose', 'n'), agreesWith: 1 },
+    { ...article('m', 'nom', 4), text: 'ο' },
+    { text: 'σκύλος', lexeme: 'skylos', slot: nomSg },
+    { text: 'πηδάει', lexeme: 'pidao', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('The', 0), u('child', 1), u('whose', 2), u('dog', 4), u('jumps', 5)],
+    [u('the', 0), u('child', 1), u('of-which', 2), u('the', 3), u('dog', 4), u('jumps', 5)],
+    [seg(['Copil', 1], ['ul', 0]), u('al cărui', 2), u('câine', 4), u('sare', 5)],
+    [seg(['copil', 1], ['ul', 0]), u('al cărui', 2), u('câine', 4), u('sare', 5)],
+  ),
+  verified: false,
+};
+
+const theHouseIAmGoingTo: Phrase = {
+  id: 'the-house-i-am-going-to',
+  title: 'The house I am going to',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'στο οποίο', lexeme: 'rel-opoios', slot: relative('preposition', 'n', 'sg', 'se'), agreesWith: 1 },
+    { text: 'πάω', lexeme: 'pao', slot: present(1) },
+  ],
+  glosses: rows(
+    [u('The', 0), u('house', 1), u('I am going', 3), u('to', 2)],
+    [u('the', 0), u('house', 1), u('to-the which', 2), u('(I)', null), u('go', 3)],
+    [seg(['Cas', 1], ['a', 0]), u('la care', 2), u('merg', 3)],
+    [seg(['cas', 1], ['a', 0]), u('la care', 2), u('(eu)', null), u('merg', 3)],
+  ),
+  verified: false,
+};
+
+const theChildIAmGoingWith: Phrase = {
+  id: 'the-child-i-am-going-with',
+  title: 'The child I am going with',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'παιδί', lexeme: 'paidi', slot: nomSg },
+    { text: 'με το οποίο', lexeme: 'rel-opoios', slot: relative('preposition', 'n', 'sg', 'me'), agreesWith: 1 },
+    { text: 'πάω', lexeme: 'pao', slot: present(1) },
+  ],
+  glosses: rows(
+    [u('The', 0), u('child', 1), u('I am going', 3), u('with', 2)],
+    [u('the', 0), u('child', 1), u('with the which', 2), u('(I)', null), u('go', 3)],
+    [seg(['Copil', 1], ['ul', 0]), u('cu care', 2), u('merg', 3)],
+    [seg(['copil', 1], ['ul', 0]), u('cu care', 2), u('(eu)', null), u('merg', 3)],
+  ),
+  verified: false,
+};
+
+const theDogThatIsThere: Phrase = {
+  id: 'the-dog-that-is-there',
+  title: 'The dog that is there',
+  theme: 'Relative clauses',
+  level: 'beginner',
+  tokens: [
+    ...theDog,
+    { text: 'που', lexeme: 'rel-pou', slot: relative('subject', 'm'), agreesWith: 1 },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { text: 'εκεί', lexeme: 'ekei', slot: adverb },
+  ],
+  glosses: rows(
+    [u('The', 0), u('dog', 1), u('that', 2), u('is', 3), u('there', 4)],
+    [u('the', 0), u('dog', 1), u('that', 2), u('is', 3), u('there', 4)],
+    [seg(['Câine', 1], ['le', 0]), u('care', 2), u('este', 3), u('acolo', 4)],
+    [seg(['câine', 1], ['le', 0]), u('care', 2), u('este', 3), u('acolo', 4)],
+  ),
+  verified: false,
+};
+
+const thisIsTheHouseIHave: Phrase = {
+  id: 'this-is-the-house-i-have',
+  title: 'This is the house that I have',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { text: 'Αυτό', lexeme: 'autos', slot: qslot('n', 'sg', 'nom', { use: 'pronoun' }), agreesWith: 3 },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { ...article('n', 'nom', 3), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'που', lexeme: 'rel-pou', slot: relative('object', 'n'), agreesWith: 3 },
+    { text: 'έχω', lexeme: 'echo', slot: verbSlot(1) },
+  ],
+  glosses: rows(
+    [u('This', 0), u('is', 1), u('the', 2), u('house', 3), u('that', 4), u('I have', 5)],
+    [u('this', 0), u('is', 1), u('the', 2), u('house', 3), u('that', 4), u('(I)', null), u('have', 5)],
+    [u('Aceasta', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('pe care', 4), u('o am', 5)],
+    [u('aceasta', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('pe care', 4), u('(eu)', null), u('o am', 5)],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1808,4 +2004,13 @@ export const PHRASES: Phrase[] = [
   asFarAsThere,
   suchAHouse,
   soMuchBread,
+  theDogThatJumps,
+  theBreadThatIAte,
+  theCoffeeIWant,
+  theChildIGaveTheBreadTo,
+  theChildWhoseDogJumps,
+  theHouseIAmGoingTo,
+  theChildIAmGoingWith,
+  theDogThatIsThere,
+  thisIsTheHouseIHave,
 ];
