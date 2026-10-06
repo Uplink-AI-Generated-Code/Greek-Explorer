@@ -1,7 +1,7 @@
 # Greek Grammar Explorer: design spec
 
 Date: 2026-10-03
-Status: revised after review 4 and Plans 3, 5 and 6; extended with question words, ας and pronouns in every form and σε with the article contractions (changes listed in sections 13 to 23)
+Status: revised after review 4 and Plans 3, 5 and 6; extended with question words, ας and pronouns in every form, σε with the article contractions and possessives (changes listed in sections 13 to 24)
 
 ## 1. Purpose
 
@@ -16,8 +16,8 @@ Interactive mockups made during brainstorming (v1 to v5, plus the quantifier pan
 ### In scope (prototype)
 
 - Vite + React + TypeScript single-page app, no backend.
-- Hand-curated content: 62 phrases (section 6.1) and the lexemes they use (section 6.6).
-- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition (σε also as the six forms fused with the article: στον, στην, στο, στους, στις, στα), quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
+- Hand-curated content: 72 phrases (section 6.1) and the lexemes they use (section 6.6).
+- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition (σε also as the six forms fused with the article: στον, στην, στο, στους, στις, στα), quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the possessive (the same pronoun after a noun: το σπίτι μου; and the adjective δικός: το δικό μου σπίτι), the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
 - Verb tenses and moods: indicative present, imperfect, aorist (simple past), future (continuous and simple), present perfect, past perfect and future perfect; subjunctive present, aorist and perfect (να + verb); imperative present and aorist (second person only), with its negative and with object clitics; the hortative present and aorist (ας + the subjunctive form, every person, with its negative); conditional (θα + imperfect or θα + pluperfect). Object clitics also go with every indicative, subjunctive, conditional and hortative form (4.3). Voices: active and mediopassive (reflexive and deponent examples). Detail in sections 6.4 and 6.5.
 - Languages: Greek (focus), Romanian and English (comparison). The interface language is English.
 
@@ -164,6 +164,7 @@ type Slot =
       sense?: 'some' | 'few';                 // μερικοί: Romanian niște or câțiva
       use: 'determiner' | 'pronoun' }         // Romanian changes form between the two; Greek does not
   | { pos: 'clitic' } & Clitic                // the weak pronoun as a word of its own
+  | { pos: 'possessive'; person: Person; number: Num; gender?: Gender }   // the possessor; the weak genitive pronoun after a noun (4.3)
   | { pos: 'preposition'; sense?: 'to' | 'at' | 'in' | 'on' | 'person' }   // only σε has senses (below)
   | { pos: 'particle' } | { pos: 'conjunction' } | { pos: 'interrogative' };   // no dimensions
 // 'interrogative' is the slot of the question words that never change (τι, πού, πότε, γιατί, πώς). ποιος and πόσος are
@@ -198,6 +199,8 @@ The **clitic engine** (`clitics.ts`, with the stress rule in `stress.ts` and the
 - **Order.** With two clitics, the genitive (indirect) comes before the accusative (direct): δώσε μού το. English and Romanian orders are stored per example.
 - **Stress.** Greek stress may not fall further back than the third-last syllable of the whole unit (verb plus clitics). When the original stress would fall on the fourth-last syllable or further back, a second accent is written **two syllables after the original stress**: δώσε μού το (δώ-σε-μού), τηλεφώνησέ μου (φώ-νη-σέ), διάβασέ μου το (διά-βα-σέ). The prototype exercises the rule through phrase 36; the other two cases are unit tests only, because no phrase uses a verb of that shape. A Greek speaker must confirm the rule (section 9).
 - **Shortening.** Some verbs shorten before a clitic and have a second, equal form (φάε το ~ φάτο; δώσε μού το ~ δως μου το). The shortening table is data, not a rule. It is applied when the verb slot has `shortForm: true`. Forms that mean the same are stored as members of one **form group** (4.6).
+
+**The possessive** is the genitive weak pronoun (μου, σου, του / της, μας, σας, τους) placed after the noun it belongs to: το σπίτι μου, ο ζεστός καφές σου. The noun keeps its article. The stress rule of commands applies to the noun and the pronoun together: when the noun's stress would fall on the fourth-last syllable of the unit, the noun takes a second accent two syllables after its own (η θάλασσα → η θάλασσά μου; ο δάσκαλος → ο δάσκαλός μου; the plural too: οι θάλασσές μας). Romanian puts the possessive after the definite noun and makes it agree with the *possessed* noun in gender and number, not with the possessor (*casa mea*, *câinele meu*, *copiii mei*, *mările mele*); the third person is the invariable *lui*, *ei* and *lor*. English changes with the possessor and goes before the noun with no article (my, your, his, her, its, our, their). A table by possessor and by the Romanian gender and number of the noun stores the Romanian forms. The emphatic *δικός μου* and a possessor noun in the genitive (*το σπίτι του παιδιού*) come in a second step (section 24).
 
 **Irregular perfective stems.** Verbs with irregular perfective stems store them as further principal parts. τρώω has a present stem τρώ-, an indicative-aorist stem φαγ- (έφαγα), and a second perfective stem φα- used by the subjunctive, the imperative and the perfect base form (φάω, φάε, φάει). πάω works the same way (πήγ- in the aorist indicative, πα- in the subjunctive).
 
@@ -236,6 +239,8 @@ Every token has a slot. A token's `text` is what the phrase shows. For a verb to
 A token is one clickable Greek unit. A multi-word unit such as πάνω από is one token. `agreesWith` links an article, numeral or adjective to its noun so the panel can show the whole noun phrase in the selected state. A preposition's `agreesWith` may point at a noun or at a question word (από πού), and a quantifier used on its own (Ποιος είναι;) needs none.
 
 **A fused preposition is one token with two parts.** σε and the article after it are written as one word (στον), so the phrase has one token `{ text: 'στον', lexeme: 'se', slot: { pos: 'preposition', sense }, agreesWith: <the noun> }`. The article is not a token of its own: its gender and number come from the noun, and its case is the accusative that σε governs. The chip shows two parts, like the pieces of a verb group: the first opens the σε panel, the second the article panel for that noun, the article part with a "Back" link, and a gloss unit may link to either part (`{ token, piece }`: piece 0 is σε, piece 1 is the article). The six fused forms (σε + τον = στον, and so on) are stored data, not built by a rule; a ReviewItem covers them. The feminine singular στην loses its final ν in front of most consonants (στη θάλασσα) and keeps it in front of a vowel and κ π τ ξ ψ γκ μπ ντ τσ τζ (στην αλεπού, στην κουζίνα): the σε panel and the validator apply this rule to the word that follows σε, while the article panel keeps the full την. σε before a vowel can lose its ε (σ' αυτόν) and από and με do not fuse with the article; both are notes only.
+
+**A possessive is a token of its own.** It points at the noun it belongs to with `agreesWith`, like an article or an adjective: *το σπίτι μου* has three tokens, the article, the noun and the possessive. Its slot is `{ pos: 'possessive', person, number, gender? }` (the possessor; the gender is for the third person singular). The noun's token carries the second accent when the rule asks for it (*θάλασσά*), and the validator compares the noun's text with the accented form. The validator's rule that a pronoun is not a token of its own is for the weak pronouns of a verb group; a possessive is a different part of speech.
 
 ### 4.5 Glosses (natural and literal, together)
 
@@ -388,16 +393,24 @@ Divergence types the prototype must cover:
 | preposition-article-fusion | Greek writes σε and the article as one word (στο, στον, στην); Romanian and English keep them apart (*la câinele*, "to the dog"). |
 | direction-and-place | Greek uses σε + the accusative for both direction and place (πάω στο σπίτι, είμαι στο σπίτι); English separates "to" from "at", and Romanian *acasă* covers both. |
 | indirect-object-dative | Greek marks the indirect object with σε + the accusative (δίνω το ψωμί στο παιδί); Romanian uses the dative case and no preposition (*dau pâinea copilului*); English says "to the child" or "the child the bread". |
+| possessor-agreement | Greek and English change with the possessor (μου, σου; my, your); Romanian changes with the thing possessed (*casa mea*, *câinele meu*, *copiii mei*), not with the possessor. |
+| possessive-position | Greek puts the pronoun after the noun and keeps the article (το σπίτι μου); Romanian also puts it after the noun, which carries the suffix article (*casa mea*); English puts it before the noun and drops the article (my house). |
+| possessive-accent | Greek adds a second accent to a noun whose stress is too far back (η θάλασσά μου); Romanian and English do nothing. |
+| possessive-third-person | Greek has του (his) and της (her); Romanian uses the invariable *lui* and *ei* (*copilul lui*); English his, her, its. |
+| emphatic-possessive | Greek δικός μου (the adjective δικός + the pronoun) says "my own" or "mine" and agrees with the thing possessed; Romanian uses *propriu* beside the noun and *al meu / a mea / ai mei / ale mele* on its own; English "my own" and "mine". |
+| noun-possessor | A noun possessor goes in the genitive after the noun (το σπίτι του παιδιού); Romanian also uses the genitive-dative form (*casa copilului*); English says "the child's house" or "the house of the child". |
 
 ### 5.3 Panels per part of speech
 
 | Part of speech | Controls | Current-form rows | Full table (Improver) |
 |---|---|---|---|
 | Verb | Who (person + number), Mood (indicative / subjunctive / imperative / conditional / hortative), When (tense; each mood offers only its own tenses; the imperative offers only "you" singular and plural; the hortative offers present and aorist), Voice (when the lexeme has a mediopassive), Negated (yes / no), Object (none / a noun / one pronoun / two pronouns; offered in every mood for a verb that takes an object, with a spelled-out noun for commands only), with an Object noun select when there is an object, and a To whom? control (to me, to you, to him, to her, to us, to you pl., to them) that appears once the form has an indirect pronoun. These are up to seven controls (who, mood, tense, negated, object, to whom, object noun; the voice control is absent for a verb with one voice, such as δίνω); the short form (φάτο) is chosen only through the `member` control of the "Same meaning" strip (5.4). Controls are built from the lexeme's `offers` | One row, with subject pronouns in each language; compound forms show particle and auxiliary in their own colours | Six persons for the selected mood, tense and voice; plus a **tense overview** for the selected person (every tense, the three subjunctives, the two imperatives, the two conditionals and the two hortatives in three columns; rows with no form for that person, such as the imperative for "I", are shown dimmed with the reason) |
-| Noun | How many (1 to 5, or "many"), Role | "the", then "a / an" for one, or "with a number" for 2 to 5 | Case × number, with definite and indefinite forms in each cell |
+| Noun | How many (1 to 5, or "many"), Role, Whose? (nobody, or a possessor) | "the", then "a / an" for one, or "with a number" for 2 to 5; "with a possessive" when Whose? is set | Case × number, with definite and indefinite forms in each cell |
 | Definite article | Noun it goes with, number, role | Article + noun | Gender × case for the selected number; Romanian suffix and English "the" in the other columns |
 | Numeral / indefinite article | Number (1 to 5), noun it counts, role | The numeral; then the counted noun phrase | Gender × case |
 | Adjective | Noun it describes, number, role | "the" and "a / an" noun phrases (singular); "none in plural" for the second | Gender × case for the selected number |
+| Possessive (μου, σου, του …) | Noun it goes with, number and role of the noun; person and number of the possessor, and the gender of a third-person possessor | "with a noun": the noun phrase with the possessive (το σπίτι μου / *casa mea* / my house) | Person × number of the possessor, in each language |
+| Adjective δικός (Plan 11) | Noun it describes, number, role, possessor | "before the noun" (το δικό μου σπίτι) and "on its own" (το δικό μου: mine) | Gender × case for the selected number |
 | Preposition | Noun or question word after it, number; for σε also Meaning (to / at / in / on / to a person) | Preposition + noun in the accusative (σε fused with the article: στον σκύλο; or + the question word: από πού); for σε, the Romanian and English word of the chosen meaning | Other prepositions with the same noun; for σε, the six fused forms for the noun and number, with the one in use outlined; σε takes only nouns, never a question word, and has an example row for the chosen meaning |
 | Quantifier | Noun it goes with, role; plus Romanian counterpart (μερικοί), kind of noun (mass or count) and degree (πολύς, λίγος) | "with a noun", then "on its own"; for κανένας also "with negation" | Gender × role for the selected number, in each language |
 | Question word (τι, πού, πότε, γιατί, πώς) | none | "on its own" (the word in three languages) and "in a question" (an example question in three languages); γιατί also "as an answer" (because) | none |
@@ -536,8 +549,18 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 60 | Ο σκύλος είναι στον δρόμο | The dog is on the road | the masculine fusion στον, meaning "on"; Romanian *Câinele este pe drum.* |
 | 61 | Δίνω το ψωμί στο παιδί | I give the bread to the child | σε marks the indirect object; Romanian uses the dative, *Dau pâinea copilului.* |
 | 62 | Ο σκύλος πηδάει στο νερό | The dog jumps into the water | meaning "in" (into); Romanian *Câinele sare în apă.* |
+| 63 | Το σπίτι μου | My house | the weak possessive after the noun, article kept; Romanian *casa mea* (agrees with *casă*, feminine) |
+| 64 | Η θάλασσά μας | Our sea | the second accent (θάλασσα → θάλασσά); Romanian *marea noastră* |
+| 65 | Ο σκύλος σου | Your dog | second person; Romanian *câinele tău* |
+| 66 | Το παιδί του | His child | third person (του / της); Romanian *copilul lui* |
+| 67 | Πού είναι το σπίτι σου; | Where is your house? | a possessive in a question; Romanian *Unde este casa ta?* |
+| 68 | Ο ζεστός καφές μου | My hot coffee | an adjective between the article and the noun, the possessive last; Romanian *cafeaua mea caldă* |
+| 69 | Το δικό μου σπίτι | My own house | δικός + μου before the noun (Plan 11); Romanian *propria mea casă* |
+| 70 | Το σπίτι είναι δικό μου | The house is mine | δικό μου on its own (Plan 11); Romanian *Casa este a mea* |
+| 71 | Το σπίτι του παιδιού | The child's house | a noun possessor in the genitive (Plan 11); Romanian *casa copilului* |
+| 72 | Ο σκύλος του παιδιού | The child's dog | a genitive possessor, masculine (Plan 11); Romanian *câinele copilului* |
 
-**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56, 61); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *Places* (57 to 60, 62); *The fox sentence* (3, 17, 23).
+**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56, 61); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *Places* (57 to 60, 62); *Possession* (63 to 72); *The fox sentence* (3, 17, 23).
 
 Further phrases (greetings, introductions, directions, past and future in context) are added after the prototype validates the model. The set includes the aorist (phrase 19), the continuous future (phrase 20) and the future perfect (phrase 13). The simple future (θα φάω) is reachable through the verb panel's tense control on phrases 11, 14 and 19, and is written out with its Romanian and English counterparts in section 6.4.
 
@@ -664,18 +687,18 @@ The past forms these examples use (είχα, ήθελα, έτρωγα) come from
 
 All Greek forms are monotonic. Every form in the prototype comes from the tables in sections 6.3 to 6.5 and the lexeme inventory below. These are the single source for the files in `data/`. The brainstorming mockups were used only to draft those tables; where a mockup and this section disagree, this section wins. All entries start unverified and are checked in section 9.
 
-**Lexeme inventory** (the lexemes the 62 phrases need):
+**Lexeme inventory** (the lexemes the 72 phrases need):
 
 - **Verbs:** θέλω, πηδάω, πλένω and πλένομαι, κοιμάμαι, τρώω, πάω, δίνω, έχω (also the auxiliary), είμαι (copula), μπορεί (impersonal), ψήνω (needed only for its participle). Added for the question words and pronouns: κάνω (Plan 7) and λέω (Plan 8; present, imperfect and subjunctive present).
 - **Nouns:** καφές, νερό, ψωμί, παιδί, αλεπού, σκύλος. Added: ώρα (a feminine noun in -α; Plan 7). Added for σε (Plan 9): σπίτι (neuter in -ι with the stress on the stem, a class of its own: σπίτι, σπιτιού, σπίτια, σπιτιών), δρόμος (masculine in -ος) and θάλασσα (feminine in -α, genitive plural θαλασσών).
 - **Adjectives:** ζεστός, γρήγορος, τεμπέλικος, καφέ (indeclinable); the participles πλυμένος and ψημένος.
 - **Determiners and quantifiers:** the definite article; ένας / μία / ένα and the numerals 2 to 5; μερικοί, κάποιος, κανένας, πολύς, λίγος and the comparatives περισσότερος and λιγότερος. Added: the question words ποιος (own forms, like κάποιος, with a plural) and πόσος (the adjective endings); both singular and plural, subject and object roles.
-- **Function words:** πάνω από (with κάτω από, με, για for the preposition table), δεν, μην, να, θα, αν, and the clitic pronouns. Added: από and μέχρι (prepositions that may govern a question word), the particle ας, and the question words τι, πού, πότε, γιατί, πώς (a new part of speech, "interrogative"). Added for σε (Plan 9): σε itself, with its senses and the six fused forms.
+- **Function words:** πάνω από (with κάτω από, με, για for the preposition table), δεν, μην, να, θα, αν, and the clitic pronouns. Added: από and μέχρι (prepositions that may govern a question word), the particle ας, and the question words τι, πού, πότε, γιατί, πώς (a new part of speech, "interrogative"). Added for σε (Plan 9): σε itself, with its senses and the six fused forms. Added for possessives: the possessive (μου, σου, του, της, μας, σας, τους after a noun; Plan 10) and the adjective δικός (Plan 11).
 - **Strong subject pronouns** (shown as dropped or optional beside verbs): εγώ, εσύ, αυτός / αυτή / αυτό, εμείς, εσείς, αυτοί / αυτές / αυτά.
 
-**Romanian lexemes:** verbs *a vrea, a sări, a spăla* (and *a se spăla*), *a dormi, a mânca, a merge, a da, a avea* (also the auxiliary), *a fi* (copula and auxiliary), *a putea* (*poate*), *a coace*; nouns *cafea, apă, pâine, copil, vulpe, câine*; adjectives *cald, rapid, leneș, maro* and the participles *spălat, copt*; numerals *un / o, doi / două, trei, patru, cinci*; quantifiers *niște, câțiva, vreun / vreo, niciun / nicio, mult, puțin, mai*; function words *peste, sub, cu, pentru, nu, să, dacă*; the clitic table; the subject pronouns *eu, tu, el / ea, noi, voi, ei / ele*. Added: *a face* (κάνω), *a zice* (λέω), *oră*, *a costa* (in the gloss), *cine, care, ce, cât, unde, când, de ce, cum*, *de la, până la*, and *să* as the hortative particle. Added for σε: *casă* and *acasă*, *drum*, *mare*, and the prepositions *la*, *în*, *pe*.
+**Romanian lexemes:** verbs *a vrea, a sări, a spăla* (and *a se spăla*), *a dormi, a mânca, a merge, a da, a avea* (also the auxiliary), *a fi* (copula and auxiliary), *a putea* (*poate*), *a coace*; nouns *cafea, apă, pâine, copil, vulpe, câine*; adjectives *cald, rapid, leneș, maro* and the participles *spălat, copt*; numerals *un / o, doi / două, trei, patru, cinci*; quantifiers *niște, câțiva, vreun / vreo, niciun / nicio, mult, puțin, mai*; function words *peste, sub, cu, pentru, nu, să, dacă*; the clitic table; the subject pronouns *eu, tu, el / ea, noi, voi, ei / ele*. Added: *a face* (κάνω), *a zice* (λέω), *oră*, *a costa* (in the gloss), *cine, care, ce, cât, unde, când, de ce, cum*, *de la, până la*, and *să* as the hortative particle. Added for σε: *casă* and *acasă*, *drum*, *mare*, and the prepositions *la*, *în*, *pe*. Added for possessives: the possessive adjectives *meu / mea / mei / mele, tău / ta / tăi / tale, nostru / noastră / noștri / noastre, vostru / voastră / voștri / voastre* and the invariable *lui, ei, lor*; and, for Plan 11, *propriu* and *al / a / ai / ale*.
 
-**English lexemes:** verbs *want, jump, wash, sleep, eat, go, give, keep, have* (also the auxiliary), *be* (copula and auxiliary), *do* (for "don't"), *used to*, *may, bake*; nouns *coffee, water, bread, child, fox, dog*; adjectives *hot, quick, lazy, brown* and the participles *washed, baked*; numerals one to five; quantifiers *some, a few, several, any, anyone, someone, no, none, no one, much, many, a lot of, little, a little, few, more, less, fewer*; function words *over, above, under, with, for, not, if, to, will, would, the, a / an*; the pronouns *I, you, he / she / it, we, they, me, him, her, us, them, myself*. Added: do / make (κάνω), say (λέω), hour / time, who, which, what, where, when, why, how, how much, how many, from, until, let / let's. Added for σε: house / home, road, sea, and the prepositions to, at, in, on.
+**English lexemes:** verbs *want, jump, wash, sleep, eat, go, give, keep, have* (also the auxiliary), *be* (copula and auxiliary), *do* (for "don't"), *used to*, *may, bake*; nouns *coffee, water, bread, child, fox, dog*; adjectives *hot, quick, lazy, brown* and the participles *washed, baked*; numerals one to five; quantifiers *some, a few, several, any, anyone, someone, no, none, no one, much, many, a lot of, little, a little, few, more, less, fewer*; function words *over, above, under, with, for, not, if, to, will, would, the, a / an*; the pronouns *I, you, he / she / it, we, they, me, him, her, us, them, myself*. Added: do / make (κάνω), say (λέω), hour / time, who, which, what, where, when, why, how, how much, how many, from, until, let / let's. Added for σε: house / home, road, sea, and the prepositions to, at, in, on. Added for possessives: my, your, his, her, its, our, their, and, for Plan 11, "my own" and mine.
 
 **Test fixtures only:** τηλεφωνώ and διαβάζω appear only in the stress unit tests (4.3). They live in the test fixtures, not in `data/`, so the inventory and the validator never see them.
 
@@ -697,6 +720,7 @@ A build-time script (`npm run validate`) fails the build when:
 - a phrase has no `theme`, or any record that needs a `verified` flag lacks one.
 - a question-word quantifier (`question`) that does not offer exactly the subject and object roles, or a quantifier token outside the roles its lexeme offers; a quantifier token with no `agreesWith` unless it is used on its own; a preposition token whose `agreesWith` is neither a noun nor an interrogative (τι, πού, πότε, γιατί, πώς); an interrogative whose `roAfter` names something that is not a preposition; a hortative slot of a verb that does not offer the subjunctive present and aorist; a pronoun that the Romanian clitic table cannot place (for every offered slot and every pronoun the panel can build);
 - a σε token whose slot sense is not one of σε's senses, a fused preposition token with no noun in `agreesWith`, a gloss link to a part (piece) of a fused token other than 0 or 1, and a σε token whose text is not the fused form of its noun's article (στον for a masculine singular noun; στη or στην for a feminine singular noun, by the word that follows);
+- a possessive token with no noun in `agreesWith`, a possessor that is not a person and number the pronoun table has, and a noun token whose text differs from the form the possessive after it asks for (θάλασσά before μου);
 
 The script also fails the build when an irregular form has no authored reading, or a compound form's generated reading has a part with no gloss.
 
@@ -746,6 +770,8 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 
 - Plan 9 additions: the six fused forms (στον, στην, στο, στους, στις, στα) and the rule that drops the ν of στην (στη θάλασσα, στην αλεπού); the senses of σε with their Romanian and English words (*la*, *în*, *pe*, the dative for a person; to, at, in, on) and their examples; the nouns σπίτι, δρόμος, θάλασσα and *casă / acasă*, *drum*, *mare*; whether the article panel should show την under a chip that reads τη (the panel keeps the full form); whether στο σπίτι should read "at home" or "in the house" in English; and phrases 57 to 62 (*Merg acasă*, *Sunt acasă*, *Mergem la mare?*, *Câinele este pe drum*, *Dau pâinea copilului*, *Câinele sare în apă*).
 
+- Plan 10 and 11 additions: the possessive forms (μου, σου, του, της, μας, σας, τους after a noun) and the second accent (θάλασσά μου, δάσκαλός μου); the Romanian possessive table by possessor and by the gender and number of the noun (*meu, mea, mei, mele* and the rest), and the invariable third person (*lui, ei, lor* against *său*); the English my, your, his, her, its, our, their; phrases 63 to 68; and, for Plan 11, δικός (*propriu*, *al meu / a mea / ai mei / ale mele*, "my own" and "mine"), the genitive possessor (*casa copilului*) and phrases 69 to 72.
+
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
 ## 10. Risks
@@ -767,7 +793,7 @@ Reviewed content is marked verified in the data, on the record that holds it (4.
 
 ## 11. Definition of done for the prototype
 
-1. All sixty-two phrases render, with the correct token chips and four gloss rows each.
+1. All seventy-two phrases render, with the correct token chips and four gloss rows each.
 2. Every part of speech in the phrases has a working panel with controls, a current-form table and (Improver) a full table, in all three languages.
 3. Clicking between Greek tokens and gloss units, including segments, works in both directions.
 4. `npm run validate`, the unit tests and the component tests pass.
@@ -947,3 +973,15 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Movable ν | στην becomes στη in front of most consonants; the σε panel and the validator apply it to the word after σε; the article panel keeps the full την | 4.4 |
 | σπίτι | A class of its own, `neut-i-stem` (σπίτι, σπίτια; the genitive moves the accent: σπιτιού, σπιτιών, stored as overrides) | 6.6 |
 | Gloss check | The check on a split Romanian noun ignores capitals (Câine + le at the start of a sentence) | 7 |
+
+## 24. Changes for possessives
+
+| Source | Change | Where |
+|---|---|---|
+| New request: possessives | The weak possessive (μου, σου, του / της, μας, σας, τους after a noun), the emphatic δικός μου and a possessor noun in the genitive | 2, 4.3 |
+| Token model | A possessive is a token of its own that points at its noun (`agreesWith`), with the slot `{ pos: 'possessive', person, number, gender? }`; the noun's token carries the second accent when the stress rule asks for it | 4.2, 4.4 |
+| Noun panel | A Whose? control (nobody, or a possessor) and a row "with a possessive"; the possessive has its own panel with the person × number table | 5.3 |
+| Languages | Greek and English change with the possessor; Romanian changes with the possessed noun (a stored table by possessor and by gender and number); the third person is the invariable *lui, ei, lor* | 4.3, 5.2 |
+| Notes | Six rows: possessor-agreement, possessive-position, possessive-accent, possessive-third-person (Plan 10); emphatic-possessive, noun-possessor (Plan 11) | 5.2 |
+| Phrases | 63 to 68 in Plan 10; 69 to 72 in Plan 11; a new *Possession* theme | 6.1 |
+| Delivery | Plan 10: the weak possessive, the Whose? control, the Romanian table, the second accent, phrases 63 to 68. Plan 11: δικός, the genitive possessor, phrases 69 to 72 | 6.1 |
