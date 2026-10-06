@@ -24,6 +24,7 @@ import type {
   GreekConjunction,
   GreekInterrogative,
   GreekParticle,
+  GreekPossessive,
   GreekPreposition,
   GreekQuantifier,
   GreekVerb,
@@ -35,6 +36,7 @@ import type {
 } from '../types';
 import { greekClitic } from './clitics';
 import { voiceOf } from './offers';
+import { greekPossessive } from './possessive';
 import { mainFormKind, whoIndex } from './tenses';
 
 export function inflectNoun(l: GreekNoun, s: SlotOf<'noun'>): Form {
@@ -164,6 +166,10 @@ export function inflectClitic(_l: GreekClitic, s: SlotOf<'clitic'>): Form {
   return { stem: greekClitic(s), ending: '' };
 }
 
+export function inflectPossessive(_l: GreekPossessive, s: SlotOf<'possessive'>): Form {
+  return { stem: greekPossessive(s), ending: '' };
+}
+
 export function inflectPreposition(l: GreekPreposition, _s: SlotOf<'preposition'>): Form {
   return { stem: l.lemma, ending: '' };
 }
@@ -195,6 +201,8 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectVerb(l, s as SlotOf<'verb'>);
     case 'clitic':
       return inflectClitic(l, s as SlotOf<'clitic'>);
+    case 'possessive':
+      return inflectPossessive(l, s as SlotOf<'possessive'>);
     case 'conjunction':
       return inflectConjunction(l, s as SlotOf<'conjunction'>);
     case 'quantifier':

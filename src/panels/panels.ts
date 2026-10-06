@@ -1,5 +1,6 @@
 import { getLexeme, getNoun, getVerb } from '../data/lexemes';
 import { groupFor } from '../engine/groups';
+import { POSSESSORS } from '../engine/possessive';
 import { DEFAULT_OBJECT, RECIPIENTS, cliticsFor, indirectOf, nounForClitic, objectKind, type ObjectKind } from '../engine/objects';
 import { voiceOf } from '../engine/offers';
 import type {
@@ -11,6 +12,7 @@ import type {
   GreekNoun,
   GreekNumeral,
   GreekParticle,
+  GreekPossessive,
   GreekPreposition,
   GreekQuantifier,
   GreekVerb,
@@ -31,6 +33,7 @@ import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
 import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
+import { possessivePanel } from './possessive';
 import { interrogativePanel } from './interrogative';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
@@ -54,6 +57,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   if (!noun && token.slot.pos === 'quantifier') noun = DEFAULT_NOUN[token.slot.gender];
   return {
     slot: token.slot,
+    ...(token.slot.pos === 'possessive' && nounToken?.slot.pos === 'noun' ? { nounCase: nounToken.slot.case } : {}),
     noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
   };
@@ -82,6 +86,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return particlePanel(lexeme as GreekParticle, level);
     case 'clitic':
       return cliticPanel(slot, level);
+    case 'possessive':
+      return possessivePanel(lexeme as GreekPossessive, slot, state, level);
     case 'conjunction':
       return conjunctionPanel(lexeme as GreekConjunction, level);
     case 'interrogative':
@@ -125,6 +131,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'clitic') return { ...state, slot: { ...slot, role: value as 'object' | 'indirect' } };
       break;
     case 'case':
+      if (slot.pos === 'possessive') return { ...state, nounCase: value as Case };
       if (
         slot.pos !== 'verb' &&
         slot.pos !== 'preposition' &&
@@ -140,6 +147,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'adjective' || slot.pos === 'article' || slot.pos === 'quantifier') {
         return { ...state, slot: { ...slot, number: value as Num } };
       }
+      if (slot.pos === 'possessive') return { ...state, nounNumber: value as Num };
       if (slot.pos === 'preposition') return { ...state, nounNumber: value as Num };
       break;
     case 'count':
@@ -198,6 +206,12 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         return { ...state, slot: next, noun: kind === 'none' ? null : noun.id };
       }
       break;
+    case 'possessor':
+      if (slot.pos === 'possessive') {
+        const to = POSSESSORS.find((p) => p.value === value);
+        if (to) return { ...state, slot: { ...to.slot } };
+      }
+      break;
     case 'recipient':
       if (slot.pos === 'verb' && indirectOf(slot)) {
         const to = RECIPIENTS.find((r) => r.value === value);
@@ -211,6 +225,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'preposition' && noun.pos === 'interrogative') return { ...state, noun: value, nounNumber: 'sg' };
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
+      if (slot.pos === 'possessive') return { ...state, noun: value };
       // Without the lexeme the verb's indirect object is unknown: the control does not apply.
       if (slot.pos === 'verb' && lexemeId) {
         const next = { ...slot };

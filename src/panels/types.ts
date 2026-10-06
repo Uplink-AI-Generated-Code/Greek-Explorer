@@ -1,9 +1,9 @@
 import type { Option } from '../engine/labels';
 import type { Rich } from '../engine/segments';
-import type { Num, ReadingPart, Slot } from '../types';
+import type { Case, Num, ReadingPart, Slot } from '../types';
 
 export interface Control {
-  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient' | 'possessor';
   label: string;
   options: Option[];
   value: string;
@@ -92,6 +92,8 @@ export interface PanelState {
   slot: Slot;
   /** Lexeme id of the noun an article, numeral, adjective or preposition goes with; null for other words. */
   noun: string | null;
-  /** Number of that noun, used by the preposition panel (other words carry it in their slot). */
+  /** Number of that noun, used by the preposition and possessive panels (other words carry it in their slot). */
   nounNumber: Num;
+  /** The role of that noun, for the possessive panel (the slot of a possessive holds only the possessor). */
+  nounCase?: Case;
 }

@@ -9,6 +9,7 @@ import type {
   GreekNoun,
   GreekNumeral,
   GreekParticle,
+  GreekPossessive,
   GreekPreposition,
   GreekQuantifier,
   GreekVerb,
@@ -212,7 +213,7 @@ const dromos: GreekNoun = {
   stems: { sg: 'δρόμ', pl: 'δρόμ' },
   ro: {
     lemma: 'drum',
-    gender: 'm',
+    gender: 'n',
     forms: {
       sg: { definite: 'drumul', indefinite: 'un drum', genDefinite: 'drumului', genIndefinite: 'unui drum' },
       pl: { definite: 'drumurile', indefinite: 'drumuri', genDefinite: 'drumurilor', genIndefinite: 'unor drumuri' },
@@ -220,7 +221,7 @@ const dromos: GreekNoun = {
     split: { sg: ['drum', 'ul'], pl: ['drumuri', 'le'] },
   },
   en: { sg: 'road', pl: 'roads' },
-  note: 'Masculine in Greek and Romanian. δρόμος is the road or the street.',
+  note: 'Masculine in Greek, neuter in Romanian (un drum, două drumuri). δρόμος is the road or the street.',
 };
 
 const thalassa: GreekNoun = {
@@ -1264,6 +1265,8 @@ const posHow = interrogative(
   { el: 'Πώς είσαι;', ro: 'Cum ești?', en: 'How are you?' },
 );
 
+const possessive: GreekPossessive = { id: 'possessive', pos: 'possessive', lemma: 'μου', verified: { el: false, ro: false, en: false } };
+
 const clitic: GreekClitic = { id: 'clitic', pos: 'clitic', lemma: 'το', verified: { el: false, ro: false, en: false } };
 
 export const LEXEMES: Record<string, GreekLexeme> = {
@@ -1319,6 +1322,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [min.id]: min,
   [an.id]: an,
   [clitic.id]: clitic,
+  [possessive.id]: possessive,
   [ti.id]: ti,
   [pou.id]: pou,
   [pote.id]: pote,

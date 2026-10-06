@@ -86,6 +86,7 @@ export type Slot =
   | { pos: 'particle' }
   | { pos: 'conjunction' }
   | { pos: 'interrogative' }
+  | { pos: 'possessive'; person: Person; number: Num; gender?: Gender }
   | ({ pos: 'clitic' } & Clitic);
 
 export type Pos = Slot['pos'];
@@ -347,6 +348,14 @@ export interface GreekInterrogative extends LexemeBase {
   answer?: { el: string; ro: string; en: string };
 }
 
+/**
+ * The weak genitive pronoun after a noun: το σπίτι μου (spec 4.3). The slot holds the possessor; the possessed noun
+ * is the token's `agreesWith`.
+ */
+export interface GreekPossessive extends LexemeBase {
+  pos: 'possessive';
+}
+
 /** The weak pronoun as a word of its own: the panel a clitic piece of a verb group opens (spec 5.3). */
 export interface GreekClitic extends LexemeBase {
   pos: 'clitic';
@@ -378,7 +387,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekQuantifier | GreekInterrogative;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative;
 
 export type TokenIndex = number;
 

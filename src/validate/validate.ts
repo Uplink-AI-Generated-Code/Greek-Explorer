@@ -4,6 +4,8 @@ import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/off
 import { enClitic, roClitic } from '../engine/clitics';
 import { RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { RECIPIENTS } from '../engine/objects';
+import { enPossessive, POSSESSORS } from '../engine/possessive';
+import { EN_POSSESSIVES, RO_POSSESSIVES } from '../data/possessives';
 import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
 import { READING_TEMPLATES } from '../data/readings';
@@ -82,6 +84,8 @@ export function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'interrogative' }];
     case 'clitic':
       return cliticSlots();
+    case 'possessive':
+      return POSSESSORS.map((p): Slot => ({ ...p.slot }));
     case 'quantifier':
       return quantifierSlots(l);
   }
@@ -223,6 +227,18 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     }
     for (const [key, value] of Object.entries(l.roAfter ?? {})) {
       if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
+    }
+  }
+  if (l.pos === 'possessive') {
+    for (const [key, entry] of Object.entries(RO_POSSESSIVES)) {
+      const forms = typeof entry === 'string' ? [entry] : [entry.m.sg, entry.m.pl, entry.f.sg, entry.f.pl];
+      if (forms.some(isEmpty)) errors.push(`lexeme ${l.id}: an empty Romanian possessive for ${key}`);
+    }
+    for (const [key, word] of Object.entries(EN_POSSESSIVES)) {
+      if (isEmpty(word)) errors.push(`lexeme ${l.id}: an empty English possessive for ${key}`);
+    }
+    for (const p of POSSESSORS) {
+      if (isEmpty(enPossessive(p.slot))) errors.push(`lexeme ${l.id}: no English possessive for ${p.value}`);
     }
   }
   if (l.pos === 'clitic') {

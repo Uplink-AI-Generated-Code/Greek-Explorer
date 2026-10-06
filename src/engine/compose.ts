@@ -57,7 +57,7 @@ const CLITIC_STRESS: IrregularNote = {
 };
 
 /** The form with an acute accent on the letter at `at` of its written text. */
-function accentForm(form: Form, at: number): Form {
+export function accentForm(form: Form, at: number): Form {
   const parts = [form.augment ?? '', form.stem, form.ending];
   let offset = 0;
   const next = parts.map((part) => {
