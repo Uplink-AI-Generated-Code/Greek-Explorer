@@ -63,7 +63,7 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   if (!noun && token.slot.pos === 'quantifier') noun = DEFAULT_NOUN[token.slot.gender];
   // A noun that a possessive points at shows it: το σπίτι μου.
   const at = phrase.tokens.indexOf(token);
-  const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === at) : undefined;
+  const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === at && phrase.tokens.indexOf(t) === at + 1) : undefined;
   // A noun shows the noun that owns it: the genitive noun that points back at it (το σπίτι του παιδιού).
   const owner = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'noun' && t.slot.case === 'gen' && t.agreesWith === at) : undefined;
   // δικός shows the possessive that follows it: το δικό μου σπίτι.
@@ -173,8 +173,10 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'noun') {
         if (value === '1') return { ...state, slot: { pos: 'noun', number: 'sg', case: slot.case } };
         if (value === 'many') return { ...state, slot: { pos: 'noun', number: 'pl', case: slot.case } };
+        // A counted noun has no noun possessor, so none stays selected out of sight.
+        const { owner: _owner, ...rest } = state;
         return {
-          ...state,
+          ...rest,
           slot: { pos: 'noun', number: 'pl', case: slot.case, count: Number(value) as Exclude<NumeralValue, 1> },
         };
       }

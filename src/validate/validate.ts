@@ -408,7 +408,10 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       const beforeLexeme = before ? lexemes[before.lexeme] : undefined;
       const afterOwn = beforeLexeme?.pos === 'adjective' && beforeLexeme.emphatic === true && before?.agreesWith === at;
       if (afterOwn) {
-        // nothing more to check about its place
+        // Either δικός stands right before its noun (the possessive sits between them), or it comes after the verb with the noun earlier.
+        const beforeNoun = at === index + 1;
+        const afterVerb = at < index - 2;
+        if (!beforeNoun && !afterVerb) errors.push(`${where}: δικός goes before its noun or after the verb, not straight after the noun`);
       } else if (at >= index) {
         errors.push(`${where}: a possessive comes after its noun`);
       } else if (between.length > 0) {
@@ -427,6 +430,12 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     if (!next || next.slot.pos !== 'possessive' || next.agreesWith !== token.agreesWith) {
       errors.push(`${where}: δικός needs the possessive of the same noun directly after it`);
     }
+    if (token.slot.case !== 'nom' && token.slot.case !== 'acc') errors.push(`${where}: δικός is offered only as subject or object`);
+    const owned = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    if (owned && owned.slot.pos === 'noun') {
+      if (owned.slot.number !== token.slot.number) errors.push(`${where}: δικός is ${token.slot.number} but its noun is ${owned.slot.number}`);
+      if (owned.slot.case !== token.slot.case) errors.push(`${where}: δικός is ${token.slot.case} but its noun is ${owned.slot.case}`);
+    }
   }
   if (token.slot.pos === 'noun' && token.agreesWith !== undefined) {
     // A noun possessor: the genitive singular noun after the possessed noun and its own definite article (το σπίτι του παιδιού).
@@ -439,7 +448,11 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       const article = phrase.tokens[index - 1];
       if (!article || article.slot.pos !== 'article' || article.lexeme !== 'def' || article.agreesWith !== index) {
         errors.push(`${where}: a noun possessor needs the definite article just before it`);
+      } else if (article.slot.pos === 'article' && (article.slot.case !== 'gen' || article.slot.number !== 'sg')) {
+        errors.push(`${where}: the article of a noun possessor is the genitive singular`);
       }
+      const owners = phrase.tokens.filter((t) => t.slot.pos === 'noun' && t.slot.case === 'gen' && t.agreesWith === token.agreesWith);
+      if (owners.length > 1) errors.push(`${where}: a noun has only one noun possessor`);
       const hasArticle = phrase.tokens.some((t) => t.slot.pos === 'article' && t.lexeme === 'def' && t.agreesWith === token.agreesWith);
       if (!hasArticle) errors.push(`${where}: the noun of a noun possessor needs the definite article`);
     }

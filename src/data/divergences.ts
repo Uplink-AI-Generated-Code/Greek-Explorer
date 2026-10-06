@@ -849,7 +849,7 @@ export const DIVERGENCES: Divergence[] = [
     appliesTo: { pos: 'adjective', lexeme: 'dikos' },
     point: 'My own, mine',
     el: 'δικός + μου: an adjective that agrees with the thing possessed (το δικό μου σπίτι; το δικό μου on its own)',
-    ro: '*propriu* beside the noun (propria mea casă); *al meu / a mea / ai mei / ale mele* on its own',
+    ro: 'propriu beside the noun (propria mea casă); al meu / a mea / ai mei / ale mele on its own',
     en: '"my own" beside a noun, "mine" on its own',
     tag: 'differs',
     level: 'core',

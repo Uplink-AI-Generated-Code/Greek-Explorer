@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { richText } from '../engine/segments';
+import { PHRASES } from '../data/phrases';
 import type { Phrase, Token } from '../types';
 import { applyControl, buildPanel, initialState, sameState, type PanelState } from './panels';
 
@@ -66,5 +67,18 @@ describe('the noun a possessive points at', () => {
   it('gives the article and the possessive no possessor of their own', () => {
     expect(initialState(tokens[0], phrase)).not.toHaveProperty('possessor');
     expect(initialState(tokens[2], phrase)).not.toHaveProperty('possessor');
+  });
+
+  it('a counted number clears the noun possessor', () => {
+    const owned = kafes({ owner: 'paidi' });
+    expect(applyControl(owned, 'count', '3')).not.toHaveProperty('owner');
+    expect(applyControl(owned, 'count', 'many')).toHaveProperty('owner', 'paidi');
+  });
+
+  it('a possessive after δικός does not seed the noun', () => {
+    const phrase = PHRASES.find((p) => p.id === 'my-own-house')!;
+    const noun = phrase.tokens[3];
+    expect(initialState(noun, phrase)).not.toHaveProperty('possessor');
+    expect(initialState(phrase.tokens[1], phrase)).toHaveProperty('possessor');
   });
 });

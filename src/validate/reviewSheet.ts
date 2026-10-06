@@ -208,7 +208,7 @@ function ownLines(adj: GreekAdjective, lexemes: Record<string, GreekLexeme>): st
     }),
   );
   return [
-    `- Romanian propriu with its article (nominative and accusative): ${table(RO_OWN)}`,
+    `- Romanian propriu with its article (nominative): ${table(RO_OWN)}`,
     `- Romanian word before the possessive on its own: ${table(RO_ALONE)}`,
     '- Noun phrases with each possessor (generated):',
     ...phrases,

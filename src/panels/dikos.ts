@@ -22,7 +22,7 @@ function dikosFull(adj: GreekAdjective, slot: SlotOf<'adjective'>, noun: GreekNo
       ]),
       ro: plain(roAloneFor(possessor, g, slot.number)),
       en: plain(enAlone(possessor)),
-      hl: { el: g === noun.gender && c === slot.case, ro: g === noun.ro.gender && c === slot.case, en: false },
+      hl: { el: g === noun.gender && c === slot.case, ro: g === noun.ro.gender && c === slot.case, en: g === noun.gender && c === slot.case },
     })),
   );
 }
@@ -55,7 +55,7 @@ export function dikosPanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, state
     ],
     full: level === 'improver' ? dikosFull(adj, slot, noun, possessor) : [],
     plain:
-      'Greek δικός copies gender, number and role from the thing possessed, and the weak possessive follows it: το δικό μου σπίτι. Romanian puts propriu after the article and before the noun (propria mea casă) and says al meu, a mea, ai mei, ale mele on its own. English says "my own" beside a noun and "mine" on its own.',
+      'Greek δικός copies gender, number and role from the thing possessed, and the weak possessive follows it: το δικό μου σπίτι. Romanian puts propriu, with the article as a suffix (propria), before the noun (propria mea casă) and says al meu, a mea, ai mei, ale mele on its own. English says "my own" beside a noun and "mine" on its own. After είναι the article drops: το σπίτι είναι δικό μου.',
     irregular: inflectAdjective(adj, slot).irregular?.plain ?? '',
     note: noun.note,
   };
