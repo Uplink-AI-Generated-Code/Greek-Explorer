@@ -9,7 +9,10 @@ import { formText, richText } from '../engine/segments';
 import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import { RECIPIENTS } from '../engine/objects';
-import type { Clitic, GreekInterrogative, GreekLexeme, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import { nounPhrase } from '../engine/agree';
+import { POSSESSORS } from '../engine/possessive';
+import { RO_POSSESSIVES } from '../data/possessives';
+import type { Clitic, GreekInterrogative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -160,6 +163,27 @@ function otherLines(l: Exclude<GreekLexeme, GreekVerb>): string[] {
   return [...greek, ...stored.filter((line) => line !== '')];
 }
 
+/** The Romanian possessives by possessor, and every noun with every possessor in the three languages (spec 9). */
+function possessiveLines(lexemes: Record<string, GreekLexeme>): string[] {
+  const table = Object.entries(RO_POSSESSIVES).map(
+    ([key, entry]) =>
+      `- ${key}: ${typeof entry === 'string' ? entry : `${entry.m.sg} · ${entry.m.pl} · ${entry.f.sg} · ${entry.f.pl} (masculine singular, masculine plural, feminine singular, feminine plural)`}`,
+  );
+  const nouns = Object.values(lexemes).filter((l): l is GreekNoun => l.pos === 'noun');
+  const phrases = nouns.flatMap((noun) =>
+    (['sg', 'pl'] as const).flatMap((number) => {
+      const all = POSSESSORS.map((p) => nounPhrase(noun, number, 'nom', { article: 'definite', possessor: p.slot }));
+      return [
+        `- ${noun.lemma} (${number === 'sg' ? 'singular' : 'plural'}):`,
+        `  - ${LANG_NAME.el}: ${all.map((n) => richText(n.el)).join(' · ')}`,
+        `  - ${LANG_NAME.ro}: ${all.map((n) => n.ro).join(' · ')}`,
+        `  - ${LANG_NAME.en}: ${all.map((n) => n.en).join(' · ')}`,
+      ];
+    }),
+  );
+  return ['- Romanian possessives (they agree with the possessed noun):', ...table, '- Noun phrases with each possessor, nominative (generated):', ...phrases];
+}
+
 function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {
   const missing = (['el', 'ro', 'en'] as const).filter((lang) => !l.verified[lang]);
   if (missing.length === 0) return [];
@@ -171,6 +195,7 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
       ...otherLines(l),
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
       ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
+      ...(l.pos === 'possessive' ? possessiveLines(lexemes) : []),
     ]),
     '',
   ];

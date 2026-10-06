@@ -99,6 +99,15 @@ describe('the review sheet', () => {
     expect(sheet).toContain('polys Romanian plain determiner m sg gen');
   });
 
+  it('shows the possessive: the Romanian table and the noun phrases with every possessor', () => {
+    expect(sheet).toContain('- 1sg: meu · mei · mea · mele');
+    expect(sheet).toContain('- 3sg.f: ei');
+    expect(sheet).toContain('το σπίτι μου · το σπίτι σου · το σπίτι του · το σπίτι της · το σπίτι μας · το σπίτι σας · το σπίτι τους');
+    expect(sheet).toContain('η θάλασσά μου');
+    expect(sheet).toContain('casa mea · casa ta · casa lui · casa ei · casa noastră · casa voastră · casa lor');
+    expect(sheet).toContain('my house · your house · his house · her house · our house · your house · their house');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });
