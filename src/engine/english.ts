@@ -103,7 +103,7 @@ export function enVerbText(v: GreekVerb, s: SlotOf<'verb'>, pronoun: string): st
 export function enQuantifier(q: GreekQuantifier, s: SlotOf<'quantifier'>): string {
   const set = s.degree === 'comparative' ? q.en.comparative : s.sense === 'few' && q.en.few ? q.en.few : q.en.plain;
   if (!set) throw new Error(`${q.id} has no English ${s.degree} form`);
-  const word = set[s.use][s.number];
+  const word = set[s.use]?.[s.number];
   if (word === undefined) throw new Error(`${q.id} has no English ${s.use} form for the ${s.number}`);
   return word;
 }

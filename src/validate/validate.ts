@@ -1,5 +1,5 @@
 import { inflect } from '../engine/greek';
-import { offeredCases, quantifierSlots } from '../engine/quantifier';
+import { offeredCases, offeredUses, quantifierSlots } from '../engine/quantifier';
 import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/offers';
 import { enClitic, roClitic } from '../engine/clitics';
 import { RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
@@ -257,6 +257,13 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     }
   }
   if (l.pos === 'quantifier') {
+    if (l.demonstrative === 'near' || l.demonstrative === 'far') {
+      if (!l.ro.spoken) errors.push(`lexeme ${l.id}: a near or far demonstrative needs its spoken Romanian forms`);
+      if (offeredUses(l).length !== 2) errors.push(`lexeme ${l.id}: a near or far demonstrative offers both uses`);
+    }
+    if (l.demonstrative === 'such' && (offeredUses(l).length !== 1 || offeredUses(l)[0] !== 'determiner')) {
+      errors.push(`lexeme ${l.id}: τέτοιος is offered beside a noun only`);
+    }
     if (l.numbers.length === 0) errors.push(`lexeme ${l.id}: a quantifier must offer at least one number`);
     if (l.ro.few && !l.en.few) errors.push(`lexeme ${l.id}: ro.few has no en.few`);
     if (l.question && !(l.cases?.length === 2 && l.cases.includes('nom') && l.cases.includes('acc'))) {
@@ -269,7 +276,7 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
           const cell = roQuantifier(l, slot, roGender);
           if (cell === null) {
             // A stand-alone genitive pronoun is not covered (spec 6.3); a determiner must have one.
-            if (slot.use === 'determiner') errors.push(`${where}: no Romanian ${roGender} determiner form in the genitive`);
+            if (slot.use === 'determiner' && slot.register !== 'spoken') errors.push(`${where}: no Romanian ${roGender} determiner form in the genitive`);
           } else if (typeof cell === 'string' && isEmpty(cell)) {
             errors.push(`${where}: empty Romanian ${roGender} form`);
           }
@@ -668,7 +675,7 @@ export function pendingCells(lexemes: Record<string, GreekLexeme>): string[] {
       for (const use of ['determiner', 'pronoun'] as const) {
         for (const g of ['m', 'f'] as const) {
           for (const number of ['sg', 'pl'] as const) {
-            const cell = set[use][g][number];
+            const cell = set[use]?.[g][number];
             if (!cell) continue;
             for (const key of ['nom', 'gen'] as const) {
               const value = cell[key];

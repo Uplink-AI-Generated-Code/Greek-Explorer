@@ -14,6 +14,10 @@ export type PrepSense = 'to' | 'at' | 'in' | 'on' | 'person';
 export type QuantifierDegree = 'plain' | 'comparative';
 export type QuantifierSense = 'some' | 'few';
 export type QuantifierUse = 'determiner' | 'pronoun';
+/** Romanian only: the spoken forms (ăsta, ăla), which go after the noun (spec 25). */
+export type QuantifierRegister = 'spoken';
+/** What a demonstrative points at: this, that, such, so much or so many (spec 25). */
+export type DemonstrativeKind = 'near' | 'far' | 'such' | 'amount';
 
 export type Mood = 'indicative' | 'subjunctive' | 'imperative' | 'conditional' | 'hortative';
 // Indicative: present, imperfect, aorist, future (θα + present), futureSimple (θα + aorist subjunctive),
@@ -81,6 +85,8 @@ export type Slot =
       sense?: QuantifierSense;
       /** Beside a noun, or on its own. Greek does not change; Romanian and English do (spec 4.2). */
       use: QuantifierUse;
+      /** The spoken Romanian forms of a demonstrative; Greek and English do not change. */
+      register?: QuantifierRegister;
     }
   | { pos: 'preposition'; sense?: PrepSense }
   | { pos: 'particle' }
@@ -164,7 +170,7 @@ export interface GreekNumeral extends LexemeBase {
  * How the Greek forms of one degree are made: a shared table of whole forms, or the adjective endings on a stem
  * (the stem-stressed endings, or the ending-stressed ones when `stressed` is set: μερικός, μερικοί).
  */
-export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' | 'poios' } | { stem: string; stressed?: true };
+export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios' } | { stem: string; stressed?: true };
 
 /** One Romanian cell: nominative-accusative and genitive-dative. `gen` is absent where the form is not covered (a stand-alone genitive pronoun, spec 6.3). */
 export interface RoQuantifierCell {
@@ -173,9 +179,10 @@ export interface RoQuantifierCell {
 }
 
 /** By use, then Romanian gender (neuter follows masculine in the singular and feminine in the plural), then number. */
-export type RoQuantifierCells = Record<QuantifierUse, Record<'m' | 'f', Partial<Record<Num, RoQuantifierCell>>>>;
+type RoCellsByGender = Record<'m' | 'f', Partial<Record<Num, RoQuantifierCell>>>;
+export type RoQuantifierCells = { determiner: RoCellsByGender; pronoun?: RoCellsByGender };
 
-export type EnQuantifierCells = Record<QuantifierUse, Partial<Record<Num, string>>>;
+export type EnQuantifierCells = { determiner: Partial<Record<Num, string>>; pronoun?: Partial<Record<Num, string>> };
 
 export interface GreekQuantifier extends LexemeBase {
   pos: 'quantifier';
@@ -191,9 +198,15 @@ export interface GreekQuantifier extends LexemeBase {
   question?: 'who' | 'amount';
   /** The roles the panel may offer; absent means all three. Question words offer the subject and object only (spec 4.2). */
   cases?: Case[];
+  /** A demonstrative (αυτός, εκείνος, τέτοιος, τόσος): the article follows the near and far ones, and ένα goes before τέτοιος (spec 25). */
+  demonstrative?: DemonstrativeKind;
+  /** The uses the panel may offer; absent means both (τέτοιος has no stand-alone use). */
+  uses?: QuantifierUse[];
   ro: {
     lemma: string;
     plain: RoQuantifierCells;
+    /** The spoken forms of a demonstrative, which go after the noun (casa asta); no genitive. */
+    spoken?: RoQuantifierCells;
     /** The second sense (câțiva beside niște). The comparative is generated: mai + the plain form. */
     few?: RoQuantifierCells;
     /** The numbers whose Romanian genitive has the article built in (multului = "of the much"). */

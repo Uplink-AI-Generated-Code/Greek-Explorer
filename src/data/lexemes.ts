@@ -588,6 +588,116 @@ const posos: GreekQuantifier = {
   },
 };
 
+/** The spoken Romanian forms of a demonstrative: after the noun, the same for both uses, with no genitive. */
+const spokenCells = (msg: string, mpl: string, fsg: string, fpl: string): GreekQuantifier['ro']['plain'] => {
+  const cells = { m: { sg: ro1(msg), pl: ro1(mpl) }, f: { sg: ro1(fsg), pl: ro1(fpl) } };
+  return { determiner: cells, pronoun: cells };
+};
+
+const autos: GreekQuantifier = {
+  id: 'autos',
+  pos: 'quantifier',
+  lemma: 'αυτός',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'autos' } },
+  numbers: ['sg', 'pl'],
+  demonstrative: 'near',
+  meaning:
+    'αυτός means "this" (and, in everyday Greek, "that" too). It changes with gender, number and role, and the noun keeps its article: αυτό το σπίτι. Romanian says acest copil (before the noun, no article) or copilul acesta (after the noun, with its article).',
+  ro: {
+    lemma: 'acest',
+    plain: {
+      determiner: {
+        m: { sg: ro1('acest', 'acestui'), pl: ro1('acești', 'acestor') },
+        f: { sg: ro1('această', 'acestei'), pl: ro1('aceste', 'acestor') },
+      },
+      pronoun: {
+        m: { sg: ro1('acesta', 'acestuia'), pl: ro1('aceștia', 'acestora') },
+        f: { sg: ro1('aceasta', 'acesteia'), pl: ro1('acestea', 'acestora') },
+      },
+    },
+    spoken: spokenCells('ăsta', 'ăștia', 'asta', 'astea'),
+  },
+  en: { plain: { determiner: { sg: 'this', pl: 'these' }, pronoun: { sg: 'this', pl: 'these' } } },
+};
+
+const ekeinos: GreekQuantifier = {
+  id: 'ekeinos',
+  pos: 'quantifier',
+  lemma: 'εκείνος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'ekeinos' } },
+  numbers: ['sg', 'pl'],
+  demonstrative: 'far',
+  meaning:
+    'εκείνος means "that", the one further away or already mentioned. It changes with gender, number and role, and the noun keeps its article: εκείνος ο σκύλος. Romanian says acel câine (before the noun) or câinele acela (after the noun).',
+  ro: {
+    lemma: 'acel',
+    plain: {
+      determiner: {
+        m: { sg: ro1('acel', 'acelui'), pl: ro1('acei', 'acelor') },
+        f: { sg: ro1('acea', 'acelei'), pl: ro1('acele', 'acelor') },
+      },
+      pronoun: {
+        m: { sg: ro1('acela', 'aceluia'), pl: ro1('aceia', 'acelora') },
+        f: { sg: ro1('aceea', 'aceleia'), pl: ro1('acelea', 'acelora') },
+      },
+    },
+    spoken: spokenCells('ăla', 'ăia', 'aia', 'alea'),
+  },
+  en: { plain: { determiner: { sg: 'that', pl: 'those' }, pronoun: { sg: 'that', pl: 'those' } } },
+};
+
+const tetoios: GreekQuantifier = {
+  id: 'tetoios',
+  pos: 'quantifier',
+  lemma: 'τέτοιος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'tetoios' } },
+  numbers: ['sg', 'pl'],
+  demonstrative: 'such',
+  uses: ['determiner'],
+  meaning:
+    'τέτοιος means "such" and goes beside a noun only. In the singular it follows the indefinite article: ένα τέτοιο σπίτι, "such a house". It changes with gender, number and role. Romanian asemenea never changes.',
+  ro: {
+    lemma: 'asemenea',
+    plain: {
+      determiner: {
+        m: { sg: ro1('un asemenea', 'unui asemenea'), pl: ro1('asemenea', 'unor asemenea') },
+        f: { sg: ro1('o asemenea', 'unei asemenea'), pl: ro1('asemenea', 'unor asemenea') },
+      },
+    },
+  },
+  en: { plain: { determiner: { sg: 'such a', pl: 'such' } } },
+};
+
+const tosos: GreekQuantifier = {
+  id: 'tosos',
+  pos: 'quantifier',
+  lemma: 'τόσος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { stem: 'τόσ' } },
+  numbers: ['sg', 'pl'],
+  demonstrative: 'amount',
+  cases: ['nom', 'acc'],
+  meaning:
+    'τόσος means "so much" with a mass noun (τόσο ψωμί) and "so many" with a count noun (τόσα ψωμιά): the answer to πόσος. It declines like an adjective; Romanian atâta, atâția, atâtea changes too, English does not. It is offered as a subject or an object only.',
+  ro: {
+    lemma: 'atâta',
+    plain: {
+      determiner: {
+        m: { sg: ro1('atâta'), pl: ro1('atâția') },
+        f: { sg: ro1('atâta'), pl: ro1('atâtea') },
+      },
+      pronoun: {
+        m: { sg: ro1('atât'), pl: ro1('atâția') },
+        f: { sg: ro1('atâta'), pl: ro1('atâtea') },
+      },
+    },
+  },
+  en: { plain: { determiner: { sg: 'so much', pl: 'so many' }, pronoun: { sg: 'so much', pl: 'so many' } } },
+};
+
 const INDICATIVE_ALL: Tense[] = [
   'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
 ];
@@ -1315,6 +1425,10 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [ligos.id]: ligos,
   [poios.id]: poios,
   [posos.id]: posos,
+  [autos.id]: autos,
+  [ekeinos.id]: ekeinos,
+  [tetoios.id]: tetoios,
+  [tosos.id]: tosos,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [kano.id]: kano,

@@ -1,4 +1,4 @@
-import type { Case, Gender, GreekQuantifier, QuantifierDegree, QuantifierSense, QuantifierUse, SlotOf } from '../types';
+import type { Case, Gender, GreekQuantifier, QuantifierDegree, QuantifierRegister, QuantifierSense, QuantifierUse, SlotOf } from '../types';
 
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
@@ -14,23 +14,31 @@ export const offeredDegrees = (q: GreekQuantifier): QuantifierDegree[] =>
 /** The senses a quantifier has: the second only where its Romanian data has one (μερικοί). */
 export const offeredSenses = (q: GreekQuantifier): QuantifierSense[] => (q.ro.few ? ['some', 'few'] : ['some']);
 
-/** Every slot a quantifier offers; the `few` sense is the only one written on the slot. */
+export const offeredUses = (q: GreekQuantifier): QuantifierUse[] => q.uses ?? USES;
+
+/** The registers a quantifier has: the spoken Romanian forms only where its data has them (a demonstrative). */
+export const offeredRegisters = (q: GreekQuantifier): (QuantifierRegister | undefined)[] => (q.ro.spoken ? [undefined, 'spoken'] : [undefined]);
+
+/** Every slot a quantifier offers; the `few` sense and the spoken register are the only ones written on the slot. */
 export function quantifierSlots(q: GreekQuantifier): SlotOf<'quantifier'>[] {
   return GENDERS.flatMap((gender) =>
     q.numbers.flatMap((number) =>
       offeredCases(q).flatMap((c) =>
         offeredDegrees(q).flatMap((degree) =>
           offeredSenses(q).flatMap((sense) =>
-            USES.map(
-              (use): SlotOf<'quantifier'> => ({
-                pos: 'quantifier',
-                gender,
-                number,
-                case: c,
-                degree,
-                ...(sense === 'few' ? { sense } : {}),
-                use,
-              }),
+            offeredRegisters(q).flatMap((register) =>
+              offeredUses(q).map(
+                (use): SlotOf<'quantifier'> => ({
+                  pos: 'quantifier',
+                  gender,
+                  number,
+                  case: c,
+                  degree,
+                  ...(sense === 'few' ? { sense } : {}),
+                  ...(register ? { register } : {}),
+                  use,
+                }),
+              ),
             ),
           ),
         ),

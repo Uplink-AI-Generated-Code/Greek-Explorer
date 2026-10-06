@@ -223,11 +223,35 @@ export const RO_ARTICLE_SUFFIX: Record<Num, Record<Gender, { direct: string; gen
 
 type PairTable = Partial<Record<Num, Record<Case, Record<Gender, Pair>>>>;
 
+/** A table of whole forms on one stem: for each number, the endings of the nominative, accusative and genitive, each by masculine, feminine and neuter. */
+const onStem = (stem: string, sg: string[][], pl: string[][]): PairTable => {
+  const row = (e: string[]): Record<Gender, Pair> => ({ m: [stem, e[0]], f: [stem, e[1]], n: [stem, e[2]] });
+  const build = (rows: string[][]): Record<Case, Record<Gender, Pair>> => ({ nom: row(rows[0]), acc: row(rows[1]), gen: row(rows[2]) });
+  return { sg: build(sg), pl: build(pl) };
+};
+
 /**
  * Whole forms of the quantifiers that do not follow the adjective endings on one stem (spec 6.3).
  * κάποιος keeps the final ν of the masculine accusative; κανένας follows the numeral ένας; πολύς has two stems.
  */
-export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys' | 'poios', PairTable> = {
+export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios', PairTable> = {
+  /** αυτός keeps the stress on the ending and the final ν of the accusative (αυτόν, αυτήν). */
+  autos: onStem(
+    'αυτ',
+    [['ός', 'ή', 'ό'], ['όν', 'ήν', 'ό'], ['ού', 'ής', 'ού']],
+    [['οί', 'ές', 'ά'], ['ούς', 'ές', 'ά'], ['ών', 'ών', 'ών']],
+  ),
+  ekeinos: onStem(
+    'εκείν',
+    [['ος', 'η', 'ο'], ['ον', 'ην', 'ο'], ['ου', 'ης', 'ου']],
+    [['οι', 'ες', 'α'], ['ους', 'ες', 'α'], ['ων', 'ων', 'ων']],
+  ),
+  /** τέτοιος has the feminine τέτοια, like ποιος. */
+  tetoios: onStem(
+    'τέτοι',
+    [['ος', 'α', 'ο'], ['ον', 'α', 'ο'], ['ου', 'ας', 'ου']],
+    [['οι', 'ες', 'α'], ['ους', 'ες', 'α'], ['ων', 'ων', 'ων']],
+  ),
   poios: {
     sg: {
       nom: { m: ['ποι', 'ος'], f: ['ποι', 'α'], n: ['ποι', 'ο'] },

@@ -149,8 +149,9 @@ const quantifierGender = (g: Gender, number: Num): 'm' | 'f' => (g === 'n' ? (nu
  * (spec 6.3, 16).
  */
 export function roQuantifier(q: GreekQuantifier, s: SlotOf<'quantifier'>, roGender: Gender): Stored | null {
-  const set = s.sense === 'few' && q.ro.few ? q.ro.few : q.ro.plain;
-  const cell = set[s.use][quantifierGender(roGender, s.number)][s.number];
+  const set = s.register === 'spoken' ? q.ro.spoken : s.sense === 'few' && q.ro.few ? q.ro.few : q.ro.plain;
+  if (!set) throw new Error(`${q.id} has no Romanian ${s.register ?? s.sense ?? 'plain'} forms`);
+  const cell = set[s.use]?.[quantifierGender(roGender, s.number)][s.number];
   if (!cell) throw new Error(`${q.id} has no Romanian ${s.use} form for the ${s.number}`);
   const value = s.case === 'gen' ? cell.gen : cell.nom;
   if (value === undefined) return null;
