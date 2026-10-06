@@ -145,6 +145,26 @@ describe('the review sheet', () => {
     expect(sheet).not.toContain('με εδώ');
   });
 
+  it('shows the relative pronouns: the Romanian care tables and every noun in every job', () => {
+    expect(sheet).toContain('- Romanian care, dative: căruia (masc. sg) · căreia (fem. sg) · cărora (pl)');
+    expect(sheet).toContain('- Romanian care, genitive: cărui (masc. sg) · cărei (fem. sg) · căror (pl)');
+    expect(sheet).toContain('subject: που · care · who');
+    expect(sheet).toContain('subject: το οποίο · care · who');
+    expect(sheet).toContain('to whom: που του … · căruia · to whom');
+    expect(sheet).toContain('to whom: στο οποίο · căruia · to whom');
+    expect(sheet).toContain('whose (noun owned: σπίτι): του οποίου το σπίτι · a cărui casă · whose house');
+    expect(sheet).toContain('whose (noun owned: σκύλος): του οποίου ο σκύλος · al cărei câine · whose dog');
+  });
+
+  it('shows the relative pronoun after every preposition', () => {
+    expect(sheet).toContain('- after a preposition (παιδί, singular):');
+    expect(sheet).toContain('με: με το οποίο · cu care · with whom');
+    expect(sheet).toContain('με: που … με αυτό · cu care · with whom');
+    expect(sheet).toContain('πάνω από: πάνω από το οποίο · peste care · over whom');
+    expect(sheet).toContain('σε: στο οποίο · la care · to whom');
+    expect(sheet).toContain('για: που … για αυτό · pentru care · for which');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });

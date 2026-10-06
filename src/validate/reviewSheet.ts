@@ -15,7 +15,9 @@ import { governsWord } from '../engine/preposition';
 import { buildPanel } from '../panels/panels';
 import { POSSESSORS } from '../engine/possessive';
 import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
-import type { Clitic, GreekAdjective, GreekAdverb, GreekInterrogative, GreekQuantifier, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import { RELATIVE_PREPOSITIONS, RELATIVE_ROLES, RO_CARE_DATIVE, RO_CARE_GENITIVE } from '../data/relatives';
+import { relativeGroup } from '../engine/relativeGroup';
+import type { Clitic, GreekAdjective, GreekAdverb, GreekInterrogative, GreekQuantifier, GreekRelative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -139,6 +141,38 @@ function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, Greek
     ...(l.answer ? [`- Answer: ${example(l.answer)}`] : []),
     ...pairs,
   ];
+}
+
+/**
+ * A relative pronoun: the Romanian care tables, then every noun in every job in the three languages (spec 9, 26). The
+ * Greek word printed is the lexeme's own; the Romanian and English words are the same for both.
+ */
+function relativeLines(l: GreekRelative, lexemes: Record<string, GreekLexeme>): string[] {
+  const nouns = Object.values(lexemes).filter((n): n is GreekNoun => n.pos === 'noun');
+  const ownedFor = (noun: GreekNoun): GreekNoun => (nouns.find((n) => n.id === (noun.id === 'spiti' ? 'skylos' : 'spiti')) ?? noun);
+  const line = (slot: SlotOf<'relative'>, noun: GreekNoun) => {
+    const g = relativeGroup(l.kind, slot, noun, ownedFor(noun));
+    return `${richText(g.el)} · ${g.ro} · ${g.en}`;
+  };
+  const table = (words: typeof RO_CARE_DATIVE) => `${words.m.sg} (masc. sg) · ${words.f.sg} (fem. sg) · ${words.m.pl} (pl)`;
+  const jobs = nouns.flatMap((noun) =>
+    (['sg', 'pl'] as const).flatMap((number) => [
+      `- ${noun.lemma} (${number === 'sg' ? 'singular' : 'plural'}${noun.animate ? ', animate' : ''}):`,
+      ...RELATIVE_ROLES.filter((r) => r.value !== 'preposition').map(({ value: role }) =>
+        `  - ${role === 'indirect' ? 'to whom' : role}${role === 'whose' ? ` (noun owned: ${ownedFor(noun).lemma})` : ''}: ${line({ pos: 'relative', role, gender: noun.gender, number }, noun)}`,
+      ),
+    ]),
+  );
+  const prepositions = nouns
+    .filter((n) => n.id === 'paidi' || n.id === 'spiti')
+    .flatMap((noun) => [
+      `- after a preposition (${noun.lemma}, singular):`,
+      ...RELATIVE_PREPOSITIONS.map((id) => {
+        const lemma = (lexemes[id] as { lemma: string }).lemma;
+        return `  - ${lemma}: ${line({ pos: 'relative', role: 'preposition', gender: noun.gender, number: 'sg', preposition: id }, noun)}`;
+      }),
+    ]);
+  return [`- Romanian care, dative: ${table(RO_CARE_DATIVE)}`, `- Romanian care, genitive: ${table(RO_CARE_GENITIVE)}`, ...jobs, ...prepositions];
 }
 
 /** A place word: its example and the Romanian words after each preposition. */
@@ -279,6 +313,7 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
       ...otherLines(l),
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
       ...(l.pos === 'adverb' ? adverbLines(l, lexemes) : []),
+      ...(l.pos === 'relative' ? relativeLines(l, lexemes) : []),
       ...(l.pos === 'quantifier' && l.demonstrative ? demonstrativeLines(l, lexemes) : []),
       ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
       ...(l.pos === 'possessive' ? possessiveLines(lexemes) : []),
