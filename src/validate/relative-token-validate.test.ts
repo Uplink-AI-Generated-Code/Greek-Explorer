@@ -11,7 +11,7 @@ const rel = (patch: Record<string, unknown>) => (t: Token) => ({ ...t, slot: { .
 
 describe('a relative pronoun in the validator', () => {
   it('accepts the real phrases', () => {
-    for (const id of ['the-dog-that-jumps', 'the-bread-that-i-ate', 'the-child-i-gave-the-bread-to', 'the-child-whose-dog-jumps', 'the-house-i-am-going-to', 'the-child-i-am-going-with', 'this-is-the-house-i-have']) {
+    for (const id of ['the-dog-that-jumps', 'the-bread-that-i-ate', 'the-child-i-gave-it-to', 'the-child-whose-dog-jumps', 'the-house-i-am-going-to', 'the-child-i-am-going-with', 'this-is-the-house-i-have']) {
       expect(errorsOf(find(id))).toEqual([]);
     }
   });
@@ -50,5 +50,28 @@ describe('a relative pronoun in the validator', () => {
     const dog = find('the-dog-that-jumps');
     expect(errorsOf(withToken(dog, 2, rel({ role: 'whose' }))).some((e) => e.includes('που is a token for the subject, the object and "to whom"'))).toBe(true);
     expect(errorsOf(withToken(dog, 2, rel({ role: 'preposition', preposition: 'me' }))).some((e) => e.includes('που is a token for the subject'))).toBe(true);
+  });
+
+  it('"whose" wants the noun owned in the nominative singular, with an article of its gender', () => {
+    const whose = find('the-child-whose-dog-jumps');
+    const plural = withToken(whose, 4, (t) => ({ ...t, slot: { ...(t.slot as object), number: 'pl' } as Token['slot'] }));
+    expect(errorsOf(plural).some((e) => e.includes('the noun owned after "whose" is shown in the nominative singular'))).toBe(true);
+    const genitive = withToken(whose, 4, (t) => ({ ...t, slot: { ...(t.slot as object), case: 'gen' } as Token['slot'] }));
+    expect(errorsOf(genitive).some((e) => e.includes('the noun owned after "whose" is shown in the nominative singular'))).toBe(true);
+    const article = withToken(whose, 3, (t) => ({ ...t, slot: { ...(t.slot as object), gender: 'f' } as Token['slot'] }));
+    expect(errorsOf(article).some((e) => e.includes('the article of the noun owned is f but the noun is m'))).toBe(true);
+  });
+
+  it('που for "to whom" is followed directly by a verb with an indirect 3rd-person pronoun', () => {
+    const give = find('the-child-i-gave-it-to');
+    expect(errorsOf(give)).toEqual([]);
+    const bare = withToken(give, 3, (t) => ({ ...t, text: 'το έδωσα', slot: { ...(t.slot as object), clitics: [(t.slot as { clitics: unknown[] }).clitics[1]] } as Token['slot'] }));
+    expect(errorsOf(bare).some((e) => e.includes('που for "to whom" is followed directly by a verb carrying an indirect 3rd-person pronoun'))).toBe(true);
+  });
+
+  it('an indirect pronoun alone, outside the imperative, is an error', () => {
+    const give = find('the-child-i-gave-it-to');
+    const alone = withToken(give, 3, (t) => ({ ...t, text: 'του έδωσα', slot: { ...(t.slot as object), clitics: [(t.slot as { clitics: unknown[] }).clitics[0]] } as Token['slot'] }));
+    expect(errorsOf(alone)).toContain('the-child-i-gave-it-to token 3 (του έδωσα): a pronoun for the indirect object alone is for commands only');
   });
 });

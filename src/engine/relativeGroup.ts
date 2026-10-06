@@ -1,7 +1,7 @@
 import { RO_ALONE } from '../data/possessives';
 import { GREEK_STRONG } from '../data/clitics';
-import { RO_CARE_DATIVE, RO_CARE_GENITIVE } from '../data/relatives';
-import type { GreekNoun, SlotOf } from '../types';
+import { RELATIVE_PREPOSITION_EN, RO_CARE_DATIVE, RO_CARE_GENITIVE } from '../data/relatives';
+import type { GreekNoun, GreekPreposition, SlotOf } from '../types';
 import { nounPhrase } from './agree';
 import { greekClitic } from './clitics';
 import { roAgreement, roBareNoun } from './possessive';
@@ -23,6 +23,13 @@ const resumptive = (slot: RelativeSlot): string =>
 /** The Greek strong pronoun after a preposition: με αυτόν, σε αυτό. */
 const strong = (slot: RelativeSlot): string => GREEK_STRONG[`3${slot.number}`][slot.gender];
 
+/** The preposition of the job after a preposition (the slot always names one). */
+function prepositionOf(slot: RelativeSlot): GreekPreposition {
+  const prep = relativePreposition(slot);
+  if (!prep) throw new Error('a relative pronoun after a preposition needs the preposition');
+  return prep;
+}
+
 const ownedPhrase = (owned: GreekNoun): Rich => nounPhrase(owned, 'sg', 'nom', { article: 'definite' }).el;
 
 /**
@@ -40,8 +47,7 @@ function pouGreek(slot: RelativeSlot, owned: GreekNoun): Rich {
     case 'whose':
       return joinRich([word('που'), ownedPhrase(owned), [{ text: resumptive(slot), role: 'clitic' }], word('…')]);
     case 'preposition': {
-      const prep = relativePreposition(slot);
-      return joinRich([word('που'), word('…'), word(prep?.lemma ?? ''), [{ text: strong(slot), role: 'pronoun' }]]);
+      return joinRich([word('που'), word('…'), word(prepositionOf(slot).lemma), [{ text: strong(slot), role: 'pronoun' }]]);
     }
   }
 }
@@ -73,7 +79,7 @@ function roGroup(slot: RelativeSlot, antecedent: GreekNoun, owned: GreekNoun): s
       return `${first} ${RO_CARE_GENITIVE[gender][slot.number]} ${roBareNoun(owned, 'sg')}`;
     }
     case 'preposition':
-      return `${relativePreposition(slot)?.ro ?? ''} care`;
+      return `${prepositionOf(slot).ro} care`;
   }
 }
 
@@ -90,7 +96,7 @@ function enGroup(slot: RelativeSlot, antecedent: GreekNoun, owned: GreekNoun): s
     case 'whose':
       return `whose ${owned.en.sg}`;
     case 'preposition':
-      return `${relativePreposition(slot)?.en ?? ''} ${person ? 'whom' : 'which'}`;
+      return `${RELATIVE_PREPOSITION_EN[slot.preposition ?? ''] ?? prepositionOf(slot).en} ${person ? 'whom' : 'which'}`;
   }
 }
 

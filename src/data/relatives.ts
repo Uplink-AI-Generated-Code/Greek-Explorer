@@ -12,6 +12,9 @@ export const RELATIVE_ROLES: { value: RelativeRole; label: string }[] = [
 /** The prepositions the relative pronoun may follow; σε is the direction "to" (la). */
 export const RELATIVE_PREPOSITIONS = ['pano', 'kato', 'me', 'gia', 'apo', 'mexri', 'se'] as const;
 
+/** The English word after a preposition, where the preposition's own English is not the word a relative group needs (up to whom, not until whom). */
+export const RELATIVE_PREPOSITION_EN: Record<string, string> = { mexri: 'up to' };
+
 /** ο οποίος: the stem and the endings (the accusative masculine has no ν: τον οποίο). */
 export const OPOIOS_STEM = 'οποί';
 export const OPOIOS_ENDINGS: Record<Num, Record<Case, Record<Gender, string>>> = {

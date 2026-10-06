@@ -172,7 +172,9 @@ function relativeLines(l: GreekRelative, lexemes: Record<string, GreekLexeme>): 
         return `  - ${lemma}: ${line({ pos: 'relative', role: 'preposition', gender: noun.gender, number: 'sg', preposition: id }, noun)}`;
       }),
     ]);
-  return [`- Romanian care, dative: ${table(RO_CARE_DATIVE)}`, `- Romanian care, genitive: ${table(RO_CARE_GENITIVE)}`, ...jobs, ...prepositions];
+  // The Romanian care tables are the same for both Greek words: print them once, under που.
+  const tables = l.kind === 'pou' ? [`- Romanian care, dative: ${table(RO_CARE_DATIVE)}`, `- Romanian care, genitive: ${table(RO_CARE_GENITIVE)}`] : [];
+  return [...tables, ...jobs, ...prepositions];
 }
 
 /** A place word: its example and the Romanian words after each preposition. */
@@ -310,7 +312,8 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
     `Unverified: ${missing.join(', ')}. Part of speech: ${l.pos}.`,
     '',
     ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines(lexemes) : [
-      ...otherLines(l),
+      // The relative pronoun's own lines say everything the generic per-slot lines would repeat.
+      ...(l.pos === 'relative' && l.kind === 'pou' ? [] : otherLines(l)),
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
       ...(l.pos === 'adverb' ? adverbLines(l, lexemes) : []),
       ...(l.pos === 'relative' ? relativeLines(l, lexemes) : []),

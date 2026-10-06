@@ -23,7 +23,8 @@ export function relativePanel(word: GreekRelative, slot: SlotOf<'relative'>, sta
   const owned = getNoun(state.owned ?? defaultOwned(antecedent.id));
   const preposition = slot.preposition ?? 'me';
   const withPreposition = (role: RelativeRole): SlotOf<'relative'> => {
-    const { preposition: _gone, ...rest } = slot;
+    const rest = { ...slot };
+    delete rest.preposition;
     return role === 'preposition' ? { ...rest, role, preposition } : { ...rest, role };
   };
   const row = (kind: 'pou' | 'opoios', label: string, role: RelativeRole = slot.role): PanelRow => {
@@ -60,7 +61,7 @@ export function relativePanel(word: GreekRelative, slot: SlotOf<'relative'>, sta
             el: joinRich([pou.el, separator, opoios.el]),
             ro: plain(pou.ro),
             en: plain(pou.en),
-            hl: role === slot.role ? ALL : undefined,
+            ...(role === slot.role ? { hl: ALL } : {}),
           };
         })
       : [];
@@ -78,6 +79,6 @@ export function relativePanel(word: GreekRelative, slot: SlotOf<'relative'>, sta
     full,
     plain: word.meaning,
     irregular: '',
-    note: antecedent.note,
+    note: '',
   };
 }

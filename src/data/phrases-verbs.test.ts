@@ -102,7 +102,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
       'my-house', 'our-sea', 'your-dog', 'his-child', 'where-is-your-house', 'my-hot-coffee',
       'my-own-house', 'the-house-is-mine', 'the-childs-house', 'the-childs-dog',
       'this-house', 'that-dog', 'these-houses', 'this-is-my-house', 'here-is-the-house', 'as-far-as-there', 'such-a-house', 'so-much-bread',
-      'the-dog-that-jumps', 'the-bread-that-i-ate', 'the-coffee-i-want', 'the-child-i-gave-the-bread-to', 'the-child-whose-dog-jumps',
+      'the-dog-that-jumps', 'the-bread-that-i-ate', 'the-coffee-i-want', 'the-child-i-gave-it-to', 'the-child-whose-dog-jumps',
       'the-house-i-am-going-to', 'the-child-i-am-going-with', 'the-dog-that-is-there', 'this-is-the-house-i-have',
     ]);
   });

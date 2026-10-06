@@ -176,3 +176,10 @@ describe('the review sheet', () => {
     expect(sheet).toContain('από τι: de la ce');
   });
 });
+
+describe('the relative pronoun sections of the review sheet', () => {
+  it('print the Romanian care tables once, and no generic per-slot lines under που', () => {
+    expect(sheet.split('- Romanian care, dative:').length - 1).toBe(1);
+    expect(sheet).toContain('up to whom');
+  });
+});

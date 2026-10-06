@@ -5,7 +5,7 @@ import { validate, warnings } from '../validate/validate';
 import { PHRASES } from './phrases';
 
 const IDS = [
-  'the-dog-that-jumps', 'the-bread-that-i-ate', 'the-coffee-i-want', 'the-child-i-gave-the-bread-to', 'the-child-whose-dog-jumps',
+  'the-dog-that-jumps', 'the-bread-that-i-ate', 'the-coffee-i-want', 'the-child-i-gave-it-to', 'the-child-whose-dog-jumps',
   'the-house-i-am-going-to', 'the-child-i-am-going-with', 'the-dog-that-is-there', 'this-is-the-house-i-have',
 ];
 const phrase = (id: string) => {
@@ -36,7 +36,7 @@ describe('phrases 81 to 89', () => {
     expect(read('the-dog-that-jumps')).toEqual(['Ο σκύλος που πηδάει', 'The dog that jumps', 'Câinele care sare']);
     expect(read('the-bread-that-i-ate')).toEqual(['Το ψωμί που έφαγα', 'The bread that I ate', 'Pâinea pe care am mâncat-o']);
     expect(read('the-coffee-i-want')).toEqual(['Ο καφές που θέλω', 'The coffee I want', 'Cafeaua pe care o vreau']);
-    expect(read('the-child-i-gave-the-bread-to')).toEqual(['Το παιδί που του έδωσα το ψωμί', 'The child I gave the bread to', 'Copilul căruia i-am dat pâinea']);
+    expect(read('the-child-i-gave-it-to')).toEqual(['Το παιδί που του το έδωσα', 'The child I gave it to', 'Copilul căruia i l-am dat']);
     expect(read('the-child-whose-dog-jumps')).toEqual(['Το παιδί του οποίου ο σκύλος πηδάει', 'The child whose dog jumps', 'Copilul al cărui câine sare']);
     expect(read('the-house-i-am-going-to')).toEqual(['Το σπίτι στο οποίο πάω', 'The house I am going to', 'Casa la care merg']);
     expect(read('the-child-i-am-going-with')).toEqual(['Το παιδί με το οποίο πάω', 'The child I am going with', 'Copilul cu care merg']);

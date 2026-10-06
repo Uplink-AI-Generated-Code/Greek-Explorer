@@ -1,4 +1,5 @@
 import type { PanelRow } from '../panels/panels';
+import { MixedText } from './MixedText';
 import { RichText } from './RichText';
 
 export function FormTable({ rows }: { rows: PanelRow[] }) {
@@ -24,14 +25,18 @@ export function FormTable({ rows }: { rows: PanelRow[] }) {
         {rows.map((row) =>
           row.dimmed ? (
             <tr key={row.label} className="is-dim">
-              <th scope="row">{row.label}</th>
+              <th scope="row">
+                <MixedText text={row.label} />
+              </th>
               <td lang="en" colSpan={3}>
                 {row.dimmed}
               </td>
             </tr>
           ) : (
             <tr key={row.label}>
-              <th scope="row">{row.label}</th>
+              <th scope="row">
+                <MixedText text={row.label} />
+              </th>
               <td lang="el" className={row.hl?.el ? 'cur' : undefined} aria-current={row.hl?.el ? 'true' : undefined}>
                 <RichText rich={row.el} />
               </td>

@@ -101,4 +101,10 @@ describe('the pronoun group in three languages', () => {
     expect(group('opoios', slot('preposition', 'n', 'sg', 'se'), 'spiti')).toEqual({ el: 'στο οποίο', ro: 'la care', en: 'to which' });
     expect(group('pou', slot('preposition', 'n', 'pl', 'apo'), 'paidi').el).toBe('που … από αυτά');
   });
+
+  it('says "up to" for μέχρι, and keeps the English of the other prepositions', () => {
+    expect(group('opoios', slot('preposition', 'n', 'sg', 'mexri'), 'spiti').en).toBe('up to which');
+    expect(group('pou', slot('preposition', 'm', 'sg', 'mexri'), 'paidi').en).toBe('up to whom');
+    expect(group('pou', slot('preposition', 'm', 'sg', 'me'), 'paidi').en).toBe('with whom');
+  });
 });

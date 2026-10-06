@@ -23,7 +23,7 @@ describe('relative pronouns in the app', () => {
   it('the role control changes the job in all three languages, and choosing the phrase’s own job again is no change', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.selectOptions(screen.getByLabelText('Phrase'), 'The child I gave the bread to');
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'The child I gave it to');
     await user.click(screen.getByRole('button', { name: 'που' }));
     expect(cell('που του …')).toBeInTheDocument();
     expect(cell('căruia')).toBeInTheDocument();

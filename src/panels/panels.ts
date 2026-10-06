@@ -278,7 +278,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'owned':
-      if (slot.pos === 'relative' && getLexeme(value).pos === 'noun') {
+      if (slot.pos === 'relative' && slot.role === 'whose' && getLexeme(value).pos === 'noun') {
         const { owned: _old, slot: _slot, ...rest } = state;
         // A fixed key order, so that sameState (which compares JSON) is true after choosing the phrase's own noun again.
         return { slot: state.slot, owned: value, ...rest };

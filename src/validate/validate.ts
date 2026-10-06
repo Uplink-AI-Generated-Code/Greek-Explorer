@@ -375,6 +375,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     inflected = false;
     errors.push(`${where}: ${(e as Error).message}`);
   }
+  if (token.slot.pos === 'verb' && token.slot.mood !== 'imperative' && token.slot.clitics?.length && token.slot.clitics.every((c) => c.role === 'indirect')) {
+    errors.push(`${where}: a pronoun for the indirect object alone is for commands only`);
+  }
   if (token.slot.pos === 'verb' && lexeme.pos === 'verb') {
     const problem = slotProblem(lexeme, token.slot);
     if (!isOffered(lexeme, token.slot)) {
@@ -528,6 +531,21 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       const owned = phrase.tokens[index + 2];
       if (owner?.lexeme !== 'def' || owner.agreesWith !== index + 2 || owned?.slot.pos !== 'noun') {
         errors.push(`${where}: "whose" is followed by the article and the noun owned`);
+      } else {
+        const ownedLexeme = lexemes[owned.lexeme];
+        if (owned.slot.pos === 'noun' && (owned.slot.case !== 'nom' || owned.slot.number !== 'sg')) {
+          errors.push(`${where}: the noun owned after "whose" is shown in the nominative singular`);
+        }
+        if (owner.slot.pos === 'article' && ownedLexeme?.pos === 'noun' && owner.slot.gender !== ownedLexeme.gender) {
+          errors.push(`${where}: the article of the noun owned is ${owner.slot.gender} but the noun is ${ownedLexeme.gender}`);
+        }
+      }
+    }
+    if (lexeme.kind === 'pou' && slot.role === 'indirect') {
+      const verb = phrase.tokens[index + 1];
+      const pronoun = verb?.slot.pos === 'verb' ? (verb.slot.clitics ?? []).find((c) => c.role === 'indirect' && c.person === 3) : undefined;
+      if (!pronoun || pronoun.number !== slot.number) {
+        errors.push(`${where}: που for "to whom" is followed directly by a verb carrying an indirect 3rd-person pronoun`);
       }
     }
     if (inflected) {

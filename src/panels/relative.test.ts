@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { richText } from '../engine/segments';
 import type { Level, RelativeRole, SlotOf } from '../types';
-import { buildPanel, type PanelState } from './panels';
+import { applyControl, buildPanel, type PanelState } from './panels';
 
 const slotOf = (patch: Partial<SlotOf<'relative'>> = {}): SlotOf<'relative'> => ({
   pos: 'relative',
@@ -83,5 +83,13 @@ describe('the relative pronoun panel', () => {
     const p = panelFor('rel-pou', stateOf(slotOf({ role: roles[0], number: 'pl' }), 'paidi'));
     expect(cells(p, 0)).toEqual({ el: 'που τους …', ro: 'cărora', en: 'to whom' });
     expect(cells(p, 1).el).toBe('στα οποία');
+  });
+
+  it('owned is accepted only for "whose", and the note is empty', () => {
+    const subject = stateOf(slotOf(), 'paidi');
+    expect(applyControl(subject, 'owned', 'skylos')).toEqual(subject);
+    const whose = stateOf(slotOf({ role: 'whose' }), 'paidi');
+    expect(applyControl(whose, 'owned', 'skylos')).toHaveProperty('owned', 'skylos');
+    expect(panelFor('rel-pou', subject).note).toBe('');
   });
 });

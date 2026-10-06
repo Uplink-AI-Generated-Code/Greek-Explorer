@@ -1739,8 +1739,8 @@ const relative = (role: RelativeRole, gender: Gender, number: Num = 'sg', prepos
   number,
   ...(preposition ? { preposition } : {}),
 });
-/** The weak pronoun "to him / to it" of the neuter singular (του). */
-const TO_IT: Clitic = { role: 'indirect', person: 3, number: 'sg', gender: 'n' };
+/** The weak pronoun "to him" (του), the pronoun a relative clause for "to whom" repeats. */
+const TO_HIM: Clitic = { role: 'indirect', person: 3, number: 'sg', gender: 'm' };
 
 const theDogThatJumps: Phrase = {
   id: 'the-dog-that-jumps',
@@ -1801,24 +1801,22 @@ const theCoffeeIWant: Phrase = {
   verified: false,
 };
 
-const theChildIGaveTheBreadTo: Phrase = {
-  id: 'the-child-i-gave-the-bread-to',
-  title: 'The child I gave the bread to',
+const theChildIGaveItTo: Phrase = {
+  id: 'the-child-i-gave-it-to',
+  title: 'The child I gave it to',
   theme: 'Relative clauses',
   level: 'improver',
   tokens: [
     { ...article('n', 'nom', 1), text: 'Το' },
     { text: 'παιδί', lexeme: 'paidi', slot: nomSg },
     { text: 'που', lexeme: 'rel-pou', slot: relative('indirect', 'n'), agreesWith: 1 },
-    { text: 'του έδωσα', lexeme: 'dino', slot: { ...vslot('indicative', 'aorist'), clitics: [TO_IT] } as Slot },
-    { ...article('n', 'acc', 5), text: 'το' },
-    { text: 'ψωμί', lexeme: 'psomi', slot: accSg },
+    { text: 'του το έδωσα', lexeme: 'dino', slot: { ...vslot('indicative', 'aorist'), clitics: [TO_HIM, IT] } as Slot },
   ],
   glosses: rows(
-    [u('The', 0), u('child', 1), u('I gave', 3), u('the', 4), u('bread', 5), u('to', 2)],
-    [u('the', 0), u('child', 1), u('that', 2), u('to-him gave (I)', 3), u('the', 4), u('bread', 5)],
-    [seg(['Copil', 1], ['ul', 0]), u('căruia', 2), u('i-am dat', 3), seg(['pâine', 5], ['a', 4])],
-    [seg(['copil', 1], ['ul', 0]), u('căruia', 2), u('(eu)', null), u('i-am dat', 3), seg(['pâine', 5], ['a', 4])],
+    [u('The', 0), u('child', 1), u('I gave it', 3), u('to', 2)],
+    [u('the', 0), u('child', 1), u('that', 2), u('to-him it gave (I)', 3)],
+    [seg(['Copil', 1], ['ul', 0]), u('căruia', 2), u('i l-am dat', 3)],
+    [seg(['copil', 1], ['ul', 0]), u('căruia', 2), u('(eu)', null), u('i l-am dat', 3)],
   ),
   verified: false,
 };
@@ -2007,7 +2005,7 @@ export const PHRASES: Phrase[] = [
   theDogThatJumps,
   theBreadThatIAte,
   theCoffeeIWant,
-  theChildIGaveTheBreadTo,
+  theChildIGaveItTo,
   theChildWhoseDogJumps,
   theHouseIAmGoingTo,
   theChildIAmGoingWith,
