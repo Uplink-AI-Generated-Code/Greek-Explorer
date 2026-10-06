@@ -1026,6 +1026,36 @@ const gia = preposition('gia', 'για', 'pentru', 'for', 'for');
 const apo = preposition('apo', 'από', 'de la', 'from', 'from');
 const mexri = preposition('mexri', 'μέχρι', 'până la', 'until', 'until');
 
+/** σε governs the accusative and is written as one word with the article after it (spec 4.4). */
+const se: GreekPreposition = {
+  id: 'se',
+  pos: 'preposition',
+  lemma: 'σε',
+  verified: { el: false, ro: false, en: false },
+  ro: 'la',
+  en: 'to',
+  meaning: 'to / at / in / on',
+  fused: {
+    m: { sg: 'στον', pl: 'στους' },
+    f: { sg: 'στην', pl: 'στις' },
+    n: { sg: 'στο', pl: 'στα' },
+  },
+  senses: [
+    { value: 'to', label: 'to (direction)', ro: 'la', en: 'to', example: { el: 'πάω στο σπίτι', ro: 'merg acasă', en: 'I go home' } },
+    { value: 'at', label: 'at (place)', ro: 'la', en: 'at', example: { el: 'είμαι στο σπίτι', ro: 'sunt acasă', en: "I'm at home" } },
+    { value: 'in', label: 'in, into', ro: 'în', en: 'in', example: { el: 'πηδάει στο νερό', ro: 'sare în apă', en: 'jumps into the water' } },
+    { value: 'on', label: 'on (a surface)', ro: 'pe', en: 'on', example: { el: 'στον δρόμο', ro: 'pe drum', en: 'on the road' } },
+    {
+      value: 'person',
+      label: 'to a person',
+      ro: '',
+      en: 'to',
+      dative: true,
+      example: { el: 'δίνω το ψωμί στο παιδί', ro: 'dau pâinea copilului', en: 'I give the bread to the child' },
+    },
+  ],
+};
+
 const theta: GreekParticle = {
   id: 'theta',
   pos: 'particle',
@@ -1202,6 +1232,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [gia.id]: gia,
   [apo.id]: apo,
   [mexri.id]: mexri,
+  [se.id]: se,
   [theta.id]: theta,
   [na.id]: na,
   [as.id]: as,
@@ -1220,7 +1251,7 @@ export const DEF_ARTICLE: GreekArticle = def;
 export const NUMERAL: GreekNumeral = numeral;
 
 /** The prepositions shown together in the Improver table, in display order. */
-export const PREPOSITIONS: GreekPreposition[] = [pano, kato, me, gia, apo, mexri];
+export const PREPOSITIONS: GreekPreposition[] = [pano, kato, me, gia, apo, mexri, se];
 
 export function getLexeme(id: string): GreekLexeme {
   const lexeme = LEXEMES[id];

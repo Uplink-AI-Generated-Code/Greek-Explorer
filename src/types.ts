@@ -8,6 +8,9 @@ export type NumeralValue = 1 | 2 | 3 | 4 | 5;
 /** A stored Romanian cell: text, or `pending` while the form is not confirmed. A release build refuses a pending cell (spec 4.2, 7). */
 export type Stored = string | { pending: true; note?: string };
 
+/** What σε means: to (direction), at (place), in (inside or into), on (a surface), person (the indirect object). */
+export type PrepSense = 'to' | 'at' | 'in' | 'on' | 'person';
+
 export type QuantifierDegree = 'plain' | 'comparative';
 export type QuantifierSense = 'some' | 'few';
 export type QuantifierUse = 'determiner' | 'pronoun';
@@ -79,7 +82,7 @@ export type Slot =
       /** Beside a noun, or on its own. Greek does not change; Romanian and English do (spec 4.2). */
       use: QuantifierUse;
     }
-  | { pos: 'preposition' }
+  | { pos: 'preposition'; sense?: PrepSense }
   | { pos: 'particle' }
   | { pos: 'conjunction' }
   | { pos: 'interrogative' }
@@ -349,12 +352,29 @@ export interface GreekClitic extends LexemeBase {
   pos: 'clitic';
 }
 
+/** One meaning of a preposition that has several (σε): its Romanian and English word and an example. */
+export interface PrepositionSense {
+  value: PrepSense;
+  /** The label in the Meaning control. */
+  label: string;
+  /** The Romanian word; empty when Romanian uses a case instead (`dative`). */
+  ro: string;
+  en: string;
+  /** Romanian puts the noun in the dative and uses no preposition (dau copilului). */
+  dative?: true;
+  example: { el: string; ro: string; en: string };
+}
+
 export interface GreekPreposition extends LexemeBase {
   pos: 'preposition';
   ro: string;
   en: string;
   /** A short plain meaning, used to label rows in the preposition table. */
   meaning: string;
+  /** The forms written as one word with the article that follows (σε + τον = στον), by the noun's Greek gender and number. */
+  fused?: Record<Gender, Record<Num, string>>;
+  /** The meanings the Meaning control offers (σε only). */
+  senses?: PrepositionSense[];
 }
 
 export type GreekLexeme =

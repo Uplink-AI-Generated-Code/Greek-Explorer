@@ -19,6 +19,7 @@ import type {
   NumeralValue,
   Person,
   Phrase,
+  PrepSense,
   QuantifierDegree,
   SlotOf,
   Token,
@@ -161,6 +162,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       if (slot.pos === 'quantifier') return { ...state, slot: { ...slot, degree: value as QuantifierDegree } };
       break;
     case 'sense':
+      if (slot.pos === 'preposition') return { ...state, slot: { ...slot, sense: value as PrepSense } };
       if (slot.pos === 'quantifier') {
         const next = { ...slot };
         if (value === 'few') next.sense = 'few';

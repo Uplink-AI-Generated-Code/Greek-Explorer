@@ -269,6 +269,19 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
   if (l.pos === 'preposition') {
     if (isEmpty(l.ro)) errors.push(`lexeme ${l.id}: empty Romanian form`);
     if (isEmpty(l.en)) errors.push(`lexeme ${l.id}: empty English form`);
+    for (const gender of GENDERS) {
+      for (const number of NUMS) {
+        const form = l.fused?.[gender][number];
+        if (l.fused && (!form || isEmpty(form))) errors.push(`lexeme ${l.id}: no fused form for ${gender} ${number}`);
+        if (form && !form.startsWith(l.lemma.slice(0, 1))) errors.push(`lexeme ${l.id}: the fused form ${form} does not start with ${l.lemma.slice(0, 1)}`);
+      }
+    }
+    const values = (l.senses ?? []).map((s) => s.value);
+    if (new Set(values).size !== values.length) errors.push(`lexeme ${l.id}: two senses have the same value`);
+    for (const sense of l.senses ?? []) {
+      const texts = [sense.label, sense.en, sense.example.el, sense.example.ro, sense.example.en, ...(sense.dative ? [] : [sense.ro])];
+      if (texts.some(isEmpty)) errors.push(`lexeme ${l.id}: the sense "${sense.value}" has an empty text`);
+    }
   }
   return errors;
 }

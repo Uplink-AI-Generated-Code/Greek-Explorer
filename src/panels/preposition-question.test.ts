@@ -49,9 +49,9 @@ describe('a preposition before a question word', () => {
     expect(cells(panel.rows, 0)).toEqual({ el: 'από τον σκύλο', ro: 'de la câinele', en: 'from the dog' });
   });
 
-  it('Improver lists every preposition with the question word', () => {
+  it('Improver lists every preposition with the question word, σε included', () => {
     const full = buildPanel(state, apo, 'improver').full;
-    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until']);
+    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until', 'to / at / in / on']);
     expect(cells(full, 4)).toEqual({ el: 'από πού', ro: 'de unde', en: 'from where' });
     expect(cells(full, 5)).toEqual({ el: 'μέχρι πού', ro: 'până la unde', en: 'until where' });
     expect(full.filter((r) => r.hl).map((r) => r.label)).toEqual(['from']);

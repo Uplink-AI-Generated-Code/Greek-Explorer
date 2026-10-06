@@ -8,6 +8,7 @@ export const REVIEW_ITEMS: ReviewItem[] = [
   { id: 'ending-table:fem-ou', kind: 'ending-table', verified: false },
   { id: 'ending-table:fem-a', kind: 'ending-table', verified: false },
   { id: 'ending-table:neut-i', kind: 'ending-table', verified: false },
+  { id: 'ending-table:se-contractions', kind: 'ending-table', verified: false },
   { id: 'ending-table:neut-o', kind: 'ending-table', verified: false },
   { id: 'ending-table:clitic-forms', kind: 'ending-table', verified: false },
   { id: 'clitic-table:ro-clitics', kind: 'clitic-table', verified: false },

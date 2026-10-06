@@ -82,11 +82,11 @@ describe('full paradigm tables', () => {
     expect(find(full, 'fem. accusative').hl).toEqual({ el: false, ro: false, en: true });
   });
 
-  it('preposition: the six prepositions with the same noun, the current one highlighted', () => {
+  it('preposition: the seven prepositions with the same noun, the current one highlighted', () => {
     const token: Token = { text: 'πάνω από', lexeme: 'pano', slot: { pos: 'preposition' }, agreesWith: 0 };
     const state: PanelState = { slot: token.slot, noun: 'skylos', nounNumber: 'sg' };
     const full = buildPanel(state, token, 'improver').full;
-    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until']);
+    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until', 'to / at / in / on']);
     expect(cells(full[1])).toEqual({ el: 'κάτω από τον σκύλο', ro: 'sub câinele', en: 'under the dog' });
     expect(full[0].hl).toEqual({ el: true, ro: true, en: true });
     expect(full.filter((r) => r.hl).length).toBe(1);
