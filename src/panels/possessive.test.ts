@@ -27,7 +27,7 @@ describe('the possessive panel', () => {
     expect(p.posLabel).toBe('possessive: my');
     expect(p.rows.map((r) => r.label)).toEqual(['with a noun', 'on its own']);
     expect(cells(p.rows, 0)).toEqual({ el: 'το σπίτι μου', ro: 'casa mea', en: 'my house' });
-    expect(cells(p.rows, 1)).toEqual({ el: 'μου', ro: 'meu / mea / mei / mele', en: 'my' });
+    expect(cells(p.rows, 1)).toEqual({ el: 'μου', ro: 'm.sg meu · m.pl mei · f.sg mea · f.pl mele', en: 'my' });
   });
 
   it('the third person has one Romanian word for the pronoun on its own', () => {

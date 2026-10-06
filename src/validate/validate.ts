@@ -334,9 +334,11 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     return [`${where}: slot is ${token.slot.pos} but lexeme ${lexeme.id} is ${lexeme.pos}`];
   }
   const errors: string[] = [];
+  let inflected = true;
   try {
     inflect(lexeme, token.slot);
   } catch (e) {
+    inflected = false;
     errors.push(`${where}: ${(e as Error).message}`);
   }
   if (token.slot.pos === 'verb' && lexeme.pos === 'verb') {
@@ -392,19 +394,38 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
   }
   if (token.slot.pos === 'possessive') {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    const slot = token.slot;
+    if (!POSSESSORS.some((p) => p.slot.person === slot.person && p.slot.number === slot.number && p.slot.gender === slot.gender)) {
+      errors.push(`${where}: this possessor is not one the app offers`);
+    }
     if (!target || lexemes[target.lexeme]?.pos !== 'noun') {
       errors.push(`${where}: a possessive needs agreesWith pointing at the noun it belongs to`);
-    } else if (normalise(greekPossessive(token.slot)) !== normalise(token.text)) {
-      errors.push(`${where}: text differs from the possessive ("${greekPossessive(token.slot)}")`);
+    } else {
+      const at = token.agreesWith as number;
+      const between = phrase.tokens.slice(at + 1, index);
+      if (at >= index) {
+        errors.push(`${where}: a possessive comes after its noun`);
+      } else if (between.length > 0) {
+        errors.push(`${where}: a possessive comes directly after its noun`);
+      }
+      const hasArticle = phrase.tokens.some((t) => t.slot.pos === 'article' && t.lexeme === 'def' && t.agreesWith === at);
+      if (!hasArticle) errors.push(`${where}: the noun of a possessive needs the definite article`);
+      if (inflected && normalise(greekPossessive(slot)) !== normalise(token.text)) {
+        errors.push(`${where}: text differs from the possessive ("${greekPossessive(slot)}")`);
+      }
     }
   }
   if (token.slot.pos === 'noun' && lexeme.pos === 'noun') {
     // A noun with a possessive after it is written with the second accent where the stress rule asks for it (θάλασσά μου).
     const possessive = phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === index);
     if (possessive && possessive.slot.pos === 'possessive') {
-      const expected = formText(possessedNounForm(lexeme, token.slot.number, token.slot.case, possessive.slot));
-      if (normalise(expected) !== normalise(token.text)) {
-        errors.push(`${where}: text differs from the form before the possessive ("${expected}")`);
+      try {
+        const expected = formText(possessedNounForm(lexeme, token.slot.number, token.slot.case, possessive.slot));
+        if (normalise(expected) !== normalise(token.text)) {
+          errors.push(`${where}: text differs from the form before the possessive ("${expected}")`);
+        }
+      } catch (e) {
+        errors.push(`${where}: ${(e as Error).message}`);
       }
     }
   }

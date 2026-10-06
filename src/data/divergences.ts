@@ -839,7 +839,7 @@ export const DIVERGENCES: Divergence[] = [
     point: 'His and her',
     el: 'του (his) and της (her); τους for "their"',
     ro: 'the invariable lui, ei and lor: copilul lui',
-    en: 'his, her, its and their',
+    en: 'his, her and their (the app has no "its")',
     tag: 'differs',
     level: 'core',
     verified: false,

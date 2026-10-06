@@ -104,6 +104,8 @@ describe('the review sheet', () => {
     expect(sheet).toContain('- 3sg.f: ei');
     expect(sheet).toContain('το σπίτι μου · το σπίτι σου · το σπίτι του · το σπίτι της · το σπίτι μας · το σπίτι σας · το σπίτι τους');
     expect(sheet).toContain('η θάλασσά μου');
+    expect(sheet).toContain('της θάλασσάς μου');
+    expect(sheet).toContain('casei mele');
     expect(sheet).toContain('casa mea · casa ta · casa lui · casa ei · casa noastră · casa voastră · casa lor');
     expect(sheet).toContain('my house · your house · his house · her house · our house · your house · their house');
   });

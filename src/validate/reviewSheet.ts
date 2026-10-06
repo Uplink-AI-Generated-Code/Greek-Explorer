@@ -173,15 +173,19 @@ function possessiveLines(lexemes: Record<string, GreekLexeme>): string[] {
   const phrases = nouns.flatMap((noun) =>
     (['sg', 'pl'] as const).flatMap((number) => {
       const all = POSSESSORS.map((p) => nounPhrase(noun, number, 'nom', { article: 'definite', possessor: p.slot }));
+      const gen = POSSESSORS.map((p) => nounPhrase(noun, number, 'gen', { article: 'definite', possessor: p.slot }));
       return [
         `- ${noun.lemma} (${number === 'sg' ? 'singular' : 'plural'}):`,
         `  - ${LANG_NAME.el}: ${all.map((n) => richText(n.el)).join(' · ')}`,
         `  - ${LANG_NAME.ro}: ${all.map((n) => n.ro).join(' · ')}`,
         `  - ${LANG_NAME.en}: ${all.map((n) => n.en).join(' · ')}`,
+        `  - ${LANG_NAME.el}, genitive: ${gen.map((n) => richText(n.el)).join(' · ')}`,
+        `  - ${LANG_NAME.ro}, genitive: ${gen.map((n) => n.ro).join(' · ')}`,
+        `  - ${LANG_NAME.en}, genitive: ${gen.map((n) => n.en).join(' · ')}`,
       ];
     }),
   );
-  return ['- Romanian possessives (they agree with the possessed noun):', ...table, '- Noun phrases with each possessor, nominative (generated):', ...phrases];
+  return ['- Romanian possessives (they agree with the possessed noun):', ...table, '- Noun phrases with each possessor, nominative and genitive (generated):', ...phrases];
 }
 
 function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {

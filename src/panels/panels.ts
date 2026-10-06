@@ -211,11 +211,10 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       break;
     case 'possessor':
       if (slot.pos === 'noun') {
-        const next = { ...state };
         const to = POSSESSORS.find((p) => p.value === value);
-        if (to) next.possessor = { ...to.slot };
-        else delete next.possessor;
-        return next;
+        const { possessor: _old, slot: _slot, ...rest } = state;
+        // A fixed key order, so that sameState (which compares JSON) is true after nobody → the phrase's own possessor.
+        return { slot: state.slot, ...(to ? { possessor: { ...to.slot } } : {}), ...rest };
       }
       if (slot.pos === 'possessive') {
         const to = POSSESSORS.find((p) => p.value === value);

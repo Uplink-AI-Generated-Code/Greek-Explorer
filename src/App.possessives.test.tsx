@@ -49,3 +49,15 @@ describe('possessives in the app', () => {
     expect(screen.getByText(/second accent/)).toBeInTheDocument();
   });
 });
+
+describe('Whose? on the noun panel', () => {
+  it('nobody, then the phrase’s own possessor again, is the phrase again', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Our sea');
+    await user.click(screen.getByRole('button', { name: 'θάλασσά' }));
+    await user.selectOptions(screen.getByLabelText('Whose?'), 'none');
+    await user.selectOptions(screen.getByLabelText('Whose?'), '1pl');
+    expect(screen.queryByText('Differs from the phrase.')).not.toBeInTheDocument();
+  });
+});
