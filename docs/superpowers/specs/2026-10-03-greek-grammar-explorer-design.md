@@ -17,7 +17,7 @@ Interactive mockups made during brainstorming (v1 to v5, plus the quantifier pan
 
 - Vite + React + TypeScript single-page app, no backend.
 - Hand-curated content: 72 phrases (section 6.1) and the lexemes they use (section 6.6).
-- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition (σε also as the six forms fused with the article: στον, στην, στο, στους, στις, στα), quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the possessive (the same pronoun after a noun: το σπίτι μου; and the adjective δικός: το δικό μου σπίτι), the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
+- Parts of speech: verb, noun, definite article, indefinite article / numeral, adjective (regular and indeclinable), preposition (σε also as the six forms fused with the article: στον, στην, στο, στους, στις, στα), quantifier (indefinite and quantity words such as some, any, none, many, few, little), the particles δεν, μην, να, θα and ας, the conjunction αν / *dacă* / if, the weak (clitic) personal pronoun, the possessive (the same pronoun after a noun: το σπίτι μου; and the adjective δικός: το δικό μου σπίτι), the copula είμαι, and the question words (τι, πού, πότε, γιατί, πώς, which never change, and ποιος and πόσος, which decline), the demonstratives (αυτός, εκείνος, τέτοιος, τόσος, which decline like the quantifiers) and the place words (εδώ, εκεί, which never change). The passive participle is an adjective derived from a verb (6.5). Strong pronouns appear only as the dropped or required subject pronoun beside verbs, and as the stand-alone ("on its own") use of a quantifier.
 - Verb tenses and moods: indicative present, imperfect, aorist (simple past), future (continuous and simple), present perfect, past perfect and future perfect; subjunctive present, aorist and perfect (να + verb); imperative present and aorist (second person only), with its negative and with object clitics; the hortative present and aorist (ας + the subjunctive form, every person, with its negative); conditional (θα + imperfect or θα + pluperfect). Object clitics also go with every indicative, subjunctive, conditional and hortative form (4.3). Voices: active and mediopassive (reflexive and deponent examples). Detail in sections 6.4 and 6.5.
 - Languages: Greek (focus), Romanian and English (comparison). The interface language is English.
 
@@ -399,6 +399,13 @@ Divergence types the prototype must cover:
 | possessive-third-person | Greek has του (his) and της (her); Romanian uses the invariable *lui* and *ei* (*copilul lui*); English his, her, its. |
 | emphatic-possessive | Greek δικός μου (the adjective δικός + the pronoun) says "my own" or "mine" and agrees with the thing possessed; Romanian uses *propriu* beside the noun and *al meu / a mea / ai mei / ale mele* on its own; English "my own" and "mine". |
 | noun-possessor | A noun possessor goes in the genitive after the noun (το σπίτι του παιδιού); Romanian also uses the genitive-dative form (*casa copilului*); English says "the child's house" or "the house of the child". |
+| demonstrative-article | Greek keeps the article after the demonstrative (αυτό το σπίτι); Romanian drops it before the noun (*această casă*) and keeps it after the noun (*casa aceasta*); English has no article (this house). |
+| demonstrative-placement | Romanian puts the demonstrative before the noun (*acest copil*) or after the noun, which then carries its article (*copilul acesta*); Greek and English always put it before the noun. |
+| demonstrative-neuter | Greek says *αυτό* (neuter) for "this" of any thing (Αυτό είναι το σπίτι μου); Romanian agrees with the thing (*Aceasta este casa mea*, *Acesta este câinele meu*). |
+| demonstrative-he | Greek *αυτός* is also "he" (the strong pronoun); Romanian *acesta* can mean "he" in formal speech, and *el* is the ordinary pronoun; English "this" is never "he". |
+| demonstrative-spoken | Romanian has spoken forms *ăsta / asta, ăla / aia* after the noun (*casa asta*); Greek has no register pair. |
+| such-so | Greek τέτοιος and τόσος decline; Romanian *asemenea* does not change, and *atâta, atâția, atâtea* agree; English "such" and "so" do not change (so much, so many). |
+| place-words | Greek εδώ and εκεί, Romanian *aici* and *acolo*, English "here" and "there" never change; Greek and Romanian can add a preposition (από εδώ, *de aici*; μέχρι εκεί, *până acolo*). |
 
 ### 5.3 Panels per part of speech
 
@@ -411,10 +418,12 @@ Divergence types the prototype must cover:
 | Adjective | Noun it describes, number, role | "the" and "a / an" noun phrases (singular); "none in plural" for the second | Gender × case for the selected number |
 | Possessive (μου, σου, του …) | Noun it goes with, number and role of the noun; person and number of the possessor, and the gender of a third-person possessor | "with a noun": the noun phrase with the possessive (το σπίτι μου / *casa mea* / my house) | Person × number of the possessor, in each language |
 | Adjective δικός | Noun it describes, number, role (subject or object), Whose? | "before the noun" (το δικό μου σπίτι) and "on its own" (το δικό μου: mine) | Gender × case for the selected number |
-| Preposition | Noun or question word after it, number; for σε also Meaning (to / at / in / on / to a person) | Preposition + noun in the accusative (σε fused with the article: στον σκύλο; or + the question word: από πού); for σε, the Romanian and English word of the chosen meaning | Other prepositions with the same noun; for σε, the six fused forms for the noun and number, with the one in use outlined; σε takes only nouns, never a question word, and has an example row for the chosen meaning |
+| Preposition | Noun, question word or place word after it, number; for σε also Meaning (to / at / in / on / to a person) | Preposition + noun in the accusative (σε fused with the article: στον σκύλο; or + the question word: από πού); for σε, the Romanian and English word of the chosen meaning | Other prepositions with the same noun; for σε, the six fused forms for the noun and number, with the one in use outlined; σε takes only nouns, never a question word, and has an example row for the chosen meaning |
 | Quantifier | Noun it goes with, role; plus Romanian counterpart (μερικοί), kind of noun (mass or count) and degree (πολύς, λίγος) | "with a noun", then "on its own"; for κανένας also "with negation" | Gender × role for the selected number, in each language |
 | Question word (τι, πού, πότε, γιατί, πώς) | none | "on its own" (the word in three languages) and "in a question" (an example question in three languages); γιατί also "as an answer" (because) | none |
 | Question word that declines (ποιος, πόσος) | As a quantifier: noun it goes with, role (subject or object only), number (one or many, for ποιος only; mass or count, for πόσος only); the badge reads "question word" | "with a noun", "on its own" | Gender × role for the selected number |
+| Demonstrative (αυτός, εκείνος, τέτοιος, τόσος) | As a quantifier: noun it goes with, role, number; plus Romanian form (formal or spoken); the badge reads "demonstrative" | "with a noun" (αυτό το σπίτι: the article is kept; Romanian *această casă / casa aceasta*, or *casa asta* when spoken), then "on its own" (αυτό / *aceasta* / this); τέτοιος has no "on its own" row | Gender × role for the selected number, in each language |
+| Place word (εδώ, εκεί) | none | "on its own" (the word in three languages) and "in a sentence" (an example in three languages); the preposition panel offers it after από and μέχρι | none |
 | Particle (δεν, μην, να, θα, ας) | none | One row: the particle with a verb in each language. Its own panel, opened by clicking the particle piece in a verb chip or in its reading (in place of the verb panel, with a "Back to the verb" link) | none |
 | Clitic pronoun (opened by clicking a clitic piece in a verb chip, like the particle panel) | Person + number, gender (3rd person), role (object / indirect object) | The weak form in each language (με / *mă* / me), plus the strong Greek form (εμένα) as a note | Person × number for the selected role, in each language |
 | Conjunction (αν) | none | One row: *if* clause in each language (Greek αν + imperfect, Romanian *dacă* + conditional, English if + past) | none |
@@ -559,8 +568,16 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 70 | Το σπίτι είναι δικό μου | The house is mine | δικό μου on its own; Romanian *Casa este a mea* |
 | 71 | Το σπίτι του παιδιού | The child's house | a noun possessor in the genitive; Romanian *casa copilului* |
 | 72 | Ο σκύλος του παιδιού | The child's dog | a genitive possessor, masculine; Romanian *câinele copilului* |
+| 73 | Αυτό το σπίτι | This house | the near demonstrative with the article; Romanian *această casă* (before the noun, no article) |
+| 74 | Εκείνος ο σκύλος | That dog | the far demonstrative; Romanian *acel câine* |
+| 75 | Αυτά τα σπίτια | These houses | plural; Romanian *casele acestea* (after the noun, with its article) |
+| 76 | Αυτό είναι το σπίτι μου | This is my house | *αυτό* on its own, neuter whatever the thing; Romanian agrees: *Aceasta este casa mea* |
+| 77 | Εδώ είναι το σπίτι | Here is the house | the place word; Romanian *Aici este casa* |
+| 78 | Μέχρι εκεί | As far as there | μέχρι + a place word; Romanian *Până acolo* |
+| 79 | Ένα τέτοιο σπίτι | Such a house | τέτοιος after the indefinite article; Romanian *O asemenea casă* |
+| 80 | Έχω τόσο ψωμί | I have so much bread | τόσος with a mass noun; Romanian *Am atâta pâine* |
 
-**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56, 61); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *Places* (57 to 60, 62); *Possession* (63 to 72); *The fox sentence* (3, 17, 23).
+**Themes** (for the phrase picker): *Ordering* (1, 2, 7 to 10, 22, 29); *Daily life* (4 to 6, 18, 26, 32, 35, 36, 54, 56, 61); *Eating* (11 to 13, 19 to 21, 24, 25, 27, 30, 31, 33, 34, 37, 38); *Wishes and possibility* (14 to 16, 28, 39, 51 to 53, 55); *Questions* (40 to 50); *Places* (57 to 60, 62); *Possession* (63 to 72); *Pointing* (73 to 80); *The fox sentence* (3, 17, 23).
 
 Further phrases (greetings, introductions, directions, past and future in context) are added after the prototype validates the model. The set includes the aorist (phrase 19), the continuous future (phrase 20) and the future perfect (phrase 13). The simple future (θα φάω) is reachable through the verb panel's tense control on phrases 11, 14 and 19, and is written out with its Romanian and English counterparts in section 6.4.
 
@@ -592,6 +609,16 @@ The prototype covers these Romanian words and their Greek and English counterpar
 | puțin, puțină, puțini, puține; mai + each | λίγος / λίγη / λίγο; λιγότερος | little, a little, few; less, fewer | Regular. |
 
 Scope limits for the prototype: κάποιος and κανένας are singular only; the Romanian genitive is given only where the form is known (*unor, câtorva, multor, multului / multei, puținului / puținei / puținilor, vreunui / vreunei, niciunui / niciunei*); stand-alone genitive pronouns are not covered.
+
+**Demonstratives** (section 25) are four more quantifier lexemes flagged `demonstrative`:
+
+| Greek | Romanian | English | Notes |
+|---|---|---|---|
+| αυτός / αυτή / αυτό | *acest, această, acești, aceste* before the noun; *acesta, aceasta, aceștia, acestea* after the noun or on its own; spoken *ăsta, asta, ăștia, astea* | this, these | Near. Genitive *acestui, acestei, acestor* (before the noun) and *acestuia, acesteia, acestora*; none for the spoken forms. |
+| εκείνος / εκείνη / εκείνο | *acel, acea, acei, acele*; *acela, aceea, aceia, acelea*; spoken *ăla, aia, ăia, alea* | that, those | Far. Genitive *acelui, acelei, acelor*; *aceluia, aceleia, acelora*. |
+| τέτοιος / τέτοια / τέτοιο | *un / o asemenea*, plural *asemenea* | such (a) | Beside a noun only. Genitive *unui / unei / unor asemenea*. |
+| τόσος / τόση / τόσο | *atâta, atâta, atâția, atâtea*; on its own *atât* | so much, so many | Genitive plural *atâtor*; the singular genitive is not covered. |
+
 
 ### 6.4 Perfect, subjunctive, imperfect and imperative
 
@@ -771,6 +798,8 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - Plan 9 additions: the six fused forms (στον, στην, στο, στους, στις, στα) and the rule that drops the ν of στην (στη θάλασσα, στην αλεπού); the senses of σε with their Romanian and English words (*la*, *în*, *pe*, the dative for a person; to, at, in, on) and their examples; the nouns σπίτι, δρόμος, θάλασσα and *casă / acasă*, *drum*, *mare*; whether the article panel should show την under a chip that reads τη (the panel keeps the full form); whether στο σπίτι should read "at home" or "in the house" in English; and phrases 57 to 62 (*Merg acasă*, *Sunt acasă*, *Mergem la mare?*, *Câinele este pe drum*, *Dau pâinea copilului*, *Câinele sare în apă*).
 
 - Plan 10 and 11 additions: the possessive forms (μου, σου, του, της, μας, σας, τους after a noun) and the second accent (θάλασσά μου, δάσκαλός μου); the Romanian possessive table by possessor and by the gender and number of the noun (*meu, mea, mei, mele* and the rest), and the invariable third person (*lui, ei, lor* against *său*); the English my, your, his, her, its, our, their; phrases 63 to 68; and, for Plan 11, δικός (*propriu*, *al meu / a mea / ai mei / ale mele*, "my own" and "mine"), the genitive possessor (*casa copilului*) and phrases 69 to 72.
+
+- Plan 12 additions: the forms of αυτός, εκείνος, τέτοιος and τόσος in every gender, number and role; the Romanian demonstratives (*acest / acel* and the after-noun and pronoun forms *acesta / acela*, the spoken *ăsta / ăla* and the genitives); *asemenea*, *atâta / atâția / atâtea* and *atât*; the place words εδώ, εκεί, *aici*, *acolo*; and phrases 73 to 80.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -994,3 +1023,20 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Noun possessor | The owning noun is the genitive singular with its own definite article, after the possessed noun (το σπίτι του παιδιού); its token points back at the possessed noun with `agreesWith`; the noun panel has an Owned by a noun? control, which excludes a pronoun possessor; English says "the child's house" | 4.2, 5.3 |
 | Gloss check | A Romanian gloss unit split at the genitive (*copil* + *ului*) is checked against the stored genitive, not against the nominative split | 7 |
 | Plan 11 built | δικός, the noun possessor, phrases 69 to 72 (72 in all), the notes emphatic-possessive and noun-possessor, and the review sheet; the Romanian genitive of δικός and a plural or counted noun possessor are not covered | 24 |
+
+## 25. Changes for demonstratives and place words
+
+| Source | Change | Where |
+|---|---|---|
+| New request: demonstratives | The declining demonstratives αυτός, εκείνος, τέτοιος and τόσος, and the place words εδώ and εκεί | 2, 4.3 |
+| Model | The four declining words are quantifier lexemes flagged `demonstrative` (the quantifier engine, panel, validator and review sheet are shared); εδώ and εκεί are a new invariable part of speech, the adverb, with the slot `{ pos: 'adverb' }`, its own lexeme type and panel (like the question words) | 4.2 |
+| Tokens | A demonstrative and the article after it are separate tokens that point at the noun (αυτό, το, σπίτι); the validator wants the definite article beside αυτός and εκείνος, and a numeral or nothing beside τέτοιος and τόσος. On its own (Αυτό είναι …) it has no `agreesWith` | 4.4 |
+| Greek | Whole forms in the usual -ος / -η / -ο pattern (τέτοιος has the feminine τέτοια): αυτός is stressed on the ending, εκείνος, τέτοιος and τόσος on the stem; the final ν is kept (αυτόν) | 4.3 |
+| Romanian | Three sets of cells for αυτός and εκείνος: before the noun, after the noun or on its own, and spoken (after the noun only); a Romanian form control picks formal or spoken, and the "with a noun" row shows both formal placements (*acest copil / copilul acesta*). τέτοιος is *asemenea* with the article before it, with no stand-alone use. The genitive is stored for the formal sets and not for the spoken one | 4.3, 6.3 |
+| English | this / these, that / those, such (a), so much / so many; the English cell follows the number | 4.3 |
+| Panel | As the quantifier panel: noun, role and number controls plus the Romanian form control; rows "with a noun" and "on its own"; Gender × role in the Improver view. The place-word panel is the question-word panel's shape | 5.3 |
+| Prepositions | από and μέχρι may govern a place word, as they may govern a question word (από εδώ, μέχρι εκεί); `roAfter` stores the Romanian words where they fuse (*de aici*, *până acolo*) | 5.3 |
+| Notes | Seven rows: demonstrative-article, demonstrative-placement, demonstrative-neuter, demonstrative-he, demonstrative-spoken, such-so, place-words | 5.2 |
+| Phrases | 73 to 80 in a new theme *Pointing* | 6.1 |
+| Scope | Not covered: τούτος, the three-way near / far / by-you distinction, the manner adverbs (έτσι), *același* and *cel*, the spoken genitive, a stand-alone τέτοιος | 2 |
+| Delivery | Plan 12, one plan for everything; if the dry run grows too large it is split into a plan for the declining words and a plan for the place words | 6.1 |
