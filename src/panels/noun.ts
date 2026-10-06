@@ -1,10 +1,11 @@
 import { nounPhrase } from '../engine/agree';
 import { inflectNoun } from '../engine/greek';
 import { GENDER_NAME, type Option } from '../engine/labels';
+import { POSSESSORS, possessorValue } from '../engine/possessive';
 import { plain, richText } from '../engine/segments';
 import type { GreekNoun, Level, SlotOf } from '../types';
 import { ALL, CASES, NUMS, caseControl, caseName, noPluralArticleRow, npRow } from './shared';
-import type { Panel, PanelRow } from './types';
+import type { Panel, PanelRow, PanelState } from './types';
 
 export const countOptions: Option[] = [
   { value: '1', label: 'one' },
@@ -37,7 +38,8 @@ function nounFull(noun: GreekNoun, slot: SlotOf<'noun'>): PanelRow[] {
   return rows;
 }
 
-export function nounPanel(noun: GreekNoun, slot: SlotOf<'noun'>, level: Level): Panel {
+export function nounPanel(noun: GreekNoun, slot: SlotOf<'noun'>, level: Level, state?: PanelState): Panel {
+  const possessor = state?.possessor;
   const second =
     slot.number === 'sg'
       ? npRow('a / an', nounPhrase(noun, 'sg', slot.case, { article: 'one' }))
@@ -53,8 +55,20 @@ export function nounPanel(noun: GreekNoun, slot: SlotOf<'noun'>, level: Level): 
     controls: [
       { key: 'count', label: 'How many?', options: countOptions, value: countValue(slot) },
       caseControl(slot, level),
+      {
+        key: 'possessor',
+        label: 'Whose?',
+        options: [{ value: 'none', label: 'nobody' }, ...POSSESSORS.map(({ value, label }) => ({ value, label }))],
+        value: possessor ? possessorValue(possessor) : 'none',
+      },
     ],
-    rows: [npRow('the', nounPhrase(noun, slot.number, slot.case, { article: 'definite' })), second],
+    rows: [
+      npRow('the', nounPhrase(noun, slot.number, slot.case, { article: 'definite' })),
+      second,
+      ...(possessor
+        ? [npRow('with a possessive', nounPhrase(noun, slot.number, slot.case, { article: 'definite', possessor }))]
+        : []),
+    ],
     full: level === 'improver' ? nounFull(noun, slot) : [],
     plain: 'The article agrees with the noun in gender, number and role.',
     irregular: inflectNoun(noun, slot).irregular?.plain ?? '',

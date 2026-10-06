@@ -55,8 +55,11 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
     if (direct) noun = nounForClitic(direct);
   }
   if (!noun && token.slot.pos === 'quantifier') noun = DEFAULT_NOUN[token.slot.gender];
+  // A noun that a possessive points at shows it: το σπίτι μου.
+  const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === phrase.tokens.indexOf(token)) : undefined;
   return {
     slot: token.slot,
+    ...(possessive && possessive.slot.pos === 'possessive' ? { possessor: possessive.slot } : {}),
     ...(token.slot.pos === 'possessive' && nounToken?.slot.pos === 'noun' ? { nounCase: nounToken.slot.case } : {}),
     noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
@@ -73,7 +76,7 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
     case 'verb':
       return verbPanel(lexeme as GreekVerb, slot, state, level);
     case 'noun':
-      return nounPanel(lexeme as GreekNoun, slot, level);
+      return nounPanel(lexeme as GreekNoun, slot, level, state);
     case 'adjective':
       return adjectivePanel(lexeme as GreekAdjective, slot, state, level);
     case 'numeral':
@@ -207,6 +210,13 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'possessor':
+      if (slot.pos === 'noun') {
+        const next = { ...state };
+        const to = POSSESSORS.find((p) => p.value === value);
+        if (to) next.possessor = { ...to.slot };
+        else delete next.possessor;
+        return next;
+      }
       if (slot.pos === 'possessive') {
         const to = POSSESSORS.find((p) => p.value === value);
         if (to) return { ...state, slot: { ...to.slot } };

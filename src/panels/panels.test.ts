@@ -63,7 +63,7 @@ describe('noun panel (καφές)', () => {
     const panel = panelFor(3);
     expect(panel.lemma).toBe('καφές');
     expect(panel.posLabel).toBe('noun: coffee (masculine)');
-    expect(panel.controls.map((c) => c.key)).toEqual(['count', 'case']);
+    expect(panel.controls.map((c) => c.key)).toEqual(['count', 'case', 'possessor']);
     expect(panel.controls[0].value).toBe('1');
     expect(panel.rows.map((r) => r.label)).toEqual(['the', 'a / an']);
     expect(text(panel.rows, 0)).toEqual({ el: 'τον καφέ', ro: 'cafeaua', en: 'the coffee' });
