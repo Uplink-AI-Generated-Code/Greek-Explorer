@@ -33,6 +33,7 @@ import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
 import { prepositionPanel } from './preposition';
+import { governsWord } from '../engine/preposition';
 import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
 import { possessivePanel } from './possessive';
@@ -270,7 +271,12 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'noun': {
       const noun = getLexeme(value);
       // After a preposition the learner may choose a question word as well as a noun (από πού).
-      if (slot.pos === 'preposition' && (noun.pos === 'interrogative' || noun.pos === 'adverb')) return { ...state, noun: value, nounNumber: 'sg' };
+      if (slot.pos === 'preposition' && (noun.pos === 'interrogative' || noun.pos === 'adverb')) {
+        const prep = lexemeId ? getLexeme(lexemeId) : undefined;
+        // A place word follows only the prepositions its data names (από εδώ, μέχρι εκεί).
+        if (prep?.pos === 'preposition' && !governsWord(prep, noun)) break;
+        return { ...state, noun: value, nounNumber: 'sg' };
+      }
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
       if (slot.pos === 'possessive') return { ...state, noun: value };

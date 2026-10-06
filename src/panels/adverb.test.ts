@@ -80,8 +80,18 @@ describe('a preposition before a place word', () => {
     expect(buildPanel(next, apo, 'beginner').controls[0].options.map((o) => o.value)).toEqual(expect.arrayContaining(['edo', 'ekei']));
   });
 
-  it('Improver lists the prepositions that take a place word, without σε', () => {
+  it('Improver lists only the prepositions that take a place word', () => {
     const state = initialState(mexri, phrase(mexri, 'ekei'));
-    expect(buildPanel(state, mexri, 'improver').full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until']);
+    expect(buildPanel(state, mexri, 'improver').full.map((r) => r.label)).toEqual(['from', 'until']);
+  });
+
+  it('a preposition other than από and μέχρι neither offers nor accepts a place word', () => {
+    const me: Token = { text: 'με', lexeme: 'me', slot: { pos: 'preposition' }, agreesWith: 1 };
+    const noun: PanelState = { slot: { pos: 'preposition' }, noun: 'skylos', nounNumber: 'sg' };
+    const options = buildPanel(noun, me, 'beginner').controls[0].options.map((o) => o.value);
+    expect(options).not.toContain('edo');
+    expect(options).toContain('pou');
+    expect(applyControl(noun, 'noun', 'edo', 'me')).toBe(noun);
+    expect(applyControl(noun, 'noun', 'edo', 'apo')).toMatchObject({ noun: 'edo' });
   });
 });

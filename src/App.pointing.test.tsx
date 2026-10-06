@@ -65,7 +65,7 @@ describe('the place words in the app', () => {
   it('μέχρι before εκεί is până acolo, and the control can switch to εδώ', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.selectOptions(screen.getByLabelText('Phrase'), 'As far as there');
+    await user.selectOptions(screen.getByLabelText('Phrase'), 'Until there');
     await user.click(screen.getByRole('button', { name: 'Μέχρι' }));
     expect(screen.getByRole('cell', { name: 'μέχρι εκεί' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'până acolo' })).toBeInTheDocument();

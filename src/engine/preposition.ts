@@ -1,4 +1,4 @@
-import type { GreekNoun, GreekPreposition, Num, PrepSense, PrepositionSense } from '../types';
+import type { GreekAdverb, GreekInterrogative, GreekNoun, GreekPreposition, Num, PrepSense, PrepositionSense } from '../types';
 
 /** The meaning in use for a preposition that has meanings (σε): the one asked for, else the first; undefined for any other preposition. */
 export function senseOf(prep: GreekPreposition, sense?: PrepSense): PrepositionSense | undefined {
@@ -21,3 +21,10 @@ export function fusedForm(prep: GreekPreposition, noun: GreekNoun, number: Num, 
 
 /** The two parts of a fused word, as the phrase bar shows them: the preposition's σ and the article (στον → σ + τον). */
 export const splitFused = (text: string): [preposition: string, article: string] => [text.slice(0, 1), text.slice(1)];
+
+/**
+ * Whether a preposition may stand before a question word or a place word. A question word follows any preposition that
+ * does not fuse; a place word only the prepositions its `roAfter` names (από εδώ, μέχρι εκεί, not με εδώ).
+ */
+export const governsWord = (prep: GreekPreposition, word: GreekInterrogative | GreekAdverb): boolean =>
+  !prep.fused && (word.pos !== 'adverb' || word.roAfter?.[prep.id] !== undefined);

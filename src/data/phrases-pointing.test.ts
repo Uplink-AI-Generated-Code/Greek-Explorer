@@ -35,7 +35,7 @@ describe('phrases 73 to 80', () => {
     expect(read('these-houses')).toEqual(['Αυτά τα σπίτια', 'These houses', 'Casele acestea']);
     expect(read('this-is-my-house')).toEqual(['Αυτό είναι το σπίτι μου', 'This is my house', 'Aceasta este casa mea']);
     expect(read('here-is-the-house')).toEqual(['Εδώ είναι το σπίτι', 'Here is the house', 'Aici este casa']);
-    expect(read('as-far-as-there')).toEqual(['Μέχρι εκεί', 'As far as there', 'Până acolo']);
+    expect(read('as-far-as-there')).toEqual(['Μέχρι εκεί', 'Until there', 'Până acolo']);
     expect(read('such-a-house')).toEqual(['Ένα τέτοιο σπίτι', 'Such a house', 'O asemenea casă']);
     expect(read('so-much-bread')).toEqual(['Έχω τόσο ψωμί', 'I have so much bread', 'Am atâta pâine']);
   });

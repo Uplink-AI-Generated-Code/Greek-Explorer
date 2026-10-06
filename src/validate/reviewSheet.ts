@@ -11,6 +11,7 @@ import { unitText } from '../glossLinks';
 import { RECIPIENTS } from '../engine/objects';
 import { nounPhrase, ownAlone, ownPhrase } from '../engine/agree';
 import { offeredCases } from '../engine/quantifier';
+import { governsWord } from '../engine/preposition';
 import { buildPanel } from '../panels/panels';
 import { POSSESSORS } from '../engine/possessive';
 import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
@@ -121,7 +122,7 @@ function cliticLines(lexemes: Record<string, GreekLexeme>): string[] {
 /** The Romanian words after each preposition: the stored one where Romanian fuses the pair, else the generated pair. */
 function prepositionPairs(l: GreekInterrogative | GreekAdverb, lexemes: Record<string, GreekLexeme>): string[] {
   return Object.values(lexemes)
-    .flatMap((p) => (p.pos === 'preposition' && !p.fused ? [p] : []))
+    .flatMap((p) => (p.pos === 'preposition' && governsWord(p, l) ? [p] : []))
     .map((p) =>
       l.roAfter?.[p.id]
         ? `- ${LANG_NAME.ro} after ${p.lemma} (stored): ${p.lemma} ${l.lemma}: ${l.roAfter[p.id]}`
@@ -192,7 +193,8 @@ const GENDER_NAME = { m: 'masc.', f: 'fem.', n: 'neut.' } as const;
 
 /** Any other lexeme: its Greek forms slot by slot, then the stored Romanian and English data as it is. */
 function otherLines(l: Exclude<GreekLexeme, GreekVerb>): string[] {
-  const greek = slotsFor(l).map((slot) => {
+  // The spoken register is a Romanian form: its Greek line would repeat the formal one.
+  const greek = slotsFor(l).filter((slot) => !('register' in slot && slot.register)).map((slot) => {
     const { pos: _pos, ...rest } = slot as unknown as Record<string, unknown>;
     return `- ${Object.values(rest).join(' ') || l.pos}: ${formText(inflect(l, slot))}`;
   });

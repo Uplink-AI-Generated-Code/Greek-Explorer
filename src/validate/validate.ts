@@ -13,7 +13,7 @@ import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
 import { formText } from '../engine/segments';
 import { enQuantifier, enVerb } from '../engine/english';
-import { fusedForm } from '../engine/preposition';
+import { fusedForm, governsWord } from '../engine/preposition';
 import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
 import type { Case, Clitic, Divergence, FormGroup, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
@@ -401,17 +401,36 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       errors.push(`${where}: the quantifier is ${token.slot.case} but its noun is ${target.slot.case}`);
     }
     if (!offeredCases(lexeme).includes(token.slot.case)) errors.push(`${where}: ${lexeme.id} does not offer the ${token.slot.case} role`);
+    if (!offeredUses(lexeme).includes(token.slot.use)) errors.push(`${where}: ${lexeme.id} has no ${token.slot.use} use`);
     if (token.slot.register) errors.push(`${where}: the spoken register is a Romanian form, not part of a Greek token`);
     if (token.slot.use === 'determiner' && target?.slot.pos === 'noun' && token.agreesWith !== undefined) {
-      const beside = (t: Token, pos: string) => t.slot.pos === pos && t.agreesWith === token.agreesWith;
       const nounLexeme = lexemes[target.lexeme];
-      // αυτός and εκείνος keep the article of the noun (αυτό το σπίτι); τέτοιος takes ένα in the singular with a count noun.
-      if ((lexeme.demonstrative === 'near' || lexeme.demonstrative === 'far') && !phrase.tokens.some((t) => beside(t, 'article') && t.lexeme === 'def')) {
-        errors.push(`${where}: ${lexeme.lemma} beside a noun needs the definite article of that noun`);
-      }
-      if (lexeme.demonstrative === 'such' && token.slot.number === 'sg' && nounLexeme?.pos === 'noun' && !nounLexeme.mass) {
-        const one = phrase.tokens.some((t) => beside(t, 'numeral') && t.slot.pos === 'numeral' && t.slot.value === 1);
-        if (!one) errors.push(`${where}: τέτοιος in the singular needs ένα before it`);
+      const nounSlot = target.slot;
+      // Tokens that point at the same noun, with their positions.
+      const beside = (pos: string) =>
+        phrase.tokens.flatMap((t, at) => (t.slot.pos === pos && t.agreesWith === token.agreesWith ? [{ t, at }] : []));
+      const noun = token.agreesWith;
+      const articles = beside('article');
+      const ones = beside('numeral').filter(({ t }) => t.slot.pos === 'numeral' && t.slot.value === 1);
+      if (lexeme.demonstrative === 'near' || lexeme.demonstrative === 'far') {
+        // αυτός and εκείνος keep the article of the noun, after the demonstrative and before the noun (αυτό το σπίτι).
+        const right = articles.some(
+          ({ t, at }) =>
+            t.lexeme === 'def' && at > index && at < noun && t.slot.pos === 'article' && t.slot.number === nounSlot.number && t.slot.case === nounSlot.case,
+        );
+        if (!right) errors.push(`${where}: ${lexeme.lemma} beside a noun needs the definite article of that noun`);
+        if (beside('numeral').length > 0) errors.push(`${where}: ${lexeme.lemma} takes no numeral`);
+      } else {
+        if (articles.length > 0) errors.push(`${where}: ${lexeme.lemma} takes no definite article`);
+        if (lexeme.demonstrative === 'such') {
+          // τέτοιος in the singular takes ένα before it, except with a mass noun in the nominative or accusative.
+          const needsOne =
+            token.slot.number === 'sg' && nounLexeme?.pos === 'noun' && (!nounLexeme.mass || token.slot.case === 'gen');
+          if (needsOne && !ones.some(({ t, at }) => at < index && t.slot.pos === 'numeral' && t.slot.case === nounSlot.case)) {
+            errors.push(`${where}: τέτοιος in the singular needs ένα before it`);
+          }
+          if (token.slot.number === 'pl' && ones.length > 0) errors.push(`${where}: ένα does not go beside a plural τέτοιος`);
+        }
       }
     }
     if (token.slot.sense === 'few' && !lexeme.ro.few) errors.push(`${where}: ${lexeme.id} has no "few" sense`);
@@ -516,6 +535,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       if (target.slot.case !== 'acc') errors.push(`${where}: ${lexeme.lemma} governs the accusative, so its noun must be accusative`);
     } else if (lexeme.pos === 'preposition' && lexeme.fused && (governed?.pos === 'interrogative' || governed?.pos === 'adverb')) {
       errors.push(`${where}: ${lexeme.lemma} fuses with an article, so it needs a noun in agreesWith`);
+    }
+    if (lexeme.pos === 'preposition' && governed?.pos === 'adverb' && !governsWord(lexeme, governed)) {
+      errors.push(`${where}: ${lexeme.lemma} does not go with a place word`);
     }
     if (lexeme.pos === 'preposition' && token.slot.pos === 'preposition' && token.slot.sense !== undefined) {
       const sense = token.slot.sense;
@@ -693,7 +715,7 @@ export function pendingCells(lexemes: Record<string, GreekLexeme>): string[] {
   const out: string[] = [];
   for (const l of Object.values(lexemes)) {
     if (l.pos !== 'quantifier') continue;
-    for (const [setName, set] of [['plain', l.ro.plain], ['few', l.ro.few]] as const) {
+    for (const [setName, set] of [['plain', l.ro.plain], ['few', l.ro.few], ['spoken', l.ro.spoken]] as const) {
       if (!set) continue;
       for (const use of ['determiner', 'pronoun'] as const) {
         for (const g of ['m', 'f'] as const) {

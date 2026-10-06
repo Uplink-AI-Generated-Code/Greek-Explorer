@@ -142,7 +142,7 @@ describe('the review sheet', () => {
     expect(sheet).toContain('Example: Ελληνικά: Εδώ είναι το σπίτι; Română: Aici este casa; English: Here is the house');
     expect(sheet).toContain('after από (stored): από εδώ: de aici');
     expect(sheet).toContain('after μέχρι (stored): μέχρι εκεί: până acolo');
-    expect(sheet).toContain('after με (generated): με εδώ: cu aici');
+    expect(sheet).not.toContain('με εδώ');
   });
 
   it('says how many records are unverified', () => {

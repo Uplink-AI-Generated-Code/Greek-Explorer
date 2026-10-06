@@ -5,8 +5,9 @@ import { whoIndex } from './tenses';
 
 export const enNoun = (n: GreekNoun, number: Num): string => n.en[number];
 
+/** a / an by sound: a vowel letter, or the silent h of hour, honest, honour and heir. */
 export const enIndefiniteArticle = (nextWord: string): 'a' | 'an' =>
-  /^[aeiou]/i.test(nextWord) ? 'an' : 'a';
+  /^([aeiou]|hour|honest|honou?r|heir)/i.test(nextWord) ? 'an' : 'a';
 
 export const enNumeral = (n: GreekNumeral, value: NumeralValue): string => n.en[value];
 

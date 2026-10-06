@@ -25,6 +25,12 @@ describe('the place words in the validator', () => {
     expect(validate({ ...real, phrases: [phrase] }).filter((e) => e.includes('token 0'))).toEqual([]);
   });
 
+  it('only από and μέχρι take a place word', () => {
+    const phrase = withPreposition('me', 'edo', { pos: 'adverb' });
+    expect(validate({ ...real, phrases: [phrase] }).some((e) => e.includes('με does not go with a place word'))).toBe(true);
+    expect(validate({ ...real, phrases: [withPreposition('mexri', 'ekei', { pos: 'adverb' })] }).filter((e) => e.includes('token 0'))).toEqual([]);
+  });
+
   it('σε fuses with an article, so it does not take a place word', () => {
     const phrase = withPreposition('se', 'edo', { pos: 'adverb' });
     expect(validate({ ...real, phrases: [phrase] })).toContain(

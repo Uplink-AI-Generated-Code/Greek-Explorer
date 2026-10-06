@@ -1368,10 +1368,10 @@ const possessive = (person: Person, number: Num, gender?: Gender): Slot => ({
   number,
   ...(gender ? { gender } : {}),
 });
-const article = (gender: Gender, c: Case, agreesWith: number): Token => ({
+const article = (gender: Gender, c: Case, agreesWith: number, number: Num = 'sg'): Token => ({
   text: '',
   lexeme: 'def',
-  slot: { pos: 'article', gender, number: 'sg', case: c },
+  slot: { pos: 'article', gender, number, case: c },
   agreesWith,
 });
 
@@ -1575,12 +1575,6 @@ const theChildsDog: Phrase = {
   verified: false,
 };
 
-const pluralArticle = (gender: Gender, agreesWith: number): Token => ({
-  text: '',
-  lexeme: 'def',
-  slot: { pos: 'article', gender, number: 'pl', case: 'nom' },
-  agreesWith,
-});
 const adverb: Slot = { pos: 'adverb' };
 
 const thisHouse: Phrase = {
@@ -1628,7 +1622,7 @@ const theseHouses: Phrase = {
   level: 'improver',
   tokens: [
     { text: 'Αυτά', lexeme: 'autos', slot: qslot('n', 'pl', 'nom'), agreesWith: 2 },
-    { ...pluralArticle('n', 2), text: 'τα' },
+    { ...article('n', 'nom', 2, 'pl'), text: 'τα' },
     { text: 'σπίτια', lexeme: 'spiti', slot: { pos: 'noun', number: 'pl', case: 'nom' } },
   ],
   glosses: rows(
@@ -1683,7 +1677,7 @@ const hereIsTheHouse: Phrase = {
 
 const asFarAsThere: Phrase = {
   id: 'as-far-as-there',
-  title: 'As far as there',
+  title: 'Until there',
   theme: 'Pointing',
   level: 'improver',
   tokens: [
@@ -1691,7 +1685,7 @@ const asFarAsThere: Phrase = {
     { text: 'εκεί', lexeme: 'ekei', slot: adverb },
   ],
   glosses: rows(
-    [u('As far as', 0), u('there', 1)],
+    [u('Until', 0), u('there', 1)],
     [u('until', 0), u('there', 1)],
     [u('Până', 0), u('acolo', 1)],
     [u('până', 0), u('acolo', 1)],

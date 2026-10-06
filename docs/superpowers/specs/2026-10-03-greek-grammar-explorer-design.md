@@ -573,7 +573,7 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 75 | Αυτά τα σπίτια | These houses | plural; Romanian *casele acestea* (after the noun, with its article) |
 | 76 | Αυτό είναι το σπίτι μου | This is my house | *αυτό* on its own, neuter whatever the thing; Romanian agrees: *Aceasta este casa mea* |
 | 77 | Εδώ είναι το σπίτι | Here is the house | the place word; Romanian *Aici este casa* |
-| 78 | Μέχρι εκεί | As far as there | μέχρι + a place word; Romanian *Până acolo* |
+| 78 | Μέχρι εκεί | Until there | μέχρι + a place word; Romanian *Până acolo* |
 | 79 | Ένα τέτοιο σπίτι | Such a house | τέτοιος after the indefinite article; Romanian *O asemenea casă* |
 | 80 | Έχω τόσο ψωμί | I have so much bread | τόσος with a mass noun; Romanian *Am atâta pâine* |
 
@@ -799,7 +799,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 
 - Plan 10 and 11 additions: the possessive forms (μου, σου, του, της, μας, σας, τους after a noun) and the second accent (θάλασσά μου, δάσκαλός μου); the Romanian possessive table by possessor and by the gender and number of the noun (*meu, mea, mei, mele* and the rest), and the invariable third person (*lui, ei, lor* against *său*); the English my, your, his, her, its, our, their; phrases 63 to 68; and, for Plan 11, δικός (*propriu*, *al meu / a mea / ai mei / ale mele*, "my own" and "mine"), the genitive possessor (*casa copilului*) and phrases 69 to 72.
 
-- Plan 12 additions: the forms of αυτός, εκείνος, τέτοιος and τόσος in every gender, number and role; the Romanian demonstratives (*acest / acel* and the after-noun and pronoun forms *acesta / acela*, the spoken *ăsta / ăla* and the genitives); *asemenea*, *atâta / atâția / atâtea* and *atât*; the place words εδώ, εκεί, *aici*, *acolo*; and phrases 73 to 80.
+- Plan 12 additions: the forms of αυτός, εκείνος, τέτοιος and τόσος in every gender, number and role; the Romanian demonstratives (*acest / acel* and the after-noun and pronoun forms *acesta / acela*, the spoken *ăsta / ăla* and the genitives); *asemenea*, *atâta / atâția / atâtea* and *atât*; the place words εδώ, εκεί, *aici*, *acolo*; and phrases 73 to 80. For the content reviewer: does the feminine accusative keep its ν (αυτήν την αλεπού, as stored) or drop it before a consonant (αυτή τη θάλασσα)?
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -1030,7 +1030,7 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 |---|---|---|
 | New request: demonstratives | The declining demonstratives αυτός, εκείνος, τέτοιος and τόσος, and the place words εδώ and εκεί | 2, 4.3 |
 | Model | The four declining words are quantifier lexemes flagged `demonstrative` (the quantifier engine, panel, validator and review sheet are shared); εδώ and εκεί are a new invariable part of speech, the adverb, with the slot `{ pos: 'adverb' }`, its own lexeme type and panel (like the question words) | 4.2 |
-| Tokens | A demonstrative and the article after it are separate tokens that point at the noun (αυτό, το, σπίτι); the validator wants the definite article beside αυτός and εκείνος, and a numeral or nothing beside τέτοιος and τόσος. On its own (Αυτό είναι …) it has no `agreesWith` | 4.4 |
+| Tokens | A demonstrative and the article after it are separate tokens that point at the noun (αυτό, το, σπίτι); the validator wants the definite article beside αυτός and εκείνος, and a numeral or nothing beside τέτοιος and τόσος. On its own (Αυτό είναι …) it has no `agreesWith`, except that a stand-alone αυτό carries `agreesWith` when its phrase has the noun it stands for (phrase 76, Αυτό είναι το σπίτι μου) | 4.4 |
 | Greek | Whole forms in the usual -ος / -η / -ο pattern (τέτοιος has the feminine τέτοια): αυτός is stressed on the ending, εκείνος, τέτοιος and τόσος on the stem; the final ν is kept (αυτόν) | 4.3 |
 | Romanian | Three sets of cells for αυτός and εκείνος: before the noun, after the noun or on its own, and spoken (after the noun only); a Romanian form control picks formal or spoken, and the "with a noun" row shows both formal placements (*acest copil / copilul acesta*). τέτοιος is *asemenea* with the article before it, with no stand-alone use. The genitive is stored for the formal sets and not for the spoken one | 4.3, 6.3 |
 | English | this / these, that / those, such (a), so much / so many; the English cell follows the number | 4.3 |

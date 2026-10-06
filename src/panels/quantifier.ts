@@ -1,5 +1,5 @@
 import { DEF_ARTICLE, NUMERAL } from '../data/lexemes';
-import { enQuantifier } from '../engine/english';
+import { enIndefiniteArticle, enQuantifier } from '../engine/english';
 import { inflectArticle, inflectNoun, inflectNumeral, inflectQuantifier } from '../engine/greek';
 import { degreeOptions, kindOptions, senseOptions } from '../engine/labels';
 import { offeredCases, offeredDegrees, offeredSenses, offeredUses } from '../engine/quantifier';
@@ -19,17 +19,30 @@ function roRich(q: GreekQuantifier, slot: SlotOf<'quantifier'>, roGender: Gender
   return plain(noun ? `${word} ${noun}` : word);
 }
 
+/**
+ * The English word of a quantifier beside a noun. "such a" takes its article from the noun (such a house, such an hour)
+ * and has none with a mass noun (such bread); the stored cell is only the default.
+ */
+function enBeside(q: GreekQuantifier, slot: SlotOf<'quantifier'>, noun: GreekNoun): string {
+  if (q.demonstrative === 'such' && slot.number === 'sg') return noun.mass ? 'such' : `such ${enIndefiniteArticle(noun.en.sg)}`;
+  return enQuantifier(q, slot);
+}
+
+/** τέτοιος has no article word beside a mass noun in the nominative and accusative; the genitive keeps unei / unor asemenea. */
+const dropsArticleWord = (q: GreekQuantifier, det: SlotOf<'quantifier'>, noun: GreekNoun): boolean =>
+  q.demonstrative === 'such' && noun.mass === true && det.case !== 'gen';
+
 /** The English quantifier and noun; a count word with a mass noun in the plural has no English form. */
 function enWithNoun(q: GreekQuantifier, slot: SlotOf<'quantifier'>, noun: GreekNoun): Rich {
   if (noun.mass && slot.number === 'pl') return notice('uncountable: no plural in English');
-  const text = `${enQuantifier(q, slot)} ${noun.en[slot.number]}`;
+  const text = `${enBeside(q, slot, noun)} ${noun.en[slot.number]}`;
   return plain(slot.case === 'gen' ? `of ${text}` : text);
 }
 
 /** The registers of a Romanian demonstrative: the formal forms or the spoken ones (spec 25). */
 const registerOptions = [
-  { value: 'formal', label: 'formal (acest, acesta)' },
-  { value: 'spoken', label: 'spoken (ăsta, ăla)' },
+  { value: 'formal', label: 'formal' },
+  { value: 'spoken', label: 'spoken' },
 ];
 
 /**
@@ -47,9 +60,9 @@ function roDemonstrativeWithNoun(q: GreekQuantifier, det: SlotOf<'quantifier'>, 
   return plain(`${richText(before)} / ${behind}`);
 }
 
-/** τέτοιος in the singular takes ένα, except with a mass noun (ένα τέτοιο σπίτι, τέτοιο ψωμί). */
+/** τέτοιος in the singular takes ένα, except with a mass noun in the nominative or accusative (ένα τέτοιο σπίτι, τέτοιο ψωμί). */
 const takesIndefinite = (q: GreekQuantifier, det: SlotOf<'quantifier'>, noun: GreekNoun): boolean =>
-  q.demonstrative === 'such' && det.number === 'sg' && !noun.mass;
+  q.demonstrative === 'such' && det.number === 'sg' && !dropsArticleWord(q, det, noun);
 
 /** The "with a noun" row of every quantifier: the article after a near or far demonstrative, ένα before τέτοιος. */
 function withNounRow(q: GreekQuantifier, det: SlotOf<'quantifier'>, noun: GreekNoun): PanelRow {
@@ -64,14 +77,10 @@ function withNounRow(q: GreekQuantifier, det: SlotOf<'quantifier'>, noun: GreekN
   ]);
   const ro = near
     ? roDemonstrativeWithNoun(q, det, noun)
-    : q.demonstrative === 'such' && noun.mass
+    : dropsArticleWord(q, det, noun) && det.number === 'sg'
       ? plain(`${q.ro.lemma} ${roBareNoun(noun, det.number, det.case)}`)
       : roRich(q, det, noun.ro.gender, roBareNoun(noun, det.number, det.case));
-  const en =
-    q.demonstrative === 'such' && noun.mass
-      ? plain(`${det.case === 'gen' ? 'of ' : ''}such ${noun.en[det.number]}`)
-      : enWithNoun(q, det, noun);
-  return { label: 'with a noun', el, ro, en };
+  return { label: 'with a noun', el, ro, en: enWithNoun(q, det, noun) };
 }
 
 function negationRow(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: GreekNoun): PanelRow | null {
@@ -95,11 +104,12 @@ function quantifierFull(q: GreekQuantifier, here: SlotOf<'quantifier'>, noun: Gr
   return GENDERS.flatMap((g) =>
     offeredCases(q).map((c) => {
       const s: SlotOf<'quantifier'> = { ...here, gender: g, case: c, use: 'determiner' };
+      const word = enBeside(q, s, noun);
       return {
         label: `${GENDER_ROW[g]} ${caseName(c)}`,
         el: numeralRich(inflectQuantifier(q, s)),
-        ro: roRich(q, s, g),
-        en: plain(enQuantifier(q, s)),
+        ro: dropsArticleWord(q, s, noun) && s.number === 'sg' ? plain(q.ro.lemma) : roRich(q, s, g),
+        en: plain(q.demonstrative && c === 'gen' ? `of ${word}` : word),
         hl: { el: g === noun.gender && c === here.case, ro: g === noun.ro.gender && c === here.case, en: false },
       };
     }),
@@ -191,7 +201,7 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
           label: 'on its own',
           el: numeralRich(inflectQuantifier(q, pro)),
           ro: roRich(q, pro, noun.ro.gender),
-          en: plain(enQuantifier(q, pro)),
+          en: plain(slot.case === 'gen' && q.demonstrative ? `of ${enQuantifier(q, pro)}` : enQuantifier(q, pro)),
         };
   const negation = negationRow(q, here, noun);
 
@@ -199,7 +209,7 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
     lemma: [...new Set(forms)].join(' / '),
     posLabel:
       level === 'beginner'
-        ? `${q.question ? 'question word' : q.demonstrative ? 'demonstrative' : 'quantifier'}: ${enQuantifier(q, { ...det, degree: 'plain', sense: undefined, register: undefined })}`
+        ? `${q.question ? 'question word' : q.demonstrative ? 'demonstrative' : 'quantifier'}: ${enBeside(q, { ...det, degree: 'plain', sense: undefined, register: undefined }, noun)}`
         : improverLabel(q),
     badge: q.question
       ? 'question word'

@@ -432,7 +432,11 @@ export const DIVERGENCES: Divergence[] = [
   },
   {
     id: 'quantifier-determiner-vs-pronoun',
-    appliesTo: { pos: 'quantifier' },
+    // Every quantifier but τέτοιος, which has no stand-alone use.
+    appliesTo: {
+      pos: 'quantifier',
+      lexeme: ['merikoi', 'kapoios', 'kanenas', 'polys', 'ligos', 'poios', 'posos', 'autos', 'ekeinos', 'tosos'],
+    },
     point: 'Beside a noun, or on its own',
     el: 'one form for both: κάποιος καφές, κάποιος',
     ro: 'may change: vreun / vreunul, niciun / niciunul, niște / unii (mult stays mult)',
@@ -938,7 +942,7 @@ export const DIVERGENCES: Divergence[] = [
     point: 'Here and there',
     el: 'εδώ and εκεί never change; a preposition can come before them: από εδώ, μέχρι εκεί',
     ro: 'aici and acolo never change: de aici, până acolo',
-    en: '"here" and "there" never change: from here, as far as there',
+    en: '"here" and "there" never change: from here, until there',
     tag: 'same',
     level: 'core',
     verified: false,

@@ -119,6 +119,35 @@ describe('the demonstrative panel: τέτοιος and τόσος', () => {
     expect(cells(panelFor('tetoios', stateOf(slotOf(), 'psomi')), 0)).toEqual({ el: 'τέτοιο ψωμί', ro: 'asemenea pâine', en: 'such bread' });
   });
 
+  it('τέτοιος takes its English article from the noun, in the label and the table too', () => {
+    const hour = panelFor('tetoios', stateOf(slotOf({ gender: 'f' }), 'ora'), 'improver');
+    expect(cells(hour, 0).en).toBe('such an hour');
+    expect(richText(hour.full[0].en)).toBe('such an');
+    expect(panelFor('tetoios', stateOf(slotOf({ gender: 'f' }), 'ora')).posLabel).toBe('demonstrative: such an');
+    const bread = panelFor('tetoios', stateOf(slotOf(), 'psomi'), 'improver');
+    expect(bread.posLabel).toBe('demonstrative · "such", beside a noun only');
+    expect(richText(bread.full[0].ro)).toBe('asemenea');
+    expect(richText(bread.full[0].en)).toBe('such');
+    expect(panelFor('tetoios', stateOf(slotOf(), 'psomi')).posLabel).toBe('demonstrative: such');
+  });
+
+  it('τέτοιος with a mass noun keeps the article word in the genitive only, and has no plural', () => {
+    expect(cells(panelFor('tetoios', stateOf(slotOf({ case: 'gen' }), 'psomi')), 0).en).toBe('of such bread');
+    expect(cells(panelFor('tetoios', stateOf(slotOf({ case: 'gen' }), 'psomi')), 0).ro).toMatch(/^unei asemenea/);
+    expect(cells(panelFor('tetoios', stateOf(slotOf({ number: 'pl' }), 'psomi')), 0).en).toBe('uncountable: no plural in English');
+  });
+
+  it('the stand-alone genitive reads "of this", "of those", "of so much"', () => {
+    expect(cells(near('spiti', { case: 'gen' }), 1).en).toBe('of this');
+    expect(cells(near('spiti', { case: 'gen', number: 'pl' }, 'ekeinos'), 1).en).toBe('of those');
+    expect(cells(panelFor('tosos', stateOf(slotOf({ case: 'nom' }), 'psomi')), 1).en).toBe('so much');
+  });
+
+  it('the Romanian form options carry no Romanian words', () => {
+    const labels = near('spiti').controls.find((c) => c.key === 'register')?.options.map((o) => o.label);
+    expect(labels).toEqual(['formal', 'spoken']);
+  });
+
   it('τόσος is the answer to πόσος: so much with a mass noun, so many with a count noun', () => {
     const mass = panelFor('tosos', stateOf(slotOf({ case: 'acc' }), 'psomi'));
     expect(cells(mass, 0)).toEqual({ el: 'τόσο ψωμί', ro: 'atâta pâine', en: 'so much bread' });

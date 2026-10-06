@@ -2,7 +2,7 @@ import { LEXEMES, PREPOSITIONS, getLexeme } from '../data/lexemes';
 import { nounPhrase } from '../engine/agree';
 import { inflectNoun } from '../engine/greek';
 import { numberOptions, type Option } from '../engine/labels';
-import { fusedForm, senseOf } from '../engine/preposition';
+import { fusedForm, governsWord, senseOf } from '../engine/preposition';
 import { roNoun } from '../engine/romanian';
 import { formRich, formText, plain } from '../engine/segments';
 import type { GreekAdverb, GreekInterrogative, GreekNoun, GreekPreposition, Level, Num, PrepSense } from '../types';
@@ -10,19 +10,19 @@ import { ALL, GENDERS, GENDER_ROW, NUMS, nounOf, nounOptions } from './shared';
 import type { Control, Panel, PanelRow, PanelState } from './types';
 
 /** What follows a preposition: a noun, a question word (από πού) or a place word (μέχρι εκεί). */
-type After = { kind: 'noun'; noun: GreekNoun } | { kind: 'question'; word: GreekInterrogative | GreekAdverb };
+type After = { kind: 'noun'; noun: GreekNoun } | { kind: 'word'; word: GreekInterrogative | GreekAdverb };
 
 function afterOf(state: PanelState): After {
   const lexeme = state.noun ? getLexeme(state.noun) : undefined;
-  if (lexeme?.pos === 'interrogative' || lexeme?.pos === 'adverb') return { kind: 'question', word: lexeme };
+  if (lexeme?.pos === 'interrogative' || lexeme?.pos === 'adverb') return { kind: 'word', word: lexeme };
   return { kind: 'noun', noun: nounOf(state) };
 }
 
-/** The nouns, then the question words and the place words, for the "after it" control. */
+/** The nouns, then the question words and the place words this preposition may govern, for the "after it" control. */
 function afterOptions(prep: GreekPreposition): Option[] {
   if (prep.fused) return nounOptions();
   const words = Object.values(LEXEMES).flatMap((l) =>
-    l.pos === 'interrogative' || l.pos === 'adverb' ? [{ value: l.id, label: `${l.lemma} (${l.en})` }] : [],
+    (l.pos === 'interrogative' || l.pos === 'adverb') && governsWord(prep, l) ? [{ value: l.id, label: `${l.lemma} (${l.en})` }] : [],
   );
   return [...nounOptions(), ...words];
 }
@@ -119,7 +119,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
         ? []
         : prep.fused && after.kind === 'noun'
           ? fusedTable(prep, after.noun, state.nounNumber, sense)
-          : PREPOSITIONS.filter((p) => after.kind === 'noun' || !p.fused).map((p) => ({
+          : PREPOSITIONS.filter((p) => (after.kind === 'noun' ? true : governsWord(p, after.word))).map((p) => ({
               ...(after.kind === 'noun'
                 ? prepositionRow(p, after.noun, state.nounNumber, p.meaning, p === prep ? sense : undefined)
                 : questionRow(p, after.word, p.meaning)),
@@ -131,7 +131,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
           ? 'σε is followed by the accusative and is written as one word with the article: σε + τον = στον. The feminine στην loses its ν before most consonants (στη θάλασσα). Romanian and English keep the preposition and the article apart. Where English and Romanian choose between to, at, in and on (la, în, pe), Greek uses σε for all of them.'
           : 'Greek prepositions are followed by the accusative, so the article and noun switch to accusative (τον σκύλο). The preposition itself never changes.'
         : after.word.pos === 'adverb'
-          ? 'A place word follows a preposition as a noun would: μέχρι εκεί, "as far as there". Greek and English build it from two words; Romanian sometimes has one fused word (de aici) and sometimes two (până acolo).'
+          ? 'A place word follows a preposition as a noun would: μέχρι εκεί, "until there". Greek and English build it from two words; Romanian sometimes has one fused word (de aici) and sometimes two (până acolo).'
           : 'A question word follows a preposition as a noun would: από πού, "from where". Greek and English build it from two words; Romanian often has one fused word (de unde, până când).',
     irregular: '',
     note: after.kind === 'noun' ? after.noun.note : '',

@@ -38,9 +38,46 @@ describe('a demonstrative in the validator', () => {
     expect(errorsOf(plural)).toEqual([]);
   });
 
-  it('τόσος needs no article, and a pronoun use needs none either', () => {
-    const noArticle = errorsOf(find('so-much-bread'));
-    expect(noArticle).toEqual([]);
+  it('τόσος with its noun and no article is valid', () => {
+    expect(errorsOf(find('so-much-bread'))).toEqual([]);
+  });
+
+  it('refuses a stand-alone τέτοιος', () => {
+    const alone = withTokens(find('such-a-house'), (t) =>
+      t.map((x, i) => (i === 1 ? { ...x, slot: { ...(x.slot as object), use: 'pronoun' } as Token['slot'] } : x)),
+    );
+    expect(errorsOf(alone)).toContain('such-a-house token 1 (τέτοιο): tetoios has no pronoun use');
+  });
+
+  it('refuses the definite article beside τέτοιος and τόσος, and a numeral beside αυτός', () => {
+    const def = (at: number): Token => ({ text: 'το', lexeme: 'def', slot: { pos: 'article', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: at });
+    const such = withTokens(find('such-a-house'), (t) => [...t, def(2)]);
+    expect(errorsOf(such)).toContain('such-a-house token 1 (τέτοιο): τέτοιος takes no definite article');
+    const one: Token = { text: 'ένα', lexeme: 'numeral', slot: { pos: 'numeral', value: 1, gender: 'n', case: 'nom' }, agreesWith: 3 };
+    const near = withTokens(find('this-house'), (t) => [one, ...t].map((x, i) => (i === 0 ? x : { ...x, agreesWith: 3 })));
+    expect(errorsOf(near).some((e) => e.includes('takes no numeral'))).toBe(true);
+  });
+
+  it('wants the article between the demonstrative and the noun, in the noun number', () => {
+    const before = withTokens(find('this-house'), (t) => [t[1], t[0], t[2]]);
+    expect(errorsOf(before).some((e) => e.includes('needs the definite article'))).toBe(true);
+    const wrongNumber = withTokens(find('this-house'), (t) =>
+      t.map((x, i) => (i === 1 ? { ...x, slot: { ...(x.slot as object), number: 'pl' } as Token['slot'] } : x)),
+    );
+    expect(errorsOf(wrongNumber).some((e) => e.includes('needs the definite article'))).toBe(true);
+  });
+
+  it('refuses ένα beside a plural τέτοιος', () => {
+    const one: Token = { text: 'ένα', lexeme: 'numeral', slot: { pos: 'numeral', value: 1, gender: 'n', case: 'nom' }, agreesWith: 2 };
+    const plural: Phrase = {
+      ...find('such-a-house'),
+      tokens: [
+        one,
+        { text: 'τέτοια', lexeme: 'tetoios', slot: { pos: 'quantifier', gender: 'n', number: 'pl', case: 'nom', degree: 'plain', use: 'determiner' }, agreesWith: 2 },
+        { text: 'σπίτια', lexeme: 'spiti', slot: { pos: 'noun', number: 'pl', case: 'nom' } },
+      ],
+    };
+    expect(errorsOf(plural)).toContain('such-a-house token 1 (τέτοια): ένα does not go beside a plural τέτοιος');
   });
 
   it('the spoken register is not part of a Greek token', () => {
