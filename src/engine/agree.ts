@@ -3,7 +3,7 @@ import type { Case, Form, GreekAdjective, GreekNoun, Num, NumeralValue, SlotOf }
 import { accentForm } from './compose';
 import { enIndefiniteArticle, enNoun, enNumeral } from './english';
 import { inflectAdjective, inflectArticle, inflectNoun, inflectNumeral } from './greek';
-import { enPossessive, greekPossessive, roPossessive } from './possessive';
+import { enAlone, enOwn, enPossessive, greekPossessive, roAlone, roBareNoun, roOwn, roPossessive } from './possessive';
 import { roAdjective, roNoun, roNumeral } from './romanian';
 import { articleRich, formRich, formText, joinRich, numeralRich, type Rich } from './segments';
 import { secondAccent } from './stress';
@@ -79,4 +79,31 @@ export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOption
   const enText = [word, core].filter(Boolean).join(' ');
 
   return { el: joinRich(el), ro: roText.filter(Boolean).join(' '), en: c === 'gen' ? `of ${enText}` : enText };
+}
+
+/**
+ * δικός before the noun: το δικό μου σπίτι, *propria mea casă*, "my own house". The possessive stands between the
+ * adjective and the noun, which takes no second accent. Nominative and accusative only (spec 24).
+ */
+export function ownPhrase(adj: GreekAdjective, noun: GreekNoun, number: Num, c: Case, possessor: SlotOf<'possessive'>): NounPhrase {
+  const gender = noun.gender;
+  const el = joinRich([
+    articleRich(inflectArticle(DEF_ARTICLE, { pos: 'article', gender, number, case: c })),
+    formRich(inflectAdjective(adj, { pos: 'adjective', gender, number, case: c })),
+    [{ text: greekPossessive(possessor), role: 'clitic' }],
+    formRich(inflectNoun(noun, { pos: 'noun', number, case: c })),
+  ]);
+  const ro = [roOwn(noun, number), roPossessive(possessor, noun, number, c), roBareNoun(noun, number)].join(' ');
+  return { el, ro, en: `${enOwn(possessor)} ${enNoun(noun, number)}` };
+}
+
+/** δικός on its own, with the article: το δικό μου (*al meu*, *a mea*, "mine"). */
+export function ownAlone(adj: GreekAdjective, noun: GreekNoun, number: Num, c: Case, possessor: SlotOf<'possessive'>): NounPhrase {
+  const gender = noun.gender;
+  const el = joinRich([
+    articleRich(inflectArticle(DEF_ARTICLE, { pos: 'article', gender, number, case: c })),
+    formRich(inflectAdjective(adj, { pos: 'adjective', gender, number, case: c })),
+    [{ text: greekPossessive(possessor), role: 'clitic' }],
+  ]);
+  return { el, ro: roAlone(possessor, noun, number), en: enAlone(possessor) };
 }

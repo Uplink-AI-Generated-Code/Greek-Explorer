@@ -270,6 +270,25 @@ const zestos: GreekAdjective = {
   en: 'hot',
 };
 
+const dikos: GreekAdjective = {
+  id: 'dikos',
+  pos: 'adjective',
+  lemma: 'δικός',
+  verified: { el: false, ro: false, en: false },
+  class: 'adj-stressed',
+  stem: 'δικ',
+  emphatic: true,
+  ro: {
+    lemma: 'propriu',
+    forms: {
+      m: { sg: 'propriu', pl: 'proprii' },
+      f: { sg: 'proprie', pl: 'proprii', genSg: 'proprii' },
+      n: { sg: 'propriu', pl: 'proprii' },
+    },
+  },
+  en: 'own',
+};
+
 const grigoros: GreekAdjective = {
   id: 'grigoros',
   pos: 'adjective',
@@ -1281,6 +1300,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [dromos.id]: dromos,
   [thalassa.id]: thalassa,
   [zestos.id]: zestos,
+  [dikos.id]: dikos,
   [grigoros.id]: grigoros,
   [tembelikos.id]: tembelikos,
   [kafeAdj.id]: kafeAdj,

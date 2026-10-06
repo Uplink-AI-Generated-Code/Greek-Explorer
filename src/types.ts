@@ -149,6 +149,8 @@ export interface GreekAdjective extends LexemeBase {
   en: string;
   /** A passive participle: the verb it comes from and the participle stem it stores (πλυ-). */
   derivedFrom?: { verb: string; stem: string };
+  /** δικός: it is always followed by the weak possessive (το δικό μου σπίτι) and has a panel of its own (spec 24). */
+  emphatic?: true;
 }
 
 export interface GreekNumeral extends LexemeBase {

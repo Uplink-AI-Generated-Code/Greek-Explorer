@@ -27,6 +27,7 @@ import type {
   Token,
 } from '../types';
 import { adjectivePanel } from './adjective';
+import { dikosPanel } from './dikos';
 import { articlePanel } from './article';
 import { nounPanel } from './noun';
 import { numeralPanel } from './numeral';
@@ -45,6 +46,11 @@ export type { Control, Panel, PanelRow, PanelState, Related } from './types';
 /** The noun a quantifier panel shows when the phrase has none (ποιος είναι;): one of each Greek gender. */
 const DEFAULT_NOUN: Record<Gender, string> = { m: 'skylos', f: 'alepou', n: 'paidi' };
 
+const lexemeIsEmphatic = (token: Token): boolean => {
+  const l = getLexeme(token.lexeme);
+  return l.pos === 'adjective' && l.emphatic === true;
+};
+
 /** The state a word's panel starts in: the token's own slot and the noun it goes with in the phrase. */
 export function initialState(token: Token, phrase: Phrase): PanelState {
   const nounToken = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
@@ -56,10 +62,15 @@ export function initialState(token: Token, phrase: Phrase): PanelState {
   }
   if (!noun && token.slot.pos === 'quantifier') noun = DEFAULT_NOUN[token.slot.gender];
   // A noun that a possessive points at shows it: το σπίτι μου.
-  const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === phrase.tokens.indexOf(token)) : undefined;
+  const at = phrase.tokens.indexOf(token);
+  const possessive = token.slot.pos === 'noun' ? phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === at) : undefined;
+  // δικός shows the possessive that follows it: το δικό μου σπίτι.
+  const after = phrase.tokens[at + 1];
+  const own = lexemeIsEmphatic(token) && after?.slot.pos === 'possessive' ? after : undefined;
   return {
     slot: token.slot,
     ...(possessive && possessive.slot.pos === 'possessive' ? { possessor: possessive.slot } : {}),
+    ...(own && own.slot.pos === 'possessive' ? { possessor: own.slot } : {}),
     ...(token.slot.pos === 'possessive' && nounToken?.slot.pos === 'noun' ? { nounCase: nounToken.slot.case } : {}),
     noun,
     nounNumber: nounToken && nounToken.slot.pos === 'noun' ? nounToken.slot.number : 'sg',
@@ -78,7 +89,9 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
     case 'noun':
       return nounPanel(lexeme as GreekNoun, slot, level, state);
     case 'adjective':
-      return adjectivePanel(lexeme as GreekAdjective, slot, state, level);
+      return (lexeme as GreekAdjective).emphatic
+        ? dikosPanel(lexeme as GreekAdjective, slot, state, level)
+        : adjectivePanel(lexeme as GreekAdjective, slot, state, level);
     case 'numeral':
       return numeralPanel(lexeme as GreekNumeral, slot, state, level);
     case 'article':
@@ -210,7 +223,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
       }
       break;
     case 'possessor':
-      if (slot.pos === 'noun') {
+      if (slot.pos === 'noun' || slot.pos === 'adjective') {
         const to = POSSESSORS.find((p) => p.value === value);
         const { possessor: _old, slot: _slot, ...rest } = state;
         // A fixed key order, so that sameState (which compares JSON) is true after nobody → the phrase's own possessor.

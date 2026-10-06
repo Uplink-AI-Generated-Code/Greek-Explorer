@@ -32,3 +32,30 @@ export const EN_POSSESSIVES: Record<PossessorKey, string> = {
   '2pl': 'your',
   '3pl': 'their',
 };
+
+/**
+ * Romanian *propriu* with its suffix article, by the gender and number of the possessed noun: *propriul meu câine*,
+ * *propria mea casă*, *proprii mei copii*, *propriile mele case*. Nominative and accusative only (spec 24).
+ */
+export const RO_OWN: Record<'m' | 'f', Record<Num, string>> = {
+  m: { sg: 'propriul', pl: 'proprii' },
+  f: { sg: 'propria', pl: 'propriile' },
+};
+
+/** The Romanian word before the possessive when it stands on its own: *al meu*, *a mea*, *ai mei*, *ale mele*. */
+export const RO_ALONE: Record<'m' | 'f', Record<Num, string>> = {
+  m: { sg: 'al', pl: 'ai' },
+  f: { sg: 'a', pl: 'ale' },
+};
+
+/** English "my own" beside a noun and "mine" on its own, by possessor. */
+export const EN_OWN: Record<PossessorKey, { own: string; alone: string }> = {
+  '1sg': { own: 'my own', alone: 'mine' },
+  '2sg': { own: 'your own', alone: 'yours' },
+  '3sg.m': { own: 'his own', alone: 'his' },
+  '3sg.f': { own: 'her own', alone: 'hers' },
+  '3sg.n': { own: 'its own', alone: 'its' },
+  '1pl': { own: 'our own', alone: 'ours' },
+  '2pl': { own: 'your own', alone: 'yours' },
+  '3pl': { own: 'their own', alone: 'theirs' },
+};

@@ -1,5 +1,5 @@
-import { EN_POSSESSIVES, RO_POSSESSIVES, type PossessorKey } from '../data/possessives';
-import type { Case, Clitic, GreekNoun, Num, SlotOf } from '../types';
+import { EN_OWN, EN_POSSESSIVES, RO_ALONE, RO_OWN, RO_POSSESSIVES, type PossessorKey } from '../data/possessives';
+import type { Case, Clitic, Gender, GreekNoun, Num, SlotOf } from '../types';
 import { greekClitic } from './clitics';
 
 type Possessor = SlotOf<'possessive'>;
@@ -28,12 +28,35 @@ export function greekPossessive(s: Possessor): string {
 export function roPossessive(s: Possessor, noun: GreekNoun, number: Num, c: Case = 'nom'): string {
   const entry = RO_POSSESSIVES[possessorKey(s)];
   if (typeof entry === 'string') return entry;
-  const ro = noun.ro.gender;
-  const gender = ro === 'n' ? (number === 'sg' ? 'm' : 'f') : ro;
+  const gender = roAgreement(noun, number);
   return entry[gender][c === 'gen' && gender === 'f' && number === 'sg' ? 'pl' : number];
 }
 
+/** The Romanian gender a possessive or *propriu* agrees in: a neuter follows the masculine in the singular and the feminine in the plural. */
+const agreeGender = (ro: Gender, number: Num): 'm' | 'f' => (ro === 'n' ? (number === 'sg' ? 'm' : 'f') : ro);
+const roAgreement = (noun: GreekNoun, number: Num): 'm' | 'f' => agreeGender(noun.ro.gender, number);
+
+/** Romanian *propriu* with its article, agreeing with the possessed noun: propria (mea casă). */
+export const roOwn = (noun: GreekNoun, number: Num): string => RO_OWN[roAgreement(noun, number)][number];
+
+/** The Romanian possessive on its own: *al meu*, *a mea*, *ai mei*, *ale mele*, *a lui*. */
+export const roAlone = (s: Possessor, noun: GreekNoun, number: Num): string => roAloneFor(s, noun.ro.gender, number);
+
+/** The same for a Romanian gender given on its own (the rows of the full table). */
+export function roAloneFor(s: Possessor, roGender: Gender, number: Num): string {
+  const entry = RO_POSSESSIVES[possessorKey(s)];
+  const gender = agreeGender(roGender, number);
+  return `${RO_ALONE[gender][number]} ${typeof entry === 'string' ? entry : entry[gender][number]}`;
+}
+
+/** The Romanian noun without its article (the form after *propria mea*): casă, câine, copii. */
+export const roBareNoun = (noun: GreekNoun, number: Num): string => noun.ro.forms[number].indefinite.replace(/^(un|o) /, '');
+
 export const enPossessive = (s: Possessor): string => EN_POSSESSIVES[possessorKey(s)];
+
+/** English "my own" (beside a noun) and "mine" (on its own). */
+export const enOwn = (s: Possessor): string => EN_OWN[possessorKey(s)].own;
+export const enAlone = (s: Possessor): string => EN_OWN[possessorKey(s)].alone;
 
 /** The seven possessors the panel offers, with the label of the Whose? control. */
 export const POSSESSORS: { value: string; label: string; slot: Possessor }[] = [
