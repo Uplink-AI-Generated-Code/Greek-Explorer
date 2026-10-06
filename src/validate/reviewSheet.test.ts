@@ -110,6 +110,24 @@ describe('the review sheet', () => {
     expect(sheet).toContain('my house · your house · his house · her house · our house · your house · their house');
   });
 
+  it('shows δικός: the Romanian words and the noun phrases with every possessor', () => {
+    expect(sheet).toContain('- Romanian propriu with its article (nominative and accusative): masc. sg propriul · masc. pl proprii · fem. sg propria · fem. pl propriile');
+    expect(sheet).toContain('- Romanian word before the possessive on its own: masc. sg al · masc. pl ai · fem. sg a · fem. pl ale');
+    expect(sheet).toContain('το δικό μου σπίτι · το δικό σου σπίτι · το δικό του σπίτι · το δικό της σπίτι · το δικό μας σπίτι · το δικό σας σπίτι · το δικό τους σπίτι');
+    expect(sheet).toContain('propria mea casă · propria ta casă · propria lui casă · propria ei casă · propria noastră casă · propria voastră casă · propria lor casă');
+    expect(sheet).toContain('my own house · your own house · his own house · her own house · our own house · your own house · their own house');
+    expect(sheet).toContain('a mea · a ta · a lui · a ei · a noastră · a voastră · a lor');
+    expect(sheet).toContain('mine · yours · his · hers · ours · yours · theirs');
+  });
+
+  it('shows every noun owned by every noun', () => {
+    expect(sheet).toContain('## Noun possessors (generated)');
+    expect(sheet).toContain('το σπίτι του παιδιού');
+    expect(sheet).toContain('casa copilului');
+    expect(sheet).toContain("the child's house");
+    expect(sheet).toContain('ο σκύλος της θάλασσας');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });

@@ -9,10 +9,10 @@ import { formText, richText } from '../engine/segments';
 import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import { RECIPIENTS } from '../engine/objects';
-import { nounPhrase } from '../engine/agree';
+import { nounPhrase, ownAlone, ownPhrase } from '../engine/agree';
 import { POSSESSORS } from '../engine/possessive';
-import { RO_POSSESSIVES } from '../data/possessives';
-import type { Clitic, GreekInterrogative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
+import { RO_ALONE, RO_OWN, RO_POSSESSIVES } from '../data/possessives';
+import type { Clitic, GreekAdjective, GreekInterrogative, GreekLexeme, GreekNoun, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -188,6 +188,47 @@ function possessiveLines(lexemes: Record<string, GreekLexeme>): string[] {
   return ['- Romanian possessives (they agree with the possessed noun):', ...table, '- Noun phrases with each possessor, nominative and genitive (generated):', ...phrases];
 }
 
+/** δικός: the Romanian *propriu* and *al meu* words, and every noun with every possessor before the noun and on its own (spec 9, 24). */
+function ownLines(adj: GreekAdjective, lexemes: Record<string, GreekLexeme>): string[] {
+  const nouns = Object.values(lexemes).filter((l): l is GreekNoun => l.pos === 'noun');
+  const table = (words: typeof RO_OWN) => `masc. sg ${words.m.sg} · masc. pl ${words.m.pl} · fem. sg ${words.f.sg} · fem. pl ${words.f.pl}`;
+  const phrases = nouns.flatMap((noun) =>
+    (['sg', 'pl'] as const).flatMap((number) => {
+      const before = POSSESSORS.map((p) => ownPhrase(adj, noun, number, 'nom', p.slot));
+      const alone = POSSESSORS.map((p) => ownAlone(adj, noun, number, 'nom', p.slot));
+      return [
+        `- ${noun.lemma} (${number === 'sg' ? 'singular' : 'plural'}):`,
+        `  - ${LANG_NAME.el}, before the noun: ${before.map((n) => richText(n.el)).join(' · ')}`,
+        `  - ${LANG_NAME.ro}, before the noun: ${before.map((n) => n.ro).join(' · ')}`,
+        `  - ${LANG_NAME.en}, before the noun: ${before.map((n) => n.en).join(' · ')}`,
+        `  - ${LANG_NAME.el}, on its own: ${alone.map((n) => richText(n.el)).join(' · ')}`,
+        `  - ${LANG_NAME.ro}, on its own: ${alone.map((n) => n.ro).join(' · ')}`,
+        `  - ${LANG_NAME.en}, on its own: ${alone.map((n) => n.en).join(' · ')}`,
+      ];
+    }),
+  );
+  return [
+    `- Romanian propriu with its article (nominative and accusative): ${table(RO_OWN)}`,
+    `- Romanian word before the possessive on its own: ${table(RO_ALONE)}`,
+    '- Noun phrases with each possessor (generated):',
+    ...phrases,
+  ];
+}
+
+/** Every noun owned by every noun, in the three languages (spec 9, 24). */
+function ownerLines(lexemes: Record<string, GreekLexeme>): string[] {
+  const nouns = Object.values(lexemes).filter((l): l is GreekNoun => l.pos === 'noun');
+  return nouns.flatMap((noun) => {
+    const all = nouns.map((owner) => nounPhrase(noun, 'sg', 'nom', { article: 'definite', owner }));
+    return [
+      `- ${noun.lemma}:`,
+      `  - ${LANG_NAME.el}: ${all.map((n) => richText(n.el)).join(' · ')}`,
+      `  - ${LANG_NAME.ro}: ${all.map((n) => n.ro).join(' · ')}`,
+      `  - ${LANG_NAME.en}: ${all.map((n) => n.en).join(' · ')}`,
+    ];
+  });
+}
+
 function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): string[] {
   const missing = (['el', 'ro', 'en'] as const).filter((lang) => !l.verified[lang]);
   if (missing.length === 0) return [];
@@ -200,6 +241,7 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
       ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
       ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
       ...(l.pos === 'possessive' ? possessiveLines(lexemes) : []),
+      ...(l.pos === 'adjective' && l.emphatic ? ownLines(l, lexemes) : []),
     ]),
     '',
   ];
@@ -228,6 +270,12 @@ export function reviewSheet(sets: RecordSets & { pending: string[] }): string {
     '## Lexemes',
     '',
     ...Object.values(sets.lexemes).flatMap((l) => lexemeSection(l, sets.lexemes)),
+    '## Noun possessors (generated)',
+    '',
+    'Each noun in the singular nominative, owned by each noun in the genitive (the owners in the order of the nouns listed here).',
+    '',
+    ...ownerLines(sets.lexemes),
+    '',
     '## Phrases',
     '',
     ...sets.phrases.flatMap((phrase) => [
