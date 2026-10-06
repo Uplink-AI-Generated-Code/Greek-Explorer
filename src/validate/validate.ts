@@ -296,6 +296,9 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     if (l.question && !(l.cases?.length === 2 && l.cases.includes('nom') && l.cases.includes('acc'))) {
       errors.push(`lexeme ${l.id}: a question word offers the subject and object roles only`);
     }
+    if (l.free && !(l.cases?.length === 2 && l.cases.includes('nom') && l.cases.includes('acc'))) {
+      errors.push(`lexeme ${l.id}: a free relative offers the subject and object roles only`);
+    }
     for (const slot of quantifierSlots(l)) {
       const where = `lexeme ${l.id}: ${JSON.stringify(slot)}`;
       for (const roGender of ['m', 'f'] as const) {

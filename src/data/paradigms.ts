@@ -234,7 +234,13 @@ const onStem = (stem: string, sg: string[][], pl: string[][]): PairTable => {
  * Whole forms of the quantifiers that do not follow the adjective endings on one stem (spec 6.3).
  * κάποιος keeps the final ν of the masculine accusative; κανένας follows the numeral ένας; πολύς has two stems.
  */
-export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios', PairTable> = {
+export const QUANTIFIER_FORMS: Record<'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios' | 'opoiosFree', PairTable> = {
+  /** όποιος (whoever) declines like ποιος, with the stress on the first syllable of the stem. */
+  opoiosFree: onStem(
+    'όποι',
+    [['ος', 'α', 'ο'], ['ον', 'α', 'ο'], ['ου', 'ας', 'ου']],
+    [['οι', 'ες', 'α'], ['ους', 'ες', 'α'], ['ων', 'ων', 'ων']],
+  ),
   /** αυτός keeps the stress on the ending and the final ν of the accusative (αυτόν, αυτήν). */
   autos: onStem(
     'αυτ',

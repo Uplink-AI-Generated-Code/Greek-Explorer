@@ -703,6 +703,27 @@ const tosos: GreekQuantifier = {
   en: { plain: { determiner: { sg: 'so much', pl: 'so many' }, pronoun: { sg: 'so much', pl: 'so many' } } },
 };
 
+const freeOpoios: GreekQuantifier = {
+  id: 'free-opoios',
+  pos: 'quantifier',
+  lemma: 'όποιος',
+  verified: { el: false, ro: false, en: false },
+  greek: { plain: { table: 'opoiosFree' } },
+  numbers: ['sg', 'pl'],
+  free: true,
+  cases: ['nom', 'acc'],
+  meaning:
+    'όποιος means "whoever" on its own and "whichever" in front of a noun (όποιο ψωμί θέλεις). It changes with gender, number and role, like ποιος. Romanian splits it into oricine (whoever) and orice (whichever); English into whoever and whichever.',
+  ro: {
+    lemma: 'oricine',
+    plain: {
+      determiner: { m: { sg: ro1('orice'), pl: ro1('orice') }, f: { sg: ro1('orice'), pl: ro1('orice') } },
+      pronoun: { m: { sg: ro1('oricine'), pl: ro1('oricine') }, f: { sg: ro1('oricine'), pl: ro1('oricine') } },
+    },
+  },
+  en: { plain: { determiner: { sg: 'whichever', pl: 'whichever' }, pronoun: { sg: 'whoever', pl: 'whoever' } } },
+};
+
 const INDICATIVE_ALL: Tense[] = [
   'present', 'imperfect', 'aorist', 'future', 'futureSimple', 'perfect', 'pluperfect', 'futurePerfect',
 ];
@@ -1494,6 +1515,7 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [ekeinos.id]: ekeinos,
   [tetoios.id]: tetoios,
   [tosos.id]: tosos,
+  [freeOpoios.id]: freeOpoios,
   [thelo.id]: thelo,
   [pidao.id]: pidao,
   [kano.id]: kano,

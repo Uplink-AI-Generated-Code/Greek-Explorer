@@ -176,7 +176,7 @@ export interface GreekNumeral extends LexemeBase {
  * How the Greek forms of one degree are made: a shared table of whole forms, or the adjective endings on a stem
  * (the stem-stressed endings, or the ending-stressed ones when `stressed` is set: μερικός, μερικοί).
  */
-export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios' } | { stem: string; stressed?: true };
+export type QuantifierGreek = { table: 'kapoios' | 'kanenas' | 'polys' | 'poios' | 'autos' | 'ekeinos' | 'tetoios' | 'opoiosFree' } | { stem: string; stressed?: true };
 
 /** One Romanian cell: nominative-accusative and genitive-dative. `gen` is absent where the form is not covered (a stand-alone genitive pronoun, spec 6.3). */
 export interface RoQuantifierCell {
@@ -206,6 +206,8 @@ export interface GreekQuantifier extends LexemeBase {
   cases?: Case[];
   /** A demonstrative (αυτός, εκείνος, τέτοιος, τόσος): the article follows the near and far ones, and ένα goes before τέτοιος (spec 25). */
   demonstrative?: DemonstrativeKind;
+  /** A free relative (όποιος: whoever, whichever): a relative word with no noun to refer to (spec 26). */
+  free?: true;
   /** The uses the panel may offer; absent means both (τέτοιος has no stand-alone use). */
   uses?: QuantifierUse[];
   ro: {

@@ -124,7 +124,7 @@ function controls(q: GreekQuantifier, slot: SlotOf<'quantifier'>, state: PanelSt
   ];
   if (q.numbers.length > 1) {
     list.push(
-      q.question === 'who' || (q.demonstrative && q.demonstrative !== 'amount')
+      q.question === 'who' || q.free || (q.demonstrative && q.demonstrative !== 'amount')
         ? numberControl(slot.number)
         : { key: 'kind', label: 'Kind of noun', options: kindOptions, value: slot.number === 'sg' ? 'mass' : 'count' },
     );
@@ -149,6 +149,7 @@ const DEMONSTRATIVE_LABEL: Record<NonNullable<GreekQuantifier['demonstrative']>,
 };
 
 function improverLabel(q: GreekQuantifier): string {
+  if (q.free) return 'free relative · declines like ποιος';
   if (q.demonstrative) return DEMONSTRATIVE_LABEL[q.demonstrative];
   const how = q.greek.plain;
   if ('stem' in how) return 'quantifier · declines like an adjective';
@@ -209,11 +210,13 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
     lemma: [...new Set(forms)].join(' / '),
     posLabel:
       level === 'beginner'
-        ? `${q.question ? 'question word' : q.demonstrative ? 'demonstrative' : 'quantifier'}: ${enBeside(q, { ...det, degree: 'plain', sense: undefined, register: undefined }, noun)}`
+        ? `${q.question ? 'question word' : q.free ? 'free relative' : q.demonstrative ? 'demonstrative' : 'quantifier'}: ${enBeside(q, { ...det, degree: 'plain', sense: undefined, register: undefined }, noun)}`
         : improverLabel(q),
     badge: q.question
       ? 'question word'
-      : q.demonstrative
+      : q.free
+        ? 'free relative'
+        : q.demonstrative
         ? 'demonstrative'
         : q.numbers.length > 1
         ? slot.number === 'sg'
@@ -225,7 +228,7 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
     full: level === 'improver' ? quantifierFull(q, here, noun) : [],
     plain:
       q.meaning +
-      (q.numbers.length > 1 && q.question !== 'who' && (!q.demonstrative || q.demonstrative === 'amount')
+      (q.numbers.length > 1 && q.question !== 'who' && !q.free && (!q.demonstrative || q.demonstrative === 'amount')
         ? ' The singular is the mass reading (one lump), the plural the count reading (separate things).'
         : '') +
       (slot.case === 'gen' && q.ro.genitiveWithArticle?.includes(slot.number)
