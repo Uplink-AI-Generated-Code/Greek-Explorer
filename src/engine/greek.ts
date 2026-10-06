@@ -30,6 +30,7 @@ import type {
   GreekQuantifier,
   GreekAdverb,
   GreekRelative,
+  GreekFreeRelative,
   GreekVerb,
   IrregularNote,
   PastStems,
@@ -193,6 +194,10 @@ export function inflectAdverb(l: GreekAdverb, _s: SlotOf<'adverb'>): Form {
   return { stem: l.lemma, ending: '' };
 }
 
+export function inflectFreeRelative(l: GreekFreeRelative, _s: SlotOf<'freeRelative'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
 export function inflect(l: GreekLexeme, s: Slot): Form {
   if (l.pos !== s.pos) throw new Error(`slot ${s.pos} does not fit lexeme ${l.id} (${l.pos})`);
   switch (l.pos) {
@@ -224,5 +229,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectAdverb(l, s as SlotOf<'adverb'>);
     case 'relative':
       return inflectRelative(l as GreekRelative, s as SlotOf<'relative'>);
+    case 'freeRelative':
+      return inflectFreeRelative(l as GreekFreeRelative, s as SlotOf<'freeRelative'>);
   }
 }

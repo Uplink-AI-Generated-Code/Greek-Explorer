@@ -86,6 +86,8 @@ export function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'interrogative' }];
     case 'adverb':
       return [{ pos: 'adverb' }];
+    case 'freeRelative':
+      return [{ pos: 'freeRelative' }];
     case 'relative':
       return GENDERS.flatMap((gender) =>
         NUMS.flatMap((number) =>
@@ -242,6 +244,10 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     for (const [key, value] of Object.entries(l.roAfter ?? {})) {
       if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
     }
+  }
+  if (l.pos === 'freeRelative') {
+    const texts = [l.ro.ever, l.ro.plain, l.en.ever, l.en.plain, l.meaning, ...Object.values(l.examples.ever), ...Object.values(l.examples.plain)];
+    if (texts.some(isEmpty)) errors.push(`lexeme ${l.id}: an empty Romanian, English, meaning or example text`);
   }
   if (l.pos === 'relative') {
     if (isEmpty(l.meaning)) errors.push(`lexeme ${l.id}: an empty meaning`);

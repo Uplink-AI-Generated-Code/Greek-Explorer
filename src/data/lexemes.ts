@@ -1,4 +1,5 @@
 import type {
+  GreekFreeRelative,
   GreekRelative,
   GreekAdverb,
   CellOverride,
@@ -1416,6 +1417,36 @@ const ekei = adverb(
   { apo: 'de acolo', mexri: 'până acolo' },
 );
 
+const oti: GreekFreeRelative = {
+  id: 'free-oti',
+  pos: 'freeRelative',
+  lemma: 'ό,τι',
+  verified: { el: false, ro: false, en: false },
+  ro: { ever: 'orice', plain: 'ce' },
+  en: { ever: 'whatever', plain: 'what' },
+  meaning:
+    'ό,τι never changes and has no noun to refer to: it means "what" and "whatever" (Ό,τι θέλεις). Romanian has two words, ce (what) and orice (whatever); so does English. The comma and the accent tell it apart from ότι ("that") and from the question τι.',
+  examples: {
+    ever: { el: 'Ό,τι θέλεις', ro: 'Orice vrei', en: 'Whatever you want' },
+    plain: { el: 'Ό,τι έχω', ro: 'Ce am', en: 'What I have' },
+  },
+};
+
+const opou: GreekFreeRelative = {
+  id: 'free-opou',
+  pos: 'freeRelative',
+  lemma: 'όπου',
+  verified: { el: false, ro: false, en: false },
+  ro: { ever: 'oriunde', plain: 'unde' },
+  en: { ever: 'wherever', plain: 'where' },
+  meaning:
+    'όπου never changes and means "where" and "wherever" (Όπου πας). Romanian has two words, unde (where) and oriunde (wherever); so does English. It is not the question πού.',
+  examples: {
+    ever: { el: 'Όπου πας', ro: 'Oriunde mergi', en: 'Wherever you go' },
+    plain: { el: 'Εκεί όπου είναι το σπίτι', ro: 'Acolo unde este casa', en: 'There where the house is' },
+  },
+};
+
 const relPou: GreekRelative = {
   id: 'rel-pou',
   pos: 'relative',
@@ -1550,6 +1581,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [giati.id]: giati,
   [posHow.id]: posHow,
   [edo.id]: edo,
+  [oti.id]: oti,
+  [opou.id]: opou,
   [relPou.id]: relPou,
   [relOpoios.id]: relOpoios,
   [ekei.id]: ekei,

@@ -95,6 +95,7 @@ export type Slot =
   | { pos: 'conjunction' }
   | { pos: 'interrogative' }
   | { pos: 'adverb' }
+  | { pos: 'freeRelative' }
   | { pos: 'relative'; role: RelativeRole; gender: Gender; number: Num; preposition?: string }
   | { pos: 'possessive'; person: Person; number: Num; gender?: Gender }
   | ({ pos: 'clitic' } & Clitic);
@@ -357,6 +358,21 @@ export interface GreekConjunction extends LexemeBase {
 }
 
 /**
+ * A free relative that never changes: ό,τι (what, whatever) and όπου (where, wherever). Greek has one word where Romanian and
+ * English have two (ce / orice, unde / oriunde; what / whatever, where / wherever) (spec 26).
+ */
+export interface GreekFreeRelative extends LexemeBase {
+  pos: 'freeRelative';
+  /** The Romanian and English words for the "-ever" reading (orice, whatever) and for the plain one (ce, what). */
+  ro: { ever: string; plain: string };
+  en: { ever: string; plain: string };
+  /** One line of meaning for the panel. */
+  meaning: string;
+  /** An example for each reading, in each language. */
+  examples: { ever: { el: string; ro: string; en: string }; plain: { el: string; ro: string; en: string } };
+}
+
+/**
  * A relative pronoun: που never changes, ο οποίος agrees with the noun it refers to (spec 26). Their Romanian and English
  * words are shared tables (`src/data/relatives.ts`); the slot holds the antecedent's gender and number and the job in the clause.
  */
@@ -434,7 +450,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative | GreekAdverb | GreekRelative;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative | GreekAdverb | GreekRelative | GreekFreeRelative;
 
 export type TokenIndex = number;
 
