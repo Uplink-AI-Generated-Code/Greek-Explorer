@@ -49,6 +49,7 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 .chip.piece { padding: 4px 10px; }
 .chip.piece-particle, .chip.piece-auxiliary { color: var(--accent-text); }
 .chip.piece-negation { font-weight: 600; }
+.chip.piece-preposition, .chip.piece-article { color: var(--accent-text); }
 .chip.piece[aria-pressed='true'] { color: var(--accent-text); }
 .chip:focus-visible, .gloss-unit:focus-visible, .phrase-status button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-border); outline-offset: 2px; }
 

@@ -4,10 +4,11 @@ import { GlossGrid } from './components/GlossGrid';
 import { PhraseBar } from './components/PhraseBar';
 import { WordPanel } from './components/WordPanel';
 import { DIVERGENCES } from './data/divergences';
-import { getLexeme, getVerb } from './data/lexemes';
+import { getLexeme, getNoun, getVerb } from './data/lexemes';
 import { compose, pieceText } from './engine/compose';
+import { splitFused } from './engine/preposition';
 import { applyControl, buildPanel, initialState, sameState, type PanelState, type Related } from './panels/panels';
-import type { Level, Phrase, Slot, Token } from './types';
+import type { Level, Phrase, Slot, SlotOf, Token } from './types';
 
 /** A panel for one piece of a verb group (a particle, a negation or the auxiliary), working on its own copy. */
 interface OpenPiece {
@@ -28,6 +29,25 @@ function pieceToOpen(lexemeId: string, slot: Slot, index: number): OpenPiece | n
     state,
     initial: state,
     backLabel: 'Back to the verb',
+  };
+}
+
+/**
+ * The panel to open for the article part of a fused preposition (στον): the definite article for the noun the σε
+ * panel holds, in the accusative. The first part is σε itself, so it opens nothing of its own.
+ */
+function fusedPieceToOpen(token: Token, state: PanelState, pieceIndex: number): OpenPiece | null {
+  if (pieceIndex !== 1 || !state.noun) return null;
+  const lexeme = getLexeme(state.noun);
+  if (lexeme.pos !== 'noun') return null;
+  const noun = getNoun(state.noun);
+  const slot: SlotOf<'article'> = { pos: 'article', gender: noun.gender, number: state.nounNumber, case: 'acc' };
+  const articleState: PanelState = { slot, noun: state.noun, nounNumber: state.nounNumber };
+  return {
+    token: { text: splitFused(token.text)[1], lexeme: 'def', slot },
+    state: articleState,
+    initial: articleState,
+    backLabel: 'Back to σε',
   };
 }
 
@@ -81,7 +101,15 @@ export function Explorer({ phrase, level }: { phrase: Phrase; level: Level }) {
     const target = phrase.tokens[index];
     setSelected(index);
     setPiece(pieceIndex ?? null);
-    setOpen(pieceIndex === undefined ? null : pieceToOpen(target.lexeme, target.slot, pieceIndex));
+    const lexeme = getLexeme(target.lexeme);
+    const fused = lexeme.pos === 'preposition' && lexeme.fused !== undefined;
+    setOpen(
+      pieceIndex === undefined
+        ? null
+        : fused
+          ? fusedPieceToOpen(target, states[index], pieceIndex)
+          : pieceToOpen(target.lexeme, target.slot, pieceIndex),
+    );
   }
 
   /** A reading part was clicked: open that piece of the form the panel is showing (its current slot, not the phrase's). */

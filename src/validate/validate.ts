@@ -10,6 +10,7 @@ import { READING_TEMPLATES } from '../data/readings';
 import { readingFor } from '../engine/reading';
 import { formText } from '../engine/segments';
 import { enQuantifier, enVerb } from '../engine/english';
+import { fusedForm } from '../engine/preposition';
 import { roQuantifier, roVerb } from '../engine/romanian';
 import { isSegmented, linkedToken, linksOf, unitText } from '../glossLinks';
 import type { Case, Clitic, Divergence, FormGroup, Gender, GreekLexeme, GreekVerb, Num, NumeralValue, Phrase, Slot, SlotOf, Token, VerbVoice, Voice } from '../types';
@@ -289,8 +290,12 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
 /** Compares a token's text with the composed text, ignoring capitals and trailing punctuation. */
 const normalise = (text: string): string => text.toLowerCase().replace(/[!?.,;·]+$/u, '').trim();
 
-/** How many pieces a verb token has (0 for any other token). */
+/** How many parts a token has: the pieces of a verb group, two for a fused preposition (σε + the article), else 0. */
 function pieceCount(token: Token | undefined, lexemes: Record<string, GreekLexeme>): number {
+  if (token?.slot.pos === 'preposition') {
+    const prep = lexemes[token.lexeme];
+    return prep?.pos === 'preposition' && prep.fused ? 2 : 0;
+  }
   if (!token || token.slot.pos !== 'verb') return 0;
   const lexeme = lexemes[token.lexeme];
   if (!lexeme || lexeme.pos !== 'verb') return 0;
@@ -373,6 +378,19 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     const governed = target ? lexemes[target.lexeme] : undefined;
     if (!governed || (governed.pos !== 'noun' && governed.pos !== 'interrogative')) {
       errors.push(`${where}: preposition needs agreesWith pointing at the noun or question word it governs`);
+    }
+    if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'noun' && target?.slot.pos === 'noun') {
+      // σε is written as one word with the article of its noun: στον for a masculine singular noun.
+      const expected = fusedForm(lexeme, governed, target.slot.number);
+      if (expected && normalise(expected) !== normalise(token.text)) {
+        errors.push(`${where}: text differs from the fused form ("${expected}")`);
+      }
+    } else if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'interrogative') {
+      errors.push(`${where}: ${lexeme.lemma} fuses with an article, so it needs a noun in agreesWith`);
+    }
+    if (lexeme.pos === 'preposition' && token.slot.pos === 'preposition' && token.slot.sense !== undefined) {
+      const sense = token.slot.sense;
+      if (!(lexeme.senses ?? []).some((s) => s.value === sense)) errors.push(`${where}: ${lexeme.lemma} has no sense "${sense}"`);
     }
   }
   return errors;
