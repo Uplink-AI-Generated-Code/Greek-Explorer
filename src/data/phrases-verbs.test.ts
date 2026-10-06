@@ -81,7 +81,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
     }
   });
 
-  it('the picker lists all 89 phrases in the spec order', () => {
+  it('the picker lists all 94 phrases in the spec order', () => {
     expect(PHRASES.map((p) => p.id)).toEqual([
       'ordering-hot-coffee', 'ordering-three-coffees', 'fox-sentence',
       'washing-myself', 'washing-the-child', 'sleeping',
@@ -104,6 +104,7 @@ describe('phrases with verbs (past, imperative, conditional)', () => {
       'this-house', 'that-dog', 'these-houses', 'this-is-my-house', 'here-is-the-house', 'as-far-as-there', 'such-a-house', 'so-much-bread',
       'the-dog-that-jumps', 'the-bread-that-i-ate', 'the-coffee-i-want', 'the-child-i-gave-it-to', 'the-child-whose-dog-jumps',
       'the-house-i-am-going-to', 'the-child-i-am-going-with', 'the-dog-that-is-there', 'this-is-the-house-i-have',
+      'whatever-you-want', 'wherever-you-go', 'whoever-wants', 'what-i-have', 'there-where-the-house-is',
     ]);
   });
 

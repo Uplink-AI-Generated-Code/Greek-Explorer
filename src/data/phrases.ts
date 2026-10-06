@@ -1925,6 +1925,101 @@ const thisIsTheHouseIHave: Phrase = {
   verified: false,
 };
 
+const freeRelative: Slot = { pos: 'freeRelative' };
+
+const whateverYouWant: Phrase = {
+  id: 'whatever-you-want',
+  title: 'Whatever you want',
+  theme: 'Relative clauses',
+  level: 'beginner',
+  tokens: [
+    { text: 'Ό,τι', lexeme: 'free-oti', slot: freeRelative },
+    { text: 'θέλεις', lexeme: 'thelo', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('Whatever', 0), u('you want', 1)],
+    [u('whatever', 0), u('(you)', null), u('want', 1)],
+    [u('Orice', 0), u('vrei', 1)],
+    [u('orice', 0), u('(tu)', null), u('vrei', 1)],
+  ),
+  verified: false,
+};
+
+const whereverYouGo: Phrase = {
+  id: 'wherever-you-go',
+  title: 'Wherever you go',
+  theme: 'Relative clauses',
+  level: 'beginner',
+  tokens: [
+    { text: 'Όπου', lexeme: 'free-opou', slot: freeRelative },
+    { text: 'πας', lexeme: 'pao', slot: present(2) },
+  ],
+  glosses: rows(
+    [u('Wherever', 0), u('you go', 1)],
+    [u('wherever', 0), u('(you)', null), u('go', 1)],
+    [u('Oriunde', 0), u('mergi', 1)],
+    [u('oriunde', 0), u('(tu)', null), u('mergi', 1)],
+  ),
+  verified: false,
+};
+
+const whoeverWants: Phrase = {
+  id: 'whoever-wants',
+  title: 'Whoever wants',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { text: 'Όποιος', lexeme: 'free-opoios', slot: qslot('m', 'sg', 'nom', { use: 'pronoun' }) },
+    { text: 'θέλει', lexeme: 'thelo', slot: present(3) },
+  ],
+  glosses: rows(
+    [u('Whoever', 0), u('wants', 1)],
+    [u('whoever', 0), u('wants', 1)],
+    [u('Oricine', 0), u('vrea', 1)],
+    [u('oricine', 0), u('vrea', 1)],
+  ),
+  verified: false,
+};
+
+const whatIHave: Phrase = {
+  id: 'what-i-have',
+  title: 'What I have',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { text: 'Ό,τι', lexeme: 'free-oti', slot: freeRelative },
+    { text: 'έχω', lexeme: 'echo', slot: verbSlot(1) },
+  ],
+  glosses: rows(
+    [u('What', 0), u('I have', 1)],
+    [u('what', 0), u('(I)', null), u('have', 1)],
+    [u('Ce', 0), u('am', 1)],
+    [u('ce', 0), u('(eu)', null), u('am', 1)],
+  ),
+  verified: false,
+};
+
+const thereWhereTheHouseIs: Phrase = {
+  id: 'there-where-the-house-is',
+  title: 'There where the house is',
+  theme: 'Relative clauses',
+  level: 'improver',
+  tokens: [
+    { text: 'Εκεί', lexeme: 'ekei', slot: adverb },
+    { text: 'όπου', lexeme: 'free-opou', slot: freeRelative },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { ...article('n', 'nom', 4), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('There', 0), u('where', 1), u('the', 3), u('house', 4), u('is', 2)],
+    [u('there', 0), u('where', 1), u('is', 2), u('the', 3), u('house', 4)],
+    [u('Acolo', 0), u('unde', 1), u('este', 2), seg(['cas', 4], ['a', 3])],
+    [u('acolo', 0), u('unde', 1), u('este', 2), seg(['cas', 4], ['a', 3])],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -2011,4 +2106,9 @@ export const PHRASES: Phrase[] = [
   theChildIAmGoingWith,
   theDogThatIsThere,
   thisIsTheHouseIHave,
+  whateverYouWant,
+  whereverYouGo,
+  whoeverWants,
+  whatIHave,
+  thereWhereTheHouseIs,
 ];
