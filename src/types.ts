@@ -92,6 +92,7 @@ export type Slot =
   | { pos: 'particle' }
   | { pos: 'conjunction' }
   | { pos: 'interrogative' }
+  | { pos: 'adverb' }
   | { pos: 'possessive'; person: Person; number: Num; gender?: Gender }
   | ({ pos: 'clitic' } & Clitic);
 
@@ -348,6 +349,19 @@ export interface GreekConjunction extends LexemeBase {
   example: { el: string; ro: string; en: string };
 }
 
+/** A place word that never changes: εδώ and εκεί (spec 25). A preposition may govern one (μέχρι εκεί). */
+export interface GreekAdverb extends LexemeBase {
+  pos: 'adverb';
+  ro: string;
+  en: string;
+  /** One line of meaning for the panel. */
+  meaning: string;
+  /** The Romanian words after a preposition, where they are not the preposition's word + the adverb (από εδώ: de aici), by preposition id. */
+  roAfter?: Record<string, string>;
+  /** An example sentence in each language. */
+  example: { el: string; ro: string; en: string };
+}
+
 /** A question word that never changes: τι, πού, πότε, γιατί, πώς (spec 5.3). ποιος and πόσος are quantifiers. */
 export interface GreekInterrogative extends LexemeBase {
   pos: 'interrogative';
@@ -402,7 +416,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative | GreekAdverb;
 
 export type TokenIndex = number;
 

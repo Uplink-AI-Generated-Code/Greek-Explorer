@@ -38,9 +38,9 @@ describe('a preposition before a question word', () => {
     expect(cells(buildPanel(next, apo, 'beginner').rows, 0)).toEqual({ el: 'από τι', ro: 'de la ce', en: 'from what' });
   });
 
-  it('offers the nouns and then the question words in the control, and switches back to a noun', () => {
+  it('offers the nouns, then the question words and the place words, and switches back to a noun', () => {
     const options = buildPanel(state, apo, 'beginner').controls[0].options.map((o) => o.value);
-    expect(options.slice(-5)).toEqual(['ti', 'pou', 'pote', 'giati', 'pos-how']);
+    expect(options.slice(-7)).toEqual(['ti', 'pou', 'pote', 'giati', 'pos-how', 'edo', 'ekei']);
     expect(options).toContain('skylos');
     const noun = applyControl(state, 'noun', 'skylos');
     expect(noun.noun).toBe('skylos');
@@ -51,7 +51,7 @@ describe('a preposition before a question word', () => {
 
   it('the control is labelled for both nouns and question words, and offers both', () => {
     const control = buildPanel(state, apo, 'beginner').controls[0];
-    expect(control.label).toBe('Noun or question word after it');
+    expect(control.label).toBe('Noun, question word or place word after it');
     expect(control.options.map((o) => o.value)).toEqual(expect.arrayContaining(['skylos', 'pou', 'ti']));
   });
 

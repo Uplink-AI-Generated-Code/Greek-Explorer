@@ -7,6 +7,7 @@ import type {
   Case,
   Gender,
   GreekAdjective,
+  GreekAdverb,
   GreekConjunction,
   GreekInterrogative,
   GreekNoun,
@@ -35,6 +36,7 @@ import { prepositionPanel } from './preposition';
 import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
 import { possessivePanel } from './possessive';
+import { adverbPanel } from './adverb';
 import { interrogativePanel } from './interrogative';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
@@ -111,6 +113,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return conjunctionPanel(lexeme as GreekConjunction, level);
     case 'interrogative':
       return interrogativePanel(lexeme as GreekInterrogative, level);
+    case 'adverb':
+      return adverbPanel(lexeme as GreekAdverb, level);
     case 'quantifier':
       return quantifierPanel(lexeme as GreekQuantifier, slot, state, level);
   }
@@ -157,6 +161,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         slot.pos !== 'particle' &&
         slot.pos !== 'conjunction' &&
         slot.pos !== 'interrogative' &&
+        slot.pos !== 'adverb' &&
         slot.pos !== 'clitic'
       ) {
         return { ...state, slot: { ...slot, case: value as Case } };
@@ -265,7 +270,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
     case 'noun': {
       const noun = getLexeme(value);
       // After a preposition the learner may choose a question word as well as a noun (από πού).
-      if (slot.pos === 'preposition' && noun.pos === 'interrogative') return { ...state, noun: value, nounNumber: 'sg' };
+      if (slot.pos === 'preposition' && (noun.pos === 'interrogative' || noun.pos === 'adverb')) return { ...state, noun: value, nounNumber: 'sg' };
       if (noun.pos !== 'noun') break;
       if (slot.pos === 'preposition') return { ...state, noun: value };
       if (slot.pos === 'possessive') return { ...state, noun: value };

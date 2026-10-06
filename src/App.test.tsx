@@ -127,7 +127,7 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Phrase'), 'The quick brown fox jumps over the lazy dog');
     await user.click(screen.getByRole('button', { name: 'πάνω από' }));
     expect(screen.getByRole('cell', { name: 'πάνω από τον σκύλο' })).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText('Noun or question word after it'), 'alepou');
+    await user.selectOptions(screen.getByLabelText('Noun, question word or place word after it'), 'alepou');
     expect(screen.getByRole('cell', { name: 'πάνω από την αλεπού' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'peste vulpea' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'over the fox' })).toBeInTheDocument();

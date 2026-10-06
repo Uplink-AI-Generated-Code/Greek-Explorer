@@ -5,24 +5,24 @@ import { numberOptions, type Option } from '../engine/labels';
 import { fusedForm, senseOf } from '../engine/preposition';
 import { roNoun } from '../engine/romanian';
 import { formRich, formText, plain } from '../engine/segments';
-import type { GreekInterrogative, GreekNoun, GreekPreposition, Level, Num, PrepSense } from '../types';
+import type { GreekAdverb, GreekInterrogative, GreekNoun, GreekPreposition, Level, Num, PrepSense } from '../types';
 import { ALL, GENDERS, GENDER_ROW, NUMS, nounOf, nounOptions } from './shared';
 import type { Control, Panel, PanelRow, PanelState } from './types';
 
-/** What follows a preposition: a noun, or a question word (από πού). */
-type After = { kind: 'noun'; noun: GreekNoun } | { kind: 'question'; word: GreekInterrogative };
+/** What follows a preposition: a noun, a question word (από πού) or a place word (μέχρι εκεί). */
+type After = { kind: 'noun'; noun: GreekNoun } | { kind: 'question'; word: GreekInterrogative | GreekAdverb };
 
 function afterOf(state: PanelState): After {
   const lexeme = state.noun ? getLexeme(state.noun) : undefined;
-  if (lexeme?.pos === 'interrogative') return { kind: 'question', word: lexeme };
+  if (lexeme?.pos === 'interrogative' || lexeme?.pos === 'adverb') return { kind: 'question', word: lexeme };
   return { kind: 'noun', noun: nounOf(state) };
 }
 
-/** The nouns, then the question words, for the "after it" control. */
+/** The nouns, then the question words and the place words, for the "after it" control. */
 function afterOptions(prep: GreekPreposition): Option[] {
   if (prep.fused) return nounOptions();
   const words = Object.values(LEXEMES).flatMap((l) =>
-    l.pos === 'interrogative' ? [{ value: l.id, label: `${l.lemma} (${l.en})` }] : [],
+    l.pos === 'interrogative' || l.pos === 'adverb' ? [{ value: l.id, label: `${l.lemma} (${l.en})` }] : [],
   );
   return [...nounOptions(), ...words];
 }
@@ -68,8 +68,8 @@ function fusedTable(prep: GreekPreposition, noun: GreekNoun, number: Num, sense?
   );
 }
 
-/** One preposition followed by a question word. Romanian fuses some pairs into one word (de unde, până când). */
-export function questionRow(prep: GreekPreposition, word: GreekInterrogative, label: string): PanelRow {
+/** One preposition followed by a question word or a place word. Romanian fuses some pairs into one word (de unde, până când, de aici). */
+export function questionRow(prep: GreekPreposition, word: GreekInterrogative | GreekAdverb, label: string): PanelRow {
   return {
     label,
     el: plain(`${prep.lemma} ${word.lemma}`),
@@ -85,7 +85,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
   const controls: Control[] = [
     {
       key: 'noun',
-      label: prep.fused ? 'Noun after it' : 'Noun or question word after it',
+      label: prep.fused ? 'Noun after it' : 'Noun, question word or place word after it',
       options: afterOptions(prep),
       value: state.noun ?? '',
     },
@@ -111,7 +111,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
     rows: [
       after.kind === 'noun'
         ? prepositionRow(prep, after.noun, state.nounNumber, 'prep. + noun', sense)
-        : questionRow(prep, after.word, 'prep. + question word'),
+        : questionRow(prep, after.word, after.word.pos === 'adverb' ? 'prep. + place word' : 'prep. + question word'),
       ...example,
     ],
     full:
@@ -130,7 +130,9 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
         ? prep.fused
           ? 'σε is followed by the accusative and is written as one word with the article: σε + τον = στον. The feminine στην loses its ν before most consonants (στη θάλασσα). Romanian and English keep the preposition and the article apart. Where English and Romanian choose between to, at, in and on (la, în, pe), Greek uses σε for all of them.'
           : 'Greek prepositions are followed by the accusative, so the article and noun switch to accusative (τον σκύλο). The preposition itself never changes.'
-        : 'A question word follows a preposition as a noun would: από πού, "from where". Greek and English build it from two words; Romanian often has one fused word (de unde, până când).',
+        : after.word.pos === 'adverb'
+          ? 'A place word follows a preposition as a noun would: μέχρι εκεί, "as far as there". Greek and English build it from two words; Romanian sometimes has one fused word (de aici) and sometimes two (până acolo).'
+          : 'A question word follows a preposition as a noun would: από πού, "from where". Greek and English build it from two words; Romanian often has one fused word (de unde, până când).',
     irregular: '',
     note: after.kind === 'noun' ? after.noun.note : '',
   };

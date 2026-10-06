@@ -210,7 +210,7 @@ describe('preposition panel (πάνω από)', () => {
     expect(panel.lemma).toBe('πάνω από');
     expect(panel.posLabel).toBe('preposition: over');
     expect(panel.controls.map((c) => c.key)).toEqual(['noun', 'number']);
-    expect(panel.controls[0].label).toBe('Noun or question word after it');
+    expect(panel.controls[0].label).toBe('Noun, question word or place word after it');
     expect(panel.rows.map((r) => r.label)).toEqual(['prep. + noun']);
     expect(text(panel.rows, 0)).toEqual({ el: 'πάνω από τον σκύλο', ro: 'peste câinele', en: 'over the dog' });
     expect(panel.note).toBe('Masculine in Greek and Romanian.');

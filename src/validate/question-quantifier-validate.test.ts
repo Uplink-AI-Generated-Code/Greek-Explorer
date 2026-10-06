@@ -74,7 +74,7 @@ describe('a preposition before a question word', () => {
       pos: 'verb', person: 1, number: 'sg', mood: 'indicative', tense: 'present', voice: 'active',
     });
     expect(validate({ ...real, phrases: [phrase] })).toContain(
-      'ordering-hot-coffee token 0 (από): preposition needs agreesWith pointing at the noun or question word it governs',
+      'ordering-hot-coffee token 0 (από): preposition needs agreesWith pointing at the noun, question word or place word it governs',
     );
   });
 });

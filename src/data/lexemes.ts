@@ -1,4 +1,5 @@
 import type {
+  GreekAdverb,
   CellOverride,
   GreekAdjective,
   GreekArticle,
@@ -1350,6 +1351,46 @@ const interrogative = (
   ...extra,
 });
 
+const adverb = (
+  id: string,
+  lemma: string,
+  ro: string,
+  en: string,
+  meaning: string,
+  example: GreekAdverb['example'],
+  roAfter?: GreekAdverb['roAfter'],
+): GreekAdverb => ({
+  id,
+  pos: 'adverb',
+  lemma,
+  verified: { el: false, ro: false, en: false },
+  ro,
+  en,
+  meaning,
+  example,
+  ...(roAfter ? { roAfter } : {}),
+});
+
+const edo = adverb(
+  'edo',
+  'εδώ',
+  'aici',
+  'here',
+  'εδώ means "here", the place near the speaker. It never changes. Romanian aici, English here.',
+  { el: 'Εδώ είναι το σπίτι', ro: 'Aici este casa', en: 'Here is the house' },
+  { apo: 'de aici', mexri: 'până aici' },
+);
+
+const ekei = adverb(
+  'ekei',
+  'εκεί',
+  'acolo',
+  'there',
+  'εκεί means "there", the place away from the speaker. It never changes. Romanian acolo, English there.',
+  { el: 'Εκεί είναι ο σκύλος', ro: 'Acolo este câinele', en: 'There is the dog' },
+  { apo: 'de acolo', mexri: 'până acolo' },
+);
+
 const ti = interrogative(
   'ti',
   'τι',
@@ -1462,6 +1503,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [pote.id]: pote,
   [giati.id]: giati,
   [posHow.id]: posHow,
+  [edo.id]: edo,
+  [ekei.id]: ekei,
 };
 
 export const DEF_ARTICLE: GreekArticle = def;

@@ -83,6 +83,8 @@ export function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'conjunction' }];
     case 'interrogative':
       return [{ pos: 'interrogative' }];
+    case 'adverb':
+      return [{ pos: 'adverb' }];
     case 'clitic':
       return cliticSlots();
     case 'possessive':
@@ -227,6 +229,14 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
       if (lexemes[key]?.pos !== 'preposition') errors.push(`lexeme ${l.id}: roAfter names "${key}", which is not a preposition`);
     }
     for (const [key, value] of Object.entries(l.roAfter ?? {})) {
+      if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
+    }
+  }
+  if (l.pos === 'adverb') {
+    const texts = [l.ro, l.en, l.meaning, ...Object.values(l.example)];
+    if (texts.some(isEmpty)) errors.push(`lexeme ${l.id}: an empty Romanian, English, meaning or example text`);
+    for (const [key, value] of Object.entries(l.roAfter ?? {})) {
+      if (lexemes[key]?.pos !== 'preposition') errors.push(`lexeme ${l.id}: roAfter names "${key}", which is not a preposition`);
       if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
     }
   }
@@ -481,8 +491,8 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
   if (token.slot.pos === 'preposition') {
     const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
     const governed = target ? lexemes[target.lexeme] : undefined;
-    if (!governed || (governed.pos !== 'noun' && governed.pos !== 'interrogative')) {
-      errors.push(`${where}: preposition needs agreesWith pointing at the noun or question word it governs`);
+    if (!governed || (governed.pos !== 'noun' && governed.pos !== 'interrogative' && governed.pos !== 'adverb')) {
+      errors.push(`${where}: preposition needs agreesWith pointing at the noun, question word or place word it governs`);
     }
     if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'noun' && target?.slot.pos === 'noun') {
       // σε is written as one word with the article of its noun: στον for a masculine singular noun.
@@ -491,7 +501,7 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
         errors.push(`${where}: text differs from the fused form ("${expected}")`);
       }
       if (target.slot.case !== 'acc') errors.push(`${where}: ${lexeme.lemma} governs the accusative, so its noun must be accusative`);
-    } else if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'interrogative') {
+    } else if (lexeme.pos === 'preposition' && lexeme.fused && (governed?.pos === 'interrogative' || governed?.pos === 'adverb')) {
       errors.push(`${where}: ${lexeme.lemma} fuses with an article, so it needs a noun in agreesWith`);
     }
     if (lexeme.pos === 'preposition' && token.slot.pos === 'preposition' && token.slot.sense !== undefined) {

@@ -27,6 +27,7 @@ import type {
   GreekPossessive,
   GreekPreposition,
   GreekQuantifier,
+  GreekAdverb,
   GreekVerb,
   IrregularNote,
   PastStems,
@@ -186,6 +187,10 @@ export function inflectInterrogative(l: GreekInterrogative, _s: SlotOf<'interrog
   return { stem: l.lemma, ending: '' };
 }
 
+export function inflectAdverb(l: GreekAdverb, _s: SlotOf<'adverb'>): Form {
+  return { stem: l.lemma, ending: '' };
+}
+
 export function inflect(l: GreekLexeme, s: Slot): Form {
   if (l.pos !== s.pos) throw new Error(`slot ${s.pos} does not fit lexeme ${l.id} (${l.pos})`);
   switch (l.pos) {
@@ -213,5 +218,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectParticle(l, s as SlotOf<'particle'>);
     case 'interrogative':
       return inflectInterrogative(l, s as SlotOf<'interrogative'>);
+    case 'adverb':
+      return inflectAdverb(l, s as SlotOf<'adverb'>);
   }
 }

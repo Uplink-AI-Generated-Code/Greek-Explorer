@@ -26,7 +26,7 @@ describe('the question words and the hortative in the app', () => {
     expect(screen.getByRole('cell', { name: 'από πού' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'de unde' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'from where' })).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText('Noun or question word after it'), 'skylos');
+    await user.selectOptions(screen.getByLabelText('Noun, question word or place word after it'), 'skylos');
     expect(screen.getByRole('cell', { name: 'από τον σκύλο' })).toBeInTheDocument();
     expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
   });
