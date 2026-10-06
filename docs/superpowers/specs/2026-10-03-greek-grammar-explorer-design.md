@@ -617,7 +617,7 @@ Scope limits for the prototype: κάποιος and κανένας are singular o
 | αυτός / αυτή / αυτό | *acest, această, acești, aceste* before the noun; *acesta, aceasta, aceștia, acestea* after the noun or on its own; spoken *ăsta, asta, ăștia, astea* | this, these | Near. Genitive *acestui, acestei, acestor* (before the noun) and *acestuia, acesteia, acestora*; none for the spoken forms. |
 | εκείνος / εκείνη / εκείνο | *acel, acea, acei, acele*; *acela, aceea, aceia, acelea*; spoken *ăla, aia, ăia, alea* | that, those | Far. Genitive *acelui, acelei, acelor*; *aceluia, aceleia, acelora*. |
 | τέτοιος / τέτοια / τέτοιο | *un / o asemenea*, plural *asemenea* | such (a) | Beside a noun only. Genitive *unui / unei / unor asemenea*. |
-| τόσος / τόση / τόσο | *atâta, atâta, atâția, atâtea*; on its own *atât* | so much, so many | Genitive plural *atâtor*; the singular genitive is not covered. |
+| τόσος / τόση / τόσο | *atâta, atâta, atâția, atâtea*; on its own *atât* | so much, so many | Subject and object only, like πόσος. |
 
 
 ### 6.4 Perfect, subjunctive, imperfect and imperative
@@ -1040,3 +1040,8 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Phrases | 73 to 80 in a new theme *Pointing* | 6.1 |
 | Scope | Not covered: τούτος, the three-way near / far / by-you distinction, the manner adverbs (έτσι), *același* and *cel*, the spoken genitive, a stand-alone τέτοιος | 2 |
 | Delivery | Plan 12, one plan for everything; if the dry run grows too large it is split into a plan for the declining words and a plan for the place words | 6.1 |
+| Slot and data | A quantifier slot gains `register` (the spoken Romanian forms); a quantifier lexeme gains `demonstrative` (near, far, such or amount), `uses` and `ro.spoken`; the `pronoun` cells of the Romanian and English data are optional, because τέτοιος has no stand-alone use | 4.2 |
+| τόσος and τέτοιος | τόσος offers the subject and object only, like πόσος; τέτοιος with a mass noun takes no ένα and, in Romanian, no article word (τέτοιο ψωμί, *asemenea pâine*, "such bread") | 5.3 |
+| Prepositions | από and μέχρι govern a place word as they govern a question word; `roAfter` stores *de aici*, *de acolo*, *până aici* and *până acolo*; σε takes nouns only | 5.3 |
+| Validator | αυτός and εκείνος beside a noun need the definite article of that noun; τέτοιος in the singular needs ένα unless the noun is mass; a Greek token never carries the spoken register; a preposition may name a place word | 7 |
+| Plan 12 built | αυτός, εκείνος, τέτοιος and τόσος, the Romanian form control, the adverb part of speech (εδώ, εκεί), phrases 73 to 80 (80 in all), seven notes, and the review-sheet sections; the manner adverbs and the other demonstratives listed above are not covered | 25 |
