@@ -247,6 +247,14 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         return { slot: state.slot, ...(to ? { owner: to } : {}), ...rest };
       }
       break;
+    case 'register':
+      if (slot.pos === 'quantifier') {
+        const next = { ...slot };
+        if (value === 'spoken') next.register = 'spoken';
+        else delete next.register;
+        return { ...state, slot: next };
+      }
+      break;
     case 'recipient':
       if (slot.pos === 'verb' && indirectOf(slot)) {
         const to = RECIPIENTS.find((r) => r.value === value);
