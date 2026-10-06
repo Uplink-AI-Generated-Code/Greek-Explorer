@@ -215,14 +215,14 @@ export function quantifierPanel(q: GreekQuantifier, slot: SlotOf<'quantifier'>, 
     badge: q.question
       ? 'question word'
       : q.free
-        ? 'free relative'
-        : q.demonstrative
-        ? 'demonstrative'
-        : q.numbers.length > 1
-        ? slot.number === 'sg'
-          ? 'mass reading'
-          : 'count reading'
-        : undefined,
+      ? 'free relative'
+      : q.demonstrative
+      ? 'demonstrative'
+      : q.numbers.length > 1
+      ? slot.number === 'sg'
+        ? 'mass reading'
+        : 'count reading'
+      : undefined,
     controls: controls(q, slot, state, level),
     rows: [withNoun, ...(offeredUses(q).includes('pronoun') ? [aloneRow()] : []), ...(negation ? [negation] : [])],
     full: level === 'improver' ? quantifierFull(q, here, noun) : [],

@@ -377,6 +377,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     return [`${where}: slot is ${token.slot.pos} but lexeme ${lexeme.id} is ${lexeme.pos}`];
   }
   const errors: string[] = [];
+  if (token.slot.pos === 'freeRelative' && normalise(token.text) !== normalise(lexeme.lemma)) {
+    errors.push(`${where}: text differs from the lemma ("${lexeme.lemma}")`);
+  }
   let inflected = true;
   try {
     inflect(lexeme, token.slot);

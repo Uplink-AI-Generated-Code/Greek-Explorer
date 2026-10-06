@@ -413,7 +413,7 @@ Divergence types the prototype must cover:
 | relative-preposition | Greek puts the preposition before ο οποίος (με το οποίο) or after the clause with a pronoun (που … με αυτό); Romanian puts it first (*cu care*); English puts it first ("with whom") or at the end ("the child I go with"). |
 | relative-omitted | English can leave the relative pronoun out of an object clause (the bread I ate); Greek and Romanian cannot. |
 | free-relative-ever | Greek has one word where Romanian and English have two: ό,τι is "what" and "whatever" (*ce*, *orice*), όπου is "where" and "wherever" (*unde*, *oriunde*). |
-| free-relative-who | Greek όποιος declines and means "whoever" and "whichever" (όποιος θέλει, όποιο ψωμί θέλεις); Romanian has two words that never change, *oricine* and *orice*; English *whoever* and *whichever*. |
+| free-relative-who | Greek όποιος declines and means "whoever" and "whichever" (όποιος θέλει, όποιο ψωμί θέλεις); Romanian has two words that do not change as subject or object, *oricine* and *orice*; English *whoever* and *whichever*. |
 
 ### 5.3 Panels per part of speech
 
@@ -828,7 +828,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 
 - Plan 13 additions: the Greek relative pronouns που and ο οποίος (every gender, number and role), the Romanian *care* in every role (*care, pe care, căruia / căreia / cărora, cărui / cărei / căror, al cărui / a cărei / ai căror / ale căror*, and a preposition + *care*), the English who, whom, which, that and whose, and phrases 81 to 89. For the content reviewer: whether *pe care* is right for every direct object, a thing as well as a person; whether *al cărui* takes its first word from the owned thing; the Greek pronoun inside the clause (που του …, που … με αυτό).
 
-- Plan 14 additions: the free relatives ό,τι, όπου and όποιος in every gender, number and role, the Romanian *orice / ce*, *oriunde / unde*, *oricine / orice*, the English whatever / what, wherever / where, whoever / whichever, and phrases 90 to 94.
+- Plan 14 additions: the free relatives ό,τι, όπου and όποιος in every gender, number and role, the Romanian *orice / ce*, *oriunde / unde*, *oricine / orice*, the English whatever / what, wherever / where, whoever / whichever, and phrases 90 to 94. Reviewer question: whether the "on its own" row of όποιος (*oricine* / whoever) should read "whichever (one)" (*orice* / *oricare*) for a non-living noun, as for ποιος.
 
 Reviewed content is marked verified in the data, on the record that holds it (4.3): the language flags of a lexeme, the flag on a phrase, a divergence note, an authored reading or a form group, and the `ReviewItem`s for the ending, auxiliary and clitic tables and the glossary of endings. The app does not show an unverified flag to learners; the build report lists unverified entries, and the release check (7) refuses them.
 
@@ -1094,3 +1094,4 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | Plan 13 built | The relative pronouns που and ο οποίος: the part of speech, the panel with the five jobs and the preposition and noun-owned controls, the Romanian *care* tables, the `animate` flag, phrases 81 to 89 (89 in all), six notes and the review-sheet section; Plan 14 (ό,τι, όπου, όποιος) is still to do | 26 |
 | Free relatives, model | ό,τι and όπου are a new part of speech, the free relative, with the slot `{ pos: 'freeRelative' }` and a lexeme that stores both readings (Romanian *orice / ce*, *oriunde / unde*; English whatever / what, wherever / where) and an example of each; όποιος is a quantifier lexeme flagged `free`, with the Greek table of ποιος, the subject and object only, Romanian *orice* beside a noun and *oricine* on its own, and English whichever and whoever | 4.2 |
 | Plan 14 built | The free relatives ό,τι, όπου and όποιος, their panels, phrases 90 to 94 (94 in all), two notes and the review-sheet sections; the "-ever" relatives in the genitive and the construction with an auxiliary (όπου κι αν πας) are not covered | 26 |
+| Validator (free relatives) | όποιος offers the subject and object only, takes no article, and stands alone without a noun to agree with; ό,τι and όπου are never governed by a preposition | 4.2 |

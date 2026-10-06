@@ -432,7 +432,7 @@ export const DIVERGENCES: Divergence[] = [
   },
   {
     id: 'quantifier-determiner-vs-pronoun',
-    // Every quantifier but τέτοιος, which has no stand-alone use.
+    // Every quantifier but τέτοιος (no stand-alone use) and όποιος (its own note, free-relative-who, covers the point).
     appliesTo: {
       pos: 'quantifier',
       lexeme: ['merikoi', 'kapoios', 'kanenas', 'polys', 'ligos', 'poios', 'posos', 'autos', 'ekeinos', 'tosos'],
@@ -1029,8 +1029,8 @@ export const DIVERGENCES: Divergence[] = [
     appliesTo: { pos: 'quantifier', lexeme: 'free-opoios' },
     point: 'Whoever and whichever',
     el: 'όποιος declines (όποιος, όποια, όποιο) and means both "whoever" and "whichever": όποιος θέλει, όποιο ψωμί θέλεις',
-    ro: 'two words that never change: oricine (whoever) and orice (whichever)',
-    en: 'two words that never change: whoever and whichever',
+    ro: 'two words that do not change as subject or object: oricine (whoever) and orice (whichever)',
+    en: 'two words that do not change as subject or object: whoever and whichever',
     tag: 'differs',
     level: 'core',
     verified: false,

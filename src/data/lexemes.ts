@@ -1425,7 +1425,7 @@ const oti: GreekFreeRelative = {
   ro: { ever: 'orice', plain: 'ce' },
   en: { ever: 'whatever', plain: 'what' },
   meaning:
-    'ό,τι never changes and has no noun to refer to: it means "what" and "whatever" (Ό,τι θέλεις). Romanian has two words, ce (what) and orice (whatever); so does English. The comma and the accent tell it apart from ότι ("that") and from the question τι.',
+    'ό,τι never changes and has no noun to refer to: it means "what" and "whatever" (Ό,τι θέλεις). Romanian has two words, ce (what) and orice (whatever); so does English. The comma tells it apart from ότι ("that"); the accented ό- tells it apart from the question τι.',
   examples: {
     ever: { el: 'Ό,τι θέλεις', ro: 'Orice vrei', en: 'Whatever you want' },
     plain: { el: 'Ό,τι έχω', ro: 'Ce am', en: 'What I have' },
