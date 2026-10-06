@@ -3,6 +3,8 @@ import type { ReviewFeature } from '../types';
 import { reviewSheet, scopeSets } from './reviewSheet';
 import { type RecordSets, unverifiedRecords } from './unverified';
 
+type ListKey = 'lexemes' | 'items' | 'phrases' | 'divergences' | 'readings' | 'groups';
+
 /** One file of the split review sheet. */
 export interface ReviewFile {
   /** The path inside the review folder: 'index.md', 'adjectives.md', 'verbs/troo.md'. */
@@ -17,18 +19,21 @@ export interface ReviewFile {
  * assigned): a test keeps that file empty, so it shows up as soon as someone forgets to assign a record.
  */
 export function withGeneral(sets: RecordSets, features: ReviewFeature[] = REVIEW_FEATURES): ReviewFeature[] {
-  const named = (key: keyof Omit<ReviewFeature, 'id' | 'title'>): Set<string> => new Set(features.flatMap((f) => f[key]));
-  const left = <T,>(list: T[], key: keyof Omit<ReviewFeature, 'id' | 'title'>, id: (t: T) => string): string[] =>
-    list.map(id).filter((i) => !named(key).has(i));
+  const named = (key: ListKey): Set<string> => new Set(features.flatMap((f) => f[key]));
+  const unnamed = <T>(list: T[], key: ListKey, id: (t: T) => string): string[] => {
+    const seen = named(key);
+    return list.map(id).filter((i) => !seen.has(i));
+  };
+  const lexemeNames = named('lexemes');
   const general: ReviewFeature = {
     id: 'general',
     title: 'Not yet assigned to a feature',
-    lexemes: Object.keys(sets.lexemes).filter((id) => !named('lexemes').has(id)),
-    items: left(sets.items, 'items', (i) => i.id),
-    phrases: left(sets.phrases, 'phrases', (p) => p.id),
-    divergences: left(sets.divergences, 'divergences', (d) => d.id),
-    readings: left(sets.templates, 'readings', (t) => t.rule),
-    groups: left(sets.groups, 'groups', (g) => g.id),
+    lexemes: Object.keys(sets.lexemes).filter((id) => !lexemeNames.has(id)),
+    items: unnamed(sets.items, 'items', (i) => i.id),
+    phrases: unnamed(sets.phrases, 'phrases', (p) => p.id),
+    divergences: unnamed(sets.divergences, 'divergences', (d) => d.id),
+    readings: unnamed(sets.templates, 'readings', (t) => t.rule),
+    groups: unnamed(sets.groups, 'groups', (g) => g.id),
   };
   const empty = [general.lexemes, general.items, general.phrases, general.divergences, general.readings, general.groups].every((l) => l.length === 0);
   return empty ? features : [...features, general];
@@ -50,6 +55,7 @@ export function reviewFiles(sets: RecordSets & { pending: string[] }, features: 
     `${total} records are not verified in ${files.length} files. Open one file, check its records against what you know, then set their \`verified\` flags in the data.`,
     'Every Greek, Romanian and English form was written from memory (spec section 9). `npm run validate -- --release` passes when every record in every file is verified.',
     '',
+    ...(sets.pending.length > 0 ? [`${sets.pending.length} Romanian cells are still pending (listed in the file of their word); release fails on them too.`, ''] : []),
     '| Feature | File | Not verified |',
     '|---|---|---|',
     ...rows,

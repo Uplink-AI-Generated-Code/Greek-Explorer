@@ -8,7 +8,7 @@ import { REVIEW_FEATURES } from '../data/review-features';
 import { REVIEW_ITEMS } from '../data/review';
 import type { Phrase } from '../types';
 import { reviewFiles, withGeneral } from './reviewFiles';
-import { scopeSets } from './reviewSheet';
+import { reviewSheet, scopeSets } from './reviewSheet';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { pendingCells } from './validate';
 
@@ -73,12 +73,59 @@ describe('the files', () => {
     expect(files[0].content).toContain('| [Adjectives and participles](adjectives.md) | `adjectives.md` |');
   });
 
+  it('lists the shared verb tables before the single verbs', () => {
+    const paths = files.map((f) => f.path);
+    expect(paths.indexOf('verb-tables.md')).toBeLessThan(paths.indexOf('verbs/thelo.md'));
+  });
+
+  it('mentions the pending Romanian cells in the index, when there are any', () => {
+    expect(files[0].content).not.toContain('Romanian cells are still pending');
+    const withPending = reviewFiles({ ...input, pending: ['polys Romanian plain determiner m sg gen', 'ligos Romanian plain determiner f sg gen'] });
+    expect(withPending[0].content).toContain('2 Romanian cells are still pending');
+  });
+
+  it('links to the index from every file, one level up from a verb', () => {
+    expect(file('adjectives.md')).toContain('[the index](index.md)');
+    expect(file('verbs/troo.md')).toContain('[the index](../index.md)');
+  });
+
+  it('says so in a file with nothing left to check', () => {
+    const empty = reviewSheet(input, { id: 'x', title: 'Nothing left', lexemes: [], items: [], phrases: [], divergences: [], readings: [], groups: [] });
+    expect(empty).toContain('0 records are not verified');
+    expect(empty).toContain('Every record in this file is verified.');
+    expect(empty).not.toContain('## Lexemes');
+  });
+
   it('share the records between them: the counts add up to the whole', () => {
     const sum = files.slice(1).reduce((n, f) => n + f.unverified, 0);
     expect(sum).toBe(unverifiedRecords(sets).length);
+    // A known count, not the code's own computation: verbs/lego.md has the 3 language flags of λέω and the phrase "What is it called?".
+    expect(files.find((f) => f.path === 'verbs/lego.md')?.unverified).toBe(4);
+  });
+
+  it('list only their own records in the checklist, and every record once across the files', () => {
+    const everything = new Set(unverifiedRecords(sets));
+    const seen: string[] = [];
     for (const feature of REVIEW_FEATURES) {
-      expect(files.find((f) => f.path === `${feature.id}.md`)?.unverified).toBe(unverifiedRecords(scopeSets(sets, feature)).length);
+      const content = file(`${feature.id}.md`);
+      const listed = [...content.matchAll(/^- \[ \] (.+)$/gm)].map((m) => m[1]);
+      expect(listed).toEqual(unverifiedRecords(scopeSets(sets, feature)));
+      seen.push(...listed);
     }
+    expect(seen.sort()).toEqual([...everything].sort());
+  });
+
+  it('puts the records where a reviewer looks for them', () => {
+    expect(REVIEW_FEATURES.find((f) => f.id === 'quantifiers')?.items).toContain('auxiliary-table:ro-comparative');
+    expect(REVIEW_FEATURES.find((f) => f.id === 'weak-pronouns')?.items).toContain('auxiliary-table:en-clitic-order');
+    expect(REVIEW_FEATURES.find((f) => f.id === 'weak-pronouns')?.divergences).toEqual(expect.arrayContaining(['pronoun-position-finite', 'pronoun-before-auxiliary']));
+    expect(REVIEW_FEATURES.find((f) => f.id === 'particles-and-conjunction')?.divergences).toEqual(expect.arrayContaining(['subjunctive-negation', 'hortative-persons', 'negative-imperative']));
+    const kano = REVIEW_FEATURES.find((f) => f.id === 'verbs/kano');
+    expect(kano?.phrases).toContain('how-much-is-it');
+    expect(kano?.divergences).toContain('price-idiom');
+    expect(REVIEW_FEATURES.find((f) => f.id === 'verbs/mporei')?.phrases).toContain('may-have-eaten');
+    expect(REVIEW_FEATURES.find((f) => f.id === 'verbs/lego')?.phrases).toContain('what-is-it-called');
+    expect(REVIEW_FEATURES.find((f) => f.id === 'verbs/eimai')?.readings).toContain('irregular-be');
   });
 
   it('each hold their own records only', () => {
@@ -93,8 +140,9 @@ describe('the files', () => {
   });
 
   it('leave out a section that has nothing in it', () => {
-    expect(file('verbs/kano.md')).not.toContain('## Phrases');
-    expect(file('verbs/kano.md')).toContain('## Comparison notes');
+    expect(file('verbs/dino.md')).not.toContain('## Phrases');
+    expect(file('verbs/dino.md')).not.toContain('## Comparison notes');
+    expect(file('verbs/dino.md')).toContain('## Lexemes');
     expect(file('adjectives.md')).not.toContain('## Form groups');
     expect(file('weak-pronouns.md')).toContain('## Form groups');
   });
@@ -102,6 +150,7 @@ describe('the files', () => {
   it('print the generated sections where they belong', () => {
     expect(file('possessives.md')).toContain('## Noun possessors (generated)');
     expect(file('nouns-and-article.md')).not.toContain('## Noun possessors (generated)');
+    expect(file('possessives.md')).toContain('in the order of nouns-and-article.md');
     // No Romanian cell is pending in the data today; a pending cell goes to the file of its lexeme.
     const pending = reviewFiles({ ...input, pending: ['polys Romanian plain determiner m sg gen'] });
     expect(pending.find((f) => f.path === 'quantifiers.md')?.content).toContain('- polys Romanian plain determiner m sg gen');

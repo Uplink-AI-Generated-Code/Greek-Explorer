@@ -584,4 +584,6 @@ export interface ReviewFeature {
   readings: string[];
   /** Form group ids. */
   groups: string[];
+  /** The file also prints every noun owned by every noun (the generated lines of the noun possessor). */
+  nounPossessors?: true;
 }

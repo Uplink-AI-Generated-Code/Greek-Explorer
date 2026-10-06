@@ -18,11 +18,14 @@ const files = reviewFiles({
   groups: FORM_GROUPS,
   pending: pendingCells(LEXEMES),
 });
-// The sheets are generated: start from an empty folder, and drop the single file an earlier version wrote.
-rmSync('review/sheets', { recursive: true, force: true });
-rmSync('review/content-review.md', { force: true });
+// The sheets are generated: start from an empty folder, and drop the single file an earlier version wrote. The paths
+// start at the project root, wherever the script is run from.
+const root = join(import.meta.dirname, '..');
+const folder = join(root, 'review/sheets');
+rmSync(folder, { recursive: true, force: true });
+rmSync(join(root, 'review/content-review.md'), { force: true });
 for (const file of files) {
-  const path = join('review/sheets', file.path);
+  const path = join(folder, file.path);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, file.content);
 }

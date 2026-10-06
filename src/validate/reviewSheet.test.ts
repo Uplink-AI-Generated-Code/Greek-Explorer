@@ -179,6 +179,16 @@ describe('the review sheet', () => {
     expect(sheet).toContain('όποιος σκύλος · orice câine · whichever dog');
   });
 
+  it('the whole sheet lists every unverified record once, under all its sections', () => {
+    const listed = [...sheet.matchAll(/^- \[ \] (.+)$/gm)].map((m) => m[1]);
+    expect(listed).toEqual(unverifiedRecords(sets));
+    for (const heading of ['## Checklist', '## Review items', '## Lexemes', '## Noun possessors (generated)', '## Phrases', '## Comparison notes', '## Authored readings', '## Form groups', '## Pending Romanian cells']) {
+      expect(sheet).toContain(heading);
+    }
+    expect(sheet).toContain('# Content review sheet');
+    expect(sheet).not.toContain('One file of the split review sheet');
+  });
+
   it('says how many records are unverified', () => {
     expect(sheet).toContain(`${unverifiedRecords(sets).length} records are not verified`);
   });

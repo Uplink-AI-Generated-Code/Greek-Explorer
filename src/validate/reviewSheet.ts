@@ -340,7 +340,7 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
 
 /** The records of one feature, as the sets the sheet is built from (the lexemes keep their order). */
 export function scopeSets(sets: RecordSets, feature: ReviewFeature): RecordSets {
-  const pick = <T,>(list: T[], ids: string[], key: (t: T) => string): T[] => list.filter((t) => ids.includes(key(t)));
+  const pick = <T>(list: T[], ids: string[], key: (t: T) => string): T[] => list.filter((t) => ids.includes(key(t)));
   return {
     lexemes: Object.fromEntries(Object.entries(sets.lexemes).filter(([id]) => feature.lexemes.includes(id))),
     items: pick(sets.items, feature.items, (i) => i.id),
@@ -357,32 +357,36 @@ export function scopeSets(sets: RecordSets, feature: ReviewFeature): RecordSets 
  * sheet is one file of the split sheet: only that feature's records, with the whole data as context for the generated lines.
  */
 export function reviewSheet(sets: RecordSets & { pending: string[] }, feature?: ReviewFeature): string {
-  const all = sets;
   const here: RecordSets = feature ? scopeSets(sets, feature) : sets;
+  // A pending cell is written '<lexeme id> Romanian …' (see `pendingCells`), so its lexeme is the first word.
   const pending = feature ? sets.pending.filter((cell) => feature.lexemes.includes(cell.split(' ')[0])) : sets.pending;
+  // From a file in a folder (verbs/troo.md) the index is one level up.
+  const toIndex = feature ? `${'../'.repeat(feature.id.split('/').length - 1)}index.md` : '';
   const records = unverifiedRecords(here);
   // In a feature file an empty section is left out.
   const part = (head: string[], body: string[]): string[] => (feature && body.every((line) => line === '') ? [] : [...head, ...body]);
   const lines: string[] = [
     feature ? `# Review: ${feature.title}` : '# Content review sheet',
     '',
-    ...(feature ? ['One file of the split review sheet; `index.md` lists the others.', ''] : []),
+    ...(feature ? [`One file of the split review sheet; [the index](${toIndex}) lists the others.`, ''] : []),
     `${records.length} records are not verified. Every Greek, Romanian and English form below was written from memory (spec section 9).`,
-    'Check each, then set its `verified` flag in the data. `npm run validate -- --release` passes when every record is verified and no cell is pending.',
+    feature
+      ? 'Check each, then set its `verified` flag in the data. `npm run validate -- --release` passes when every record in every file is verified and no cell is pending.'
+      : 'Check each, then set its `verified` flag in the data. `npm run validate -- --release` passes when every record is verified and no cell is pending.',
     '',
     '## Checklist',
     '',
-    ...records.map((r) => `- [ ] ${r}`),
+    ...(records.length === 0 && feature ? ['Every record in this file is verified.'] : records.map((r) => `- [ ] ${r}`)),
     '',
     ...part(['## Review items (ending tables, auxiliary tables, glossaries)', ''], [...here.items.map((item) => `- ${item.id} (${item.kind})${item.verified ? ' — verified' : ''}`), '']),
-    ...part(['## Lexemes', ''], Object.values(here.lexemes).flatMap((l) => lexemeSection(l, all.lexemes))),
-    ...(!feature || feature.divergences.includes('noun-possessor')
+    ...part(['## Lexemes', ''], Object.values(here.lexemes).flatMap((l) => lexemeSection(l, sets.lexemes))),
+    ...(!feature || feature.nounPossessors
       ? [
           '## Noun possessors (generated)',
           '',
-          'Each noun in the singular nominative, owned by each noun in the genitive (the owners in the order of the nouns listed here).',
+          'Each noun in the singular nominative, owned by each noun in the genitive (all the nouns of the data, in the order of nouns-and-article.md).',
           '',
-          ...ownerLines(all.lexemes),
+          ...ownerLines(sets.lexemes),
           '',
         ]
       : []),
