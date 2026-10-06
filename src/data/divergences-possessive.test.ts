@@ -25,3 +25,18 @@ describe('the comparison notes for the possessive', () => {
     expect(rows.every((d) => !d.verified)).toBe(true);
   });
 });
+
+describe('the comparison note for δικός', () => {
+  const dikos = (level: Level = 'improver') =>
+    selectDivergences(DIVERGENCES, 'adjective', 'dikos', level, { pos: 'adjective', gender: 'n', number: 'sg', case: 'nom' }).map((d) => d.id);
+
+  it('shows on δικός at both levels, and on no other adjective', () => {
+    expect(dikos()).toContain('emphatic-possessive');
+    expect(dikos('beginner')).toContain('emphatic-possessive');
+    expect(selectDivergences(DIVERGENCES, 'adjective', 'zestos', 'improver').map((d) => d.id)).not.toContain('emphatic-possessive');
+  });
+
+  it('is unverified', () => {
+    expect(DIVERGENCES.find((d) => d.id === 'emphatic-possessive')?.verified).toBe(false);
+  });
+});

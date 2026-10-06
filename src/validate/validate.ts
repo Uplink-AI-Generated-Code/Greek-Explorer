@@ -403,7 +403,13 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     } else {
       const at = token.agreesWith as number;
       const between = phrase.tokens.slice(at + 1, index);
-      if (at >= index) {
+      // After δικός it may stand before its noun (το δικό μου σπίτι) or after the verb (είναι δικό μου).
+      const before = phrase.tokens[index - 1];
+      const beforeLexeme = before ? lexemes[before.lexeme] : undefined;
+      const afterOwn = beforeLexeme?.pos === 'adjective' && beforeLexeme.emphatic === true && before?.agreesWith === at;
+      if (afterOwn) {
+        // nothing more to check about its place
+      } else if (at >= index) {
         errors.push(`${where}: a possessive comes after its noun`);
       } else if (between.length > 0) {
         errors.push(`${where}: a possessive comes directly after its noun`);
@@ -415,10 +421,17 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       }
     }
   }
+  if (token.slot.pos === 'adjective' && lexeme.pos === 'adjective' && lexeme.emphatic) {
+    // δικός is always followed by the possessive of the same noun: το δικό μου σπίτι.
+    const next = phrase.tokens[index + 1];
+    if (!next || next.slot.pos !== 'possessive' || next.agreesWith !== token.agreesWith) {
+      errors.push(`${where}: δικός needs the possessive of the same noun directly after it`);
+    }
+  }
   if (token.slot.pos === 'noun' && lexeme.pos === 'noun') {
     // A noun with a possessive after it is written with the second accent where the stress rule asks for it (θάλασσά μου).
-    const possessive = phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === index);
-    if (possessive && possessive.slot.pos === 'possessive') {
+    const possessive = phrase.tokens[index + 1];
+    if (possessive && possessive.slot.pos === 'possessive' && possessive.agreesWith === index) {
       try {
         const expected = formText(possessedNounForm(lexeme, token.slot.number, token.slot.case, possessive.slot));
         if (normalise(expected) !== normalise(token.text)) {

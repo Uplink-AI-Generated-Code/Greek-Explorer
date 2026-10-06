@@ -1492,6 +1492,47 @@ const myHotCoffee: Phrase = {
   verified: false,
 };
 
+const myOwnHouse: Phrase = {
+  id: 'my-own-house',
+  title: 'My own house',
+  theme: 'Possession',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 3), text: 'Το' },
+    { text: 'δικό', lexeme: 'dikos', slot: { pos: 'adjective', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 3 },
+    { text: 'μου', lexeme: 'possessive', slot: possessive(1, 'sg'), agreesWith: 3 },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('My', 2), u('own', 1), u('house', 3)],
+    [u('the', 0), u('own', 1), u('my', 2), u('house', 3)],
+    [u('Propria', 1), u('mea', 2), u('casă', 3)],
+    [u('propria', 1), u('mea', 2), u('casă', 3)],
+  ),
+  verified: false,
+};
+
+const theHouseIsMine: Phrase = {
+  id: 'the-house-is-mine',
+  title: 'The house is mine',
+  theme: 'Possession',
+  level: 'improver',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { text: 'δικό', lexeme: 'dikos', slot: { pos: 'adjective', gender: 'n', number: 'sg', case: 'nom' }, agreesWith: 1 },
+    { text: 'μου', lexeme: 'possessive', slot: possessive(1, 'sg'), agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('The', 0), u('house', 1), u('is', 2), u('mine', 3)],
+    [u('the', 0), u('house', 1), u('is', 2), u('own', 3), u('my', 4)],
+    [seg(['Cas', 1], ['a', 0]), u('este', 2), u('a', 3), u('mea', 4)],
+    [seg(['cas', 1], ['a', 0]), u('este', 2), u('a', 3), u('mea', 4)],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1557,4 +1598,6 @@ export const PHRASES: Phrase[] = [
   hisChild,
   whereIsYourHouse,
   myHotCoffee,
+  myOwnHouse,
+  theHouseIsMine,
 ];
