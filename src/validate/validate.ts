@@ -401,6 +401,19 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       errors.push(`${where}: the quantifier is ${token.slot.case} but its noun is ${target.slot.case}`);
     }
     if (!offeredCases(lexeme).includes(token.slot.case)) errors.push(`${where}: ${lexeme.id} does not offer the ${token.slot.case} role`);
+    if (token.slot.register) errors.push(`${where}: the spoken register is a Romanian form, not part of a Greek token`);
+    if (token.slot.use === 'determiner' && target?.slot.pos === 'noun' && token.agreesWith !== undefined) {
+      const beside = (t: Token, pos: string) => t.slot.pos === pos && t.agreesWith === token.agreesWith;
+      const nounLexeme = lexemes[target.lexeme];
+      // αυτός and εκείνος keep the article of the noun (αυτό το σπίτι); τέτοιος takes ένα in the singular with a count noun.
+      if ((lexeme.demonstrative === 'near' || lexeme.demonstrative === 'far') && !phrase.tokens.some((t) => beside(t, 'article') && t.lexeme === 'def')) {
+        errors.push(`${where}: ${lexeme.lemma} beside a noun needs the definite article of that noun`);
+      }
+      if (lexeme.demonstrative === 'such' && token.slot.number === 'sg' && nounLexeme?.pos === 'noun' && !nounLexeme.mass) {
+        const one = phrase.tokens.some((t) => beside(t, 'numeral') && t.slot.pos === 'numeral' && t.slot.value === 1);
+        if (!one) errors.push(`${where}: τέτοιος in the singular needs ένα before it`);
+      }
+    }
     if (token.slot.sense === 'few' && !lexeme.ro.few) errors.push(`${where}: ${lexeme.id} has no "few" sense`);
     try {
       const form = formText(inflect(lexeme, token.slot));

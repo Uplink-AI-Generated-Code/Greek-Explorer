@@ -1575,6 +1575,168 @@ const theChildsDog: Phrase = {
   verified: false,
 };
 
+const pluralArticle = (gender: Gender, agreesWith: number): Token => ({
+  text: '',
+  lexeme: 'def',
+  slot: { pos: 'article', gender, number: 'pl', case: 'nom' },
+  agreesWith,
+});
+const adverb: Slot = { pos: 'adverb' };
+
+const thisHouse: Phrase = {
+  id: 'this-house',
+  title: 'This house',
+  theme: 'Pointing',
+  level: 'beginner',
+  tokens: [
+    { text: 'Αυτό', lexeme: 'autos', slot: qslot('n', 'sg', 'nom'), agreesWith: 2 },
+    { ...article('n', 'nom', 2), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('This', 0), u('house', 2)],
+    [u('this', 0), u('the', 1), u('house', 2)],
+    [u('Această', 0), u('casă', 2)],
+    [u('această', 0), u('casă', 2)],
+  ),
+  verified: false,
+};
+
+const thatDog: Phrase = {
+  id: 'that-dog',
+  title: 'That dog',
+  theme: 'Pointing',
+  level: 'beginner',
+  tokens: [
+    { text: 'Εκείνος', lexeme: 'ekeinos', slot: qslot('m', 'sg', 'nom'), agreesWith: 2 },
+    { ...article('m', 'nom', 2), text: 'ο' },
+    { text: 'σκύλος', lexeme: 'skylos', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('That', 0), u('dog', 2)],
+    [u('that', 0), u('the', 1), u('dog', 2)],
+    [u('Acel', 0), u('câine', 2)],
+    [u('acel', 0), u('câine', 2)],
+  ),
+  verified: false,
+};
+
+const theseHouses: Phrase = {
+  id: 'these-houses',
+  title: 'These houses',
+  theme: 'Pointing',
+  level: 'improver',
+  tokens: [
+    { text: 'Αυτά', lexeme: 'autos', slot: qslot('n', 'pl', 'nom'), agreesWith: 2 },
+    { ...pluralArticle('n', 2), text: 'τα' },
+    { text: 'σπίτια', lexeme: 'spiti', slot: { pos: 'noun', number: 'pl', case: 'nom' } },
+  ],
+  glosses: rows(
+    [u('These', 0), u('houses', 2)],
+    [u('these', 0), u('the', 1), u('houses', 2)],
+    [seg(['Case', 2], ['le', 1]), u('acestea', 0)],
+    [seg(['case', 2], ['le', 1]), u('acestea', 0)],
+  ),
+  verified: false,
+};
+
+const thisIsMyHouse: Phrase = {
+  id: 'this-is-my-house',
+  title: 'This is my house',
+  theme: 'Pointing',
+  level: 'improver',
+  tokens: [
+    { text: 'Αυτό', lexeme: 'autos', slot: qslot('n', 'sg', 'nom', { use: 'pronoun' }), agreesWith: 3 },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { ...article('n', 'nom', 3), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'μου', lexeme: 'possessive', slot: possessive(1, 'sg'), agreesWith: 3 },
+  ],
+  glosses: rows(
+    [u('This', 0), u('is', 1), u('my', 4), u('house', 3)],
+    [u('this', 0), u('is', 1), u('the', 2), u('house', 3), u('my', 4)],
+    [u('Aceasta', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('mea', 4)],
+    [u('aceasta', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('mea', 4)],
+  ),
+  verified: false,
+};
+
+const hereIsTheHouse: Phrase = {
+  id: 'here-is-the-house',
+  title: 'Here is the house',
+  theme: 'Pointing',
+  level: 'beginner',
+  tokens: [
+    { text: 'Εδώ', lexeme: 'edo', slot: adverb },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { ...article('n', 'nom', 3), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('Here', 0), u('is', 1), u('the', 2), u('house', 3)],
+    [u('here', 0), u('is', 1), u('the', 2), u('house', 3)],
+    [u('Aici', 0), u('este', 1), seg(['cas', 3], ['a', 2])],
+    [u('aici', 0), u('este', 1), seg(['cas', 3], ['a', 2])],
+  ),
+  verified: false,
+};
+
+const asFarAsThere: Phrase = {
+  id: 'as-far-as-there',
+  title: 'As far as there',
+  theme: 'Pointing',
+  level: 'improver',
+  tokens: [
+    { text: 'Μέχρι', lexeme: 'mexri', slot: { pos: 'preposition' }, agreesWith: 1 },
+    { text: 'εκεί', lexeme: 'ekei', slot: adverb },
+  ],
+  glosses: rows(
+    [u('As far as', 0), u('there', 1)],
+    [u('until', 0), u('there', 1)],
+    [u('Până', 0), u('acolo', 1)],
+    [u('până', 0), u('acolo', 1)],
+  ),
+  verified: false,
+};
+
+const suchAHouse: Phrase = {
+  id: 'such-a-house',
+  title: 'Such a house',
+  theme: 'Pointing',
+  level: 'improver',
+  tokens: [
+    { text: 'Ένα', lexeme: 'numeral', slot: { pos: 'numeral', value: 1, gender: 'n', case: 'nom' }, agreesWith: 2 },
+    { text: 'τέτοιο', lexeme: 'tetoios', slot: qslot('n', 'sg', 'nom'), agreesWith: 2 },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+  ],
+  glosses: rows(
+    [u('Such', 1), u('a', 0), u('house', 2)],
+    [u('a', 0), u('such', 1), u('house', 2)],
+    [u('O', 0), u('asemenea', 1), u('casă', 2)],
+    [u('o', 0), u('asemenea', 1), u('casă', 2)],
+  ),
+  verified: false,
+};
+
+const soMuchBread: Phrase = {
+  id: 'so-much-bread',
+  title: 'I have so much bread',
+  theme: 'Pointing',
+  level: 'improver',
+  tokens: [
+    { text: 'Έχω', lexeme: 'echo', slot: verbSlot(1) },
+    { text: 'τόσο', lexeme: 'tosos', slot: qslot('n', 'sg', 'acc'), agreesWith: 2 },
+    { text: 'ψωμί', lexeme: 'psomi', slot: accSg },
+  ],
+  glosses: rows(
+    [u('I have', 0), u('so much', 1), u('bread', 2)],
+    [u('(I)', null), u('have', 0), u('so much', 1), u('bread', 2)],
+    [u('Am', 0), u('atâta', 1), u('pâine', 2)],
+    [u('(Eu)', null), u('am', 0), u('atâta', 1), u('pâine', 2)],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1644,4 +1806,12 @@ export const PHRASES: Phrase[] = [
   theHouseIsMine,
   theChildsHouse,
   theChildsDog,
+  thisHouse,
+  thatDog,
+  theseHouses,
+  thisIsMyHouse,
+  hereIsTheHouse,
+  asFarAsThere,
+  suchAHouse,
+  soMuchBread,
 ];
