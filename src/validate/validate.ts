@@ -4,7 +4,8 @@ import { allVerbSlots, isOffered, shortFormOf, slotProblem } from '../engine/off
 import { enClitic, roClitic } from '../engine/clitics';
 import { RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { RECIPIENTS } from '../engine/objects';
-import { enPossessive, POSSESSORS } from '../engine/possessive';
+import { possessedNounForm } from '../engine/agree';
+import { enPossessive, greekPossessive, POSSESSORS } from '../engine/possessive';
 import { EN_POSSESSIVES, RO_POSSESSIVES } from '../data/possessives';
 import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
@@ -387,6 +388,24 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       if (normalise(form) !== normalise(token.text)) errors.push(`${where}: text differs from the form ("${form}")`);
     } catch {
       // inflect failed: reported above.
+    }
+  }
+  if (token.slot.pos === 'possessive') {
+    const target = token.agreesWith === undefined ? undefined : phrase.tokens[token.agreesWith];
+    if (!target || lexemes[target.lexeme]?.pos !== 'noun') {
+      errors.push(`${where}: a possessive needs agreesWith pointing at the noun it belongs to`);
+    } else if (normalise(greekPossessive(token.slot)) !== normalise(token.text)) {
+      errors.push(`${where}: text differs from the possessive ("${greekPossessive(token.slot)}")`);
+    }
+  }
+  if (token.slot.pos === 'noun' && lexeme.pos === 'noun') {
+    // A noun with a possessive after it is written with the second accent where the stress rule asks for it (θάλασσά μου).
+    const possessive = phrase.tokens.find((t) => t.slot.pos === 'possessive' && t.agreesWith === index);
+    if (possessive && possessive.slot.pos === 'possessive') {
+      const expected = formText(possessedNounForm(lexeme, token.slot.number, token.slot.case, possessive.slot));
+      if (normalise(expected) !== normalise(token.text)) {
+        errors.push(`${where}: text differs from the form before the possessive ("${expected}")`);
+      }
     }
   }
   if (token.slot.pos === 'preposition') {

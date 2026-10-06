@@ -1,5 +1,5 @@
 import { DEF_ARTICLE, NUMERAL } from '../data/lexemes';
-import type { Case, GreekAdjective, GreekNoun, Num, NumeralValue, SlotOf } from '../types';
+import type { Case, Form, GreekAdjective, GreekNoun, Num, NumeralValue, SlotOf } from '../types';
 import { accentForm } from './compose';
 import { enIndefiniteArticle, enNoun, enNumeral } from './english';
 import { inflectAdjective, inflectArticle, inflectNoun, inflectNumeral } from './greek';
@@ -23,6 +23,16 @@ export interface NounPhrase {
   en: string;
 }
 
+/**
+ * The noun as it is written before a possessive. The stress rule of commands applies to the noun and the pronoun
+ * together: θάλασσα μου → θάλασσά μου (spec 4.3).
+ */
+export function possessedNounForm(noun: GreekNoun, number: Num, c: Case, possessor: SlotOf<'possessive'>): Form {
+  const form = inflectNoun(noun, { pos: 'noun', number, case: c });
+  const accent = secondAccent([formText(form), greekPossessive(possessor)]);
+  return accent && accent.word === 0 ? accentForm(form, accent.at) : form;
+}
+
 /** Builds article or count + adjective + noun in all three languages, agreeing in gender, number and case. */
 export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOptions = {}): NounPhrase {
   if (opts.article && opts.count) throw new Error('A noun phrase has an article or a count, not both');
@@ -44,13 +54,7 @@ export function nounPhrase(noun: GreekNoun, number: Num, c: Case, opts: NpOption
   if (opts.adjective) {
     el.push(formRich(inflectAdjective(opts.adjective, { pos: 'adjective', gender, number, case: c })));
   }
-  // The stress rule of commands applies to the noun and the pronoun together: θάλασσα μου → θάλασσά μου.
-  let nounForm = inflectNoun(noun, { pos: 'noun', number, case: c });
-  if (opts.possessor) {
-    const accent = secondAccent([formText(nounForm), greekPossessive(opts.possessor)]);
-    if (accent && accent.word === 0) nounForm = accentForm(nounForm, accent.at);
-  }
-  el.push(formRich(nounForm));
+  el.push(formRich(opts.possessor ? possessedNounForm(noun, number, c, opts.possessor) : inflectNoun(noun, { pos: 'noun', number, case: c })));
   if (opts.possessor) el.push([{ text: greekPossessive(opts.possessor), role: 'clitic' }]);
 
   const roAdj = opts.adjective ? roAdjective(opts.adjective, noun.ro.gender, number, c) : '';

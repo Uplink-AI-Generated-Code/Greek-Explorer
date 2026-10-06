@@ -1361,6 +1361,137 @@ const dogJumpsIntoTheWater: Phrase = {
   verified: false,
 };
 
+/** The weak possessive after a noun (μου, σου …); `gender` is for a third-person singular possessor. */
+const possessive = (person: Person, number: Num, gender?: Gender): Slot => ({
+  pos: 'possessive',
+  person,
+  number,
+  ...(gender ? { gender } : {}),
+});
+const article = (gender: Gender, c: Case, agreesWith: number): Token => ({
+  text: '',
+  lexeme: 'def',
+  slot: { pos: 'article', gender, number: 'sg', case: c },
+  agreesWith,
+});
+
+const myHouse: Phrase = {
+  id: 'my-house',
+  title: 'My house',
+  theme: 'Possession',
+  level: 'beginner',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'μου', lexeme: 'possessive', slot: possessive(1, 'sg'), agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('My', 2), u('house', 1)],
+    [u('the', 0), u('house', 1), u('my', 2)],
+    [seg(['Cas', 1], ['a', 0]), u('mea', 2)],
+    [seg(['cas', 1], ['a', 0]), u('mea', 2)],
+  ),
+  verified: false,
+};
+
+const ourSea: Phrase = {
+  id: 'our-sea',
+  title: 'Our sea',
+  theme: 'Possession',
+  level: 'improver',
+  tokens: [
+    { ...article('f', 'nom', 1), text: 'Η' },
+    { text: 'θάλασσά', lexeme: 'thalassa', slot: nomSg },
+    { text: 'μας', lexeme: 'possessive', slot: possessive(1, 'pl'), agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('Our', 2), u('sea', 1)],
+    [u('the', 0), u('sea', 1), u('our', 2)],
+    [seg(['Mare', 1], ['a', 0]), u('noastră', 2)],
+    [seg(['mare', 1], ['a', 0]), u('noastră', 2)],
+  ),
+  verified: false,
+};
+
+const yourDog: Phrase = {
+  id: 'your-dog',
+  title: 'Your dog',
+  theme: 'Possession',
+  level: 'beginner',
+  tokens: [
+    { ...article('m', 'nom', 1), text: 'Ο' },
+    { text: 'σκύλος', lexeme: 'skylos', slot: nomSg },
+    { text: 'σου', lexeme: 'possessive', slot: possessive(2, 'sg'), agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('Your', 2), u('dog', 1)],
+    [u('the', 0), u('dog', 1), u('your', 2)],
+    [seg(['Câine', 1], ['le', 0]), u('tău', 2)],
+    [seg(['câine', 1], ['le', 0]), u('tău', 2)],
+  ),
+  verified: false,
+};
+
+const hisChild: Phrase = {
+  id: 'his-child',
+  title: 'His child',
+  theme: 'Possession',
+  level: 'beginner',
+  tokens: [
+    { ...article('n', 'nom', 1), text: 'Το' },
+    { text: 'παιδί', lexeme: 'paidi', slot: nomSg },
+    { text: 'του', lexeme: 'possessive', slot: possessive(3, 'sg', 'm'), agreesWith: 1 },
+  ],
+  glosses: rows(
+    [u('His', 2), u('child', 1)],
+    [u('the', 0), u('child', 1), u('his', 2)],
+    [seg(['Copil', 1], ['ul', 0]), u('lui', 2)],
+    [seg(['copil', 1], ['ul', 0]), u('lui', 2)],
+  ),
+  verified: false,
+};
+
+const whereIsYourHouse: Phrase = {
+  id: 'where-is-your-house',
+  title: 'Where is your house?',
+  theme: 'Possession',
+  level: 'improver',
+  tokens: [
+    { text: 'Πού', lexeme: 'pou', slot: iq },
+    { text: 'είναι', lexeme: 'eimai', slot: present(3) },
+    { ...article('n', 'nom', 3), text: 'το' },
+    { text: 'σπίτι', lexeme: 'spiti', slot: nomSg },
+    { text: 'σου;', lexeme: 'possessive', slot: possessive(2, 'sg'), agreesWith: 3 },
+  ],
+  glosses: rows(
+    [u('Where', 0), u('is', 1), u('your', 4), u('house?', 3)],
+    [u('where', 0), u('is', 1), u('the', 2), u('house', 3), u('your', 4)],
+    [u('Unde', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('ta?', 4)],
+    [u('unde', 0), u('este', 1), seg(['cas', 3], ['a', 2]), u('ta', 4)],
+  ),
+  verified: false,
+};
+
+const myHotCoffee: Phrase = {
+  id: 'my-hot-coffee',
+  title: 'My hot coffee',
+  theme: 'Possession',
+  level: 'improver',
+  tokens: [
+    { ...article('m', 'nom', 2), text: 'Ο' },
+    { text: 'ζεστός', lexeme: 'zestos', slot: { pos: 'adjective', gender: 'm', number: 'sg', case: 'nom' }, agreesWith: 2 },
+    { text: 'καφές', lexeme: 'kafes', slot: nomSg },
+    { text: 'μου', lexeme: 'possessive', slot: possessive(1, 'sg'), agreesWith: 2 },
+  ],
+  glosses: rows(
+    [u('My', 3), u('hot', 1), u('coffee', 2)],
+    [u('the', 0), u('hot', 1), u('coffee', 2), u('my', 3)],
+    [seg(['Cafea', 2], ['ua', 0]), u('mea', 3), u('caldă', 1)],
+    [seg(['cafea', 2], ['ua', 0]), u('mea', 3), u('caldă', 1)],
+  ),
+  verified: false,
+};
+
 export const PHRASES: Phrase[] = [
   orderingHotCoffee,
   orderingThreeCoffees,
@@ -1420,4 +1551,10 @@ export const PHRASES: Phrase[] = [
   dogOnTheRoad,
   giveBreadToTheChild,
   dogJumpsIntoTheWater,
+  myHouse,
+  ourSea,
+  yourDog,
+  hisChild,
+  whereIsYourHouse,
+  myHotCoffee,
 ];
