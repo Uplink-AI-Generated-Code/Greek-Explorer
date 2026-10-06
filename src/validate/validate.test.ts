@@ -269,7 +269,7 @@ describe('verb tokens', () => {
       ),
     };
     expect(validate({ ...real, phrases: [bad] })).toContain(
-      'ordering-hot-coffee gloss en/natural: unit "extra" links to piece 0 of token 3, which is not a verb group',
+      'ordering-hot-coffee gloss en/natural: unit "extra" links to piece 0 of token 3, which has no parts',
     );
   });
 });

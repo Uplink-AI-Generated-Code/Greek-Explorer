@@ -19,7 +19,8 @@ function afterOf(state: PanelState): After {
 }
 
 /** The nouns, then the question words, for the "after it" control. */
-function afterOptions(): Option[] {
+function afterOptions(prep: GreekPreposition): Option[] {
+  if (prep.fused) return nounOptions();
   const words = Object.values(LEXEMES).flatMap((l) =>
     l.pos === 'interrogative' ? [{ value: l.id, label: `${l.lemma} (${l.en})` }] : [],
   );
@@ -82,7 +83,12 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
   const sense = state.slot.pos === 'preposition' ? state.slot.sense : undefined;
   const meaning = senseOf(prep, sense);
   const controls: Control[] = [
-    { key: 'noun', label: 'Noun or question word after it', options: afterOptions(), value: state.noun ?? '' },
+    {
+      key: 'noun',
+      label: prep.fused ? 'Noun after it' : 'Noun or question word after it',
+      options: afterOptions(prep),
+      value: state.noun ?? '',
+    },
   ];
   if (after.kind === 'noun') {
     controls.push({ key: 'number', label: 'How many?', options: numberOptions, value: state.nounNumber });
@@ -100,7 +106,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
     : [];
   return {
     lemma: prep.lemma,
-    posLabel: level === 'beginner' ? `preposition: ${prep.en}` : 'preposition · governs the accusative',
+    posLabel: level === 'beginner' ? `preposition: ${meaning?.en ?? prep.en}` : 'preposition · governs the accusative',
     controls,
     rows: [
       after.kind === 'noun'
@@ -113,7 +119,7 @@ export function prepositionPanel(prep: GreekPreposition, state: PanelState, leve
         ? []
         : prep.fused && after.kind === 'noun'
           ? fusedTable(prep, after.noun, state.nounNumber, sense)
-          : PREPOSITIONS.map((p) => ({
+          : PREPOSITIONS.filter((p) => after.kind === 'noun' || !p.fused).map((p) => ({
               ...(after.kind === 'noun'
                 ? prepositionRow(p, after.noun, state.nounNumber, p.meaning, p === prep ? sense : undefined)
                 : questionRow(p, after.word, p.meaning)),

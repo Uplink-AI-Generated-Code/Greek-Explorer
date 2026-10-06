@@ -385,6 +385,7 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
       if (expected && normalise(expected) !== normalise(token.text)) {
         errors.push(`${where}: text differs from the fused form ("${expected}")`);
       }
+      if (target.slot.case !== 'acc') errors.push(`${where}: ${lexeme.lemma} governs the accusative, so its noun must be accusative`);
     } else if (lexeme.pos === 'preposition' && lexeme.fused && governed?.pos === 'interrogative') {
       errors.push(`${where}: ${lexeme.lemma} fuses with an article, so it needs a noun in agreesWith`);
     }
@@ -420,7 +421,7 @@ function checkPhrase(phrase: Phrase, lexemes: Record<string, GreekLexeme>): stri
               const count = pieceCount(phrase.tokens[token], lexemes);
               if (count === 0) {
                 errors.push(
-                  `${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" links to piece ${link.piece} of token ${token}, which is not a verb group`,
+                  `${phrase.id} gloss ${language}/${kind}: unit "${unitText(unit)}" links to piece ${link.piece} of token ${token}, which has no parts`,
                 );
               } else if (link.piece >= count) {
                 errors.push(

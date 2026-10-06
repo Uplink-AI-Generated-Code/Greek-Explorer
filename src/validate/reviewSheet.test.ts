@@ -26,6 +26,15 @@ describe('the Romanian forms with pronouns', () => {
   });
 });
 
+describe('the σε section', () => {
+  it('prints the fused forms, the senses and no question-word pairs', () => {
+    for (const text of ['masc. singular: στον', 'στους', 'στη θάλασσα', 'to a person', 'the dative case', 'dau pâinea copilului']) {
+      expect(sheet).toContain(text);
+    }
+    expect(sheet).not.toContain('σε γιατί');
+  });
+});
+
 describe('unverifiedRecords', () => {
   it('lists a language of a lexeme, a review item, a phrase, a note, a template and a group', () => {
     const records = unverifiedRecords(sets);

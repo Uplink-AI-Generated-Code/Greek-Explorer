@@ -43,12 +43,31 @@ describe('a fused preposition token in the validator', () => {
       'p gloss en/natural: unit "x" has piece 2 but token 0 has 2 pieces',
     );
     const plain = phrase({ text: 'από', lexeme: 'apo', slot: { pos: 'preposition' } });
-    expect(errorsOf(plain).some((e) => e.includes('which is not a verb group'))).toBe(true);
+    expect(errorsOf(plain).some((e) => e.includes('which has no parts'))).toBe(true);
   });
 
   it('refuses σε in front of a question word', () => {
     const bad = phrase({ agreesWith: 1 });
     bad.tokens[1] = { text: 'πού', lexeme: 'pou', slot: { pos: 'interrogative' } };
     expect(errorsOf(bad)).toContain('p token 0 (στον): σε fuses with an article, so it needs a noun in agreesWith');
+  });
+
+  it('refuses a noun after σε that is not accusative', () => {
+    const bad = phrase({});
+    bad.tokens[1] = { text: 'σκύλος', lexeme: 'skylos', slot: { pos: 'noun', number: 'sg', case: 'nom' } };
+    expect(errorsOf(bad)).toContain('p token 0 (στον): σε governs the accusative, so its noun must be accusative');
+  });
+
+  it('writes στη before θάλασσα, and decides the movable ν by the adjective between', () => {
+    const sea = (tokens: Token[]): Phrase => ({ ...phrase({}), tokens });
+    const thalassa: Token = { text: 'θάλασσα', lexeme: 'thalassa', slot: { pos: 'noun', number: 'sg', case: 'acc' } };
+    const wrong = sea([{ text: 'στην', lexeme: 'se', slot: { pos: 'preposition', sense: 'to' }, agreesWith: 1 }, thalassa]);
+    expect(errorsOf(wrong)).toContain('p token 0 (στην): text differs from the fused form ("στη")');
+    const right = sea([
+      { text: 'στη', lexeme: 'se', slot: { pos: 'preposition', sense: 'to' }, agreesWith: 2 },
+      { text: 'ζεστή', lexeme: 'zestos', slot: { pos: 'adjective', gender: 'f', number: 'sg', case: 'acc' }, agreesWith: 2 },
+      thalassa,
+    ]);
+    expect(errorsOf({ ...right, glosses: rows({ text: 'to', link: { token: 0, piece: 0 } }) })).toEqual([]);
   });
 });

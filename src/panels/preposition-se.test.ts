@@ -81,6 +81,19 @@ describe('the σε panel', () => {
     expect(cells(full, full.length - 1)).toEqual({ el: 'στον σκύλο', ro: 'la câinele', en: 'to the dog' });
   });
 
+  it('offers only nouns after it, with a label that says so', () => {
+    const c = control(panelOf(stateOf('skylos', 'on')), 'noun');
+    expect(c?.label).toBe('Noun after it');
+    const values = c?.options.map((o) => o.value) ?? [];
+    expect(values).toContain('skylos');
+    for (const word of ['ti', 'pou', 'pote', 'giati', 'pos-how']) expect(values).not.toContain(word);
+  });
+
+  it('Beginner shows the chosen meaning in the part-of-speech label', () => {
+    expect(panelOf(stateOf('skylos', 'on')).posLabel).toBe('preposition: on');
+    expect(panelOf(stateOf('skylos', 'in')).posLabel).toBe('preposition: in');
+  });
+
   it('explains the fusion in plain words', () => {
     expect(panelOf(stateOf('skylos', 'to')).plain).toContain('σε + τον = στον');
   });

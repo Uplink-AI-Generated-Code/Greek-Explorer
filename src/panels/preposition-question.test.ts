@@ -49,9 +49,15 @@ describe('a preposition before a question word', () => {
     expect(cells(panel.rows, 0)).toEqual({ el: 'από τον σκύλο', ro: 'de la câinele', en: 'from the dog' });
   });
 
-  it('Improver lists every preposition with the question word, σε included', () => {
+  it('the control is labelled for both nouns and question words, and offers both', () => {
+    const control = buildPanel(state, apo, 'beginner').controls[0];
+    expect(control.label).toBe('Noun or question word after it');
+    expect(control.options.map((o) => o.value)).toEqual(expect.arrayContaining(['skylos', 'pou', 'ti']));
+  });
+
+  it('Improver lists the prepositions that take a question word, without σε', () => {
     const full = buildPanel(state, apo, 'improver').full;
-    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until', 'to / at / in / on']);
+    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until']);
     expect(cells(full, 4)).toEqual({ el: 'από πού', ro: 'de unde', en: 'from where' });
     expect(cells(full, 5)).toEqual({ el: 'μέχρι πού', ro: 'până la unde', en: 'until where' });
     expect(full.filter((r) => r.hl).map((r) => r.label)).toEqual(['from']);

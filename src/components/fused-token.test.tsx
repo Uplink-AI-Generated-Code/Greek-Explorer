@@ -68,7 +68,7 @@ describe('Explorer: a fused preposition', () => {
   it('the article follows the noun the σε panel holds', async () => {
     const user = userEvent.setup();
     render(<Explorer phrase={phrase} level="beginner" />);
-    await user.selectOptions(screen.getByLabelText('Noun or question word after it'), 'psomi');
+    await user.selectOptions(screen.getByLabelText('Noun after it'), 'psomi');
     await user.click(screen.getByRole('button', { name: 'τον' }));
     expect(screen.getByRole('cell', { name: 'το ψωμί' })).toBeInTheDocument();
   });

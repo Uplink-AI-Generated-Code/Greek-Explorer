@@ -9,7 +9,7 @@ import { formText, richText } from '../engine/segments';
 import { whoIndex } from '../engine/tenses';
 import { unitText } from '../glossLinks';
 import { RECIPIENTS } from '../engine/objects';
-import type { Clitic, GreekInterrogative, GreekLexeme, GreekVerb, SlotOf } from '../types';
+import type { Clitic, GreekInterrogative, GreekLexeme, GreekPreposition, GreekVerb, SlotOf } from '../types';
 import { type RecordSets, unverifiedRecords } from './unverified';
 import { EN_CLITICS, GREEK_STRONG, RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { greekClitic } from '../engine/clitics';
@@ -117,7 +117,7 @@ function cliticLines(lexemes: Record<string, GreekLexeme>): string[] {
 function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, GreekLexeme>): string[] {
   const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
   const pairs = Object.values(lexemes)
-    .flatMap((p) => (p.pos === 'preposition' ? [p] : []))
+    .flatMap((p) => (p.pos === 'preposition' && !p.fused ? [p] : []))
     .map((p) =>
       l.roAfter?.[p.id]
         ? `- ${LANG_NAME.ro} after ${p.lemma} (stored): ${p.lemma} ${l.lemma}: ${l.roAfter[p.id]}`
@@ -129,6 +129,26 @@ function interrogativeLines(l: GreekInterrogative, lexemes: Record<string, Greek
     ...pairs,
   ];
 }
+
+/** A preposition that fuses with the article (σε): the six fused forms, the στη rule and each meaning with its example. */
+function prepositionLines(l: GreekPreposition): string[] {
+  const example = (e: { el: string; ro: string; en: string }) => `${LANG_NAME.el}: ${e.el}; ${LANG_NAME.ro}: ${e.ro}; ${LANG_NAME.en}: ${e.en}`;
+  const fused = l.fused
+    ? [
+        '- fused forms with the article:',
+        ...(['m', 'f', 'n'] as const).flatMap((g) =>
+          (['sg', 'pl'] as const).map((n) => `  - ${GENDER_NAME[g]} ${n === 'sg' ? 'singular' : 'plural'}: ${l.fused?.[g][n]}`),
+        ),
+        `- the feminine ${l.fused.f.sg} becomes ${l.fused.f.sg.replace(/ν$/, '')} before most consonants (στη θάλασσα)`,
+      ]
+    : [];
+  const senses = (l.senses ?? []).map(
+    (s) => `- meaning ${s.value} (${s.label}): ${LANG_NAME.ro}: ${s.ro || 'the dative case'}; ${LANG_NAME.en}: ${s.en}; example — ${example(s.example)}`,
+  );
+  return [...fused, ...senses];
+}
+
+const GENDER_NAME = { m: 'masc.', f: 'fem.', n: 'neut.' } as const;
 
 /** Any other lexeme: its Greek forms slot by slot, then the stored Romanian and English data as it is. */
 function otherLines(l: Exclude<GreekLexeme, GreekVerb>): string[] {
@@ -147,7 +167,11 @@ function lexemeSection(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): st
     `### ${l.pos === 'verb' ? l.lemma : l.lemma} (${l.id})`,
     `Unverified: ${missing.join(', ')}. Part of speech: ${l.pos}.`,
     '',
-    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines(lexemes) : [...otherLines(l), ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : [])]),
+    ...(l.pos === 'verb' ? [...verbLines(l), ...commandLines(l)] : l.pos === 'clitic' ? cliticLines(lexemes) : [
+      ...otherLines(l),
+      ...(l.pos === 'interrogative' ? interrogativeLines(l, lexemes) : []),
+      ...(l.pos === 'preposition' && l.fused ? prepositionLines(l) : []),
+    ]),
     '',
   ];
 }
