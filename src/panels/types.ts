@@ -3,7 +3,7 @@ import type { Rich } from '../engine/segments';
 import type { Case, Num, ReadingPart, Slot, SlotOf } from '../types';
 
 export interface Control {
-  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient' | 'possessor' | 'owner' | 'register';
+  key: 'who' | 'mood' | 'tense' | 'voice' | 'polarity' | 'noun' | 'number' | 'count' | 'value' | 'case' | 'kind' | 'degree' | 'sense' | 'gender' | 'role' | 'object' | 'recipient' | 'possessor' | 'owner' | 'register' | 'preposition' | 'owned';
   label: string;
   options: Option[];
   value: string;
@@ -100,4 +100,6 @@ export interface PanelState {
   possessor?: SlotOf<'possessive'>;
   /** The noun panel's second Whose? control: a noun that owns it, in the genitive (το σπίτι του παιδιού); a lexeme id. */
   owner?: string;
+  /** The relative pronoun's Noun owned control, for the job "whose": a noun lexeme id. */
+  owned?: string;
 }

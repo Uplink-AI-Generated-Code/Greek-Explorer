@@ -14,6 +14,8 @@ export type PrepSense = 'to' | 'at' | 'in' | 'on' | 'person';
 export type QuantifierDegree = 'plain' | 'comparative';
 export type QuantifierSense = 'some' | 'few';
 export type QuantifierUse = 'determiner' | 'pronoun';
+/** The job a relative pronoun does in its own clause (spec 26). */
+export type RelativeRole = 'subject' | 'object' | 'indirect' | 'whose' | 'preposition';
 /** Romanian only: the spoken forms (ăsta, ăla), which go after the noun (spec 25). */
 export type QuantifierRegister = 'spoken';
 /** What a demonstrative points at: this, that, such, so much or so many (spec 25). */
@@ -93,6 +95,7 @@ export type Slot =
   | { pos: 'conjunction' }
   | { pos: 'interrogative' }
   | { pos: 'adverb' }
+  | { pos: 'relative'; role: RelativeRole; gender: Gender; number: Num; preposition?: string }
   | { pos: 'possessive'; person: Person; number: Num; gender?: Gender }
   | ({ pos: 'clitic' } & Clitic);
 
@@ -117,6 +120,8 @@ export type NounClass = 'masc-es' | 'masc-os' | 'fem-a' | 'fem-ou' | 'neut-i' | 
 
 export interface GreekNoun extends LexemeBase {
   pos: 'noun';
+  /** A person or an animal: English says who or whom, not which (spec 26). */
+  animate?: true;
   gender: Gender;
   class: NounClass;
   /** A mass noun (ψωμί, νερό): in English it has no plural, so "many bread" is not said. */
@@ -349,6 +354,17 @@ export interface GreekConjunction extends LexemeBase {
   example: { el: string; ro: string; en: string };
 }
 
+/**
+ * A relative pronoun: που never changes, ο οποίος agrees with the noun it refers to (spec 26). Their Romanian and English
+ * words are shared tables (`src/data/relatives.ts`); the slot holds the antecedent's gender and number and the job in the clause.
+ */
+export interface GreekRelative extends LexemeBase {
+  pos: 'relative';
+  kind: 'pou' | 'opoios';
+  /** One line of meaning for the panel. */
+  meaning: string;
+}
+
 /** A place word that never changes: εδώ and εκεί (spec 25). A preposition may govern one (μέχρι εκεί). */
 export interface GreekAdverb extends LexemeBase {
   pos: 'adverb';
@@ -416,7 +432,7 @@ export interface GreekPreposition extends LexemeBase {
 }
 
 export type GreekLexeme =
-  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative | GreekAdverb;
+  | GreekNoun | GreekAdjective | GreekNumeral | GreekArticle | GreekVerb | GreekPreposition | GreekParticle | GreekConjunction | GreekClitic | GreekPossessive | GreekQuantifier | GreekInterrogative | GreekAdverb | GreekRelative;
 
 export type TokenIndex = number;
 

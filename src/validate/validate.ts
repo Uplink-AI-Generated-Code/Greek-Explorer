@@ -6,6 +6,7 @@ import { RO_CLITICS, RO_CLUSTERS, type RoClitic } from '../data/clitics';
 import { RECIPIENTS } from '../engine/objects';
 import { possessedNounForm } from '../engine/agree';
 import { enPossessive, greekPossessive, POSSESSORS } from '../engine/possessive';
+import { RELATIVE_PREPOSITIONS, RELATIVE_ROLES } from '../data/relatives';
 import { EN_POSSESSIVES, RO_POSSESSIVES } from '../data/possessives';
 import { compose, lexicalPiece } from '../engine/compose';
 import { memberKind, memberText } from '../engine/groups';
@@ -85,6 +86,16 @@ export function slotsFor(l: GreekLexeme): Slot[] {
       return [{ pos: 'interrogative' }];
     case 'adverb':
       return [{ pos: 'adverb' }];
+    case 'relative':
+      return GENDERS.flatMap((gender) =>
+        NUMS.flatMap((number) =>
+          RELATIVE_ROLES.flatMap(({ value: role }): Slot[] =>
+            role === 'preposition'
+              ? RELATIVE_PREPOSITIONS.map((preposition): Slot => ({ pos: 'relative', role, gender, number, preposition }))
+              : [{ pos: 'relative', role, gender, number }],
+          ),
+        ),
+      );
     case 'clitic':
       return cliticSlots();
     case 'possessive':
@@ -230,6 +241,12 @@ function checkLexeme(l: GreekLexeme, lexemes: Record<string, GreekLexeme>): stri
     }
     for (const [key, value] of Object.entries(l.roAfter ?? {})) {
       if (isEmpty(value)) errors.push(`lexeme ${l.id}: roAfter for ${key} is empty`);
+    }
+  }
+  if (l.pos === 'relative') {
+    if (isEmpty(l.meaning)) errors.push(`lexeme ${l.id}: an empty meaning`);
+    for (const id of RELATIVE_PREPOSITIONS) {
+      if (lexemes[id]?.pos !== 'preposition') errors.push(`lexeme ${l.id}: ${id} is not a preposition`);
     }
   }
   if (l.pos === 'adverb') {

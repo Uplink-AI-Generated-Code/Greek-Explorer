@@ -1,4 +1,5 @@
 import type {
+  GreekRelative,
   GreekAdverb,
   CellOverride,
   GreekAdjective,
@@ -44,6 +45,7 @@ const kafes: GreekNoun = {
 const skylos: GreekNoun = {
   id: 'skylos',
   pos: 'noun',
+  animate: true,
   lemma: 'σκύλος',
   verified: { el: false, ro: false, en: false },
   gender: 'm',
@@ -65,6 +67,7 @@ const skylos: GreekNoun = {
 const alepou: GreekNoun = {
   id: 'alepou',
   pos: 'noun',
+  animate: true,
   lemma: 'αλεπού',
   verified: { el: false, ro: false, en: false },
   gender: 'f',
@@ -86,6 +89,7 @@ const alepou: GreekNoun = {
 const paidi: GreekNoun = {
   id: 'paidi',
   pos: 'noun',
+  animate: true,
   lemma: 'παιδί',
   verified: { el: false, ro: false, en: false },
   gender: 'n',
@@ -1391,6 +1395,26 @@ const ekei = adverb(
   { apo: 'de acolo', mexri: 'până acolo' },
 );
 
+const relPou: GreekRelative = {
+  id: 'rel-pou',
+  pos: 'relative',
+  lemma: 'που',
+  verified: { el: false, ro: false, en: false },
+  kind: 'pou',
+  meaning:
+    'που never changes. As the subject or the object it stands alone (το ψωμί που έφαγα); for any other job the clause needs a pronoun (που του έδωσα) or a preposition with a pronoun (που … με αυτόν). Romanian care and English who, which or that do the same work.',
+};
+
+const relOpoios: GreekRelative = {
+  id: 'rel-opoios',
+  pos: 'relative',
+  lemma: 'ο οποίος',
+  verified: { el: false, ro: false, en: false },
+  kind: 'opoios',
+  meaning:
+    'ο οποίος agrees with the noun it refers to in gender and number and takes the case of its job in the clause (τον οποίο, του οποίου). It can follow a preposition (με τον οποίο, στον οποίο). It is more formal than που.',
+};
+
 const ti = interrogative(
   'ti',
   'τι',
@@ -1504,6 +1528,8 @@ export const LEXEMES: Record<string, GreekLexeme> = {
   [giati.id]: giati,
   [posHow.id]: posHow,
   [edo.id]: edo,
+  [relPou.id]: relPou,
+  [relOpoios.id]: relOpoios,
   [ekei.id]: ekei,
 };
 

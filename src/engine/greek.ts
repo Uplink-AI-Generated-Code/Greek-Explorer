@@ -1,3 +1,4 @@
+import { inflectRelative } from './relative';
 import {
   ADJ_STRESSED,
   ADJ_UNSTRESSED,
@@ -28,6 +29,7 @@ import type {
   GreekPreposition,
   GreekQuantifier,
   GreekAdverb,
+  GreekRelative,
   GreekVerb,
   IrregularNote,
   PastStems,
@@ -220,5 +222,7 @@ export function inflect(l: GreekLexeme, s: Slot): Form {
       return inflectInterrogative(l, s as SlotOf<'interrogative'>);
     case 'adverb':
       return inflectAdverb(l, s as SlotOf<'adverb'>);
+    case 'relative':
+      return inflectRelative(l as GreekRelative, s as SlotOf<'relative'>);
   }
 }

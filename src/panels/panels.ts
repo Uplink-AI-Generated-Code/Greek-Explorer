@@ -8,6 +8,7 @@ import type {
   Gender,
   GreekAdjective,
   GreekAdverb,
+  GreekRelative,
   GreekConjunction,
   GreekInterrogative,
   GreekNoun,
@@ -38,6 +39,7 @@ import { cliticPanel, withWho } from './clitic';
 import { conjunctionPanel } from './conjunction';
 import { possessivePanel } from './possessive';
 import { adverbPanel } from './adverb';
+import { relativePanel } from './relative';
 import { interrogativePanel } from './interrogative';
 import { quantifierPanel } from './quantifier';
 import type { Panel, PanelState } from './types';
@@ -116,6 +118,8 @@ export function buildPanel(state: PanelState, token: Token, level: Level): Panel
       return interrogativePanel(lexeme as GreekInterrogative, level);
     case 'adverb':
       return adverbPanel(lexeme as GreekAdverb, level);
+    case 'relative':
+      return relativePanel(lexeme as GreekRelative, slot, state, level);
     case 'quantifier':
       return quantifierPanel(lexeme as GreekQuantifier, slot, state, level);
   }
@@ -163,6 +167,7 @@ export function applyControl(state: PanelState, key: string, value: string, lexe
         slot.pos !== 'conjunction' &&
         slot.pos !== 'interrogative' &&
         slot.pos !== 'adverb' &&
+        slot.pos !== 'relative' &&
         slot.pos !== 'clitic'
       ) {
         return { ...state, slot: { ...slot, case: value as Case } };

@@ -33,8 +33,8 @@ export function roPossessive(s: Possessor, noun: GreekNoun, number: Num, c: Case
 }
 
 /** The Romanian gender a possessive or *propriu* agrees in: a neuter follows the masculine in the singular and the feminine in the plural. */
-const agreeGender = (ro: Gender, number: Num): 'm' | 'f' => (ro === 'n' ? (number === 'sg' ? 'm' : 'f') : ro);
-const roAgreement = (noun: GreekNoun, number: Num): 'm' | 'f' => agreeGender(noun.ro.gender, number);
+export const agreeGender = (ro: Gender, number: Num): 'm' | 'f' => (ro === 'n' ? (number === 'sg' ? 'm' : 'f') : ro);
+export const roAgreement = (noun: GreekNoun, number: Num): 'm' | 'f' => agreeGender(noun.ro.gender, number);
 
 /** Romanian *propriu* with its article, agreeing with the possessed noun: propria (mea casă). */
 export const roOwn = (noun: GreekNoun, number: Num): string => RO_OWN[roAgreement(noun, number)][number];
