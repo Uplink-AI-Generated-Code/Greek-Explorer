@@ -228,3 +228,11 @@ describe('English negation (eat / ate / eaten)', () => {
     expect(text('pleno', vs('indicative', 'present', 1, 'sg', 'mediopassive'))).toBe("I don't wash (myself)");
   });
 });
+
+describe('English imperfect of a stative verb', () => {
+  it('θέλω: I wanted, you didn\'t want', () => {
+    expect(enVerbText(getVerb('thelo'), vs('indicative', 'imperfect'), 'I')).toBe('I wanted');
+    expect(enVerbText(getVerb('thelo'), { ...vs('indicative', 'imperfect', 2), polarity: 'negative' }, 'you')).toBe("you didn't want");
+    expect(enVerbText(getVerb('kano'), vs('indicative', 'imperfect'), 'I')).toBe('I was doing');
+  });
+});

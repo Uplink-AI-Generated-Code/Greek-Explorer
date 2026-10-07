@@ -62,6 +62,7 @@ export function enVerb(v: GreekVerb, s: SlotOf<'verb'>): EnParts {
     case 'indicative.present':
       return parts(negative ? (en.presentNot?.[i] ?? presentNot) : (en.present?.[i] ?? present));
     case 'indicative.imperfect':
+      if (en.stative) return parts(negative ? `didn't ${en.base}` : en.past);
       return parts(`${negative ? WASNT[i] : WAS[i]} ${en.ing}`);
     case 'indicative.aorist':
       return parts(negative ? `didn't ${en.base}` : en.past);

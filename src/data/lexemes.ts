@@ -774,7 +774,7 @@ const thelo: GreekVerb = {
         imperfect: ['voiam', 'voiai', 'voia', 'voiam', 'voiați', 'voiau'],
         pluperfect: ['voisem', 'voiseși', 'voise', 'voiserăm', 'voiserăți', 'voiseră'],
       },
-      en: { gloss: 'want', base: 'want', third: 'wants', past: 'wanted', pastParticiple: 'wanted', ing: 'wanting' },
+      en: { gloss: 'want', base: 'want', third: 'wants', past: 'wanted', pastParticiple: 'wanted', ing: 'wanting', stative: true },
     },
   },
 };

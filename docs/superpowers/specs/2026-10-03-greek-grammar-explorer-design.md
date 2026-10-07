@@ -362,7 +362,7 @@ Divergence types the prototype must cover:
 | aspect | Greek chooses between present-stem (να τρώω, habitual) and aorist-stem (να φάω, once) subjunctives. Romanian and English have one form for both. |
 | subjunctive-negation | Negating the subjunctive clause: Greek να μην (Θέλω να μην πάω), Romanian *să nu*, English "not to". Negating the main verb is a different structure (Δεν θέλω να πάω, phrase 16). |
 | imperfect-vs-aorist | Greek separates the aorist (έφαγα) from the imperfect (έτρωγα). Romanian *imperfectul* (*mâncam*) matches the Greek imperfect, while its compound perfect (*am mâncat*) covers the aorist and the perfect. English uses the simple past for the aorist and for much of the imperfect; "was eating" and "used to eat" mark the imperfect. |
-| polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ ("I wanted a coffee", polite "I'd like one"). Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. The literal rows show the imperfect (*voiam*, "wanted"). |
+| polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ ("I wanted a coffee", polite "I'd like one"). Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. The Romanian natural row shows *aș vrea*; the literal rows show the imperfect (*voiam*, "wanted"). |
 | imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
 | imperative-forms | Greek and Romanian have 2nd-person singular and plural forms (φάε / φάτε, *mănâncă* / *mâncați*); English has one form. |
 | negative-imperative | Greek μη(ν) + subjunctive (μη φας, μην το φας). Romanian *nu* + the infinitive for the singular (*nu mânca*) and *nu* + the plural imperative (*nu mâncați*). English "don't" + base form. |
@@ -1124,3 +1124,4 @@ An independent language-model review of the review sheets (not a native speaker)
 | Imperative plural | The aorist imperative plural drops the -ε- in κάντε, δώστε and πλύντε (πλύνετε, κάνετε, δώσετε are also correct, for an action that continues or repeats); the note is attached to each of the three verbs | 6.4 |
 | Romanian simple perfect | The perfect-vs-aorist note mentions the Romanian *perfectul simplu* (*mâncai*, regional and literary); the app does not use it | 9 |
 | Monosyllable reading | The note lists the exceptions: πού, πώς, ή and the second accent on a clitic | 4.3 |
+| English imperfect of θέλω | A verb marked `stative` has the simple past as its English imperfect: "I wanted", negative "I didn't want" (not "I was wanting") | 4.3 |

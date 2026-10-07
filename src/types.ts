@@ -296,6 +296,8 @@ export interface EnVerbForms {
   ing: string;
   /** Adds "(myself)" and its person forms. */
   reflexive?: boolean;
+  /** A verb of wanting or knowing: its English imperfect is the simple past (I wanted), not "was wanting". */
+  stative?: boolean;
   /** A modal verb (may) is negated with "not" after it, not with "do". */
   modal?: boolean;
   /** The six present cells of an irregular verb (am, are, is, are, are, are); `presentNot` the negative ones. */
