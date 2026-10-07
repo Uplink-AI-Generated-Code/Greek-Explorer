@@ -55,7 +55,7 @@ export const REVIEW_FEATURES: ReviewFeature[] = [
       'verb-subject', 'perfect-vs-aorist', 'invariable-participle', 'pluperfect-form', 'imperfect-vs-aorist',
       'imperative-aspect', 'imperative-forms', 'perfect-subjunctive', 'conditional-construction',
     ],
-    readings: ['stress-shift', 'monosyllable', 'old-stem'],
+    readings: ['stress-shift', 'monosyllable', 'old-stem', 'imperative-plural'],
     groups: [],
   },
   {

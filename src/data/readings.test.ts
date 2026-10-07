@@ -9,7 +9,7 @@ describe('reading data', () => {
   });
   it('has one template per irregularity rule, all unverified, with both levels written', () => {
     expect(READING_TEMPLATES.map((t) => t.rule).sort()).toEqual([
-      'clitic-stress', 'irregular-be', 'monosyllable', 'old-stem', 'short-imperative', 'stress-shift',
+      'clitic-stress', 'imperative-plural', 'irregular-be', 'monosyllable', 'old-stem', 'short-imperative', 'stress-shift',
     ]);
     for (const t of READING_TEMPLATES) {
       expect(t.verified).toBe(false);

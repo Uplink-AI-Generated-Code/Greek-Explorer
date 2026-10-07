@@ -233,9 +233,9 @@ describe('verb panel: negation', () => {
 
   it('a negative command is μην + the subjunctive, with no subject pronoun', () => {
     const p = panel('troo', negative(vs('imperative', 'aorist', 2, 'sg')));
-    expect(cells(p)).toEqual({ el: 'μην φας', ro: 'nu mânca', en: "don't eat" });
+    expect(cells(p)).toEqual({ el: 'μη φας', ro: 'nu mânca', en: "don't eat" });
     const plural = panel('troo', negative(vs('imperative', 'aorist', 2, 'pl')));
-    expect(cells(plural)).toEqual({ el: 'μην φάτε', ro: 'nu mâncați', en: "don't eat" });
+    expect(cells(plural)).toEqual({ el: 'μη φάτε', ro: 'nu mâncați', en: "don't eat" });
   });
 
   it('offers a Negated? control with plain Yes and No, before the Object control', () => {
@@ -248,7 +248,7 @@ describe('verb panel: negation', () => {
 
   it('explains where the negation goes', () => {
     expect(panel('troo', negative(vs('indicative', 'futureSimple'))).plain).toContain('δεν goes in front of the whole group');
-    expect(panel('troo', negative(vs('subjunctive', 'aorist'))).plain).toContain('μην goes after να');
+    expect(panel('troo', negative(vs('subjunctive', 'aorist'))).plain).toContain('μη (μην) goes after να');
     expect(panel('troo', negative(vs('imperative', 'aorist', 2))).plain).toContain('not the imperative');
     expect(panel('troo', vs('indicative', 'present')).plain).not.toContain('δεν goes');
   });
@@ -323,6 +323,6 @@ describe('verb panel: how to read this', () => {
 
   it('follows the working slot, not the phrase', () => {
     const p = panel('troo', negative(vs('subjunctive', 'aorist')));
-    expect(p.reading?.[0].sentence.startsWith('να μην φάω: να = to / that, μην = not')).toBe(true);
+    expect(p.reading?.[0].sentence.startsWith('να μη φάω: να = to / that, μη = not')).toBe(true);
   });
 });

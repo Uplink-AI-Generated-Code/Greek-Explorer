@@ -149,7 +149,7 @@ describe('phrases with negation', () => {
 
   it('phrase 25 is a negative command built from the subjunctive', () => {
     const phrase = byId('dont-eat-the-bread');
-    expect(phrase.tokens.map((t) => t.text)).toEqual(['Μην φας', 'το', 'ψωμί!']);
+    expect(phrase.tokens.map((t) => t.text)).toEqual(['Μη φας', 'το', 'ψωμί!']);
     expect(phrase.tokens[0].slot).toMatchObject({ mood: 'imperative', tense: 'aorist', person: 2, polarity: 'negative' });
   });
 

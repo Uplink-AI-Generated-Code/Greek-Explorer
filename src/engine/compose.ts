@@ -2,6 +2,7 @@ import { getLexeme, getVerb } from '../data/lexemes';
 import type { Clitic, Form, GreekVerb, IrregularNote, Slot, SlotOf } from '../types';
 import { cliticSlot, greekClitic } from './clitics';
 import { inflectVerb } from './greek';
+import { KEEPS_FINAL_N } from './preposition';
 import { shortFormOf, slotProblem } from './offers';
 import { formRich, formText, type Rich } from './segments';
 import { accentAt, secondAccent } from './stress';
@@ -32,11 +33,15 @@ export const lexicalPiece = (composed: Composed): Extract<Piece, { kind: 'verb' 
 
 export const pieceText = (piece: Piece): string => (piece.kind === 'verb' ? formText(piece.form) : piece.text);
 
-const joined = (pieces: Piece[], extra: Pick<Composed, 'extraAccent' | 'irregular'> = {}): Composed => ({
-  pieces,
-  text: pieces.map(pieceText).join(' '),
-  ...extra,
-});
+/** The negation of a command and of να / ας is written μην in front of a vowel and κ π τ ξ ψ γκ μπ ντ τσ τζ, and μη in front of any other consonant (μη φας, μην το φας). */
+const negationWord = (next: string | undefined): string => (next === undefined || KEEPS_FINAL_N.test(next.toLowerCase()) ? 'μην' : 'μη');
+
+const joined = (pieces: Piece[], extra: Pick<Composed, 'extraAccent' | 'irregular'> = {}): Composed => {
+  const written = pieces.map((piece, i): Piece =>
+    piece.kind === 'negation' && piece.lexeme === 'min' ? { ...piece, text: negationWord(pieces[i + 1] && pieceText(pieces[i + 1])) } : piece,
+  );
+  return { pieces: written, text: written.map(pieceText).join(' '), ...extra };
+};
 
 function wordPiece(kind: 'particle' | 'negation', id: string): Piece {
   const lexeme = getLexeme(id);

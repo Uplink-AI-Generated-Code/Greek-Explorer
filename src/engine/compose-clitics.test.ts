@@ -41,9 +41,9 @@ describe('compose: a command with pronouns', () => {
     });
   });
 
-  it('the plural and the present imperative: φάτε το, τρώγε το', () => {
+  it('the plural and the present imperative: φάτε το, τρώε το', () => {
     expect(compose(getVerb('troo'), command([to], { number: 'pl' })).text).toBe('φάτε το');
-    expect(compose(getVerb('troo'), command([to], { tense: 'present' })).text).toBe('τρώγε το');
+    expect(compose(getVerb('troo'), command([to], { tense: 'present' })).text).toBe('τρώε το');
   });
 
   it('colours the pronoun with its own role', () => {
@@ -80,7 +80,7 @@ describe('compose: the stress rule', () => {
 
   it('a negative command has no stress problem: the pronouns are in front', () => {
     const composed = compose(getVerb('dino'), command([mou, to], { polarity: 'negative' }));
-    expect(composed.text).toBe('μην μου το δώσεις');
+    expect(composed.text).toBe('μη μου το δώσεις');
     expect(composed.extraAccent).toBeUndefined();
   });
 });

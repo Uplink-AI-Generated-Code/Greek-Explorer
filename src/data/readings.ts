@@ -66,8 +66,14 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
   },
   {
     rule: 'old-stem',
-    beginner: '{text}: {parts}. This command keeps the older stem {stem}- (with γ).',
-    improver: '{text}: {technical}. The present imperative keeps the older stem {stem}-, unlike the rest of the present.',
+    beginner: '{text}: {parts}. The older commands τρώγε and τρώγετε (with γ) are also correct; people mostly say φάε and φάτε.',
+    improver: '{text}: {technical}. The older present imperative τρώγε, τρώγετε keeps the stem with -γ- and is also correct; the aorist φάε, φάτε is the common command.',
+    verified: false,
+  },
+  {
+    rule: 'imperative-plural',
+    beginner: '{text}: {parts}. The command to several people drops the -ε-; κάνετε (from the present) is for something that continues.',
+    improver: '{text}: {technical}. The aorist imperative plural κάντε is the usual command; the present imperative κάνετε is for an action that continues or repeats.',
     verified: false,
   },
   {

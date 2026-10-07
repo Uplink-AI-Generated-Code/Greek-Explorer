@@ -371,7 +371,7 @@ describe('how to read this', () => {
     const reading = screen.getByRole('region', { name: 'How to read this' });
     expect(
       within(reading).getByText(
-        'τρώγε: τρώγ- = eat, -ε = a command to you: keep doing. This command keeps the older stem τρώγ- (with γ).',
+        'τρώε: τρώ- = eat, -ε = a command to you: keep doing. The older commands τρώγε and τρώγετε (with γ) are also correct; people mostly say φάε and φάτε.',
       ),
     ).toBeInTheDocument();
   });

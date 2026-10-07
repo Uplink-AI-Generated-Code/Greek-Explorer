@@ -7,7 +7,7 @@ export function senseOf(prep: GreekPreposition, sense?: PrepSense): PrepositionS
 }
 
 /** The feminine singular keeps its final ν (στην) in front of a vowel and κ π τ ξ ψ γκ μπ ντ τσ τζ, and drops it in front of any other consonant (στη θάλασσα). */
-const KEEPS_FINAL_N = /^(?:[αεηιουωάέήίόύώ]|[κπτξψ]|γκ|μπ|ντ|τσ|τζ)/;
+export const KEEPS_FINAL_N = /^(?:[αεηιουωάέήίόύώ]|[κπτξψ]|γκ|μπ|ντ|τσ|τζ)/;
 
 /**
  * The preposition and the article of the noun, written as one word (σε + το = στο); undefined for a preposition that

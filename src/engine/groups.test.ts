@@ -53,7 +53,7 @@ describe('the form groups (spec 6.5)', () => {
   it("Don't eat the bread!: the pronoun moves in front of the verb", () => {
     const g = group('dont-eat-the-bread');
     expect(g.members.map(memberKind)).toEqual(['with-noun', 'with-clitic']);
-    expect(text(g.members[0])).toEqual(['μην φας το ψωμί', 'nu mânca pâinea', "don't eat the bread"]);
+    expect(text(g.members[0])).toEqual(['μη φας το ψωμί', 'nu mânca pâinea', "don't eat the bread"]);
     expect(text(g.members[1])).toEqual(['μην το φας', 'nu o mânca', "don't eat it"]);
     expect(g.members[1].note).toContain('in front of the verb');
   });

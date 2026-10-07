@@ -110,9 +110,9 @@ const whoSlot = (slot: SlotOf<'verb'>, who: string): SlotOf<'verb'> => {
 const NEGATION_PLAIN: Record<Mood, string> = {
   indicative: 'δεν goes in front of the whole group, even in front of θα: δεν θα φάω.',
   conditional: 'δεν goes in front of the whole group, even in front of θα: δεν θα έτρωγα.',
-  subjunctive: 'μην goes after να: να μην φάω.',
-  imperative: 'A negative command is not the imperative: Greek uses μην + the subjunctive form, as in μην φας.',
-  hortative: 'μην goes after ας: ας μην φάμε.',
+  subjunctive: 'μη (μην) goes after να: να μη φάω.',
+  imperative: 'A negative command is not the imperative: Greek uses μη (μην) + the subjunctive form, as in μη φας.',
+  hortative: 'μη (μην) goes after ας: ας μη φάμε.',
 };
 
 /** A new slot with one verb control applied; anything the new value makes invalid falls back to the first valid choice. */

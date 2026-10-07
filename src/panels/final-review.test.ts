@@ -34,10 +34,10 @@ describe('C1: Who? on a command with a short form', () => {
 
 describe('I2: the verb piece is found, not assumed to be last', () => {
   const present = command({ tense: 'present', clitics: [IT] });
-  it('τρώγε το keeps the old-stem note in the panel and the reading', () => {
-    expect(compose(getVerb('troo'), present).text).toBe('τρώγε το');
-    expect(panelOf('troo', stateOf(present, 'psomi')).irregular).toContain('older stem');
-    expect(readingFor(getVerb('troo'), present).el.beginner).toContain('keeps the older stem');
+  it('τρώε το carries the note about the older forms in the panel and the reading', () => {
+    expect(compose(getVerb('troo'), present).text).toBe('τρώε το');
+    expect(panelOf('troo', stateOf(present, 'psomi')).irregular).toContain('τρώγε, τρώγετε');
+    expect(readingFor(getVerb('troo'), present).el.beginner).toContain('τρώγε and τρώγετε');
   });
 });
 
@@ -83,6 +83,6 @@ describe('M5: Keep eating the bread! holds its noun like the other bread command
     if (!phrase) throw new Error('phrase 27 exists');
     const state = initialState(phrase.tokens[0], phrase);
     expect(state.noun).toBe('psomi');
-    expect(richText(buildPanel(state, phrase.tokens[0], 'beginner').rows[0].el)).toBe('τρώγε το ψωμί');
+    expect(richText(buildPanel(state, phrase.tokens[0], 'beginner').rows[0].el)).toBe('τρώε το ψωμί');
   });
 });

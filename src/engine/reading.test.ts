@@ -104,10 +104,10 @@ describe('readingFor: the sentences', () => {
   it('a negative command says that Greek leaves the imperative', () => {
     const line = greek('troo', neg(vs('imperative', 'aorist', 2, 'pl')));
     expect(line.beginner).toBe(
-      'μην φάτε: μην = not, φά- = eat, -τε = you (pl.), once. To forbid something, Greek uses μην + the "you" form of the να-verb, not the command form.',
+      'μη φάτε: μη = not, φά- = eat, -τε = you (pl.), once. To forbid something, Greek uses μην + the "you" form of the να-verb, not the command form.',
     );
     expect(line.improver).toBe(
-      'Negative imperative aorist (do it once): μην + aorist-subjunctive form (stem φά- + ending -τε). The subjunctive replaces the imperative.',
+      'Negative imperative aorist (do it once): μη + aorist-subjunctive form (stem φά- + ending -τε). The subjunctive replaces the imperative.',
     );
   });
 });
@@ -138,14 +138,14 @@ describe('readingFor: irregular forms use the authored template of their rule', 
     expect(line.beginner).toBe('τρως: τρω- = eat, -ς = you, present form. A word of one syllable loses its accent mark.');
   });
 
-  it('old stem: τρώγε', () => {
+  it('older forms: τρώε', () => {
     const line = greek('troo', vs('imperative', 'present', 2));
     expect(line.beginner).toBe(
-      'τρώγε: τρώγ- = eat, -ε = a command to you: keep doing. This command keeps the older stem τρώγ- (with γ).',
+      'τρώε: τρώ- = eat, -ε = a command to you: keep doing. The older commands τρώγε and τρώγετε (with γ) are also correct; people mostly say φάε and φάτε.',
     );
   });
 
-  it('a template and the negative-command sentence combine: μην φας', () => {
+  it('a template and the negative-command sentence combine: μη φας', () => {
     const line = greek('troo', neg(vs('imperative', 'aorist', 2, 'sg')));
     const sentences = line.beginner.split('. ');
     expect(sentences).toHaveLength(2);

@@ -36,8 +36,8 @@ describe('compose τρώω, 1st person singular, all 15 combinations (spec 6.4)'
   it('the imperatives are single words in the second person', () => {
     expect(text('troo', vs('imperative', 'aorist', 2, 'sg'))).toBe('φάε');
     expect(text('troo', vs('imperative', 'aorist', 2, 'pl'))).toBe('φάτε');
-    expect(text('troo', vs('imperative', 'present', 2, 'sg'))).toBe('τρώγε');
-    expect(text('troo', vs('imperative', 'present', 2, 'pl'))).toBe('τρώγετε');
+    expect(text('troo', vs('imperative', 'present', 2, 'sg'))).toBe('τρώε');
+    expect(text('troo', vs('imperative', 'present', 2, 'pl'))).toBe('τρώτε');
   });
 });
 
@@ -109,7 +109,7 @@ describe('compose: negation (τρώω, 1st person singular)', () => {
     ['indicative', 'pluperfect', 'δεν είχα φάει'],
     ['indicative', 'futurePerfect', 'δεν θα έχω φάει'],
     ['subjunctive', 'present', 'να μην τρώω'],
-    ['subjunctive', 'aorist', 'να μην φάω'],
+    ['subjunctive', 'aorist', 'να μη φάω'],
     ['subjunctive', 'perfect', 'να μην έχω φάει'],
     ['conditional', 'imperfect', 'δεν θα έτρωγα'],
     ['conditional', 'pluperfect', 'δεν θα είχα φάει'],
@@ -128,12 +128,12 @@ describe('compose: negation (τρώω, 1st person singular)', () => {
     const [first] = compose(getVerb('troo'), neg(vs('indicative', 'present'))).pieces;
     expect(first).toMatchObject({ kind: 'negation', text: 'δεν', lexeme: 'den', slot: { pos: 'particle' } });
     const [, second] = compose(getVerb('troo'), neg(vs('subjunctive', 'aorist'))).pieces;
-    expect(second).toMatchObject({ kind: 'negation', text: 'μην', lexeme: 'min' });
+    expect(second).toMatchObject({ kind: 'negation', text: 'μη', lexeme: 'min' });
   });
 
   it('the negative imperative is μην + the subjunctive form, not the imperative', () => {
-    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'sg')))).toBe('μην φας');
-    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'pl')))).toBe('μην φάτε');
+    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'sg')))).toBe('μη φας');
+    expect(text('troo', neg(vs('imperative', 'aorist', 2, 'pl')))).toBe('μη φάτε');
     expect(text('troo', neg(vs('imperative', 'present', 2, 'sg')))).toBe('μην τρως');
     expect(text('troo', neg(vs('imperative', 'present', 2, 'pl')))).toBe('μην τρώτε');
     expect(text('pleno', neg(vs('imperative', 'aorist', 2, 'sg')))).toBe('μην πλύνεις');

@@ -393,7 +393,11 @@ const note = (rule: string, plain: string): IrregularNote => ({ rule, plain });
 const ACCENT_DROP = note('monosyllable', 'A one-syllable form loses its accent mark: τρως, not τρώς.');
 const IMPERATIVE_GAMMA = note(
   'old-stem',
-  'The present imperative of τρώω keeps the older stem with -γ-: τρώγε, not τρώε. The other present forms have lost it.',
+  'The present imperative of τρώω is τρώε, τρώτε. The older forms with -γ- (τρώγε, τρώγετε) are also correct; in everyday speech people usually say φάε, φάτε.',
+);
+const IMPERATIVE_PLURAL = note(
+  'imperative-plural',
+  'The command to several people drops the -ε-: κάντε. κάνετε (the present imperative) is also correct, for something that continues or repeats.',
 );
 
 const numeral: GreekNumeral = {
@@ -786,6 +790,10 @@ const kano: GreekVerb = {
         aorist: { strong: { augment: 'έ', stem: 'καν' }, weak: { stem: 'κάν' } },
         perfective: 'κάν',
       },
+      overrides: {
+        // The aorist command to several people is κάντε; κάνετε (the present imperative) is for something that continues.
+        'impAorist.2pl': { stem: 'κάν', ending: 'τε', note: IMPERATIVE_PLURAL },
+      },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
       ro: {
         lemma: 'a face',
@@ -884,9 +892,9 @@ const troo: GreekVerb = {
       overrides: {
         'present.2sg': { stem: 'τρω', ending: 'ς', note: ACCENT_DROP },
         'subjAorist.2sg': { stem: 'φα', ending: 'ς', note: ACCENT_DROP },
-        // The present imperative keeps the older -γ- of the stem (τρώγε, not τρώε); reported by the user, awaiting review.
-        'impPresent.2sg': { stem: 'τρώγ', ending: 'ε', note: IMPERATIVE_GAMMA },
-        'impPresent.2pl': { stem: 'τρώγ', ending: 'ετε', note: IMPERATIVE_GAMMA },
+        // The everyday present imperative is τρώε, τρώτε; the older τρώγε, τρώγετε are also correct (reported by the user, awaiting review).
+        'impPresent.2sg': { stem: 'τρώ', ending: 'ε', note: IMPERATIVE_GAMMA },
+        'impPresent.2pl': { stem: 'τρώ', ending: 'τε', note: IMPERATIVE_GAMMA },
       },
       shortForms: {
         'impAorist.2sg': {
@@ -1337,12 +1345,12 @@ const as: GreekParticle = {
 const min: GreekParticle = {
   id: 'min',
   pos: 'particle',
-  lemma: 'μην',
+  lemma: 'μη(ν)',
   verified: { el: false, ro: false, en: false },
   ro: 'nu / să nu',
   en: "don't / not",
-  meaning: 'Says "not" after να and in a command: να μην φάω, μην φας.',
-  example: { el: 'μην φας', ro: 'nu mânca', en: "don't eat" },
+  meaning: 'Says "not" after να and in a command: να μη φάω, μην το φας. It is written μην before a vowel and before κ, π, τ, ξ, ψ, γκ, μπ, ντ, τσ, τζ, and μη before any other consonant.',
+  example: { el: 'μη φας', ro: 'nu mânca', en: "don't eat" },
 };
 
 const an: GreekConjunction = {
