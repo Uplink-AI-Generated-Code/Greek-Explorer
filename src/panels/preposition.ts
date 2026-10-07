@@ -3,7 +3,7 @@ import { nounPhrase } from '../engine/agree';
 import { inflectNoun } from '../engine/greek';
 import { numberOptions, type Option } from '../engine/labels';
 import { fusedForm, governsWord, senseOf } from '../engine/preposition';
-import { roNoun } from '../engine/romanian';
+import { roBareNoun, roNoun } from '../engine/romanian';
 import { formRich, formText, plain } from '../engine/segments';
 import type { GreekAdverb, GreekInterrogative, GreekNoun, GreekPreposition, Level, Num, PrepSense } from '../types';
 import { ALL, GENDERS, GENDER_ROW, NUMS, nounOf, nounOptions } from './shared';
@@ -49,7 +49,8 @@ export function prepositionRow(
     el: fused
       ? [{ text: fused, role: 'article' }, space, ...formRich(nounForm)]
       : [{ text: prep.lemma, role: 'plain' }, space, ...np.el],
-    ro: plain(meaning?.dative ? roNoun(noun, number, 'gen', 'definite') : `${meaning?.ro ?? prep.ro} ${np.ro}`),
+    // Romanian drops the article of a singular noun that stands alone after a preposition (peste câine, pe drum).
+    ro: plain(meaning?.dative ? roNoun(noun, number, 'gen', 'definite') : `${meaning?.ro ?? prep.ro} ${number === 'sg' ? roBareNoun(noun, 'sg', 'acc') : np.ro}`),
     en: plain(`${meaning?.en ?? prep.en} ${np.en}`),
   };
 }

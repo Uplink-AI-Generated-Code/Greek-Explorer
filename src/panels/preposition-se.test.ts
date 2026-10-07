@@ -26,18 +26,18 @@ describe('the σε panel', () => {
   it('shows the fused form with the noun, and the Romanian and English word of the meaning', () => {
     const p = panelOf(stateOf('skylos', 'on'));
     expect(p.lemma).toBe('σε');
-    expect(cells(p.rows, 0)).toEqual({ el: 'στον σκύλο', ro: 'pe câinele', en: 'on the dog' });
+    expect(cells(p.rows, 0)).toEqual({ el: 'στον σκύλο', ro: 'pe câine', en: 'on the dog' });
     expect(p.rows[0].label).toBe('prep. + noun');
   });
 
   it('fuses with the feminine and the neuter, singular and plural', () => {
-    expect(cells(panelOf(stateOf('alepou', 'to')).rows, 0)).toEqual({ el: 'στην αλεπού', ro: 'la vulpea', en: 'to the fox' });
-    expect(cells(panelOf(stateOf('psomi', 'at')).rows, 0)).toEqual({ el: 'στο ψωμί', ro: 'la pâinea', en: 'at the bread' });
+    expect(cells(panelOf(stateOf('alepou', 'to')).rows, 0)).toEqual({ el: 'στην αλεπού', ro: 'la vulpe', en: 'to the fox' });
+    expect(cells(panelOf(stateOf('psomi', 'at')).rows, 0)).toEqual({ el: 'στο ψωμί', ro: 'la pâine', en: 'at the bread' });
     expect(cells(panelOf(stateOf('psomi', 'in', 'pl')).rows, 0)).toEqual({ el: 'στα ψωμιά', ro: 'în pâinile', en: 'in the bread' });
   });
 
   it('writes στη before most consonants and στην before a vowel', () => {
-    expect(cells(panelOf(stateOf('thalassa', 'to')).rows, 0)).toEqual({ el: 'στη θάλασσα', ro: 'la marea', en: 'to the sea' });
+    expect(cells(panelOf(stateOf('thalassa', 'to')).rows, 0)).toEqual({ el: 'στη θάλασσα', ro: 'la mare', en: 'to the sea' });
     expect(cells(panelOf(stateOf('alepou', 'to')).rows, 0).el).toBe('στην αλεπού');
     expect(panelOf(stateOf('thalassa', 'to'), 'improver').full.map((r) => richText(r.el))).toContain('στην');
   });
@@ -78,7 +78,7 @@ describe('the σε panel', () => {
   it('is in the other prepositions\' Improver table with its fused form', () => {
     const pano: Token = { text: 'πάνω από', lexeme: 'pano', slot: { pos: 'preposition' }, agreesWith: 0 };
     const full = buildPanel({ slot: pano.slot, noun: 'skylos', nounNumber: 'sg' }, pano, 'improver').full;
-    expect(cells(full, full.length - 1)).toEqual({ el: 'στον σκύλο', ro: 'la câinele', en: 'to the dog' });
+    expect(cells(full, full.length - 1)).toEqual({ el: 'στον σκύλο', ro: 'la câine', en: 'to the dog' });
   });
 
   it('offers only nouns after it, with a label that says so', () => {

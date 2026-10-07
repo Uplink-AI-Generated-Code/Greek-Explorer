@@ -112,8 +112,8 @@ describe('quantifier panel: the rows', () => {
 
   it('κάποιος: some / any beside a noun, someone / anyone on its own', () => {
     const p = panelFor('kapoios', slotOf({ gender: 'm' }), 'kafes');
-    expect(cells(p, 0)).toEqual({ el: 'κάποιον καφέ', ro: 'vreo cafea', en: 'some / any coffee' });
-    expect(cells(p, 1)).toEqual({ el: 'κάποιον', ro: 'vreuna', en: 'someone / anyone' });
+    expect(cells(p, 0)).toEqual({ el: 'κάποιον καφέ', ro: 'o cafea', en: 'some / any coffee' });
+    expect(cells(p, 1)).toEqual({ el: 'κάποιον', ro: 'cineva', en: 'someone / anyone' });
   });
 });
 

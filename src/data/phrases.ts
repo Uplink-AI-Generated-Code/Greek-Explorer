@@ -513,8 +513,8 @@ const foxHasJumped: Phrase = {
       u('the-[nom]', 0), u('fox', 1), u('has', p(2, 0)), u('jumped', p(2, 1)),
       u('above-from', 3), u('the-[acc]', 4), u('dog-[acc]', 5),
     ],
-    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), seg(['câine', 5], ['le', 4])],
-    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), seg(['câine', 5], ['le', 4])],
+    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), u('câine', 5)],
+    [seg(['vulpe', 1], ['a', 0]), u('a', p(2, 0)), u('sărit', p(2, 1)), u('peste', 3), u('câine', 5)],
   ),
   verified: false,
 };
@@ -611,8 +611,8 @@ const foxWasJumping: Phrase = {
   glosses: rows(
     [u('The', 0), u('fox', 1), u('was jumping', 2), u('over', 3), u('the', 4), u('dog', 5)],
     [u('the-[nom]', 0), u('fox', 1), u('was jumping', 2), u('above-from', 3), u('the-[acc]', 4), u('dog-[acc]', 5)],
-    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), seg(['câine', 5], ['le', 4])],
-    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), seg(['câine', 5], ['le', 4])],
+    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), u('câine', 5)],
+    [seg(['vulpe', 1], ['a', 0]), u('sărea', 2), u('peste', 3), u('câine', 5)],
   ),
   verified: false,
 };
@@ -1257,7 +1257,7 @@ const goingHome: Phrase = {
     [u("I'm going", 0), u('home', 2)],
     [u('(I)', null), u('go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('house', 2)],
     [u('Merg', 0), u('acasă', 2)],
-    [u('(eu)', null), u('merg', 0), u('la', p(1, 0)), seg(['cas', 2], ['a', p(1, 1)])],
+    [u('(eu)', null), u('merg', 0), u('la', p(1, 0)), u('casă', 2)],
   ),
   verified: false,
 };
@@ -1276,7 +1276,7 @@ const atHome: Phrase = {
     [u("I'm", 0), u('at', p(1, 0)), u('home', 2)],
     [u('(I)', null), u('am', 0), u('at', p(1, 0)), u('the', p(1, 1)), u('house', 2)],
     [u('Sunt', 0), u('acasă', 2)],
-    [u('(eu)', null), u('sunt', 0), u('la', p(1, 0)), seg(['cas', 2], ['a', p(1, 1)])],
+    [u('(eu)', null), u('sunt', 0), u('la', p(1, 0)), u('casă', 2)],
   ),
   verified: false,
 };
@@ -1295,7 +1295,7 @@ const goToTheSea: Phrase = {
     [u('Shall we go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('sea?', 2)],
     [u('(we)', null), u('go', 0), u('to', p(1, 0)), u('the', p(1, 1)), u('sea', 2)],
     [u('Mergem', 0), u('la', p(1, 0)), u('mare?', 2)],
-    [u('(noi)', null), u('mergem', 0), u('la', p(1, 0)), seg(['mare', 2], ['a', p(1, 1)])],
+    [u('(noi)', null), u('mergem', 0), u('la', p(1, 0)), u('mare', 2)],
   ),
   verified: false,
 };
@@ -1315,7 +1315,7 @@ const dogOnTheRoad: Phrase = {
     [u('The', 0), u('dog', 1), u('is', 2), u('on', p(3, 0)), u('the', p(3, 1)), u('road', 4)],
     [u('the', 0), u('dog', 1), u('is', 2), u('on', p(3, 0)), u('the', p(3, 1)), u('road', 4)],
     [seg(['Câine', 1], ['le', 0]), u('este', 2), u('pe', p(3, 0)), u('drum', 4)],
-    [seg(['câine', 1], ['le', 0]), u('este', 2), u('pe', p(3, 0)), seg(['drum', 4], ['ul', p(3, 1)])],
+    [seg(['câine', 1], ['le', 0]), u('este', 2), u('pe', p(3, 0)), u('drum', 4)],
   ),
   verified: false,
 };
@@ -1336,7 +1336,7 @@ const giveBreadToTheChild: Phrase = {
     [u('I give', 0), u('the', 1), u('bread', 2), u('to', p(3, 0)), u('the', p(3, 1)), u('child', 4)],
     [u('(I)', null), u('give', 0), u('the', 1), u('bread', 2), u('to', p(3, 0)), u('the', p(3, 1)), u('child', 4)],
     [u('Dau', 0), seg(['pâine', 2], ['a', 1]), u('copilului', 4)],
-    [u('(eu)', null), u('dau', 0), seg(['pâine', 2], ['a', 1]), u('la', p(3, 0)), seg(['copil', 4], ['ul', p(3, 1)])],
+    [u('(eu)', null), u('dau', 0), seg(['pâine', 2], ['a', 1]), u('la', p(3, 0)), u('copil', 4)],
   ),
   verified: false,
 };
@@ -1356,7 +1356,7 @@ const dogJumpsIntoTheWater: Phrase = {
     [u('The', 0), u('dog', 1), u('jumps', 2), u('into', p(3, 0)), u('the', p(3, 1)), u('water', 4)],
     [u('the', 0), u('dog', 1), u('jumps', 2), u('in', p(3, 0)), u('the', p(3, 1)), u('water', 4)],
     [seg(['Câine', 1], ['le', 0]), u('sare', 2), u('în', p(3, 0)), u('apă', 4)],
-    [seg(['câine', 1], ['le', 0]), u('sare', 2), u('în', p(3, 0)), seg(['ap', 4], ['a', p(3, 1)])],
+    [seg(['câine', 1], ['le', 0]), u('sare', 2), u('în', p(3, 0)), u('apă', 4)],
   ),
   verified: false,
 };

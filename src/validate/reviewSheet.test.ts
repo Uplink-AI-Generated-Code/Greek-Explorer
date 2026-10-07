@@ -111,7 +111,7 @@ describe('the review sheet', () => {
   });
 
   it('shows δικός: the Romanian words and the noun phrases with every possessor', () => {
-    expect(sheet).toContain('- Romanian propriu with its article (nominative): masc. sg propriul · masc. pl proprii · fem. sg propria · fem. pl propriile');
+    expect(sheet).toContain('- Romanian propriu with its article (nominative): masc. sg propriul · masc. pl propriii · fem. sg propria · fem. pl propriile');
     expect(sheet).toContain('- Romanian word before the possessive on its own: masc. sg al · masc. pl ai · fem. sg a · fem. pl ale');
     expect(sheet).toContain('το δικό μου σπίτι · το δικό σου σπίτι · το δικό του σπίτι · το δικό της σπίτι · το δικό μας σπίτι · το δικό σας σπίτι · το δικό τους σπίτι');
     expect(sheet).toContain('propria mea casă · propria ta casă · propria lui casă · propria ei casă · propria noastră casă · propria voastră casă · propria lor casă');
@@ -197,7 +197,7 @@ describe('the review sheet', () => {
     expect(sheet).toContain('Ελληνικά: Τι θέλεις;');
     expect(sheet).toContain('de unde');
     expect(sheet).toContain('până când');
-    expect(sheet).toContain('από τι: de la ce');
+    expect(sheet).toContain('από τι: din ce');
   });
 });
 

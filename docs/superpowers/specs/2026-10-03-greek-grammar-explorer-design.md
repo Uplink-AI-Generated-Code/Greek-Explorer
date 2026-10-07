@@ -184,13 +184,13 @@ Each lexeme declares `offers`: the slots its panel may offer. For a quantifier, 
 
 A **paradigm class** is a shared ending table with slot dimensions, for example "-ω verbs", "contracted -άω verbs", "mediopassive -ομαι verbs", "masculine -ος nouns", "feminine -α nouns", "adjective -ος/-η/-ο (stem-stressed)" and "adjective -ός/-ή/-ό (ending-stressed)".
 
-**Compound forms** (the perfects, the future, the subjunctive) are built, not stored. The engine assembles them from three parts: an optional particle (θα, να, or ας for the hortative), an optional auxiliary (έχω, είχα, inflected by the same engine for the same person and number), and a base form of the main verb. Perfect tenses use one invariable base form (the aorist stem plus -ει, or -θεί for the mediopassive: φάει, πηδήξει, πλυθεί), so the auxiliary carries the person. The subjunctive and the simple future use the aorist-subjunctive forms of the verb; the continuous future and the present subjunctive use the present forms. Negation is a piece: δεν goes before θα and before the verb (δεν θα φάω, δεν θέλω), and μην goes after να (να μην φάω). The perfect subjunctive is να + the present forms of έχω + the base form (να έχω φάει). The negative imperative is not built from the imperative: it is μην + the subjunctive form of the second person (μην φας), so the builder delegates to the subjunctive. The imperfect is a simple form with an augment (ε- or η-) that is lost when the stress moves in the first and second person plural (ήθελα, but θέλαμε); like the aorist, it uses an imperfect stem and per-cell overrides for the plural. Impersonal verbs (μπορεί, πρέπει) are lexemes with a single third-person slot.
+**Compound forms** (the perfects, the future, the subjunctive) are built, not stored. The engine assembles them from three parts: an optional particle (θα, να, or ας for the hortative), an optional auxiliary (έχω, είχα, inflected by the same engine for the same person and number), and a base form of the main verb. Perfect tenses use one invariable base form (the aorist stem plus -ει, or -θεί for the mediopassive: φάει, πηδήξει, πλυθεί), so the auxiliary carries the person. The subjunctive and the simple future use the aorist-subjunctive forms of the verb; the continuous future and the present subjunctive use the present forms. Negation is a piece: δεν goes before θα and before the verb (δεν θα φάω, δεν θέλω), and μην goes after να (να μη φάω). The perfect subjunctive is να + the present forms of έχω + the base form (να έχω φάει). The negative imperative is not built from the imperative: it is μην + the subjunctive form of the second person (μη φας), so the builder delegates to the subjunctive. The imperfect is a simple form with an augment (ε- or η-) that is lost when the stress moves in the first and second person plural (ήθελα, but θέλαμε); like the aorist, it uses an imperfect stem and per-cell overrides for the plural. Impersonal verbs (μπορεί, πρέπει) are lexemes with a single third-person slot.
 
 **Two entry points.** `inflect(lexeme, slot)` returns one `Form` for every single-word form (nouns, adjectives, articles, numerals and the simple verb forms). `compose(verb, slot)` returns a `Composed` for any verb slot: it calls `inflect` for the verb and the auxiliary, adds the particle and the negation, hands the clitics to the clitic engine, and returns the pieces in written order together with the written text. The verb panel, the form groups and the readings all use `compose`, so negation, clitics and short forms (the `polarity`, `clitics` and `shortForm` fields of the verb slot) have one place to go.
 
 The **conditional** is θα + the imperfect or the pluperfect; the builder reuses those two builders. θα + aorist is not a conditional (it expresses a guess about the past) and is out of scope. The **passive participle** is a derived adjective: the verb lexeme stores a participle stem as a further principal part (πλένω: πλυ-; ψήνω: ψη-), and the derived lexeme joins it to the stem-stressed adjective class (-μένος, -μένη, -μένο). Participles are not conjugated: they decline like any adjective and link back to their verb.
 
-The **hortative** is ας + the present or aorist subjunctive form (ας τρώμε, ας φάμε), in every person; the negation follows ας (ας μην φάμε). The builder reuses the subjunctive builders with the particle ας in place of να. A verb offers the hortative when it offers the subjunctive present and aorist.
+The **hortative** is ας + the present or aorist subjunctive form (ας τρώμε, ας φάμε), in every person; the negation follows ας (ας μη φάμε). The builder reuses the subjunctive builders with the particle ας in place of να. A verb offers the hortative when it offers the subjunctive present and aorist.
 
 The **clitic engine** (`clitics.ts`, with the stress rule in `stress.ts` and the placement in `compose`) handles weak pronouns with commands and with every other finite form. It takes the verb form, the clitic or clitics and the mood, and returns a placed form:
 
@@ -349,8 +349,8 @@ Divergence types the prototype must cover:
 | indeclinable | Greek καφέ and Romanian maro never change; English adjectives never change. |
 | numeral-agreement | Greek 1, 3, 4 change with gender; Romanian 1 and 2; English never. |
 | plural-indefinite | Greek has no plural indefinite article (μερικοί is a quantifier); Romanian has *niște*; English has "some" or nothing. |
-| some-vs-any | Greek κάποιος and Romanian *vreun / vreo* cover "some" and "any"; English splits them (some in statements, any in questions). |
-| determiner-vs-pronoun | Greek κάποιος / κανένας keep one form; Romanian changes (*vreun* → *vreunul*, *niciun* → *niciunul*); English changes (any → anyone, no → none). |
+| some-vs-any | Greek κάποιος covers "some" and "any"; Romanian says *un / o* in a statement and *vreun / vreo* in a question, a negative or an if-clause; English splits them (some in statements, any in questions). |
+| determiner-vs-pronoun | Greek κάποιος / κανένας keep one form; Romanian changes (*un* → *cineva*, *niciun* → *niciunul*); English changes (any → anyone, no → none). |
 | negative-concord | Greek *δεν … κανένας* and Romanian *nu … niciun* need a negative verb; English allows only one negative (*don't … any*). |
 | count-vs-mass | Greek: one word, agreeing in number. Romanian: *mult / puțin* (mass) vs *mulți, multe / puțini, puține* (count). English: much / many, little / few, less / fewer. |
 | comparative | Romanian *mai* + word; Greek one word (περισσότερος, λιγότερος); English more / less / fewer. |
@@ -363,9 +363,9 @@ Divergence types the prototype must cover:
 | subjunctive-negation | Negating the subjunctive clause: Greek να μην (Θέλω να μην πάω), Romanian *să nu*, English "not to". Negating the main verb is a different structure (Δεν θέλω να πάω, phrase 16). |
 | imperfect-vs-aorist | Greek separates the aorist (έφαγα) from the imperfect (έτρωγα). Romanian *imperfectul* (*mâncam*) matches the Greek imperfect, while its compound perfect (*am mâncat*) covers the aorist and the perfect. English uses the simple past for the aorist and for much of the imperfect; "was eating" and "used to eat" mark the imperfect. |
 | polite-imperfect | The Greek imperfect softens a request: Ήθελα έναν καφέ ("I wanted a coffee", polite "I'd like one"). Romanian uses the conditional (*aș vrea*); English "I'd like" is also conditional. The literal rows show the imperfect (*voiam*, "wanted"). |
-| imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώγε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
+| imperative-aspect | Greek chooses between the aorist imperative (φάε, "eat up") and the present imperative (τρώε, "keep eating"). Romanian and English have one form (*mănâncă*, "eat"). |
 | imperative-forms | Greek and Romanian have 2nd-person singular and plural forms (φάε / φάτε, *mănâncă* / *mâncați*); English has one form. |
-| negative-imperative | Greek μην + subjunctive (μην φας). Romanian *nu* + the infinitive for the singular (*nu mânca*) and *nu* + the plural imperative (*nu mâncați*). English "don't" + base form. |
+| negative-imperative | Greek μη(ν) + subjunctive (μη φας, μην το φας). Romanian *nu* + the infinitive for the singular (*nu mânca*) and *nu* + the plural imperative (*nu mâncați*). English "don't" + base form. |
 | perfect-subjunctive | Greek να έχει φάει, Romanian *să fi mâncat*, English "may have eaten". The three structures are different. |
 | impersonal-modal | Greek μπορεί να …, Romanian *poate să …*, English "may …". |
 | conditional-construction | Greek has no conditional forms: θα + a past tense (θα έτρωγα). Romanian has its own forms (*aș mânca*, *aș fi mâncat*). English: would + verb. |
@@ -381,11 +381,11 @@ Divergence types the prototype must cover:
 | question-words | Greek ποιος (who, which) and τι (what); Romanian *cine* (who), *care* (which), *ce* (what); English who, which, what. |
 | why-because | Greek γιατί means both "why" and "because"; Romanian has *de ce* and *pentru că*; English why and because. |
 | question-declension | ποιος and πόσος decline (ποιος, ποια, ποιο; πόσος, πόση, πόσο); Romanian *cât, câtă, câți, câte* changes too, English "how much / how many" does not. τι, πού, πότε, γιατί and πώς never change. |
-| question-compounds | από πού, μέχρι πότε, τι ώρα: Greek and English build them from parts ("from where", "until when", "what hour"); Romanian has fused words (*de unde*, *până când*) and *ce oră*. |
+| question-compounds | από πού, μέχρι πότε, τι ώρα: Greek and English build them from parts ("from where", "until when", "what hour"); Romanian also uses two words, but the preposition can change (*de unde*, *până când*, *din ce*, not *de la ce*), and *ce oră*. |
 | price-idiom | Greek Πόσο κάνει; (literally "how much does it do") is Romanian *Cât costă?* and English "How much is it?". |
 | hortative-construction | Greek ας + subjunctive (ας φάμε); Romanian *să* + subjunctive (*Să mâncăm!*); English "let's eat / let him eat". |
 | hortative-vs-subjunctive | ας suggests or allows (ας φάμε, "let's eat") where να gives a wish or a purpose (θέλω να φάω). |
-| hortative-negation | Greek ας μην φάμε, Romanian *Să nu mâncăm*, English "let's not eat": the negation follows the particle, as it follows να. |
+| hortative-negation | Greek ας μη φάμε, Romanian *Să nu mâncăm*, English "let's not eat": the negation follows the particle, as it follows να. |
 | hortative-persons | English changes with the person (let me, let's, let him / her, let them); Greek and Romanian change only the verb ending. |
 | pronoun-position-finite | Greek puts the pronoun before the verb group (το τρώω, δεν το τρώω, θα το φάω, το έχω φάει); Romanian too (*îl mănânc*) and fuses it with the auxiliary (*l-am mâncat*); English keeps it after the verb ("eat it", "has eaten it"). |
 | pronoun-before-auxiliary | In Greek the pronoun stands before the auxiliary έχω (το έχω φάει); in Romanian it fuses with the auxiliary (*l-am mâncat*), except *o*, which follows the participle (*am mâncat-o*). |
@@ -488,7 +488,7 @@ Under the current-form table, each form has a line that takes it apart and says 
 
 | Form | Beginner | Improver |
 |---|---|---|
-| Φάε! | "Eat! (eat up, once). φα- is 'eat', -ε is a command to one person." | "Aorist imperative, 2nd singular: perfective stem φα- + -ε. The present imperative is τρώγε (stem τρώγ-, which keeps the older -γ-)." |
+| Φάε! | "Eat! (eat up, once). φα- is 'eat', -ε is a command to one person." | "Aorist imperative, 2nd singular: perfective stem φα- + -ε. The present imperative is τρώε (the older τρώγε, with -γ-, is also correct)." |
 | Φάτο! | "Eat it! A short way of saying φάε το: the command and 'it' are joined." | "Aorist imperative φάε + clitic το, with the final -ε dropped: φά(ε) + το. The shortened form is lexical." |
 | Μην φας! | "Don't eat! To forbid something, Greek uses μην + the form for 'you eat', not the command form." | "Negative imperative: μην + aorist subjunctive, 2nd singular (φας). The subjunctive replaces the imperative." |
 | Δως μου το! | "Give it to me! δως is a short form of δώσε. μου = to me, το = it. 'To me' comes before 'it'." | "Shortened aorist imperative δως + genitive clitic μου + accusative clitic το (genitive before accusative)." |
@@ -563,7 +563,7 @@ Rules: the line never repeats the plain-language line from 5.1; where a rule has
 | 54 | Πώς το λένε; | What is it called? | a pronoun with an indicative verb (το λένε), verb λέω; Romanian natural *Cum se numește?*, literal *cum îl zic* |
 | 55 | Ας το φάμε! | Let's eat it! | a pronoun with the hortative; Romanian *Să o mâncăm!* (pâine is feminine) |
 | 56 | Θα μου το δώσεις; | Will you give it to me? | two pronouns with the simple future; Romanian *Mi-o vei da?* |
-| 57 | Πάω στο σπίτι | I'm going home | σε + το fused into στο (one chip, two parts), meaning "to"; Romanian *Merg acasă.*, literal *merg la casa* |
+| 57 | Πάω στο σπίτι | I'm going home | σε + το fused into στο (one chip, two parts), meaning "to"; Romanian *Merg acasă.*, literal *merg la casă* |
 | 58 | Είμαι στο σπίτι | I'm at home | the same στο with the meaning "at"; Romanian *Sunt acasă.* |
 | 59 | Πάμε στη θάλασσα; | Shall we go to the sea? | the feminine fusion στη; Romanian *Mergem la mare?* |
 | 60 | Ο σκύλος είναι στον δρόμο | The dog is on the road | the masculine fusion στον, meaning "on"; Romanian *Câinele este pe drum.* |
@@ -627,8 +627,8 @@ The prototype covers these Romanian words and their Greek and English counterpar
 |---|---|---|---|
 | niște | μερικοί / μερικές / μερικά | some | Plural indefinite. Genitive *unor*. |
 | câțiva, câteva | μερικοί / μερικές / μερικά | a few, several | Same Greek word as *niște*; selected by the sense control. |
-| vreun, vreo | κάποιος / κάποια / κάποιο | any, some | Used in questions and conditionals. |
-| vreunul, vreuna | κάποιος / κάποια / κάποιο | anyone, someone | Pronoun use. |
+| un, o (*vreun, vreo* in questions, negatives and if-clauses) | κάποιος / κάποια / κάποιο | some, any | Genitive *unui / unei*. |
+| cineva (*vreunul, vreuna* in questions, negatives and if-clauses) | κάποιος / κάποια / κάποιο | someone, anyone | Pronoun use. Genitive *cuiva*. |
 | niciun, nicio; niciunul, niciuna | κανένας / καμία / κανένα | no; none, no one | Needs negation. Declines like ένας. |
 | mult, multă, mulți, multe; mai + each | πολύς / πολλή / πολύ, πολλοί / πολλές / πολλά; περισσότερος | much, many; more | Irregular stem (πολύ- / πολλ-). |
 | puțin, puțină, puțini, puține; mai + each | λίγος / λίγη / λίγο; λιγότερος | little, a little, few; less, fewer | Regular. |
@@ -658,12 +658,12 @@ Constructions (shown for τρώω, "I eat"; the first-person singular unless not
 | Present subjunctive | να + present form (imperfective) | να τρώω | *să mănânc* | to eat; that I eat (regularly) |
 | Aorist subjunctive | να + aorist-subjunctive form (perfective) | να φάω | *să mănânc* | to eat; that I eat (once) |
 | Simple future | θα + aorist-subjunctive form | θα φάω | *voi mânca* | I will eat |
-| Negated subjunctive | να μην + verb | να μην φάω | *să nu mănânc* | not to eat |
+| Negated subjunctive | να μη(ν) + verb | να μη φάω | *să nu mănânc* | not to eat |
 | Imperfect | augment + imperfect stem + past endings | έτρωγα | *mâncam* | I used to eat; I was eating |
 | Perfect subjunctive | να + έχω + invariable base form | να έχω φάει | *să fi mâncat* | to have eaten; may have eaten |
 | Imperative, aorist (2sg / 2pl) | aorist imperative | φάε / φάτε | *mănâncă* / *mâncați* | eat! (and finish) |
-| Imperative, present (2sg / 2pl) | present imperative | τρώγε / τρώγετε | *mănâncă* / *mâncați* | keep eating! |
-| Negative imperative (2sg / 2pl) | μην + subjunctive | μην φας / μην φάτε | *nu mânca* / *nu mâncați* | don't eat! |
+| Imperative, present (2sg / 2pl) | present imperative | τρώε / τρώτε | *mănâncă* / *mâncați* | keep eating! |
+| Negative imperative (2sg / 2pl) | μη(ν) + subjunctive | μη φας / μη φάτε | *nu mânca* / *nu mâncați* | don't eat! |
 | Hortative, present | ας + present form | ας τρώμε | *să mâncăm* | let's eat (regularly) |
 | Hortative, aorist | ας + aorist-subjunctive form | ας φάμε | *să mâncăm* | let's eat |
 
@@ -675,9 +675,9 @@ What this teaches, in plain terms:
 - Greek has no infinitive: «Θέλω να φάω» is literally "I want that I eat". Romanian has the same structure (*vreau să mănânc*); English uses "to eat".
 - The simple future (θα φάω) and the subjunctive (να φάω) share a form; the continuous future (θα τρώω) shares the present form.
 - The Greek imperfect is the closest match to the Romanian *imperfectul*. English needs "was eating" or "used to eat". The Greek imperfect also softens requests (Ήθελα έναν καφέ), the way Romanian and English use the conditional.
-- Aspect shows up again in the imperative: φάε ("eat up", once) against τρώγε ("keep eating").
+- Aspect shows up again in the imperative: φάε ("eat up", once) against τρώε ("keep eating").
 - The hortative ας + subjunctive suggests or allows: ας φάμε "let's eat", ας φάει "let him eat", ας μην πάμε "let's not go". Romanian uses *să* + the subjunctive; English changes with the person (let's, let him, let them), while Greek and Romanian change only the ending.
-- The negative imperative is not the imperative with a negation word: Greek switches to the subjunctive (μην φας), Romanian switches to the infinitive in the singular (*nu mânca*), and English adds "don't".
+- The negative imperative is not the imperative with a negation word: Greek switches to the subjunctive (μη φας), Romanian switches to the infinitive in the singular (*nu mânca*), and English adds "don't".
 - The perfect subjunctive (να έχει φάει) reaches back with doubt or hope ("may have eaten"). Romanian uses *să fi mâncat*; English uses a modal.
 
 New verbs and irregularities:
@@ -687,7 +687,7 @@ New verbs and irregularities:
 - πηδάω: base form πηδήξει (phrase 17).
 - πλένομαι: base form πλυθεί (phrase 18).
 - Imperfects: τρώω → έτρωγα, έτρωγες, έτρωγε, τρώγαμε, τρώγατε, έτρωγαν; θέλω → ήθελα, ήθελες, ήθελε, θέλαμε, θέλατε, ήθελαν; πηδάω → πηδούσα, πηδούσες, πηδούσε, πηδούσαμε, πηδούσατε, πηδούσαν. Romanian: *mâncam, mâncai, mânca, mâncam, mâncați, mâncau*; *voiam*; *săream*.
-- Imperatives: τρώω → aorist φάε, φάτε; present τρώγε, τρώγετε. πλένω → aorist πλύνε, πλύνετε; present πλένε, πλένετε. Negative: μην φας, μην φάτε (aorist); μην τρως, μην τρώτε (present).
+- Imperatives (people mostly say φάε, φάτε, and κάνε, κάντε; κάνετε is for something that continues): τρώω → aorist φάε, φάτε; present τρώε, τρώτε (the older τρώγε, τρώγετε are also correct). πλένω → aorist πλύνε, πλύνετε; present πλένε, πλένετε. Negative: μη φας, μη φάτε (aorist); μην τρως, μην τρώτε (present).
 - Impersonal μπορεί ("it is possible; may"): a single third-person slot; Romanian *poate*, English "may".
 - ψωμί (bread): neuter noun, plural ψωμιά; Romanian *pâine* (feminine; *pâinea*, *pâini*), English bread (mass).
 - The Romanian and English counterparts of every verb are listed in 6.6.
@@ -812,7 +812,7 @@ The Greek, Romanian and English forms were written from memory during brainstorm
 - the quantifiers: κάποιον (with the final ν), the πολύς forms (πολύ in the accusative singular masculine, πολλοί, πολλών), whether μερικοί is the right counterpart of *câțiva* and *niște*, the use of κάποιος for *vreun / vreo*, and the comparative forms περισσότερος and λιγότερος;
 - Romanian quantifiers: *câteva* and *câtorva*, *multor*, *multului / multei*, *puținului / puținei / puținilor / puținelor*, *vreunui / vreunei*, *niciunui / niciunei* and the choice of *niciun* vs *nicio* in phrase 9;
 - Romanian: the sentence *Vulpea rapidă și maro sare peste câinele leneș*, the adjective forms (*calzi, rapizi, leneși*, feminine genitive *calde*), the numerals, the reflexive forms, and the perfect and future forms of *a vrea* and *a sări*.
-- the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning.
+- the present imperative of τρώω: a search by the user found **τρώγε** (plural τρώγετε), not τρώε / τρώτε, because the present imperative keeps the older stem with -γ-. The spec (5.2, 5.5, 6.1, 6.4, 6.5) and the data now use τρώγε / τρώγετε. The reviewer confirms the form, the plural τρώγετε (extrapolated, not yet checked) and the "keep eating" meaning. (Superseded by section 28: τρώε / τρώτε are now the main forms, and τρώγε / τρώγετε the alternatives.)
 - Plan 5 additions: νερό and Romanian *apă* (*apei*, *ape*); the quantifier forms (κάποιον, καμία and κανένα, the πολύς and περισσότερος forms, μερικοί, λίγος and λιγότερος); the Romanian forms *unii / unele*, *câteva*, *vreunul / vreuna*, *niciunul / niciuna* and the comparative *mai* + the word; the six Romanian genitives *multului, multei, puținului, puținei, puținilor, puținelor* (formerly pending); είμαι, *a fi* and the English forms of "be" (am not, aren't, isn't); ψήνω and *a coace*; the participles πλυμένος and ψημένος with *spălat / spălată* and *copt / coaptă*; αν and *dacă*; and phrases 7 to 10, 20, 21, 30, 32 and 33.
 - Plan 6 additions: the Greek weak pronouns and the strong forms; the Romanian pronoun table (free, attached after a command, after *nu*) and the four clusters (*mi-l, mi-o, mi-i, mi-le*); the English pronoun order ("give it to me"); the verb δίνω and its forms (δώσε, δώστε, δίνε, δως) with *a da* and "give"; the short forms φάτο and δως μου το; the second-accent rule (δώσε μού το, and the two unit-test cases); phrases 34 to 38; the four form groups (the claim that their members mean the same, the member notes, the close-not-the-same reasons); and the two authored readings `clitic-stress` and `short-imperative`. `npm run review-sheet` writes a sheet of every unverified record for the reviewer.
   - Review item M7: μην is written throughout (μην το φας); standard spelling drops the -ν before most consonants (μη φας, μη μου το δώσεις). The reviewer decides.
@@ -942,7 +942,7 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 
 | Source | Change | Where |
 |---|---|---|
-| User's search: the present imperative of τρώω keeps the older -γ- | τρώε / τρώτε replaced by τρώγε / τρώγετε for the imperative (phrases 27 and 38, the tables, the readings and the divergence note); the present subjunctive μην τρως / μην τρώτε is unchanged. The plural is extrapolated and listed for the reviewer | 5.2, 5.5, 6.1, 6.4, 6.5, 9 |
+| User's search: the present imperative of τρώω keeps the older -γ- | τρώε / τρώτε replaced by τρώγε / τρώγετε for the imperative (phrases 27 and 38, the tables, the readings and the divergence note); the present subjunctive μην τρως / μην τρώτε is unchanged. The plural is extrapolated and listed for the reviewer (superseded by section 28) | 5.2, 5.5, 6.1, 6.4, 6.5, 9 |
 
 ## 18. Changes since Plan 5
 
@@ -995,7 +995,7 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 |---|---|---|
 | Delivery | Plan 7 delivers the question words, ας, the hortative, ώρα, κάνω, από, μέχρι and phrases 40 to 53, so the picker lists 53 phrases; phrases 54 to 56 follow in Plan 8 | 6.1, 11 |
 | English hortative | One rendering per person (*let me*, *may you* for both second persons, *let him / her*, *let's*, *let them*); the English cell takes the pronoun word from `EnParts.pronoun`; there is no English reading line for the hortative | 5.2, 5.5 |
-| A preposition and a question word | A preposition governs a noun or an interrogative; `roAfter` stores the fused Romanian word (*de unde*, *până când*); ποιος and πόσος after a preposition are out of scope | 4.4, 5.3 |
+| A preposition and a question word | A preposition governs a noun or an interrogative; `roAfter` names the prepositions the word can follow, with the Romanian words they make (*de unde*, *până când*, *din ce*); a pair it does not name (με πού, από γιατί) is neither offered nor accepted; ποιος and πόσος after a preposition are out of scope | 4.4, 5.3 |
 | ποιος and πόσος | `question: 'who' \| 'amount'` and `cases: ['nom', 'acc']` on the quantifier lexeme; ποιος uses the "How many?" control, πόσος the mass / count control; Romanian *care* before a noun and *cine* on its own | 4.2, 5.3, 6.6 |
 | A quantifier with no noun token | The panel starts with σκύλος (m), αλεπού (f) or παιδί (n) as its noun, so Romanian shows *cine* and *cât* | 5.3 |
 | Nouns | `GreekNoun.overrides` stores a whole irregular cell; ώρα is class `fem-a` with the genitive plural ωρών | 4.3, 6.6 |
@@ -1103,4 +1103,18 @@ Review 1 raised numbered points 1 to 8 and 10 to 20 (the review has no point 9: 
 | New request: review one feature at a time | `npm run review-sheet` writes a folder `review/sheets/` (git-ignored) instead of one file: `index.md` (every file with the number of records not verified), one file per topic (nouns and the article, adjectives, the verb tables, weak pronouns, quantifiers, the particles and the conjunction, prepositions, question words and place words, possessives, demonstratives, relative pronouns) and one file per verb in `verbs/`. Each file has the layout of the old sheet, limited to its topic: checklist, ending tables, lexemes, phrases, comparison notes, readings, form groups and pending cells | 9 |
 | The feature map | `src/data/review-features.ts` names the records of each file; a test checks that every lexeme, ending table, phrase, comparison note, authored reading and form group is named exactly once. A record that no file names goes to `general.md`, which exists only then | 9 |
 | Unchanged | The records and their `verified` flags, and `npm run validate -- --release`, which counts every record in every file | 9 |
+
+## 28. Changes from the content review
+
+An independent language-model review of the review sheets (not a native speaker) found errors that the user, a Romanian speaker, confirmed or decided. The data and the spec follow the decisions below; everything stays unverified (`verified: false`).
+
+| Source | Change | Where |
+|---|---|---|
+| Romanian article after a preposition | After a preposition a singular noun with no modifier has no article in Romanian (*peste câine*, *pe drum*, *în apă*, *la mare*); the plural and a noun with a modifier keep it (*peste câinele leneș*). The preposition panel, the Improver table, the literal gloss rows and the notes follow; the plural is for the reviewer | 4.3, 5.2, 5.3 |
+| Question words after a preposition | A question word follows only the prepositions its `roAfter` names, with the Romanian words they make: τι (*din ce, cu ce, pentru ce, peste ce, sub ce, până la ce*), πού (*de unde, până unde*), πότε (*de când, până când, pentru când*); γιατί and πώς follow none | 5.3, 7 |
+| κάποιος | Romanian *un / o* (*unui / unei*) beside a noun and *cineva* (*cuiva*) on its own, for a statement; *vreun / vreo / vreunul* belong to questions, negatives and if-clauses and are in the note | 6.3 |
+| *propriii* | The masculine plural of *propriu* with the article is *propriii* (*propriii mei copii*) | 24 |
+| κάντε | The aorist imperative plural of κάνω is κάντε; κάνετε (the present imperative) is for something that continues; a reading explains it | 6.4 |
+| τρώε / τρώτε | The present imperative of τρώω is τρώε, τρώτε in everyday speech; the older τρώγε, τρώγετε are also correct, and φάε, φάτε are the common commands. A note on the form says so. This replaces the earlier decision for τρώγε | 5.2, 6.4, 6.5 |
+| μη / μην | The negation of a command and of να and ας is written μην before a vowel and before κ π τ ξ ψ γκ μπ ντ τσ τζ, and μη before any other consonant (μη φας, να μη φάω, ας μη φάμε, μην το φας); the rule is the one for the final ν of the article (στη θάλασσα, στην αλεπού) | 4.3 |
 

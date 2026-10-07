@@ -34,13 +34,14 @@ describe('Romanian quantifier cells', () => {
     expect(roQuantifier(q('merikoi'), slot({ number: 'pl', use: 'pronoun', case: 'gen' }), 'm')).toBeNull();
   });
 
-  it('κάποιος: vreun / vreo, vreunui / vreunei, vreunul / vreuna', () => {
-    expect(roQuantifier(q('kapoios'), slot(), 'm')).toBe('vreun');
-    expect(roQuantifier(q('kapoios'), slot(), 'f')).toBe('vreo');
-    expect(roQuantifier(q('kapoios'), slot({ case: 'gen' }), 'm')).toBe('vreunui');
-    expect(roQuantifier(q('kapoios'), slot({ case: 'gen' }), 'f')).toBe('vreunei');
-    expect(roQuantifier(q('kapoios'), slot({ use: 'pronoun' }), 'm')).toBe('vreunul');
-    expect(roQuantifier(q('kapoios'), slot({ use: 'pronoun' }), 'f')).toBe('vreuna');
+  it('κάποιος: un / o, unui / unei, cineva / cuiva (vreun is for questions, negatives and if-clauses)', () => {
+    expect(roQuantifier(q('kapoios'), slot(), 'm')).toBe('un');
+    expect(roQuantifier(q('kapoios'), slot(), 'f')).toBe('o');
+    expect(roQuantifier(q('kapoios'), slot({ case: 'gen' }), 'm')).toBe('unui');
+    expect(roQuantifier(q('kapoios'), slot({ case: 'gen' }), 'f')).toBe('unei');
+    expect(roQuantifier(q('kapoios'), slot({ use: 'pronoun' }), 'm')).toBe('cineva');
+    expect(roQuantifier(q('kapoios'), slot({ use: 'pronoun' }), 'f')).toBe('cineva');
+    expect(roQuantifier(q('kapoios'), slot({ use: 'pronoun', case: 'gen' }), 'm')).toBe('cuiva');
   });
 
   it('κανένας: niciun / nicio, niciunui / niciunei, niciunul / niciuna', () => {

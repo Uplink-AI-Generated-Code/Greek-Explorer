@@ -132,7 +132,7 @@ export function roVerb(v: GreekVerb, s: SlotOf<'verb'>): string {
   }
 }
 
-/** The Romanian noun without an article or numeral, as it follows a quantifier: pâine, cafele, vreunei cafele → cafele. */
+/** The Romanian noun without an article or numeral, as it follows a quantifier: pâine, cafele, unei cafele → cafele. */
 export function roBareNoun(n: GreekNoun, number: Num, c: Case): string {
   const f = n.ro.forms[number];
   const form = c === 'gen' ? f.genIndefinite : f.indefinite;

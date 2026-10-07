@@ -90,7 +90,9 @@ describe('a preposition before a place word', () => {
     const noun: PanelState = { slot: { pos: 'preposition' }, noun: 'skylos', nounNumber: 'sg' };
     const options = buildPanel(noun, me, 'beginner').controls[0].options.map((o) => o.value);
     expect(options).not.toContain('edo');
-    expect(options).toContain('pou');
+    // με takes τι (cu ce) but not πού.
+    expect(options).toContain('ti');
+    expect(options).not.toContain('pou');
     expect(applyControl(noun, 'noun', 'edo', 'me')).toBe(noun);
     expect(applyControl(noun, 'noun', 'edo', 'apo')).toMatchObject({ noun: 'edo' });
   });

@@ -455,12 +455,12 @@ const kapoios: GreekQuantifier = {
   greek: { plain: { table: 'kapoios' } },
   numbers: ['sg'],
   meaning:
-    'κάποιος covers both "some" and "any": Greek does not separate them the way English does. On its own it is "someone / anyone".',
+    'κάποιος covers both "some" and "any": Greek does not separate them the way English does. On its own it is "someone / anyone". Romanian says un / o (cineva on its own) in a statement, and vreun / vreo (vreunul) in a question, a negative or an if-clause.',
   ro: {
-    lemma: 'vreun',
+    lemma: 'un',
     plain: {
-      determiner: { m: { sg: ro1('vreun', 'vreunui') }, f: { sg: ro1('vreo', 'vreunei') } },
-      pronoun: { m: { sg: ro1('vreunul') }, f: { sg: ro1('vreuna') } },
+      determiner: { m: { sg: ro1('un', 'unui') }, f: { sg: ro1('o', 'unei') } },
+      pronoun: { m: { sg: ro1('cineva', 'cuiva') }, f: { sg: ro1('cineva', 'cuiva') } },
     },
   },
   en: { plain: { determiner: { sg: 'some / any' }, pronoun: { sg: 'someone / anyone' } } },
@@ -1482,24 +1482,25 @@ const ti = interrogative(
   'what',
   'τι means "what". It never changes, and it can stand in front of a noun: τι ώρα, "what time".',
   { el: 'Τι θέλεις;', ro: 'Ce vrei?', en: 'What do you want?' },
+  { roAfter: { apo: 'din ce', me: 'cu ce', gia: 'pentru ce', pano: 'peste ce', kato: 'sub ce', mexri: 'până la ce' } },
 );
 const pou = interrogative(
   'pou',
   'πού',
   'unde',
   'where',
-  'πού means "where". After από it means "from where": Greek and English use two words, Romanian one (de unde).',
+  'πού means "where". After από it means "from where" and after μέχρι "as far as where": Greek, English and Romanian all use two words (de unde, până unde).',
   { el: 'Πού πας;', ro: 'Unde mergi?', en: 'Where are you going?' },
-  { roAfter: { apo: 'de unde' } },
+  { roAfter: { apo: 'de unde', mexri: 'până unde' } },
 );
 const pote = interrogative(
   'pote',
   'πότε',
   'când',
   'when',
-  'πότε means "when". After μέχρι it means "until when": Romanian has the fused phrase până când.',
+  'πότε means "when". After μέχρι it means "until when", after από "since when" and after για "by when": Romanian says până când, de când and pentru când.',
   { el: 'Πότε θα φας;', ro: 'Când vei mânca?', en: 'When will you eat?' },
-  { roAfter: { mexri: 'până când' } },
+  { roAfter: { apo: 'de când', mexri: 'până când', gia: 'pentru când' } },
 );
 const giati = interrogative(
   'giati',

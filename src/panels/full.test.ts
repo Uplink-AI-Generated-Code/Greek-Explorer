@@ -87,7 +87,7 @@ describe('full paradigm tables', () => {
     const state: PanelState = { slot: token.slot, noun: 'skylos', nounNumber: 'sg' };
     const full = buildPanel(state, token, 'improver').full;
     expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until', 'to / at / in / on']);
-    expect(cells(full[1])).toEqual({ el: 'κάτω από τον σκύλο', ro: 'sub câinele', en: 'under the dog' });
+    expect(cells(full[1])).toEqual({ el: 'κάτω από τον σκύλο', ro: 'sub câine', en: 'under the dog' });
     expect(full[0].hl).toEqual({ el: true, ro: true, en: true });
     expect(full.filter((r) => r.hl).length).toBe(1);
   });

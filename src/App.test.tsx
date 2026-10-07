@@ -129,7 +129,7 @@ describe('App', () => {
     expect(screen.getByRole('cell', { name: 'πάνω από τον σκύλο' })).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText('Noun, question word or place word after it'), 'alepou');
     expect(screen.getByRole('cell', { name: 'πάνω από την αλεπού' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'peste vulpea' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'peste vulpe' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'over the fox' })).toBeInTheDocument();
   });
 

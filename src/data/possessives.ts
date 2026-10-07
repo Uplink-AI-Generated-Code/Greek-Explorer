@@ -35,10 +35,10 @@ export const EN_POSSESSIVES: Record<PossessorKey, string> = {
 
 /**
  * Romanian *propriu* with its suffix article, by the gender and number of the possessed noun: *propriul meu câine*,
- * *propria mea casă*, *proprii mei copii*, *propriile mele case*. Nominative and accusative only (spec 24).
+ * *propria mea casă*, *propriii mei copii*, *propriile mele case*. Nominative and accusative only (spec 24).
  */
 export const RO_OWN: Record<'m' | 'f', Record<Num, string>> = {
-  m: { sg: 'propriul', pl: 'proprii' },
+  m: { sg: 'propriul', pl: 'propriii' },
   f: { sg: 'propria', pl: 'propriile' },
 };
 

@@ -212,7 +212,7 @@ describe('preposition panel (πάνω από)', () => {
     expect(panel.controls.map((c) => c.key)).toEqual(['noun', 'number']);
     expect(panel.controls[0].label).toBe('Noun, question word or place word after it');
     expect(panel.rows.map((r) => r.label)).toEqual(['prep. + noun']);
-    expect(text(panel.rows, 0)).toEqual({ el: 'πάνω από τον σκύλο', ro: 'peste câinele', en: 'over the dog' });
+    expect(text(panel.rows, 0)).toEqual({ el: 'πάνω από τον σκύλο', ro: 'peste câine', en: 'over the dog' });
     expect(panel.note).toBe('Masculine in Greek and Romanian.');
   });
 
@@ -222,7 +222,7 @@ describe('preposition panel (πάνω από)', () => {
     expect(feminine.slot).toEqual({ pos: 'preposition' });
     expect(text(buildPanel(feminine, token, 'beginner').rows, 0)).toEqual({
       el: 'πάνω από την αλεπού',
-      ro: 'peste vulpea',
+      ro: 'peste vulpe',
       en: 'over the fox',
     });
     const plural = applyControl(state, 'number', 'pl');

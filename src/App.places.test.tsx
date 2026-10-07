@@ -14,7 +14,7 @@ describe('σε in the app', () => {
     await user.click(screen.getByRole('button', { name: 'σ' }));
     expect(screen.getByRole('heading', { level: 2, name: 'σε' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'στο σπίτι' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'la casa' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'la casă' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'at the house' })).toBeInTheDocument();
   });
 
@@ -24,7 +24,7 @@ describe('σε in the app', () => {
     await user.selectOptions(screen.getByLabelText('Phrase'), "I'm at home");
     await user.click(screen.getByRole('button', { name: 'σ' }));
     await user.selectOptions(screen.getByLabelText('Meaning'), 'in');
-    expect(screen.getByRole('cell', { name: 'în casa' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'în casă' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'in the house' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'sare în apă' })).toBeInTheDocument();
     expect(screen.getByText('Differs from the phrase.')).toBeInTheDocument();
@@ -38,7 +38,8 @@ describe('σε in the app', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'ο / η / το' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'τον δρόμο' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Back to σε/ }));
-    expect(screen.getByRole('cell', { name: 'pe drumul' })).toBeInTheDocument();
+    // The row and the example of the meaning both read "pe drum" now that the article is dropped.
+    expect(screen.getAllByRole('cell', { name: 'pe drum' }).length).toBeGreaterThan(0);
   });
 
   it('writes στη before θάλασσα, while the article panel shows the full την', async () => {

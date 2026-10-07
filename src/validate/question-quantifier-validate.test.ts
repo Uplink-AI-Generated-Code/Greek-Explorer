@@ -78,3 +78,18 @@ describe('a preposition before a question word', () => {
     );
   });
 });
+
+describe('a preposition before a question word that cannot follow it', () => {
+  it('is an error, and the pairs that exist are not', () => {
+    const phrase = (prep: string, target: string) =>
+      ({
+        ...PHRASES[0],
+        tokens: [
+          { text: prep, lexeme: prep === 'με' ? 'me' : 'apo', slot: { pos: 'preposition' }, agreesWith: 1 },
+          { text: 'x', lexeme: target, slot: { pos: 'interrogative' } },
+        ],
+      }) as Phrase;
+    expect(validate({ ...real, phrases: [phrase('με', 'pou')] })).toContain('ordering-hot-coffee token 0 (με): με does not go with the question word πού');
+    expect(validate({ ...real, phrases: [phrase('από', 'pou')] }).filter((e) => e.includes('token 0'))).toEqual([]);
+  });
+});

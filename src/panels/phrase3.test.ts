@@ -52,7 +52,7 @@ describe('the fox sentence', () => {
   it('πάνω από: the preposition with the dog in the accusative', () => {
     expect(row(panelFor(fox, 5), 0)).toEqual({
       el: 'πάνω από τον σκύλο',
-      ro: 'peste câinele',
+      ro: 'peste câine',
       en: 'over the dog',
     });
   });

@@ -33,20 +33,21 @@ describe('a preposition before a question word', () => {
     expect(cells(buildPanel(next, mexri, 'beginner').rows, 0)).toEqual({ el: 'μέχρι πότε', ro: 'până când', en: 'until when' });
   });
 
-  it('builds "preposition + question word" from the two words when Romanian has no fused one', () => {
+  it('από τι is din ce in Romanian, not de la ce', () => {
     const next = applyControl(state, 'noun', 'ti');
-    expect(cells(buildPanel(next, apo, 'beginner').rows, 0)).toEqual({ el: 'από τι', ro: 'de la ce', en: 'from what' });
+    expect(cells(buildPanel(next, apo, 'beginner').rows, 0)).toEqual({ el: 'από τι', ro: 'din ce', en: 'from what' });
   });
 
   it('offers the nouns, then the question words and the place words, and switches back to a noun', () => {
     const options = buildPanel(state, apo, 'beginner').controls[0].options.map((o) => o.value);
-    expect(options.slice(-7)).toEqual(['ti', 'pou', 'pote', 'giati', 'pos-how', 'edo', 'ekei']);
+    // Only the words that can follow από: not γιατί or πώς.
+    expect(options.slice(-5)).toEqual(['ti', 'pou', 'pote', 'edo', 'ekei']);
     expect(options).toContain('skylos');
     const noun = applyControl(state, 'noun', 'skylos');
     expect(noun.noun).toBe('skylos');
     const panel = buildPanel(noun, apo, 'beginner');
     expect(panel.controls.map((c) => c.key)).toEqual(['noun', 'number']);
-    expect(cells(panel.rows, 0)).toEqual({ el: 'από τον σκύλο', ro: 'de la câinele', en: 'from the dog' });
+    expect(cells(panel.rows, 0)).toEqual({ el: 'από τον σκύλο', ro: 'de la câine', en: 'from the dog' });
   });
 
   it('the control is labelled for both nouns and question words, and offers both', () => {
@@ -57,9 +58,10 @@ describe('a preposition before a question word', () => {
 
   it('Improver lists the prepositions that take a question word, without σε', () => {
     const full = buildPanel(state, apo, 'improver').full;
-    expect(full.map((r) => r.label)).toEqual(['above', 'below', 'with', 'for', 'from', 'until']);
-    expect(cells(full, 4)).toEqual({ el: 'από πού', ro: 'de unde', en: 'from where' });
-    expect(cells(full, 5)).toEqual({ el: 'μέχρι πού', ro: 'până la unde', en: 'until where' });
+    // Only the prepositions that can come before πού.
+    expect(full.map((r) => r.label)).toEqual(['from', 'until']);
+    expect(cells(full, 0)).toEqual({ el: 'από πού', ro: 'de unde', en: 'from where' });
+    expect(cells(full, 1)).toEqual({ el: 'μέχρι πού', ro: 'până unde', en: 'until where' });
     expect(full.filter((r) => r.hl).map((r) => r.label)).toEqual(['from']);
   });
 });

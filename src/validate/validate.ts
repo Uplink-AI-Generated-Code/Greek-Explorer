@@ -618,6 +618,9 @@ function checkToken(phraseId: string, phrase: Phrase, index: number, token: Toke
     if (lexeme.pos === 'preposition' && governed?.pos === 'adverb' && !governsWord(lexeme, governed)) {
       errors.push(`${where}: ${lexeme.lemma} does not go with a place word`);
     }
+    if (lexeme.pos === 'preposition' && governed?.pos === 'interrogative' && !governsWord(lexeme, governed)) {
+      errors.push(`${where}: ${lexeme.lemma} does not go with the question word ${governed.lemma}`);
+    }
     if (lexeme.pos === 'preposition' && token.slot.pos === 'preposition' && token.slot.sense !== undefined) {
       const sense = token.slot.sense;
       if (!(lexeme.senses ?? []).some((s) => s.value === sense)) errors.push(`${where}: ${lexeme.lemma} has no sense "${sense}"`);

@@ -41,7 +41,7 @@ describe('δικός', () => {
 
   it('agrees in the plural, and in the accusative', () => {
     expect(before('spiti', '1sg', 'pl')).toEqual({ el: 'τα δικά μου σπίτια', ro: 'propriile mele case', en: 'my own houses' });
-    expect(before('skylos', '1sg', 'pl')).toEqual({ el: 'οι δικοί μου σκύλοι', ro: 'proprii mei câini', en: 'my own dogs' });
+    expect(before('skylos', '1sg', 'pl')).toEqual({ el: 'οι δικοί μου σκύλοι', ro: 'propriii mei câini', en: 'my own dogs' });
     expect(before('skylos', '1sg', 'sg', 'acc')).toEqual({ el: 'τον δικό μου σκύλο', ro: 'propriul meu câine', en: 'my own dog' });
   });
 

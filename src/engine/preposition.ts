@@ -23,8 +23,8 @@ export function fusedForm(prep: GreekPreposition, noun: GreekNoun, number: Num, 
 export const splitFused = (text: string): [preposition: string, article: string] => [text.slice(0, 1), text.slice(1)];
 
 /**
- * Whether a preposition may stand before a question word or a place word. A question word follows any preposition that
- * does not fuse; a place word only the prepositions its `roAfter` names (από εδώ, μέχρι εκεί, not με εδώ).
+ * Whether a preposition may stand before a question word or a place word: only the prepositions the word's `roAfter`
+ * names, with the Romanian words they make (από πού, μέχρι πότε, από τι: de unde, până când, din ce; not με πώς).
  */
 export const governsWord = (prep: GreekPreposition, word: GreekInterrogative | GreekAdverb): boolean =>
-  !prep.fused && (word.pos !== 'adverb' || word.roAfter?.[prep.id] !== undefined);
+  !prep.fused && word.roAfter?.[prep.id] !== undefined;

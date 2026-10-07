@@ -60,6 +60,6 @@ describe('phrases 57 to 62', () => {
   });
 
   it('the dative of a person: Romanian drops the preposition, the literal row shows it', () => {
-    expect(gloss('give-bread-to-the-child', 'ro', 'literal')).toBe('(eu) dau pâinea la copilul');
+    expect(gloss('give-bread-to-the-child', 'ro', 'literal')).toBe('(eu) dau pâinea la copil');
   });
 });
