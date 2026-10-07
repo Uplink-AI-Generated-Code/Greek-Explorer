@@ -61,7 +61,7 @@ export const DIVERGENCES: Divergence[] = [
     appliesTo: { pos: 'adjective' },
     point: 'Agreement',
     el: 'gender, number and role',
-    ro: 'gender and number',
+    ro: 'gender and number; the feminine singular also takes the genitive-dative form: cafeaua caldă, cafelei calde',
     en: 'none: hot never changes',
     tag: 'differs',
     level: 'core',

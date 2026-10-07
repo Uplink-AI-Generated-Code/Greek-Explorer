@@ -81,7 +81,7 @@ export function adjectivePanel(adj: GreekAdjective, slot: SlotOf<'adjective'>, s
     ],
     full: level === 'improver' ? adjectiveFull(adj, slot, noun) : [],
     plain:
-      'The Greek adjective copies gender, number and role from the noun. Romanian copies gender and number and goes after the noun. English never changes.',
+      'The Greek adjective copies gender, number and role from the noun. Romanian copies gender and number (and, in the feminine singular genitive-dative, the case: cafelei calde) and goes after the noun. English never changes.',
     irregular: inflectAdjective(adj, slot).irregular?.plain ?? '',
     note: noun.note,
     related: participleRelated(adj),

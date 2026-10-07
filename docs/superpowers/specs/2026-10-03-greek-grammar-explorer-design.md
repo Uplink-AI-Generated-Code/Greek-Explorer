@@ -342,7 +342,7 @@ Divergence types the prototype must cover:
 | gender-mismatch | καφές (m) / cafea (f) / coffee (none). νερό (n) / apă (f). |
 | case | Greek marks nom/acc/gen on article, noun and adjective; Romanian mostly on the article suffix; English not at all. |
 | word-order | Adjective before the noun in Greek and English, after it in Romanian. |
-| agreement | Greek adjective copies gender, number and case; Romanian copies gender and number; English never changes. |
+| agreement | Greek adjective copies gender, number and case; Romanian copies gender and number, and the feminine singular also the genitive-dative form (*cafeaua caldă*, *cafelei calde*); English never changes. |
 | tense-form | Greek aorist (one word) vs Romanian compound past vs English -ed. |
 | politeness | Greek Θέλω is a plain "I want"; a polite request uses the imperfect (Ήθελα) or the conditional (Θα ήθελα). Romanian *aș vrea* and English "I'd like" are both conditional. |
 | reflexive | See 6.2. |
@@ -1119,4 +1119,6 @@ An independent language-model review of the review sheets (not a native speaker)
 | μη / μην | The negation of a command and of να and ας is written μην before a vowel and before κ π τ ξ ψ γκ μπ ντ τσ τζ, and μη before any other consonant (μη φας, να μη φάω, ας μη φάμε, μην το φας); the rule is the one for the final ν of the article (στη θάλασσα, στην αλεπού) | 4.3 |
 | Numerals 13 and 14 | The two teens that change with gender in Greek, like 3 and 4 (δεκατρείς / δεκατρία, δεκατέσσερις / δεκατέσσερα; genitive δεκατριών / δεκατεσσάρων), are in the data, with Romanian *treisprezece* and *paisprezece* (they never change; the user chose *paisprezece* over *patrusprezece*) and English thirteen and fourteen; the numeral and noun panels offer them. 12 (δώδεκα) and 20 (είκοσι) do not change in Greek and are not in the data yet; the note on which numbers change says how they behave in Romanian (*doisprezece / douăsprezece*; *douăzeci*, with *de* before the noun from 20) | 4.2, 5.3 |
 | Feminine genitive suffix | The Romanian article suffix of the feminine genitive is *-ei* or *-ii* (*casei*, *vulpii*, *mării*) | 5.1 |
+| Adjective agreement in Romanian | The note says that the feminine singular adjective also takes the genitive-dative form (*cafelei calde*); the adjective panel's explanation says the same | 5.2 |
+| τεμπέλικος | The Academy of Athens dictionary lists τεμπέλης, τεμπέλα, τεμπέλικο (a noun and an adjective, "lazy") and τεμπέλικος, τεμπέλικη, τεμπέλικο (an adjective only). The user chose τεμπέλικος as the adjective, because Google Translate uses it, and the data keeps it | 6.6 |
 
