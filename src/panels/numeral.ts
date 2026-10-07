@@ -7,11 +7,17 @@ import type { GreekNoun, GreekNumeral, Level, NumeralValue, SlotOf } from '../ty
 import { CASES, GENDERS, GENDER_ROW, caseControl, caseName, nounControl, nounOf, npRow } from './shared';
 import type { Panel, PanelRow, PanelState } from './types';
 
-const VALUES: NumeralValue[] = [1, 2, 3, 4, 5];
+const VALUES: NumeralValue[] = [1, 2, 3, 4, 5, 13, 14];
+
+/** The numbers that agree with the noun in gender and case in Greek. */
+const AGREES = new Set<NumeralValue>([1, 3, 4, 13, 14]);
 
 function irregularText(value: NumeralValue): string {
   if (value === 1) return 'One declines like a noun and also changes with gender.';
   if (value === 3 || value === 4) return 'Only the neuter differs (τρία, τέσσερα), and the genitive is τριών / τεσσάρων.';
+  if (value === 13 || value === 14) {
+    return 'Thirteen and fourteen are three and four with δεκα- in front, so they change the same way: only the neuter differs (δεκατρία, δεκατέσσερα), and the genitive is δεκατριών / δεκατεσσάρων.';
+  }
   return 'Does not change at all.';
 }
 
@@ -47,7 +53,7 @@ export function numeralPanel(numeral: GreekNumeral, slot: SlotOf<'numeral'>, sta
           : 'numeral · doubles as the indefinite article'
         : level === 'beginner'
           ? `number: ${word}`
-          : `numeral · ${slot.value === 2 || slot.value === 5 ? 'invariable' : 'agrees in gender and case'}`,
+          : `numeral · ${AGREES.has(slot.value) ? 'agrees in gender and case' : 'invariable'}`,
     controls: [
       {
         key: 'value',

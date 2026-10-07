@@ -14,6 +14,8 @@ export const countOptions: Option[] = [
   { value: '3', label: 'three' },
   { value: '4', label: 'four' },
   { value: '5', label: 'five' },
+  { value: '13', label: 'thirteen' },
+  { value: '14', label: 'fourteen' },
   { value: 'many', label: 'many' },
 ];
 

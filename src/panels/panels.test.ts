@@ -133,6 +133,34 @@ describe('adjective panel (ζεστός)', () => {
   });
 });
 
+describe('numeral panel: 13 and 14', () => {
+  it('offers 13 and 14 in the Number control, with the English word', () => {
+    const panel = panelFor(1, 'beginner', applyControl(stateFor(1), 'value', '13'));
+    expect(panel.controls.find((c) => c.key === 'value')?.options.map((o) => o.label)).toEqual([
+      '1 (one)', '2 (two)', '3 (three)', '4 (four)', '5 (five)', '13 (thirteen)', '14 (fourteen)',
+    ]);
+  });
+  it('thirteen: only the neuter differs, like three', () => {
+    const panel = panelFor(1, 'improver', applyControl(stateFor(1), 'value', '13'));
+    expect(panel.lemma).toBe('δεκατρείς / δεκατρία');
+    expect(panel.posLabel).toBe('numeral · agrees in gender and case');
+    expect(panel.irregular).toContain('δεκατρία');
+    expect(text(panel.rows, 0)).toEqual({ el: 'δεκατρείς', ro: 'treisprezece', en: 'thirteen' });
+    expect(text(panel.rows, 1)).toEqual({ el: 'δεκατρείς καφέδες', ro: 'treisprezece cafele', en: 'thirteen coffees' });
+    expect(panel.full).toHaveLength(9);
+  });
+  it('the noun panel counts to thirteen and fourteen too', () => {
+    const noun = phrase.tokens.find((t) => t.slot.pos === 'noun')!;
+    const state = initialState(noun, phrase);
+    const next = applyControl(state, 'count', '14');
+    expect(next.slot).toMatchObject({ number: 'pl', count: 14 });
+    const panel = buildPanel(next, noun, 'beginner');
+    expect(panel.controls[0].value).toBe('14');
+    expect(panel.controls[0].options.map((o) => o.value)).toEqual(['1', '2', '3', '4', '5', '13', '14', 'many']);
+    expect(text(panel.rows, 1).en).toBe('fourteen coffees');
+  });
+});
+
 describe('numeral panel (ένας … πέντε)', () => {
   it('one: the numeral and the counted noun phrase', () => {
     const panel = panelFor(1);

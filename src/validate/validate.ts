@@ -22,7 +22,7 @@ import type { Case, Clitic, Divergence, FormGroup, Gender, GreekLexeme, GreekVer
 const GENDERS: Gender[] = ['m', 'f', 'n'];
 const CASES: Case[] = ['nom', 'acc', 'gen'];
 const NUMS: Num[] = ['sg', 'pl'];
-const VALUES: NumeralValue[] = [1, 2, 3, 4, 5];
+const VALUES: NumeralValue[] = [1, 2, 3, 4, 5, 13, 14];
 
 export interface ValidationInput {
   lexemes: Record<string, GreekLexeme>;

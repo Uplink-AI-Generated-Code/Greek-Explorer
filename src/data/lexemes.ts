@@ -411,8 +411,10 @@ const numeral: GreekNumeral = {
     3: { m: same('trei'), f: same('trei'), n: same('trei') },
     4: { m: same('patru'), f: same('patru'), n: same('patru') },
     5: { m: same('cinci'), f: same('cinci'), n: same('cinci') },
+    13: { m: same('treisprezece'), f: same('treisprezece'), n: same('treisprezece') },
+    14: { m: same('paisprezece'), f: same('paisprezece'), n: same('paisprezece') },
   },
-  en: { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five' },
+  en: { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 13: 'thirteen', 14: 'fourteen' },
 };
 
 const def: GreekArticle = { id: 'def', pos: 'article', lemma: 'ο', verified: { el: false, ro: false, en: false } };

@@ -3,7 +3,8 @@ export type Case = 'nom' | 'acc' | 'gen';
 export type Num = 'sg' | 'pl';
 export type Person = 1 | 2 | 3;
 export type Level = 'beginner' | 'improver';
-export type NumeralValue = 1 | 2 | 3 | 4 | 5;
+/** The numerals the app has: 1 to 5, and 13 and 14, the two teens that change with gender in Greek like 3 and 4. */
+export type NumeralValue = 1 | 2 | 3 | 4 | 5 | 13 | 14;
 
 /** A stored Romanian cell: text, or `pending` while the form is not confirmed. A release build refuses a pending cell (spec 4.2, 7). */
 export type Stored = string | { pending: true; note?: string };

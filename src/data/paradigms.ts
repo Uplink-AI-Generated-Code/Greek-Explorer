@@ -198,20 +198,25 @@ const mfRow = (nomAcc: string, gen: string): Record<Case, Pair> => ({
   gen: [gen, ''],
 });
 
-/** The numerals 1 to 5. 1, 3 and 4 change with gender and case; 2 and 5 never change. */
+/**
+ * The numerals 1 to 5, 13 and 14. 1, 3 and 4 change with gender and case, and so do 13 and 14, which are 3 and 4 with δεκα-
+ * in front (δεκατρείς, δεκατρία); 2 and 5 never change (nor do 12 δώδεκα and 20 είκοσι, which the app does not have yet).
+ */
 export const NUMERAL_FORMS: Record<NumeralValue, Record<Gender, Record<Case, Pair>>> = {
   1: NUMERAL_ONE,
   2: invariable('δύο'),
   3: { m: mfRow('τρεις', 'τριών'), f: mfRow('τρεις', 'τριών'), n: mfRow('τρία', 'τριών') },
   4: { m: mfRow('τέσσερις', 'τεσσάρων'), f: mfRow('τέσσερις', 'τεσσάρων'), n: mfRow('τέσσερα', 'τεσσάρων') },
   5: invariable('πέντε'),
+  13: { m: mfRow('δεκατρείς', 'δεκατριών'), f: mfRow('δεκατρείς', 'δεκατριών'), n: mfRow('δεκατρία', 'δεκατριών') },
+  14: { m: mfRow('δεκατέσσερις', 'δεκατεσσάρων'), f: mfRow('δεκατέσσερις', 'δεκατεσσάρων'), n: mfRow('δεκατέσσερα', 'δεκατεσσάρων') },
 };
 
 /** The Romanian definite article as a suffix, by the noun's Romanian gender (spec 5.1). */
 export const RO_ARTICLE_SUFFIX: Record<Num, Record<Gender, { direct: string; genitive: string }>> = {
   sg: {
     m: { direct: '-ul / -le', genitive: '-ului / -lui' },
-    f: { direct: '-a / -ea', genitive: '-ei' },
+    f: { direct: '-a / -ea', genitive: '-ei / -ii' },
     n: { direct: '-ul', genitive: '-ului' },
   },
   pl: {
