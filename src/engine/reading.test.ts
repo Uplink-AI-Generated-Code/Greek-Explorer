@@ -135,7 +135,7 @@ describe('readingFor: irregular forms use the authored template of their rule', 
 
   it('monosyllable: τρως', () => {
     const line = greek('troo', vs('indicative', 'present', 2));
-    expect(line.beginner).toBe('τρως: τρω- = eat, -ς = you, present form. A word of one syllable loses its accent mark.');
+    expect(line.beginner).toBe('τρως: τρω- = eat, -ς = you, present form. A word of one syllable loses its accent mark, except πού, πώς and ή, and a pronoun that carries a second accent.');
   });
 
   it('older forms: τρώε', () => {

@@ -60,8 +60,8 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
   },
   {
     rule: 'monosyllable',
-    beginner: '{text}: {parts}. A word of one syllable loses its accent mark.',
-    improver: '{text}: {technical}. A monosyllable is written without an accent mark.',
+    beginner: '{text}: {parts}. A word of one syllable loses its accent mark, except πού, πώς and ή, and a pronoun that carries a second accent.',
+    improver: '{text}: {technical}. A monosyllable is written without an accent mark, except πού, πώς, ή and the clitic accent (a second accent on a pronoun).',
     verified: false,
   },
   {
@@ -72,8 +72,8 @@ export const READING_TEMPLATES: ReadingTemplate[] = [
   },
   {
     rule: 'imperative-plural',
-    beginner: '{text}: {parts}. The command to several people drops the -ε-; κάνετε (from the present) is for something that continues.',
-    improver: '{text}: {technical}. The aorist imperative plural κάντε is the usual command; the present imperative κάνετε is for an action that continues or repeats.',
+    beginner: '{text}: {parts}. The command to several people drops the -ε- (κάντε, δώστε, πλύντε); the longer form (κάνετε) is for something that continues.',
+    improver: '{text}: {technical}. The aorist imperative plural (κάντε, δώστε, πλύντε) is the usual command; the longer form (κάνετε, δώσετε, πλύνετε) is for an action that continues or repeats.',
     verified: false,
   },
   {

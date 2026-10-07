@@ -395,10 +395,12 @@ const IMPERATIVE_GAMMA = note(
   'old-stem',
   'The present imperative of τρώω is τρώε, τρώτε. The older forms with -γ- (τρώγε, τρώγετε) are also correct; in everyday speech people usually say φάε, φάτε.',
 );
-const IMPERATIVE_PLURAL = note(
-  'imperative-plural',
-  'The command to several people drops the -ε-: κάντε. κάνετε (the present imperative) is also correct, for something that continues or repeats.',
-);
+const imperativePlural = (short: string, long: string): IrregularNote =>
+  note(
+    'imperative-plural',
+    `The command to several people drops the -ε-: ${short}. ${long} is also correct, but it is less usual: it is for something that continues or repeats.`,
+  );
+const IMPERATIVE_PLURAL = imperativePlural('κάντε', 'κάνετε (the present imperative)');
 
 const numeral: GreekNumeral = {
   id: 'numeral',
@@ -939,7 +941,7 @@ const dino: GreekVerb = {
       },
       overrides: {
         // The usual plural of the aorist imperative is δώστε, not δώσετε.
-        'impAorist.2pl': { stem: 'δώσ', ending: 'τε' },
+        'impAorist.2pl': { stem: 'δώσ', ending: 'τε', note: imperativePlural('δώστε', 'δώσετε') },
       },
       indirect: true,
       shortForms: {
@@ -1124,6 +1126,7 @@ const pleno: GreekVerb = {
         participle: 'πλυ',
       },
       offers: { ...OFFERS_NO_IMPERATIVE, imperative: IMPERATIVE_ALL },
+      overrides: { 'impAorist.2pl': { stem: 'πλύν', ending: 'τε', note: imperativePlural('πλύντε', 'πλύνετε') } },
       ro: {
         lemma: 'a spăla',
         infinitive: 'spăla',

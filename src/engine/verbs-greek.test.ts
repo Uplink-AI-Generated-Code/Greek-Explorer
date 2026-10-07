@@ -68,7 +68,7 @@ describe('Greek forms of the new verbs (spec 6.4)', () => {
   it('the imperatives of τρώω and πλένω', () => {
     expect(two('troo', 'active', 'aorist')).toEqual(['φάε', 'φάτε']);
     expect(two('troo', 'active', 'present')).toEqual(['τρώε', 'τρώτε']);
-    expect(two('pleno', 'active', 'aorist')).toEqual(['πλύνε', 'πλύνετε']);
+    expect(two('pleno', 'active', 'aorist')).toEqual(['πλύνε', 'πλύντε']);
     expect(two('pleno', 'active', 'present')).toEqual(['πλένε', 'πλένετε']);
   });
 

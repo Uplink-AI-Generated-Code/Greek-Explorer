@@ -29,3 +29,11 @@ describe('the commands people say', () => {
     expect(formText(form('troo', 'aorist', 'pl'))).toBe('φάτε');
   });
 });
+
+describe('syncopated aorist imperative plurals', () => {
+  it('δώστε and πλύντε drop the -ε- like κάντε', () => {
+    const plural = (id: string) => formText(inflectVerb(getVerb(id), { pos: 'verb', person: 2, number: 'pl', mood: 'imperative', tense: 'aorist', voice: 'active' }));
+    expect(plural('dino')).toBe('δώστε');
+    expect(plural('pleno')).toBe('πλύντε');
+  });
+});

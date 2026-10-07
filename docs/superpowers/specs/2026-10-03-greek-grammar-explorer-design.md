@@ -687,7 +687,7 @@ New verbs and irregularities:
 - πηδάω: base form πηδήξει (phrase 17).
 - πλένομαι: base form πλυθεί (phrase 18).
 - Imperfects: τρώω → έτρωγα, έτρωγες, έτρωγε, τρώγαμε, τρώγατε, έτρωγαν; θέλω → ήθελα, ήθελες, ήθελε, θέλαμε, θέλατε, ήθελαν; πηδάω → πηδούσα, πηδούσες, πηδούσε, πηδούσαμε, πηδούσατε, πηδούσαν. Romanian: *mâncam, mâncai, mânca, mâncam, mâncați, mâncau*; *voiam*; *săream*.
-- Imperatives (people mostly say φάε, φάτε, and κάνε, κάντε; κάνετε is for something that continues): τρώω → aorist φάε, φάτε; present τρώε, τρώτε (the older τρώγε, τρώγετε are also correct). πλένω → aorist πλύνε, πλύνετε; present πλένε, πλένετε. Negative: μη φας, μη φάτε (aorist); μην τρως, μην τρώτε (present).
+- Imperatives (people mostly say φάε, φάτε, and κάνε, κάντε; κάνετε is for something that continues): τρώω → aorist φάε, φάτε; present τρώε, τρώτε (the older τρώγε, τρώγετε are also correct). πλένω → aorist πλύνε, πλύντε; present πλένε, πλένετε. Negative: μη φας, μη φάτε (aorist); μην τρως, μην τρώτε (present).
 - Impersonal μπορεί ("it is possible; may"): a single third-person slot; Romanian *poate*, English "may".
 - ψωμί (bread): neuter noun, plural ψωμιά; Romanian *pâine* (feminine; *pâinea*, *pâini*), English bread (mass).
 - The Romanian and English counterparts of every verb are listed in 6.6.
@@ -1121,4 +1121,6 @@ An independent language-model review of the review sheets (not a native speaker)
 | Feminine genitive suffix | The Romanian article suffix of the feminine genitive is *-ei* or *-ii* (*casei*, *vulpii*, *mării*) | 5.1 |
 | Adjective agreement in Romanian | The note says that the feminine singular adjective also takes the genitive-dative form (*cafelei calde*); the adjective panel's explanation says the same | 5.2 |
 | τεμπέλικος | The Academy of Athens dictionary lists τεμπέλης, τεμπέλα, τεμπέλικο (a noun and an adjective, "lazy") and τεμπέλικος, τεμπέλικη, τεμπέλικο (an adjective only). The user chose τεμπέλικος as the adjective, because Google Translate uses it, and the data keeps it | 6.6 |
-
+| Imperative plural | The aorist imperative plural drops the -ε- in κάντε, δώστε and πλύντε (πλύνετε, κάνετε, δώσετε are also correct, for an action that continues or repeats); the note is attached to each of the three verbs | 6.4 |
+| Romanian simple perfect | The perfect-vs-aorist note mentions the Romanian *perfectul simplu* (*mâncai*, regional and literary); the app does not use it | 9 |
+| Monosyllable reading | The note lists the exceptions: πού, πώς, ή and the second accent on a clitic | 4.3 |

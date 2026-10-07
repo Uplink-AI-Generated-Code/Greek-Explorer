@@ -193,7 +193,7 @@ export const DIVERGENCES: Divergence[] = [
     appliesTo: { pos: 'verb', when: { moods: ['indicative'], tenses: ['perfect', 'aorist'] } },
     point: 'Aorist or perfect',
     el: 'έφαγα (what happened) and έχω φάει (what I have done) are different tenses',
-    ro: 'one tense for both: am mâncat',
+    ro: 'one tense for both: am mâncat (a simple perfect, mâncai, also exists, mostly in Oltenia and in literary writing; this app does not use it)',
     en: 'ate and have eaten, separate like Greek',
     tag: 'differs',
     level: 'core',
