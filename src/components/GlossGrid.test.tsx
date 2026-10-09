@@ -36,6 +36,17 @@ describe('GlossGrid', () => {
     expect(onSelect).toHaveBeenCalledWith(3);
   });
 
+  it('shows a suffix with no Greek counterpart in grey brackets and does not make it a button', () => {
+    const row: GlossRow[] = [
+      { language: 'ro', kind: 'literal', units: [{ segments: [{ text: 'câine', link: 0 }, { text: 'le', link: null }] }] },
+    ];
+    render(<GlossGrid glosses={row} selected={0} onSelect={() => {}} />);
+    expect(screen.getByRole('button', { name: 'câine' })).toBeInTheDocument();
+    const gap = screen.getByText('(le)');
+    expect(gap).toHaveClass('is-gap');
+    expect(gap.tagName).toBe('SPAN');
+  });
+
   const pieceGlosses: GlossRow[] = [
     {
       language: 'en',

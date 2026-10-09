@@ -471,7 +471,8 @@ export type Link = TokenIndex | { token: TokenIndex; piece: number };
 export type GlossUnit =
   | { text: string; link: Link | null }
   /** A unit made of parts that link to different Greek tokens (Romanian câine|le). */
-  | { segments: { text: string; link: Link }[] };
+  /** A segment with no link is a suffix the Greek has no word for; it shows in grey brackets: câine(le). */
+  | { segments: { text: string; link: Link | null }[] };
 
 export interface GlossRow {
   language: 'en' | 'ro';

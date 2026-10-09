@@ -764,7 +764,7 @@ export function warnings(input: ValidationInput): string[] {
         if (unit.segments.every((segment) => typeof segment.link !== 'number')) continue;
         const where = `${phrase.id} gloss ro/${row.kind}`;
         const nounToken = unit.segments
-          .map((s) => phrase.tokens[linkedToken(s.link)])
+          .map((s) => (s.link === null ? undefined : phrase.tokens[linkedToken(s.link)]))
           .find((t) => t !== undefined && t.slot.pos === 'noun');
         const noun = nounToken ? input.lexemes[nounToken.lexeme] : undefined;
         if (!nounToken || nounToken.slot.pos !== 'noun' || !noun || noun.pos !== 'noun') {

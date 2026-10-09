@@ -38,17 +38,27 @@ export function GlossGrid({ glosses, selected, selectedPiece = null, onSelect }:
                 if (isSegmented(unit)) {
                   return (
                     <span key={j} className="gloss-unit gloss-segmented">
-                      {unit.segments.map((segment, k) => (
-                        <button
-                          key={k}
-                          type="button"
-                          className="gloss-segment"
-                          aria-pressed={isPressed(segment.link, selected, selectedPiece)}
-                          onClick={() => choose(segment.link, onSelect)}
-                        >
-                          {segment.text}
-                        </button>
-                      ))}
+                      {unit.segments.map((segment, k) => {
+                        const segmentLink = segment.link;
+                        if (segmentLink === null) {
+                          return (
+                            <span key={k} className="gloss-segment is-gap">
+                              ({segment.text})
+                            </span>
+                          );
+                        }
+                        return (
+                          <button
+                            key={k}
+                            type="button"
+                            className="gloss-segment"
+                            aria-pressed={isPressed(segmentLink, selected, selectedPiece)}
+                            onClick={() => choose(segmentLink, onSelect)}
+                          >
+                            {segment.text}
+                          </button>
+                        );
+                      })}
                     </span>
                   );
                 }

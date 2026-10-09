@@ -60,6 +60,17 @@ describe('phrases 57 to 62', () => {
   });
 
   it('the dative of a person: Romanian drops the preposition, the literal row shows it', () => {
-    expect(gloss('give-bread-to-the-child', 'ro', 'literal')).toBe('(eu) dau pâinea la copil');
+    expect(gloss('give-bread-to-the-child', 'ro', 'literal')).toBe('(eu) dau pâinea la copil(ul)');
+  });
+
+  it('the Romanian literal row shows the article the Greek has, in brackets: la mare(a), pe drum(ul), în ap(a), cas(a), câine(le)', () => {
+    expect(gloss('going-home', 'ro', 'literal')).toBe('(eu) merg la cas(a)');
+    expect(gloss('at-home', 'ro', 'literal')).toBe('(eu) sunt la cas(a)');
+    expect(gloss('go-to-the-sea', 'ro', 'literal')).toBe('(noi) mergem la mare(a)');
+    expect(gloss('dog-on-the-road', 'ro', 'literal')).toBe('câinele este pe drum(ul)');
+    expect(gloss('dog-jumps-into-the-water', 'ro', 'literal')).toBe('câinele sare în ap(a)');
+    expect(gloss('fox-has-jumped', 'ro', 'literal')).toBe('vulpea a sărit peste câine(le)');
+    expect(gloss('fox-was-jumping', 'ro', 'literal')).toBe('vulpea sărea peste câine(le)');
+    expect(gloss('fox-was-jumping', 'ro', 'natural')).toBe('vulpea sărea peste câine');
   });
 });

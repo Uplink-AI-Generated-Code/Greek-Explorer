@@ -99,6 +99,7 @@ h2 { font-size: 20px; font-weight: 500; margin: 0; }
 
 .gloss-segmented { display: inline-flex; padding: 0; overflow: hidden; margin: 0 4px 4px 0; cursor: default; }
 .gloss-segment { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 0; padding: 2px 4px; cursor: pointer; }
+.gloss-segment.is-gap { color: var(--muted); cursor: default; padding-left: 0; }
 .gloss-segment:first-child { padding-left: 10px; }
 .gloss-segment:last-child { padding-right: 10px; }
 .gloss-segment[aria-pressed='true'] { background: var(--accent-bg); color: var(--accent-text); }

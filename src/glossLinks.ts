@@ -16,11 +16,11 @@ export const isSegmented = (unit: GlossUnit): unit is SegmentedUnit => 'segments
 
 /** The text of a unit; for a segmented unit, its segments joined (câine + le = câinele). */
 export function unitText(unit: GlossUnit): string {
-  return isSegmented(unit) ? unit.segments.map((s) => s.text).join('') : unit.text;
+  return isSegmented(unit) ? unit.segments.map((s) => (s.link === null ? `(${s.text})` : s.text)).join('') : unit.text;
 }
 
 /** Every Greek link a unit carries. A unit with no Greek counterpart has none. */
 export function linksOf(unit: GlossUnit): Link[] {
-  if (isSegmented(unit)) return unit.segments.map((s) => s.link);
+  if (isSegmented(unit)) return unit.segments.flatMap((s) => (s.link === null ? [] : [s.link]));
   return unit.link === null ? [] : [unit.link];
 }

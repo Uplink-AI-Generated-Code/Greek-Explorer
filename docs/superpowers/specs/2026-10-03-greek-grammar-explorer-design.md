@@ -1125,3 +1125,4 @@ An independent language-model review of the review sheets (not a native speaker)
 | Romanian simple perfect | The perfect-vs-aorist note mentions the Romanian *perfectul simplu* (*mâncai*, regional and literary); the app does not use it | 9 |
 | Monosyllable reading | The note lists the exceptions: πού, πώς, ή and the second accent on a clitic | 4.3 |
 | English imperfect of θέλω | A verb marked `stative` has the simple past as its English imperfect: "I wanted", negative "I didn't want" (not "I was wanting") | 4.3 |
+| Articles in the Romanian literal row | Where the natural row drops the article after a preposition (*peste câine*), the literal row mirrors the Greek article and shows the suffix in grey brackets, not clickable, like the dropped subject pronoun: *peste câine(le)*, *la cas(a)*, *pe drum(ul)*. A gloss segment with a `null` link is such a suffix | 4.5 |
